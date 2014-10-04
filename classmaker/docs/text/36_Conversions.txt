@@ -1,0 +1,149 @@
+[Home]
+
+----
+
+Language Features
+=================
+
+Type conversion and promotion
+-----------------------------
+
+Conversions and promotions are not something that the typical user of <code>ClassMaker</code>
+need worry themselves about. In most cases, <code>ClassMaker</code> will do the same thing as java.
+In the few situations where <code>ClassMaker</code> does not do the same thing as java the value
+may be cast to the correct type.
+
+The conversion and promotion strategies used by <code>ClassMaker</code> are a subset of those
+used in java.
+
+Method Invocation Conversion 
+----------------------------
+
+Method Invocation Conversion may be applied to the type of each parameter of a method call after it
+has been pushed onto the stack. Note that this differs from java where method invocation conversion is
+applied as parameters are pushed onto the stack. This means that some conversions are not supported,
+for example, an int cannot be promoted to a long, float or double. The conversions that are supported
+are those that do not require modification of the value on the stack.
+
+In practice what happens is that the Method Invocation Converter is used by the Method Resolver to
+eliminate candidates from the list of methods with the same name. The parameters
+of each overloaded method are compared to the parameters on the call stack and if any actual
+parameter cannot be converted to the corresponding formal parameter then the method is excluded.
+Hopefully, this process eliminates all candidates but one. The byte-code to invoke the selected
+candidate is generated and all the parameters are assumed to be correct.
+
+An exception to this process is the handling of concatenated strings. An automatic
+<code>StringBuffer</code> is converted to a <code>String</code> as it is pushed onto the call stack. 
+This is done by  by delegating to the String Conversion strategy (See below).
+
+Method Invocation Conversion involves:
+
+ * promoting a primitive type along the sequence from byte or char to short to int
+ * converting a reference type to another compatible reference type, without requiring a cast
+ * An automatic <code>StringBuffer</code> is converted to a <code>String</code>.
+
+The specific rules for this conversion are detailed in the <code>MethodInvocationConversion</code> class.
+
+Assignment conversion
+---------------------
+
+Assignment Conversion is applied to a value as it is assigned to a variable. The variable
+may be a local, class or static variable or an array element.
+
+The assignment converter determines whether the type of a value on the stack can be
+converted to the type of the storage location and then generates any byte-code
+required to perform the conversion.
+
+Assignment Conversion involves:
+
+ * promoting a primitive type along the sequence from byte or char to short to int to long to float to double
+ * converting a reference type to another compatible reference type, without requiring a cast
+ * converting an automatic <code>StringBuffer</code> to a <code>String</code>.
+
+Conversions to long, float or double require byte-code to be generated, as does conversion to a String.
+Conversion of concatenated <code>String</code>s to a <code>StringBuffer</code> is done by  by delegating to the 
+String Conversion strategy (See below).
+
+The specific rules for this conversion are detailed in the <code>AssignmentConversion</code> class.
+
+Casting conversion
+------------------
+
+Casting Conversion is applied to a value by explicitly calling the <code>Cast</code> method.
+
+Casting Conversion involves:
+
+ * explicitly converting a primitive type to another primitive type
+ * explicitly converting a reference type to another reference type
+ * some other specific conversions as described in the Java Language Specification.
+
+Such conversions are not always valid and the Casting Conversion checks that a particular
+conversion is plausible and complains if it is not.
+
+The specific rules for this conversion are detailed in the <code>CastingConversion</code> class.
+
+Numeric promotion
+-----------------
+
+Numeric promotion may be applied whenever an operator is applied to a value.
+
+Numeric Promotion involves:
+
+ * promoting byte, short or char to int whenever a unary or binary operator is applied to them
+ * promoting a primitive type along the sequence from int to long to float to double so that
+   both operands of certain binary operators are the same type.
+
+Note that the operands of all unary and binary operators are promoted to <code>int</code> where possible.
+
+Unary operators that promote their operand to int are:
+
+ * <code>Neg</code> - arithmetic negate
+ * <code>Inv</code> - bitwise invert
+
+Binary operators that promote both operands to the same type are:
+
+ * <code>Add</code> - arithmetic add 
+ * <code>Subt</code> - arithmetic subtract
+ * <code>Mult</code> - arithmetic multiply
+ * <code>Div</code> - arithmetic divide
+ * <code>Rem</code> - arithmetic remainder
+ * <code>Xor</code> - bitwise exclusive or
+ * <code>And</code> - bitwise and
+ * <code>Or</code> - bitwise or
+
+The binary operators that do not promote both operands to the same type are:
+
+ * <code>SHL</code> - bitwise shift left
+ * <code>SHR</code> - bitwise shift right
+ * <code>USHR</code> - bitwise unsigned shift right.
+
+The left and right hand operands are independently promoted to <code>int</code> if they are of a smaller type.
+
+The specific rules for this conversion are detailed in the <code>NumericPromotion</code> class.
+
+String conversion and assignment
+--------------------------------
+
+An automatic <code>StringBuffer</code> is created when <code>String</code>s are concatenated using the <code>Add</code> operator.
+The automatic <code>StringBuffer</code> must be converted back to a <code>String</code> when it is assigned or used as a
+parameter in a method call.
+
+String operator conversion involves:
+
+ * If either operand to the <code>Add</code> operator is a <code>String</code> an automatic <code>StringBuffer</code> is created and both operands are appended to it, 
+    e.g. <code>Add(Literal(24), Literal(" degrees"));</code>
+ * If the left operand to the <code>Add</code> operator is an automatic <code>StringBuffer</code> the right operand is appended to it.
+
+String assignment conversion involves:
+
+ * An automatic <code>StringBuffer</code> is converted to a String when it is assigned,
+     e.g. <code>Set("greeting", Add(Literal("Hello"), Literal(" World")));</code>
+ * An automatic <code>StringBuffer</code> is converted to a String when it is used as an actual parameter to a method call, 
+     e.g. <code>Call("System.out", "println", Push(Add(Literal("Hello"), Literal(" World"))));</code>
+
+The specific rules for this conversion are detailed in the <code>StringConversion</code> class.
+
+----
+
+[Home]
+

@@ -1,0 +1,188 @@
+[Home]
+
+----
+
+Language features
+=================
+
+Variables
+---------
+
+_Local variables_
+
+The <code>ClassMaker</code> methods to declare and access local variables are:
+
+<pre>
+      public Type Declare(String name, Class javaClass, int modifiers) throws ClassMakerException
+      public Type Get(String name) throws ClassMakerException
+      public Type Set(String name, Type type) throws ClassMakerException
+</pre>
+
+The methods are overloaded to handle local variables, member variables and static variables.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+      {
+        int a;
+        int b;
+        a     = 2
+        b     = a
+      {
+</pre></td>
+<td><pre>
+      Begin();
+        Declare("a", int.class, 0);
+        Declare("b", int.class, 0);
+        Eval(Set("a", Literal(2)));
+        Eval(Set("b", Get("a")));
+      End();
+</pre></td></tr>
+</table>
+
+_Formal variables_
+
+<code>ClassMaker</code> uses the same methods to declare and access formal parameters.
+
+<pre>
+      public Type Declare(String name, Class javaClass, int modifiers) throws ClassMakerException
+      public Type Get(String name) throws ClassMakerException
+      public Type Set(String name, Type type) throws ClassMakerException
+</pre>
+
+The only difference is that the <code>Declare</code> method is called between the
+<code>Method</code> and <code>Begin</code> methods.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+      void exec(int a, int b)
+      {
+        int c;
+        c = a + b;
+        a = c;
+      }
+</pre></td>
+<td><pre>
+      Method("exec", void.class, 0);
+        Declare("a", int.class, 0);
+        Declare("b", int.class, 0);
+      Begin();
+        Declare("c", int.class, 0);
+        Eval(Set("c", Add(Get("a"), Get("b")));
+        Eval(Set("a", Get("c")));
+      End();
+</pre></td></tr>
+</table>
+
+_Member variables_
+
+<code>ClassMaker</code> uses the following methods to declare and access member variables.
+
+<pre>
+      public Type Declare(String name, Class javaClass, int modifiers) throws ClassMakerException
+      public Type Get(Type classType, String fieldName) throws ClassMakerException
+      public Type Set(Type classType, String name, Type type) throws ClassMakerException
+</pre>
+
+The <code>Declare</code> method is the same as that used for local variables and method parameters
+but it is used outside any method.
+
+The <code>Get</code> and <code>Set</code> methods take an extra parameter which is a reference to the
+appropriate Object.
+
+To access a variable in the current instance, the <code>this</code> reference
+must be provided. <code>ClasMaker</code> provides a special method <code>This()</code> to push a reference
+to the current instance onto the stack.
+
+To access a variable in another class instance, a reference to the appropriate object must
+be pushed onto the stack. This is usually provided by one of the <code>Get</code> methods.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+        public    int a;
+        protected int b;
+        private   int c;
+&nbsp;
+        public void exec(MyClass other)
+&nbsp;
+        {
+          c = 2;  // implicit this reference
+          b = c;  // implicit this reference
+          a = other.a;
+          other.a = c;
+        }
+</pre></td>
+<td><pre>
+        Declare("a", int.class, ACC_PUBLIC);
+        Declare("b", int.class, ACC_PROTECTED);
+        Declare("c", int.class, ACC_PRIVATE);
+&nbsp;
+        Method("exec", void.class, ACC_PUBLIC);
+          Declare("other", getClassType(), 0);
+        Begin();
+          Eval(Set(This(), "c", Literal(2)));
+          Eval(Set(This(), "b", Get(This(), "c")));
+          Eval(Set(This(), "a", Get(Get("other"), "a")));
+          Eval(Set(Get("other"), "a", Get(This(), "c")));
+        End();
+</pre></td></tr>
+</table>
+
+The other object is of type <code>MyClass</code>, which is assumed to be the class being generated.
+This <code>Type</code> of the class being generated is available through the <code>getClassType()</code>
+method of the <code>ClassMaker</code> instance.
+
+_Static variables_
+
+Static variables are declared and accessed in <code>ClassMaker</code> using the following methods.
+
+<pre>
+      public Type Declare(String name, Class javaClass, int modifiers) throws ClassMakerException
+      public Type Get(String className, String fieldName) throws ClassMakerException
+      public Type Set(String className, String name, Type type) throws ClassMakerException
+</pre>
+
+The <code>Declare</code> method is the same as that used for all other declarations. For a variable
+to be declared as static, the <code>Declare</code> method must be called outside any method declaration
+and the modifiers parameter must include the <code>ACC_STATIC</code> bit-mask.
+
+The <code>Get</code> and <code>Set</code> methods take the name of the class containing the static variable
+instead of an object reference.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+        public static int s;
+        &nbsp;
+        public void run()
+        {
+          int a;
+          MyClass.s = a;
+          a = MyClass.s;
+        }
+</pre></td>
+<td><pre>
+        Declare("s", int.class, ACC_PUBLIC | ACC_STATIC);
+        &nbsp;
+        Method("exec", void.class, ACC_PUBLIC);
+        Begin();
+          Declare("a", int.class, 0);
+          Set("MyClass", "s", Get("a"));
+          Set("a", Get("MyClass", "s"));
+        End();
+</pre></td></tr>
+</table>
+
+_Array variables_
+
+    FIXME - Example of array vairables
+    
+_Variable scope_
+
+    FIXME - Variable scope is implemented so need an example
+
+----
+
+[Home]

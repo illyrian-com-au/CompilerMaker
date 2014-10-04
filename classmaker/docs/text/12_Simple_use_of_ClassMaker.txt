@@ -1,0 +1,105 @@
+[Home]
+
+----
+
+Simple use of ClassMaker
+========================
+
+The simplest way to use ClassMaker is to create a class that extends <code>ClassMakerBase</code>. <code>ClassMakerBase</code> is an abstract class that uses some sensible defaults for all of the parameters that would otherwise need to be configured on the ClassMaker instance.
+
+The only method that must be implemented in a class derived from <code>ClassMakerBase</code> is <code>void code()</code>. This method is used to generate the byte codes for the class.
+
+<pre>
+    public interface Unary
+    {
+        int square(int a);
+    }
+    &nbsp;
+    public class SquareMaker extends ClassMakerBase
+    {
+        public void code()
+        {
+            Implements(Unary.class);
+            &nbsp;
+            Method("square", int.class, ACC_PUBLIC);
+            Declare("a", int.class, 0);
+            Begin();
+              Return(Mult(Get("a"), Get("a")));
+            End();
+        }
+    }
+    &nbsp;
+    public void testSquare() throws Exception
+    {
+        ClassMaker maker = new SquareMaker();
+        Class squareClass = maker.defineClass();
+        Unary exec = (Unary)squareClass.newInstance();
+        assertEquals("Square test", 4, exec.square(2));
+    }
+</pre>
+
+In order to call the generated class there has to be an interface in common between the generated class and the code which calls it. In the example above this is the <code>Unary</code> interface.
+
+The <code>Unary</code> interface is a compiled java class that is known in the compiled java code and in the generated class; it is a common contract of interaction. The first thing the <code>code()</code> method does is state that the generated class will implement the <code>Unary</code> interface.
+
+We will skip the byte-code generation for the moment to explain how <code>SquareMaker</code> can be used to generate a Class. The test case called <code>testSquare</code> at the bottom of the source code generates the class and uses it.
+
+The <code>defineClass()</code> method of <code>ClassMakerBase</code> is called to generate the Class. The Class is loaded and resolved by the system <code>ClassLoader</code> in a similar way to loading it from the classpath using the <code>System.classFor</code> method. The difference is that the Class is generated as a stream of bytes by the <code>SquareMaker</code> instance rather than being read from a class file.
+
+Once the Class has been generated and loaded an instance can be created from it using <code>newInstance</code>. The instance must be cast to the <code>Unary</code> interface and after that it can be used like any other object. In this case we call the <code>square</code> method and assert that the square of 2 gives a result of 4. 
+
+We can now look at the code that generates the stream of bytes.
+
+<pre>
+    public void code()
+    {
+        Implements(Unary.class);
+        &nbsp;
+        Method("square", int.class, ACC_PUBLIC);
+        Declare("a", int.class, 0);
+        Begin();
+            Return(Mult(Get("a"), Get("a")));
+        End();
+    }
+</pre>
+
+The <code>code()</code> method is called indirectly by <code>defineClass()</code> to generate the byte codes for the Class.
+
+As we said before, the first statement specifies that the generated Class will implement the <code>Unary</code> interface. That interface declares one method called <code>square</code> which accepts a single <code>int</code> parameter and returns an <code>int</code> result.
+
+The <code>Method</code> call begins a method and is given the name of the method, the return type and a bitset of access modifiers. The name of the method is "square". The return type, <code>int</code>, is specified using the equivalent reflection Class. Any Class can be provided here as a return type; to return a string, for example, we would use <code>String.class</code>.
+
+The final parameter to the <code>Method</code> call is a bitset of access modifiers. The <code>ACC_PUBLIC</code> modifier states that the method will be publicly accessable. Valid options are: <code>ACC_PUBLIC</code>, <code>ACC_PROTECTED</code>, <code>ACC_PRIVATE</code> or zero (0). These access modifiers, and a few others, are also used when declaring fields.
+
+Now lets look at the body of the method.
+
+<pre>
+    Method("square", int.class, ACC_PUBLIC);
+    Declare("a", int.class, 0);
+    Begin();
+        Return(Mult(Get("a"), Get("a")));
+    End();
+</pre>
+
+The <code>Declare</code> call specifies that the method accepts an <code>int</code> parameter called <code>a</code>. Valid access modifiers for a formal parameter are <code>ACC_FINAL</code> or zero (0).
+
+The <code>Declare</code> method is also used to declare local variables and member fields of the class. The only difference between the three forms is where they are used:
+
+ * a variable declared outside any method is a member field
+ * a variable declared between the calls to <code>Method</code> and <code>Begin</code> is a formal parameter
+ * a variable declared in the body of a method is a local variable.
+
+The body of the method pushes the value in variable <code>a</code> onto the stack twice, then multiplies the values and returns the result. This has the effect of returning the square of the parameter provided to the method.
+
+Generating expressions is very easy in ClassMaker. The byte-code is generated as a side-effect of calls to methods like <code>Get</code>, <code>Mult</code> and <code>Return</code>. Methods that represent operators typically take one or two <code>Type</code> parameters and return a <code>Type</code> result. You might guess from this that the <code>Get</code> method is a  source of <code>Type</code> arguments and the <code>Return</code> method is a sink for them.
+
+<pre>
+      Return(Mult(Get("a"), Get("a")));
+</pre>
+
+The syntax of the method calls creates a form of prefix notation, with the operator coming first followed by the two parameters. Prefix notations do not require operator precedence or parentheses to be unambiguous, which is an issue with infix notation. The semantics of the nested method calls is that they evaluate in postfix order, which means that they evaluate their parameters before  the method is called. Since the byte-code is generated as a side effect of the method calls this means that the byte-code to load the  parameters for an operator are generated prior to byte-code for the operator itself, which is exactly the behaviour we want for a stack based execution model.
+
+----
+
+[Home]
+

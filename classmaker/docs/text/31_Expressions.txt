@@ -1,0 +1,401 @@
+[Home]
+
+----
+
+Language features
+=================
+
+Expressions
+-----------
+
+_Literals_
+
+Literals are numbers, strings and boolean values. They are created in ClassMaker using the Literal method.
+
+The following table displays the way they are created and their equivalent in Java.
+
+<table border="1" width="100%">
+<tr><th>Java code</th><th>ClassMaker code</th></tr>
+<tr><td><pre>
+        234.56789D
+        223.345F
+        2000000L
+        200
+        (short)32000
+        (byte)200
+        'Z'
+        true
+        "Hello World"
+</pre></td><td><pre>
+        Literal(234.56789D)
+        Literal(123.456F)
+        Literal(2000000L)
+        Literal(200)
+        Literal((short)32000)
+        Literal((byte)200)
+        Literal('Z')
+        Literal(true)
+        Literal("Hello World")
+</pre></td></tr>
+</table>
+
+The <code>Literal(int)</code> method deserves special mention. Even though it takes an
+<code>int</code> as a parameter, the <code>Type</code> returned may correspond to a
+<code>byte</code> or <code>short</code> depending upon the actual value used.
+This is so that int literals can be assigned to byte and short variables without
+casting. If the literal is assigned to anything else it will be automatically promoted.
+
+_Reference keywords_
+
+There are three keywords in java that deal with references.
+These are <code>null</code>, <code>this</code> and <code>super</code>.
+Each has its own method in ClassMaker.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+        null
+        this
+        super
+<pre></td><td><pre>
+        Null()
+        This()
+        Super()
+</pre></td></tr>
+</table>
+
+_Simple Arithmatic_
+
+Simple arithmetic involves unary and binary operations on numbers.
+Each operator has a separate method in ClassMaker, but the method may be applied to any numeric type.
+
+The following table displays example expressions in ClassMaker and their equivalent in Java.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+        x + 5
+        x - 7
+        4 * 2
+        6 / 2
+        7 % 3
+        -a
+        a ^ 3
+        a & 3
+        a | 3
+        ~ a
+        a << 3
+        a >> 3
+        a >>> 3
+</pre></td>
+<td><pre>
+        Add(Get("x"), Literal(5))
+        Subt(Get("x"), Literal(7))
+        Mult(Literal(4), Literal(2))
+        Div((Literal(6), Literal(2))
+        Rem((Literal(7), Literal(3))
+        Neg(Get("a"))
+        Xor(Get("a"), Literal(3))
+        And(Get("a"), Literal(3))
+        Or(Get("a"), Literal(3))
+        Inv(Get("a"))
+        SHL(Get("a"), Literal(3))
+        SHR(Get("a"), Literal(3))
+        USHR(Get("a"), Literal(3))
+</pre></td></tr>
+</table>
+
+The <code>Literal(int)</code> method deserves special mention. Even though it takes an
+<code>int</code> as a parameter, the <code>Type</code> returned may correspond to a
+<code>byte</code> or <code>short</code> depending upon the actual value used.
+This is so that integer literals can be assigned to byte and short variables without
+casting. If the literal is assigned to anything else it will be automatically promoted.
+
+In many cases an operand will be automatically promoted. Numeric promotion in ClassMaker
+follows almost the same rules as numeric promotion in Java. See the section on Numeric promotion
+for a detailed description.
+
+_Access & Assignment_
+
+ClassMaker uses <code>Get</code> to access variables and <code>Set</code> to
+assign variables.
+
+The methods are overloaded to handle local variables, member variables and static variables.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+   a     = 2
+   b     = a
+   obj.i = a
+   b     = obj.i
+   MyClass.s = a
+   b = MyClass.s
+</pre></td>
+<td><pre>
+   Set("a", Literal(2))
+   Set("b", Get("a"))
+   Set(Get("obj"), "i", Get("a"))
+   Set("b", Get(Get("obj"), "i"))
+   Set("MyClass", "s", Get("a"))
+   Set("b", Get("MyClass", "s"))
+</pre></td></tr>
+</table>
+
+_Increment and decrement_
+
+The increment and decrement operators have side effects. When the side effect takes place
+in java is determined by whether the operator appears before or after the operand. In
+ClassMaker a separate method call is used.
+
+<code>Inc</code> and <code>PostInc</code> are overloaded to handle local
+variables, member variables and static variables.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+     ++i
+     i++
+     ++obj.i
+     obj.i++
+     ++MyClass.i
+     MyClass.i++
+</pre></td>
+<td><pre>
+     Inc("i")
+     PostInc("i")
+     Inc(Get("obj"), "i")
+     PostInc(Get("obj"), "i")
+     Inc("MyClass", "i")
+     PostInc("MyClass", "i")
+</pre></td></tr>
+</table>
+
+_Comparisons_
+
+Comparison arithmetic involves unary and binary operations that return boolean.
+Each operator has a separate method in ClassMaker, but the method may be applied to any numeric type.
+
+The following table displays example comparisons in ClassMaker and their equivalent in Java.
+
+<table border="1" width="100%">
+<hr><td>Java code</td><td>ClassMaker code</td></hr>
+<tr><td><pre>
+     a == b
+     a != b
+     a < b
+     a > b
+     a <= b
+     a >= b
+     !a
+</pre></td>
+<td><pre>
+    EQ(Get("a"), Get("b"))
+    NE(Get("a"), Get("b"))
+    LT(Get("a"), Get("b"))
+    GT(Get("a"), Get("b"))
+    LE(Get("a"), Get("b"))
+    GE(Get("a"), Get("b"))
+    Not(Get("a"))
+</pre></td></tr>
+</table>
+
+_Logic expressions_
+
+Logic expressions in Java use the <code>&&</code> and <code>||</code> operators. These
+operators are difficult to implement in bytecode because they involve shortcut evaluation.
+
+The equivalent operators in ClassMaker are implemented using the
+<code>Logic</code>, <code>AndThen</code> and <code>OrElse</code> methods.
+
+Logic expressions are used in <code>If</code> statements, <code>While</code> statements
+and <code>For</code> statements. The conditions for these statements all require a
+boolean expression.
+
+<table border="1" width="100%">
+<hr><td>Java code</td><td>ClassMaker code</td></hr>
+<tr><td><pre>
+     a && b
+     a || b
+     a && b && c
+     a || b || c
+     (a && b) || c
+     (a || b) && c
+     (a && b) || (c && d)
+     (a || b) && (c || d)
+</pre></td>
+<td><pre>
+     Logic(AndThen(Get("a")), Get("b"))
+     Logic(OrElse(Get("a")), Get("b"))
+     Logic(AndThen(AndThen(Get("a")), Get("b")), Get("c"))
+     Logic(OrElse(OrElse(Get("a")), Get("b")), Get("c"))
+     Logic(OrElse(AndThen(Get("a")), Get("b")), Get("c"))
+     Logic(AndThen(OrElse(Get("a")), Get("b")), Get("c"))
+     Logic(OrElse(AndThen(Get("a")), Get("b")), Logic(AndThen(Get("c")), Get("d")))
+     Logic(AndThen(OrElse(Get("a")), Get("b")), Logic(OrElse(Get("c")), Get("d")))
+</pre></td></tr>
+</table>
+
+Generating the byte-code for shortcut evaluation of <code>||</code> and <code>&&</code> is not straight forward.
+The byte-code must be generated sequentially so a separate method must be called when a boolean
+value is tested and at the end of the expression to be shortcut.
+
+The following example shows how this is done. The ClassMaker equivalent of
+<code>(a && b)</code> is expanded out to show the order in which the methods are called.
+Variables <code>a</code> and <code>b</code> are assumed to hold boolean (1 or 0) values.
+On the right of the example is the pseudo byte code that would be generated.
+
+<table border="1" width="100%">
+<tr><td>ClassMaker code</td><td>Generated byte code</td></tr>
+<tr><td><pre>
+            Logic(AndThen(Get("a")), Get("b"))
+     1.                   Get("a")
+     2.           AndThen(  ...   ),
+&nbsp;
+&nbsp;
+     3.                              Get("b")
+     4.     Logic(     ...         ,   ...   )
+<pre></td>
+<td><pre>
+&nbsp;
+     1.     LOAD a                 // Push a local variable (a) onto the stack
+     2.     DUP                    // Duplicate the value so it still exists after the jump
+            IF_Zero GOTO L1        // Jump to L1 if the value is false
+            POP                    // Otherwise, discard the duplicate value
+     3.     LOAD b                 // Push another local variable (b) onto the stack
+     4. L1: NOP                    // Mark the label L1.
+                                   // The value on the stack is the result of (a && b).
+</pre></td></tr>
+</table>
+
+The following example expands out a more complex example of <code>(a && b) || (c && d)</code>.
+
+<table border="1" width="100%">
+<hr><td>Java code</td><td>ClassMaker code</td></hr>
+<tr><td><pre>
+  (a && b) || (c && d)    
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+</pre></td>
+<td><pre>
+  Logic(OrElse(AndThen(Get("a")), Get("b")), Logic(AndThen(Get("c")), Get("d")))
+&nbsp;
+                       Get("a")
+               AndThen(  ...   )
+                                  Get("b")
+        OrElse(        ...      ,   ...   )
+                                                           Get("c")
+                                                   AndThen(        )
+                                                                     Get("d")
+                                             Logic(         ...     ,   ...   )
+  Logic(               ...                 ,                ...                )    
+</pre></td></tr>
+</table>
+
+_Arrays_
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+      a = b[0]
+      a = b[c]
+      a = b[0][c]
+      x = ++this.values[0]
+      x = this.values[0]--
+      b[1] = a
+      b[c] = a
+      b[0][c] = a
+      this.values[0] = ++x
+      this.values[0] = x--
+</pre></td>
+<td><pre>
+      Set("a", GetAt(Get("b"), Literal(0))
+      Set("a", GetAt(Get("b"), Get("c"))
+      Set("a", GetAt(GetAt(Get("b"), Literal(0), Get("c"))
+      Set("a", IncAt(Get(This(), "values"), Literal(0))
+      Set("a", PostDecAt(Get(This(), "values"), Literal(0))
+      SetAt(Get("b"), Literal(1), Get("a"))
+      SetAt(Get("b"), Get("c"), Get("a"))
+      SetAt(GetAt(Get("b"), Literal(0)), Get("c"), Get("a"))    
+      SetAt(Get(This(), "values"), Literal(0), Inc("x"))
+      SetAt(Get(This(), "values"), Literal(0), PostDec("x"))
+</pre></td></tr>
+</table>
+
+_Strings_
+
+ClassMaker supports the concatenation of strings with the add <code>+</code> operator.
+
+If either operand is of type <code>String</code> the other operand will be converted to a <code>String</code>
+and the result will be a <code>StringBuffer</code>. These automatically created <code>StringBuffer</code>s are
+converted back to a <code>String</code> when the result is assigned to a variable or passed as an actual
+parameter to a method call. An <code>Object</code> is converted to a <code>String</code> by calling its <code>toString</code>
+method.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td><td>Result</td></tr>
+<tr><td><pre>
+     "Hello" + " World"
+     "Total = " + total
+     360 + " degrees"
+     12 + 3 + " widgets"
+     "widgets " + 12 + 3
+<pre></td>
+<td><pre>
+     Add(Literal("Hello"), Literal(" World"))
+     Add(Literal("Total = "), Get("total"))
+     Add(Literal(360), Literal(" degrees"))
+     Add(Add(Literal(12), Literal(3)), Literal(" widgets"))    
+     Add(Add(Literal("widgets "), Literal(12)), Literal(3))
+</pre></td>
+<td><pre>
+     Hello World    
+     Total = 256
+     360 degrees
+     15 widgets
+     widgets 123
+</pre></td></tr>
+</table>
+
+
+_Eval_
+
+Most expressions leave a result on the stack. If the expression is a statement then the result
+must be popped off the stack before the next statement begins. If this is not done consistently
+the class verifier may throw a verification exception when the class is loaded. This would
+typically happen when a loop or branch creates multiple paths to the end of a method and
+the stack size differs depending upon which path is taken.
+
+ClassMaker provides the <code>Eval</code> method to dispose of the result of an expression.
+An <code>Eval</code> call should surround all expression statements generated by ClassMaker,
+including calls to methods that return <code>void</code>. <code>Eval</code> will figure out
+whether or not there is a value to be discarded.
+
+<code>Eval</code> should not be called around compound statements like if statements and loops
+as they cannot leave a result on the stack.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+     --a;
+     obj.i++;
+     obj.b = 12345;
+<pre></td>
+<td><pre>
+     Eval(Dec("a"));
+     Eval(PostInc(Get("obj"), "i"));
+     Eval(Set(Get("obj"), "b"), Literal(12345));
+</pre></td></tr>
+</table>
+
+----
+
+[Home]

@@ -1,0 +1,106 @@
+
+dstrong@fujitsu /d/dev/sourceforge/classfile/build/website
+dstrong@fujitsu ~/.ssh
+$ ssh-keygen -t dsa -C "illyrian@shell.sf.net"
+Generating public/private dsa key pair.
+Enter file in which to save the key (/home/dstrong/.ssh/id_dsa):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/dstrong/.ssh/id_dsa.
+Your public key has been saved in /home/dstrong/.ssh/id_dsa.pub.
+The key fingerprint is:
+04:78:8a:05:0e:a7:36:f6:90:88:60:ba:a2:46:89:b3 illyrian@shell.sf.net
+The key's randomart image is:
++--[ DSA 1024]----+
+|o.o. ..          |
+|*=. o ..         |
+|=*.o o  .        |
+|+.* .  .         |
+|=o .    S        |
+|+o               |
+|E.               |
+|.                |
+|                 |
++-----------------+
+
+dstrong@fujitsu ~/.ssh
+$ ls
+authorized_keys  id_dsa  id_dsa.pub  id_rsa  id_rsa.pub  known_hosts
+
+dstrong@fujitsu ~/.ssh
+$ cat id_dsa.pub
+ssh-dss AAAAB3NzaC1kc3MAAACBANCV1k93j98VLOjJGZA3JlTNcGYmk0pCP2vr4erE1K8oMmBLpSVhhCW52/6lzWlCa93PZwTsmcyDgu151xJcBAK0VSSteyTEpMRYlx9wm6D4sKvNPN8fC+IHN/wrBDCkTSgqQbm5Pd2sXvLQm6rRHqI6uhl6iFy/Unmmb05s+7rDAAAAFQCJ14g+doxtMzZdixHl6t+v4zApoQAAAIABM++8td/NwyR9BFXiskF/6J6i2huowpT0U4IuQTl2YeWzMpSP2GdDQF6GPc2eLTF/TlUrMTloXKt4eBXIR6C+pJXFVQO8A/jsDbY+pB1WJr6dcQAXEworf3ZAl7/vgZenP5M6xnIikDRvOwe/8j+eI8C71eSXpjaNnl5gTgFLWwAAAIBFHGeHh0EkVfV+VDmIggS12f50K8su+r09m3QPEDGTEDNNsh6y3TMWylAhYInHMC9xtdiBgfp0SlC7v5RVGi0/rJjiviWv2X57EGw+Qmiocrg7mpYDIkEVenObCSCs8JnQx5GlphZHg12FLEJqx9kHfNt7gmMRmIAd9LN0TXJ3Eg== illyrian@shell.sf.net
+
+dstrong@fujitsu ~/.ssh
+
+Copy the line from the id_dsa.pub file and paste it on the SSH Key posting page.
+https://sourceforge.net/account/ssh
+
+http://sourceforge.net/apps/trac/sourceforge/wiki/SSH%20keys
+
+
+dstrong@fujitsu ~/.ssh
+$ ssh -t illyrian,classmaker@shell.sourceforge.net create
+The authenticity of host 'shell.sourceforge.net (216.34.181.119)' can't be established.
+RSA key fingerprint is 80:1c:ee:50:14:cd:ef:28:3e:82:c6:ef:44:55:d7:74.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'shell.sourceforge.net,216.34.181.119' (RSA) to the list of known hosts.
+
+Requesting a new shell for "illyrian" and waiting for it to start.
+queued... creating... starting...
+
+This is an interactive shell created for user illyrian,classmaker.
+Use the "timeleft" command to see how much time remains before shutdown.
+Use the "shutdown" command to destroy the shell before the time limit.
+For path information and login help, type "sf-help".
+
+[illyrian@shell-23002 ~]$
+[illyrian@shell-23002 ~]$ pwd
+/home/users/i/il/illyrian
+[illyrian@shell-23002 ~]$ ls
+userweb
+[illyrian@shell-23002 ~]$ ls -alF
+total 32
+drwxr-xr-x 3 illyrian users 4096 Feb  1  2011 ./
+drwxr-xr-x 3 root     root  4096 Jun 11 05:49 ../
+-rw-r--r-- 1 illyrian users   33 Jan 22  2009 .bash_logout
+-rw-r--r-- 1 illyrian users  176 Jan 22  2009 .bash_profile
+-rw-r--r-- 1 illyrian users  124 Jan 22  2009 .bashrc
+-rw-r--r-- 1 illyrian users  515 Jun 15  2008 .emacs
+drwxr-xr-x 4 illyrian users 4096 Dec  9  2010 .mozilla/
+-rw-r--r-- 1 illyrian users  633 Jun 13  2009 .zshrc
+lrwxrwxrwx 1 root     root    27 Apr 25 21:38 userweb -> /home/userweb/i/il/illyrian
+[illyrian@shell-23002 ~]$ ln -s /home/project-web/classmaker classmaker
+[illyrian@shell-23002 ~]$ ls -alF
+total 32
+drwxr-xr-x 3 illyrian users      4096 Jun 11 05:52 ./
+drwxr-xr-x 3 root     root       4096 Jun 11 05:49 ../
+-rw-r--r-- 1 illyrian users        33 Jan 22  2009 .bash_logout
+-rw-r--r-- 1 illyrian users       176 Jan 22  2009 .bash_profile
+-rw-r--r-- 1 illyrian users       124 Jan 22  2009 .bashrc
+-rw-r--r-- 1 illyrian users       515 Jun 15  2008 .emacs
+drwxr-xr-x 4 illyrian users      4096 Dec  9  2010 .mozilla/
+-rw-r--r-- 1 illyrian users       633 Jun 13  2009 .zshrc
+lrwxrwxrwx 1 illyrian classmaker   28 Jun 11 05:52 classmaker -> /home/project-web/classmaker/
+lrwxrwxrwx 1 root     root         27 Apr 25 21:38 userweb -> /home/userweb/i/il/illyrian
+[illyrian@shell-23002 ~]$ cd classmaker
+[illyrian@shell-23002 classmaker]$ ls
+cgi-bin  htdocs
+[illyrian@shell-23002 classmaker]$ pwd
+/home/users/i/il/illyrian/classmaker
+[illyrian@shell-23002 classmaker]$ cd -
+/home/users/i/il/illyrian
+[illyrian@shell-23002 classmaker]$ shutdown
+Requesting that your shell be shut down.
+This request will be processed soon.
+[illyrian@shell-23002 classmaker]$
+Broadcast message from root (Mon Jun 11 05:57:09 2012):
+
+The system is going down for system halt NOW!
+Connection to shell-23002 closed by remote host.
+Connection to shell-23002 closed.
+Connection to shell.sourceforge.net closed.
+
+dstrong@fujitsu ~/.ssh
+$
+

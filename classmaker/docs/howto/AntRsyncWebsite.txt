@@ -1,0 +1,49 @@
+
+
+dstrong@fujitsu /d/dev/sourceforge/classfile
+$ ant -p
+Buildfile: build.xml
+
+        simple example build file
+
+Main targets:
+
+ clean             clean up
+ cleanwebsite      Delete file on remote website
+ compile           compile the source
+ dist              generate the distribution
+ javadoc           Produce javadoc documentation
+ listwebsite       List files on remote website
+ rsync_remotehost  Upload to website
+ uploadwebsite     Up
+Default target: dist
+
+dstrong@fujitsu /d/dev/sourceforge/classfile
+$ ant rsync_remotehost
+Buildfile: build.xml
+
+rsync_remotehost:
+     [exec] sending incremental file list
+     [exec] ./
+     [exec] htdocs/
+     [exec] htdocs/javadocs/
+     [exec] htdocs/javadocs/au/
+     [exec] htdocs/javadocs/au/com/
+     [exec] htdocs/javadocs/au/com/illyrian/
+     [exec] htdocs/javadocs/au/com/illyrian/classmaker/
+     [exec] htdocs/javadocs/au/com/illyrian/classmaker/converters/
+     [exec] htdocs/javadocs/au/com/illyrian/classmaker/members/
+     [exec] htdocs/javadocs/au/com/illyrian/classmaker/types/
+     [exec] htdocs/javadocs/org/
+     [exec] htdocs/javadocs/org/mozilla/
+     [exec] htdocs/javadocs/org/mozilla/classfile/
+     [exec] htdocs/javadocs/resources/
+     [exec]
+     [exec] sent 2189 bytes  received 268 bytes  213.65 bytes/sec
+     [exec] total size is 1995324  speedup is 812.10
+
+BUILD SUCCESSFUL
+Total time: 13 seconds
+
+dstrong@fujitsu /d/dev/sourceforge/classfile
+$

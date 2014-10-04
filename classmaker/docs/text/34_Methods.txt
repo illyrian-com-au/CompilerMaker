@@ -1,0 +1,366 @@
+[Home]
+
+----
+
+Language Features
+=================
+
+Methods
+-------
+
+_Declaring methods_
+
+Methods are declared in !ClassMaker using the following methods.
+
+<pre>
+    public void Method(String methodName, Class returnType, int methodModifiers) throws ClassMakerException
+    public void Method(String methodName, Type returnType, int methodModifiers) throws ClassMakerException
+    public void Begin() throws ClassMakerException
+    public void End() throws ClassMakerException
+</pre>
+
+There are two versions of <code>Method</code> and <code>Declare</code>.
+Most of the time you will use the version that takes a java reflection <code>Class</code>.
+The version that takes a !ClassMaker <code>Type</code> is only necessary when you are passing a class
+that you are generating at runtime.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+&nbsp;
+    String name;
+&nbsp;          
+    public void exec()
+    {
+        name = "Hello World";
+    }
+</pre></td>
+<td><pre>
+&nbsp;
+    Declare("name", String.class, ACC_PUBLIC);
+&nbsp;
+    Method("exec", void.class, ACC_PUBLIC);
+    Begin();
+        Eval(Set(This(), "name", Literal("Hello World")));
+    End();
+</pre></td></tr>
+</table>
+
+Valid bitmasks for the <code>methodModifiers</code> of a <code>Method</code> call include <code>ACC_PUBLIC</code>,
+<code>ACC_PROTECTED</code> or <code>ACC_PRIVATE</code>. The modifiers may be bitwise <code>OR</code>ed with
+<code>ACC_STATIC</code> and <code>ACC_FINAL</code>, as appropriate.
+Provide a zero (0) value if there are no modifiers.
+
+_Formal Parameters_
+
+Formal parameters are declared in <code>ClassMaker</code> using the following methods.
+
+<pre>
+    public void Declare(String name, Class javaClass, int modifiers) throws ClassMakerException
+    public void Declare(String name, String typeName, int modifiers) throws ClassMakerException
+    public void Declare(String name, Type type, int modifiers) throws ClassMakerException
+</pre>
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+&nbsp;
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+</pre></td>
+<td><pre>
+&nbsp;
+    Method("setName", void.class, ACC_PUBLIC);
+    Declare("name", String.class, 0);
+    Begin();
+        Eval(Set(This(), "name", Get("name")));
+    End();
+</pre></td></tr>
+</table>
+
+The only valid values for the <code>modifiers</code> of a <code>Declare</code> call when used to declare a
+formal parameter are <code>ACC_FINAL</code> or zero (0).
+
+_Returning values_
+
+These methods are used in <code>ClassMaker</code> to return from a method.
+
+<pre>
+    public void Return() throws ClassMakerException
+    public void Return(Type type) throws ClassMakerException
+</pre>
+
+The former method must be used for <code>void</code> methods and the latter for any method that returns a value.
+
+A call to <code>Return</code> may be required as the last statement of a method, even if that call is unreachable.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+&nbsp;
+    String name;
+&nbsp;
+    public String getName()
+    {
+        return name;
+    }
+</pre></td>
+<td><pre>
+    &nbsp;
+    Method("getName", String.class, ACC_PUBLIC);    
+    Begin();
+        Return(Get(This(), "name"));
+    End();
+</pre></td></tr>
+<tr><td><pre>
+    &nbsp;
+    protected int add(int a, int b)
+    {
+        return a + b;
+    }
+</pre></td>
+<td><pre>
+    &nbsp;
+    maker.Method("add", int.class, ACC_PROTECTED);
+    maker.Declare("a", int.class, 0);
+    maker.Declare("b", int.class, 0);
+    maker.Begin();
+        maker.Return(maker.Add(maker.Get("a"), maker.Get("b")));    
+    maker.End();
+</pre></td></tr>
+</table>
+
+_Calling methods_
+
+<code>ClassMaker</code> provides the following methods to perform methods calls.
+
+<pre>
+    // Calls to non-static methods
+    public Type Call(Type type, String methodName, CallStack actualParameters) throws ClassMakerException
+    // Calls to static methods
+    public Type Call(Class javaClass, String methodName, CallStack actualParameters) throws ClassMakerException
+    public Type Call(String className, String methodName, CallStack actualParameters) throws ClassMakerException
+</pre>
+
+The first version of <code>Call</code> is the one you will use most of the time. The other methods are used to generate calls
+to static methods.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+    run();
+    obj.run();
+    obj = ExampleMethodsTest.getInstance();    
+</pre></td>
+<td><pre>
+    Eval(Call(This(), "run", null));
+    Eval(Call(Get(This(), "obj"), "run", null));
+    Eval(Set(This(), "obj", Call(ExampleMethodsTest.class, "getInstance", null)));        
+</pre></td></tr>
+</table>
+
+_Calling methods with parameters_
+
+All of the <code>Call</code> methods above take a <code>CallStack</code> as their third parameter.
+<code>ClassMaker</code> provides the following methods to create a call stack.
+
+<pre>
+    public CallStack Push() throws ClassMakerException;
+    public CallStack Push(Type param) throws ClassMakerException;
+    public class CallStack
+    {
+        public CallStack Push(Type param) throws ClassMakerException;
+    }
+</pre>
+
+These methods can be daisy-chained together to create a call stack of actual parameters.
+The <code>Types</code> on the call stack will be used by the method resolver to determine
+which method to call.
+
+<pre>
+    Push( <value1> ).Push( <value2> ).Push( <value3> );
+</pre>
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+&nbsp;
+    x = add(1, 2);
+    y = obj.add(x, 3);
+    ExampleMethodsTest.setInstance(this);    
+</pre></td>
+<td><pre>
+&nbsp;
+    Eval(Set(This(), "x", Call(This(), "add", Push(Literal(1)).Push(Literal(2)))));
+    Eval(Set(This(), "y", Call(Get(This(), "obj"), "add", Push(Get(This(), "x")).Push(Literal(3)))));    
+    Eval(Call(ExampleMethodsTest.class, "setInstance", Push(This())));
+</pre></td></tr>
+</table>
+
+Note that <code>Push()</code> provides an empty <code>CallStack</code>. An empty <code>CallStack</code> will be created if
+the <code>callStack</code> parameter is <code>null</code>.
+
+_Constructors_
+
+Two special methods are provided to assist with creating constructor methods.
+
+<pre>
+    public void Init(ClassType classType, CallStack actualParameters) throws ClassMakerException
+    public ClassType Super() throws ClassMakerException
+</pre>
+
+The <code>Init</code> method is used to invoke a constructor method. The <code>Super()</code> method
+pushes a reference to the current instance onto the stack. It differs from <code>This()</code>
+in that it returns the type of the parent class.
+
+Every class you generate must have at least one constructor. A typical
+constructor looks like this.
+
+<pre>
+    Method("<init>", void.class, ACC_PUBLIC);
+    Begin();
+        Init(Super(), null);
+        Return();
+    End();
+</pre>
+
+You can provide your constructor either in the <code>code()</code> method
+of <code>ClassMakerBase</code> or by overriding the special <code>defaultConstructor()</code> method.
+<code>ClassMakerBase</code> will provide a default constructor if you don't.
+
+A constructor method must be called <code>"<init>"</code> and must include a call to a
+constructor in the super class with an appropriate <code>CallStack</code>.
+
+<pre>
+    Init(Super(), ... );
+</pre>
+
+_Abstract methods_
+
+Interface methods and abstract methods do not have a body.
+This is indicated in !ClassMaker using the <code>Forward</code> method.
+This method is used instead of providing a body for the method being generated.
+
+<pre>
+    public void Forward() throws ClassMakerException
+</pre>
+
+An abstract method in an abstract class must be declared as such using the <code>ClassMaker.ACC_ABSTRACT</code> bit mask.
+All methods in an interface are implicitly abstract so the <code>ACC_ABSTRACT</code> bit mask is optional. 
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+    &nbsp;
+    public abstract int getId();
+    &nbsp;
+    public abstract void setId(int value);
+</pre></td>
+<td><pre>
+    &nbsp;
+    Method("getId", int.class, ACC_PUBLIC | ACC_ABSTRACT);
+    Forward();
+    &nbsp;
+    Method("setId", void.class, ACC_PUBLIC | ACC_ABSTRACT);
+    Declare("value", int.class, 0);
+    Forward();
+</pre></td></tr>
+</table>
+
+
+_Forward declarations_
+
+<code>ClassMaker</code> is a single pass byte-code generator by default. This means that
+a method cannot be used until it has been declared. This creates a problem if two
+methods mutually call each other. <code>ClassMaker</code> resolves this issue by allowing
+methods to be forward declared using the <code>Forward</code> method.
+
+<pre>
+    public void Forward() throws ClassMakerException
+</pre>
+
+Methods that are used before they are declared must be declared twice. The
+first time the method is declared without a body using the <code>Forward</code> method.
+This declaration must occur before the method is first used.
+The second declaration of the method, which provides the body of the method,
+may be declared anywhere after the forward declaration. 
+Both the forward declaration and the actual declaration of the method must 
+have the same parameters otherwise the generator will complain.
+
+<pre>
+    maker.Method("add", int.class, ClassMaker.ACC_PRIVATE);
+    maker.Declare("a", int.class, 0);
+    maker.Declare("b", int.class, 0);
+    maker.Forward();
+    &nbsp;
+    maker.Method("eval", int.class, ClassMaker.ACC_PUBLIC);
+    maker.Begin();
+        maker.Return(maker.Call(maker.This(), "add", maker.Push(maker.Literal(1)).Push(maker.Literal(2))));
+    maker.End();
+    &nbsp;
+    maker.Method("add", int.class, ClassMaker.ACC_PRIVATE);
+    maker.Declare("a", int.class, 0);
+    maker.Declare("b", int.class, 0);
+    maker.Begin();
+        maker.Return(maker.Add(maker.Get("a"), maker.Get("b")));
+    maker.End();
+</pre>
+
+In this example the <code>add</code> method is forward declared and then called in the <code>eval</code> method.
+The actual declaration of the <code>add</code> method occurs after it is first used.
+
+There is no equivalent in java of a forward declaration, however there is forward declaration
+in C and C++ which are the predecessors of java and upon which the java syntax is based. The
+original Kernigan and Richie (K&R) C also had a style of declaring formal parameters similar to that
+used in <code>ClassMaker</code>.
+
+Note that <code>ClassMaker</code> may be configured to be a two pass code generator, in which case it is
+not necessary to forward declare methods.
+
+_Recursive data structures_
+
+There are times when a class needs to refer to itself, such as when building recursive data structures
+like linked lists and binary trees. 
+This method returns the <code>Type</code> of the class currently being generated.
+
+<pre>
+    public ClassType getClassType()
+</pre>
+
+The following example shows how one might recursively search through a linked list.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+    String name;
+    Link   next;
+    &nbsp;
+    public Link find(String target)
+    {
+        if (target.equals(name))
+            return this;
+        else
+            return next.find(target);
+    }
+</pre></td>
+<td><pre>
+    Declare("name", String.class, 0);
+    Declare("next", getClassType(), 0);
+    &nbsp;
+    Method("find", getClassType(), ACC_PUBLIC);
+    Declare("target", String.class, 0);
+    Begin();
+        If(Call(Get("target"), "equals", Push(Get(This(), "name"))));
+            Return(This());
+        Else();
+            Return(Call(Get(This(), "next"), "find", Push(Get("target"))));
+        EndIf();
+    End();
+</pre></td></tr>
+</table>
+
+----
+
+[Home]

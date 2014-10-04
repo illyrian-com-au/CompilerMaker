@@ -1,0 +1,34 @@
+
+  pushStatic("java/lang/System", "out");
+  pushLiteral("Hello World");
+  call("java/io/PrintStream", "println");
+
+  Call(	staticObject("java/lang/System", "out"),
+      "println",
+     literal("Hello World"));
+
+  pushThis();
+  push(mult(add(local("y"), thisInt("z")), literal(2)));
+  push(literal("Hello World");
+  call("foobar", Int);
+
+  Set(localInt("x"), mult(add(localInt("y"), thisInt("z")), literal(2)));
+
+  Set(localInt("id"), literal(1));
+
+  RETURN(literal(2));
+  RETURN(localFLoat("v"));
+  Return(thisString("id"));
+
+  Method("unary", "int", ACC_PUBLIC);
+  Declare("x", "int");
+  Begin();
+    Inc("x", 1);
+    Return(local("x"));
+  End();
+
+  Begin();
+    If(logic(AndThen(GT(literal(0), Get("y"))), LT(Get("y"), literal(5)))));
+    If(logic(OrElse(GT(literal(0), Get("y"))), LT(Get("y"), literal(5)))));
+  End();
+

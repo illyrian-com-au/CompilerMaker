@@ -1,0 +1,27 @@
+
+dstrong@fujitsu /d/dev/sourceforge/classfile/build/website
+$ rsync -aOvz --chmod=g+w,Da+rX,Fa+r,F-X . illyrian,classmaker@web.sourceforge.net
+The authenticity of host 'web.sourceforge.net (216.34.181.70)' can't be
+RSA key fingerprint is b0:a8:eb:30:ce:1a:0e:6a:4d:7a:6b:3a:0a:c6:27:60.
+Are you sure you want to continue connecting (yes/no)? y
+Please type 'yes' or 'no': yes
+Warning: Permanently added 'web.sourceforge.net,216.34.181.70' (RSA) to
+illyrian,classmaker@web.sourceforge.net's password:
+sending incremental file list
+./
+javadoc/
+javadoc/allclasses-frame.html
+javadoc/allclasses-noframe.html
+
+... snip ...
+
+javadoc/org/mozilla/classfile/package-summary.html
+javadoc/org/mozilla/classfile/package-tree.html
+javadoc/resources/
+javadoc/resources/inherit.gif
+
+sent 216024 bytes  received 1336 bytes  5502.78 bytes/sec
+total size is 1995324  speedup is 9.18
+
+
+

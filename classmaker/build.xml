@@ -1,0 +1,132 @@
+<project name="ClassMaker" default="dist" basedir=".">
+    <description>
+        simple example build file
+    </description>
+
+    <property environment="env"/>
+    <property file="build-${user.name}.properties"/>
+    <property file="build.properties"/>
+
+    <!-- set global properties for this build -->
+    <property name="src"       location="src" />
+    <property name="test"       location="test" />
+    <property name="build"     location="build" />
+    <property name="dist"      location="dist" />
+    <property name="tools"     location="../tools" />
+    <property name="junit.jar" location="${tools}/junit4.2/junit4.2.jar" />
+    <property name="j2h.jar"   location="${tools}/Java2Html/j2h.jar" />
+    <property name="website"  location="${build}/website" />
+    <property name="htdocs"   location="${website}/htdocs" />
+    <property name="javadoc" location="${htdocs}/javadoc" />
+    <property name="javasrc" location="${htdocs}/javasrc" />
+    <property name="testsrc" location="${htdocs}/testsrc" />
+
+    <target name="init">
+        <!-- Create the time stamp -->
+        <tstamp />
+        <!-- Create the build directory structure used by compile -->
+        <mkdir dir="${build}" />
+    </target>
+
+    <target name="compile" depends="init" description="compile the source ">
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${src}" destdir="${build}" />
+    </target>
+
+    <target name="dist"
+            depends="compile"
+            description="generate the distribution">
+        <!-- Create the distribution directory -->
+        <mkdir dir="${dist}/lib" />
+
+        <!-- Put everything in ${build} into the MyProject-20061213.jar file -->
+        <jar jarfile="${dist}/lib/ClassMaker.jar" basedir="${build}" />
+    </target>
+
+    <target name="javadoc"
+            depends="compile"
+            description="Produce javadoc documentation">
+        <mkdir dir="${javadoc}" />
+        <javadoc destdir="${javadoc}"
+                 sourcepath="${src}">
+        </javadoc>
+    </target>
+
+    <taskdef name="java2html" classname="com.java2html.Java2HTMLTask"
+        classpath="${j2h.jar}"/>
+
+    <target name="javasrc" description="Produce java source in html">
+        <mkdir dir="${testsrc}" />
+        <!--java2html title="ClassMaker"
+                simple="no"
+                tabsize="4"
+                marginsize="4"
+                header="true"
+                footer="false"
+                destination="${javasrc}">
+                <fileset dir=".">
+                        <include name="src/**/*.java"/>
+                </fileset>
+        </java2html-->
+        <java2html title="ClassMaker"
+                simple="no"
+                tabsize="4"
+                marginsize="4"
+                header="true"
+                footer="false"
+                destination="${testsrc}">
+                <fileset dir="test">
+                        <include name="**/*.java"/>
+                	    <exclude name="org/mozilla/classfile/*.java"/>
+                </fileset>
+            <javadoc localRef="${javadoc}" httpRef="http://sourceforge.net/classmaker/javasrc"/>
+        </java2html>
+    </target>
+
+    <target name="clean" description="clean up">
+        <!-- Delete the ${build} and ${dist} directory trees -->
+        <delete dir="${build}" />
+        <delete dir="${dist}"/>
+    </target>
+
+    <target name="rsync_remotehost" description="Upload to website" >
+       <exec executable="rsync" dir="${website}">
+           <arg line="-aOvz --chmod=g+w,Da+rX,Fa+r,F-X . illyrian,classmaker@web.sourceforge.net:/home/project-web/classmaker"/>
+        </exec>
+    </target>
+    
+    <target name="rsync">
+        <exec dir="." executable="rsync" failonerror="true">
+            <arg line="-aog -e ssh  /var/www/html/sites/example.com/ ${remote.user}@${remote.address}:/var/www/html/sites/" />
+        </exec>
+    </target>
+
+    <target name="uploadwebsite" description="Up">
+        <scp server="${sftp.website.server}"
+             remotedir="${sftp.website}"
+             userid="${sftp.website.userid}"
+             password="${sftp.website.passwd}"
+             depends="yes">
+          <fileset dir="htdocs/manual"/>
+        </scp>
+    </target>
+
+    <target name="listwebsite" description="List files on remote website">
+        <sshexec host="${sftp.website.server}"
+             username="${sftp.website.userid}"
+             password="${sftp.website.passwd}"
+             trust="true"
+             command="pwd"
+             >
+        </sshexec>
+    </target>
+
+    <target name="cleanwebsite" description="Delete file on remote website">
+        <sshexec server="${sftp.website.server}"
+             userid="${sftp.website.userid}"
+             password="${sftp.website.passwd}"
+             action="del" >
+        </sshexec>
+    </target>
+
+</project>

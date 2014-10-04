@@ -1,0 +1,127 @@
+[Home]
+
+----
+
+Debugging Support
+=================
+
+Debugging
+---------
+
+The following methods may be used to set information for the debugger.
+
+<pre>
+    // ClassMakerFactory
+    public ClassMaker createClassMaker(String className, Class extendsClass, String sourceFile)
+    &nbsp;
+    // ClassMaker
+    public void setSourceFilename(String filename) throws ClassMakerException
+    public void setLineNumber(int lineNumber)
+</pre>
+
+The source file name may be set when the !ClassMaker instance is constructed or using the
+<code>ClassMaker.setSourceFilename</code> method. This is done once, before byte-code is generated.
+
+The line number must be set while byte-code is being generated. <code>ClassMaker.setLineNumber</code>
+may be called as often as you like, a line number entry is only generated when it is needed.
+
+An alternative to setting the source file and line numbers in <code>ClassMaker</code> is to provide an 
+external source for this information using the <code>LineNumber</code> interface.
+
+<pre>
+    public interface LineNumber
+    {
+        String getFilename();
+        int getLineNumber();
+    }
+    &nbsp;
+    // ClassMakerFactory
+    public ClassMaker createClassMaker(LineNumber sourceLine);
+</pre>
+
+ClassMaker will extract the source filename and the current line number from this interface as required.
+The line number will be checked every time byte-code is generated and if it has changed since the
+last time it was checked, a line number entry will be generated in the class file.
+
+The <code>LineNumber</code> interface may be implemented by a tokeniser or by a visitor to an 
+abstract syntax tree, it doesn't matter as long as the line numbers are synchronised with
+the method calls to generate byte-code.
+
+Debugging code generating code
+------------------------------
+
+The following is a neat trick to step through dynamically generated code in the debugger.
+
+The <code>LineNumber</code> interface is implemented by the generating class. In this
+example it is a JUnit test case.
+
+The <code>getFilename</code> method provides the name of the current source file.
+
+The <code>ln()</code> method is called to set the line number. It helps if line numbers are
+displayed in your IDE because it makes it easy to synchronise the first call to
+<code>ln(int)</code> with the line number in the source file.
+
+Set the breakpoint of the debugger at the first of the test assertions and
+you can then set into the <code>binary</code> method.
+
+<pre>
+    protected int lineNo = 0;
+    &nbsp;
+    public int getLineNumber()
+    {
+        return lineNo;
+    }
+    &nbsp;
+    public String getFilename()
+    {
+        return getClass().getName().replace('.', '/') + ".java";
+    }
+    &nbsp;
+    public void nl(int line)
+    {
+        lineNo = line;
+    }
+    &nbsp;
+    public void nl()
+    {
+        ++lineNo;
+    }
+    &nbsp;
+    public void testIfElseBranch() throws Exception
+    {
+        factory = new ClassMakerFactory();
+        maker = factory.createClassMaker(this);
+        maker.setClassName("MyClass");
+        &nbsp;
+        maker.Implements(Binary.class);
+        defaultConstructor();
+        maker.Declare("id", ClassMaker.INT_TYPE, ACC_PUBLIC);
+        &nbsp;
+nl(99); maker.Method("binary", ClassMaker.INT_TYPE, ACC_PUBLIC);
+nl();   maker.Declare("a", ClassMaker.INT_TYPE, 0);
+nl();   maker.Declare("b", ClassMaker.INT_TYPE, 0);
+nl();   maker.Begin();
+nl();       maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
+nl();       maker.If(maker.EQ(maker.Get("a"), maker.Get("b")));
+nl();           maker.Eval(maker.Set(maker.This(), "id", maker.Literal(3)));
+nl();       maker.Else();
+nl();           maker.Eval(maker.Set(maker.This(), "id", maker.Literal(2)));
+nl();       maker.EndIf();
+nl();       maker.Return(maker.Get(maker.This(), "id"));
+nl();   maker.End();
+        &nbsp;
+        Class myClass = maker.defineClass();
+        Binary exec = (Binary)myClass.newInstance();
+        &nbsp;
+        assertEquals("Wrong value for exec.eval()", 2, exec.binary(0, 1)); // Set breakpoint here
+        assertEquals("Wrong value for exec.eval()", 3, exec.binary(5, 5));
+        assertEquals("Wrong value for exec.eval()", 3, exec.binary(-1, -1));
+    }
+</pre>
+
+Further examples of this technique are available in the <code>MakerBranchTest.java</code> junit test.
+
+----
+
+[home]
+

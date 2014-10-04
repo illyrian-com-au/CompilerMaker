@@ -1,0 +1,142 @@
+[Home]
+
+----
+
+Introduction to ClassMaker
+===========================
+
+The following is an example of code that will generate a class using ClassMaker, alongside the equivalent java code.
+
+<table width="100%" border="1">
+<tr><td width="50%" >Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+public interface Unary
+{
+    int unary(int a);
+}
+
+public class Factorial
+    implements Unary
+{
+  public int unary(int n)
+  {
+    int x;
+    x= 1;
+    while (n>0)
+    {
+      x = x * n;
+      n--;
+    }
+    return x;
+  }
+}
+</pre></td><td><pre>
+public class FactorialMaker extends ClassMakerBase
+{
+  public void code()
+  {
+    Implements(Unary.class);
+&nbsp;
+    Method("unary", int.class, ACC_PUBLIC);
+    Declare("n", int.class, 0);
+    Begin();
+      Declare("x", int.class, 0);
+      Set("x", Literal(1));
+      Loop();
+        While(GT(Get("n"), Literal(0)));
+        Set("x", Mult(Get("x"), Get("n")));
+        Eval(Dec("n"));
+      EndLoop();
+      Return(Get("x"));
+    End();
+  }
+}
+</pre></td></tr>
+</table>
+
+The relationship is obvious and quite similar, apart from the change of notation from infix to prefix. The code on the left is easier to write so you might ask "Why bother". Well, if you have ever tried to generate a proxy class, write an expression interpreter or develop a back end code generator for a compiler then you will appreciate what !ClassMaker can do for you.
+
+However, this picture only tells half the story. We now have to use the code above to instantiate an object.
+
+<table width="100%" border="1">
+<tr>
+<td width="50%" >
+To create an instance from a java class ...
+</td>
+<td>
+To create an instance from ClassMaker ...
+</td>
+</tr>
+<tr>
+<td width="50%" valign="bottom">
+<pre>
+Unary exec = (Unary)new Factorial();
+
+
+
+assertEquals("factorial(1)", 1, exec.unary(1));
+assertEquals("factorial(2)", 2, exec.unary(2));
+assertEquals("factorial(3)", 6, exec.unary(3));
+assertEquals("factorial(4)", 24, exec.unary(4));
+</pre>
+</td>
+<td valign="bottom">
+<pre>
+ClassMaker maker = new FactorialMaker();
+Class myClass = maker.defineClass();
+Unary exec = (Unary)myClass.newInstance();
+
+assertEquals("factorial(1)", 1, exec.unary(1));
+assertEquals("factorial(2)", 2, exec.unary(2));
+assertEquals("factorial(3)", 6, exec.unary(3));
+assertEquals("factorial(4)", 24, exec.unary(4));
+</pre>
+</td>
+</tr>
+</table>
+
+These two samples of code do very similar things. The code on the left loads a java class from a stream of bytes located in a file called "Factorial.class". The code on the right loads a java class from a stream of bytes located within the !FactorialMaker object. The bytecodes on the left were created at compile time; the bytecodes on the right are created at runtime.
+
+I will leave out the gory details for the moment, mainly because this is a work in progress, but you are welcome to download the code and run it in an Eclipse environment. There are extensive unit tests that serve as examples, however, the unit tests are not complete, the code is not complete and the API is still evolving.
+
+So where am I and where am I going with this? 
+
+I created the first test class for this project on February 27, 2010. That was a test case for the ClassFileWriter class, which is straight out of the Mozilla Rhino Javascript compiler. I added the test cases because !ClassFileWriter didn't have any and I wanted to figure out how it worked. In all of the testing I did I found one trivial bug. It is an awesome piece of code and I thank Roger Lawrence for writing it. It's simple API and minimalist approach were the inspiration for the API in ClassMaker. I have extended ClassFileWriter to generate both versions of switch structures; it originally only had one.
+
+I created the ClassMaker.java file on August 4th, 2010. I started with simple arithmetic expressions 
+and it can now generate most high level statements, including :
+
+ * methods and parameters
+ * expressions including numeric promotion and assignment conversion
+ * local, class and static fields
+ * loops with break and continue statements
+ * breaking to labelled statements
+ * for loop statements
+ * if-then-else statements
+ * switch statements with both contiguous and non-contiguous keys
+ * method calls including resolving methods and parameter conversion
+ * string concatenation including conversion between String and !StringBuffer
+ * try-catch-finally blocks.
+ * forward declaration or, alternatively, two pass generation.
+
+Other supported features include:
+
+ * two pass code generation
+ * debugger support
+ * integration with java classes
+
+The code is feature completion and there are only some odds and ends to do around the code.
+
+ * write maven POM files
+ * generate the jar file and upload to website
+ * bundle jar and source and upload to a suitable maven repository.
+ * start using it
+ 
+ The last item is probably the most important. While I have tried to be diligent with the test cases, all I can assert is that everything I have tested works. Putting the library to use will uncover situations I have not tested and will consequently uncover bugs and useful enhancements. 
+
+Donald Strong, Melbourne, Australia.
+
+----
+
+[Home]
+

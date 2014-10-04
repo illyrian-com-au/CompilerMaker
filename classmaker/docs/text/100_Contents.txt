@@ -1,0 +1,34 @@
+Welcome to ClassMaker
+=====================
+
+Generating Byte Code for the Java Virtual Machine (JVM) is hard; really hard. There are other libraries that allow you to do it, but they don't make it any easier. You still have to arrange and order the byte codes yourself.
+
+ClassMaker is different.
+
+ClassMaker has been created with the express purpose of making class generation easy. It uses an API based on the syntax of Java to make the generation of customised classes straight forward for developers with only a modest understanding of compliers and byte-code.
+
+ClassMaker is intended to be used to implement Domain Specific Languages (DSL). It can be directly integrated with any java based parser without the need for an intermediate Abstract Syntax Tree (AST). Having said that, there is nothing about ClassMaker that prevents generating code from an AST, but in most cases it is not necessary.
+
+ClassMaker is designed to be extended to support new constructs. This is a boon for compiler writers who wish to explore new or alternative language features. The traditional way to develop new language features is to output java source code from the parser or AST, and then compile the generated files in a second pass. A limitation of this approach is that the debugger displays the generated java code, not the original source. ClassMaker integrates debugger support into the generated classes to allow tracing through the original source files and the display of scoped variables.
+
+Contents
+--------
+
+ * [Introduction]
+ * [Simple use of ClassMaker]
+ * Language Features
+     * [Expressions]
+     * [Variables]
+     * [Statements]
+     * [Methods]
+     * [Classes]
+     * [Type Conversion and Promotion]
+ * [Using ClassMaker] 
+ * [Debugging Support]
+ * [Unsupported Features of Java]
+ * [Free BSD Licence]
+
+
+[[project_screenshots]]
+[[project_admins]]
+[[download_button]]

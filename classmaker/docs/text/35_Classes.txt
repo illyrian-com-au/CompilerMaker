@@ -1,0 +1,221 @@
+[Home]
+
+----
+
+Language Features
+=================
+
+Classes
+-------
+
+_Importing Classes_
+
+Classes are imported in <code>ClassMaker</code> using these methods.
+
+<pre>
+    public void Import(Class javaClass) throws ClassMakerException
+    public void Import(String className) throws ClassMakerException
+</pre>
+
+Both methods make the class available using the short class name. 
+
+The method that takes a <code>String</code> loads the class as well using the factory <code>ClassLoader</code>.
+
+The following code demonstrates how external classes can be imported either
+using the class name or a reflection class.
+
+<table border="1" width="100%">
+<hr><td>Java code</td><td>ClassMaker code</td></hr>
+<tr><td><pre>
+    import java.io.File;
+    import java.io.FileOutputStream;
+    import java.io.IOException;
+    &nbsp;
+	public interface Openable
+	{
+		FileOutputStream open(File file) throws IOException;
+	}
+    &nbsp;	
+	public class OpenClass implements Openable
+	{
+		public FileOutputStream open(File file) throws IOException
+		{
+	         FileOutputStream output;
+	         if (file.exists())
+	        	 output = new FileOutputStream(file);
+	         else
+	        	 throw new IOException("File not found");
+	         return output;
+		}
+	}
+</pre></td>
+<td><pre>
+    maker.Import(File.class);
+    maker.Import("java.io.FileOutputStream");
+    maker.Import("java.io.IOException");
+    maker.Implements(Openable.class);
+    &nbsp;
+    maker.Method("open", "FileOutputStream", ClassMaker.ACC_PUBLIC);
+    maker.Declare("file", "File", 0);
+    maker.Begin();
+        maker.Declare("output", "FileOutputStream", 0);
+        maker.If(maker.Call(maker.Get("file"), "exists", null));
+            maker.Set("output", maker.New("FileOutputStream").Init(maker.Push(maker.Get("file"))));
+        maker.Else();
+            maker.Throw(maker.New("IOException").Init(maker.Push(maker.Literal("File not found."))));
+        maker.EndIf();
+        maker.Return(maker.Get("output"));
+    maker.End();
+</pre></td></tr>
+</table>
+
+_Extending a class_
+
+A generated class can extend another class using these methods.
+
+<pre>
+    public void Extends(String className)
+    public void Extends(Class javaClass)
+</pre>
+
+The first method takes either a fully qualified class name or a short class name if
+the fully qualified class name has been previously imported.
+The method loads the class as well using the factory <code>ClassLoader</code>.
+
+The second method takes a reflection class that represents a class type.
+
+
+_Creating a new instance_
+
+The following methods can be used to instantiate and initialise a class in <code>ClassMaker</code>.
+
+<pre>
+    public Initialiser New(Class javaClass) throws ClassMakerException
+    public Initialiser New(String className) throws ClassMakerException
+    public class Initialiser
+    {
+        public ClassType Init(CallStack actualParameters)
+    }
+</pre>
+
+These methods are used in a sequence like this.
+
+<pre>
+    New( <class> ).Init( <call stack> )
+</pre>
+
+The following code creates a new instance of !StringBuffer and calls the constructor that
+takes an <code>int</code> parameter.
+
+<pre>
+    maker.Implements(Create.class);
+    &nbsp;
+    maker.Method("create", StringBuffer.class, ACC_PUBLIC);
+    maker.Begin();
+        maker.Return( maker.New(StringBuffer.class).Init(maker.Push(maker.Literal(150))));
+    maker.End();
+</pre>
+
+The <code>init</code> method must be called even if there are no parameters to the constructor;
+otherwise the class will not be initialised.
+
+_Implementing an interface_
+
+The following methods can be used to implement an interface in <code>ClassMaker</code>.
+
+<pre>
+    public void Implements(Class javaClass) throws ClassMakerException
+    public void Implements(String className) throws ClassMakerException
+</pre>
+
+The following code declares an interface called <code>Unary</code> and then implements
+the interface in a generated class.
+
+<pre>
+    public interface Unary
+    {
+        int square(int a);
+    }
+    &nbsp;
+    public class SquareTestMaker extends ClassMakerBase
+    {
+        public void code()
+        {
+            Implements(Unary.class);
+    &nbsp;
+            Method("square", int.class, ACC_PUBLIC);
+            Declare("a", int.class, 0);
+            Begin();
+              Return(Mult(Get("a"), Get("a")));
+            End();
+        }
+    }
+    &nbsp;
+    public void testSquareTest() throws Exception
+    {
+        ClassMaker maker = new SquareTestMaker();
+        Class squareClass = maker.defineClass();
+        Unary exec = (Unary)squareClass.newInstance();
+        assertEquals("Square test", 4, exec.square(2));
+    }
+</pre>
+
+_Implementing a generated interface_
+
+This code does something similar using a generated interface.
+
+The interface is defined as <code>"test.Unary"</code>. 
+It is then implemented by the class <code>"test.SquareTest"</code>.
+Finally, the class <code>"test.UnaryTest"</code> calls the interface through a member field.
+
+<pre>
+    public void testGeneratedInterface() throws Exception
+    {
+        ClassMakerFactory factory = new ClassMakerFactory();
+    &nbsp;
+        // Create interface test.Unary
+        ClassMaker maker1 = factory.createClassMaker("test.Unary", Object.class, null);
+        maker1.setIsInterface();
+        maker1.Method("square", int.class, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_ABSTRACT);
+        maker1.Declare("a", int.class, 0);
+        maker1.Forward();
+        maker1.EndClass();
+    &nbsp;    
+        // Create a class that implements test.Unary
+        ClassMaker maker2 = factory.createClassMaker("test.SquareTest", Object.class, null);
+        maker2.Implements("test.Unary");
+    &nbsp;
+        maker2.Method("square", int.class, ClassMaker.ACC_PUBLIC);
+        maker2.Declare("a", int.class, 0);
+        maker2.Begin();
+            maker2.Return(maker2.Mult(maker2.Get("a"), maker2.Get("a")));
+        maker2.End();
+    &nbsp;    
+        // Create a class that calls test.Unary
+        ClassMaker maker3 = factory.createClassMaker("test.UnaryTest", Object.class, null);
+        maker3.Implements(Unary.class);
+        maker3.Declare("test", "test.Unary", ClassMaker.ACC_PUBLIC);
+    &nbsp;
+        maker3.Method("square", int.class, ClassMaker.ACC_PUBLIC);
+        maker3.Declare("a", int.class, 0);
+        maker3.Begin();
+            maker3.Return(maker3.Call(maker3.Get(maker3.This(), "test"), "square", maker3.Push(maker3.Get("a"))));
+        maker3.End();
+        &nbsp;
+        maker1.defineClass();
+        Class squareClass = maker2.defineClass();
+        Object squareTest = squareClass.newInstance();
+    &nbsp;
+        Class testClass = maker3.defineClass();
+        Unary exec = (Unary)testClass.newInstance();
+    &nbsp;
+        // Assign a reference to the interface to the member field exec.test using reflection.
+        testClass.getField("test").set(exec, squareTest);
+    &nbsp;
+        assertEquals("Square test", 4, exec.square(2));
+    }
+</pre>
+
+----
+
+[Home]

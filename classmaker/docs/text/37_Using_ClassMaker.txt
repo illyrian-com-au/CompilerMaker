@@ -1,0 +1,258 @@
+[Home]
+
+----
+
+Using ClassMaker
+================
+
+Creating ClassMaker instances
+-----------------------------
+
+The following methods in <code>ClassMaker</code> and <code>ClassMakerFactory</code> are used to create and configure
+instances of <code>ClassMaker</code>.
+
+<pre>
+    // ClassMakerFactory
+    public ClassMaker createClassMaker();
+    public ClassMaker createClassMaker(String className, Class extendsClass, String sourceFile)
+    &nbsp;
+    // ClassMaker
+    public void setClassName(String className) throws ClassMakerException
+    public void setSourceFilename(String filename) throws ClassMakerException
+    public void Extends(Class javaClass) throws ClassMakerException
+    public void Extends(String className) throws ClassMakerException
+</pre>
+
+The first <code>createClassMaker</code> method creates an instance of <code>ClassMaker</code> and then
+the methods in <code>ClassMaker</code> can be used to set the class name, source file name and base class.
+These values must be set before the first byte-code is generated and an exception is thrown if they
+are used too late in the generation sequence.
+
+The second <code>createClassMaker</code> method combines the functionality of the other methods.
+
+Instantiating a generated class
+-------------------------------
+
+The following methods are used to load a generated class and create an instance of it.
+
+<pre>
+    // ClassMaker
+    public Class defineClass();
+    &nbsp;
+    // java.lang.Class
+    public Class newInstance() throws InstantiationException, IllegalAccessException;
+</pre>
+
+
+Classes are easiest to instantiate if they have a default parameterless constructor.
+A default constructor is provided automatically by <code>ClassMaker</code>.
+
+<pre>
+    public interface Unary
+    {
+        int eval(int a, int b);
+    }
+    &nbsp;
+    public void testSimpleMath() throws Exception
+    {
+        ClassMakerFactory factory = new ClassMakerFactory();
+        ClassMaker maker = factory.createClassMaker("test.SimpleMath", Object.class, null);
+        &nbsp;
+        maker.Implements(Unary.class);
+        &nbsp;
+        maker.Method("eval", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Declare("a", int.class, 0);
+        maker.Declare("b", int.class, 0);
+        maker.Begin();
+            maker.Return(maker.Add(maker.Get("a"), maker.Get("b")));
+        maker.End();
+        &nbsp;
+        Class squareClass = maker.defineClass();
+        Unary exec = (Unary)squareClass.newInstance();
+        assertEquals("Unary test", 4, exec.eval(2, 2));
+    }
+</pre>
+
+
+If a constructor is explicitly declared in ClassMaker, a default constructor will not be generated.
+It is then up to the developer to instantiate the Class using reflection methods.
+
+ClassLoader
+-----------
+
+The shared <code>ClassMakerFactory</code> instance contains a ClassLoader that can be used to load classes.
+
+<pre>
+    // ClassMakerFactory
+    public Type loadClass(String className) throws ClassMakerException
+</pre>
+
+Loading classes using these methods will put them in the same <code>ClassLoader</code> and <code>ProtectedDomain</code>
+as those generated using a <code>ClassMaker</code> instance. This may be necessary when using a different 
+classpath, such as in a compiler, or when accessing protected members because packages with the same name
+are not equivalent if they are loaded by different <code>ClassLoader</code>s.
+
+<code>ClassMakerFactory</code> creates a default <code>SimpleClassLoader</code> the first time it is used.
+The default <code>SimpleClassLoader</code> has the class loader of <code>ClassMakerFactory</code> as its parent.
+Consequently, the <code>SimpleClassLoader</code> instance can find all of the classes 
+that are currently loaded.
+
+With a bit of effort the currently loaded classes can be excluded. This would require that the
+<code>SimpleClassLoader</code> instance be parented by another class loader that has its own class path.
+This would be desirable in a compiler where there is a distinction between the <code>classpath</code>
+and the <code>bootstrapclasspath</code>. The following methods may be used to accomplish this.
+
+<pre>
+    // ClassMakerFactory
+    public void setClassLoader(SimpleClassLoader classLoader);
+    public SimpleClassLoader getClassLoader()
+    &nbsp;
+    // SimpleClassLoader
+    public SimpleClassLoader(ClassLoader parentLoader);
+</pre>
+
+Two pass generation
+-------------------
+
+Generating byte-code in two passes avoids the need to declare fields and methods before they are used.
+
+The following code demonstrates two pass generation. 
+Note that the <code>eval</code> method calls the <code>add</code> method before it is declared.
+The <code>eval</code> method then stores the result in the <code>value</code> field which has
+not been declared yet. Without two pass generation neither of these members would be
+known at the time they are accessed.
+
+<pre>
+    public void code(ClassMaker maker) throws Exception
+    {
+        maker.Implements(Eval.class);
+        &nbsp;
+        maker.Method("eval", int.class, ACC_PUBLIC);
+        maker.Begin();
+          maker.Set(maker.This(), "value", 
+              maker.Call(maker.This(), "add", maker.Push(maker.Literal(1)).Push(maker.Literal(2))));
+          maker.Return(maker.Get(maker.This(), "value"));
+        maker.End();
+        &nbsp;
+        maker.Method("add", int.class, ACC_PRIVATE);
+        maker.Declare("a", int.class, 0);
+        maker.Declare("b", int.class, 0);
+        maker.Begin();
+          maker.Return(maker.Add(maker.Get("a"), maker.Get("b")));
+        maker.End();
+        &nbsp;
+        maker.Declare("value", int.class, ACC_PUBLIC);
+    }
+    &nbsp;
+    public void testTwoPassGeneration() throws Exception
+    {
+        maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        &nbsp;
+        maker.setPass(ClassMaker.FIRST_PASS);
+        code(maker);
+        maker.EndClass();
+        &nbsp;
+        maker.setPass(ClassMaker.SECOND_PASS);
+        code(maker);
+        maker.EndClass();
+        &nbsp;
+        Class myClass = maker.defineClass();
+        Eval exec = (Eval)myClass.newInstance();
+        &nbsp;
+        assertEquals("Wrong value for exec.eval()", 3, exec.eval());
+    }
+</pre>
+
+Two pass code generation involves calling all the methods to generate the code twice. 
+The first pass remembers field declarations and method signatures but ignores everything else.
+During the first pass there is no <code>ClassFileWriter</code> instance so calls to the
+<code>getClassFileWriter</code> method will return null.
+
+The second pass generates byte-code and because all the fields and methods are known,
+the order in which they are declared doesn't matter.
+A  <code>ClassFileWriter</code> instance will be created, on demand, the first time it is required
+during the second pass.
+
+Generating exceptions
+---------------------
+
+ClassMaker provides the following methods to support the generation of customised error messages.
+
+<pre>
+    // From ClassMakerFactory
+    public ExceptionFactory getExceptionFactory()
+    &nbsp;
+    // From ExceptionFactory
+    public ExceptionFactory();
+    public ExceptionFactory(String bundleName);
+    public ClassMakerException createException(LineNumber source, String key, String [] values);
+    &nbsp;
+    // From ClassMaker
+    public ClassMakerException createException(String key)
+    public ClassMakerException createException(String key, String p1)
+    public ClassMakerException createException(String key, String p1, String p2)
+    public ClassMakerException createException(String key, String p1, String p2, String p3)
+</pre>
+
+A shared <code>ExceptionFactory</code> is available from the <code>ClassMakerFactory</code>.
+
+The <code>createException</code> method of ( <code>ExceptionFactory</code> 
+looks up the key in a <code>ResourceBundle</code> and then
+substitutes values from the given array of <code>String</code>s. 
+The default properties file is called <code>au/com/illyrian/ExceptionMessages.properties</code>,
+a brief extract of which is provided below.
+
+The <code>createException</code> methods in <code>ClassMaker</code> are convenience methods.
+
+<pre>
+    // ExceptionMessages.properties
+    ClassMaker.CannotReturnTypeVoid=Cannot return type void
+    ClassMaker.NoLocalCalled_1=No local variable called \'${0}\'
+    ClassMaker.CannotFindMemberFieldInClass_2=Cannot find member field \'${0}\' in class ${1}
+    ClassMaker.FieldOfTypeCannotBeAssignedType_3=Field ${0} of type ${1} cannot be assigned type ${2}
+</pre>
+
+Value substitution is positional and, by convention, the key includes the number of expected parameters.
+If the position index is invalid the value will not be substituted; no exceptions are thrown.
+
+Saving a generated class file
+-----------------------------
+
+These methods can be used to save a generated class to disk and 
+to delete a class file that exists on disk already.
+
+<pre>
+    public File saveClass(File classesDir) throws IOException
+    public void deleteClass(File classesDir) throws IOException
+</pre>
+
+This code saves the !SquareTest class onto the classpath. The class is then loaded 
+using the shared !ClassLoader. Finally the class file is deleted from the classpath. 
+
+<pre>
+    public void testSaveClass() throws Exception
+    {
+        ClassMaker maker = new SquareTestMaker();
+        String className = maker.getClassName();
+        &nbsp;
+        // Save the generated class into the build folder.
+        File classesDir =new File("build/classes");
+        File classFile = maker.saveClass(classesDir);
+        assertTrue("File does not exist: " + classFile.getAbsolutePath(), classFile.exists());
+        &nbsp;
+        // Load the Class from the classpath and create an instance.
+        Class squareClass = maker.getFactory().getClassLoader().loadClass(className);
+        assertEquals("Class Name", className, squareClass.getName());
+        Unary exec = (Unary)squareClass.newInstance();
+        assertEquals("Square test", 4, exec.square(2));
+        &nbsp;
+        // Delete the SquareTest.class file.
+        maker.deleteClass(classesDir);
+        assertFalse("File should be deleted: " + classFile.getAbsolutePath(), classFile.exists());
+    }
+</pre>
+
+----
+
+[Home]
+

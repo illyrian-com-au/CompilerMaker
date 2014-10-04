@@ -1,0 +1,67 @@
+
+
+dstrong@fujitsu ~/.ssh
+$ ssh -t illyrian,classmaker@shell.sourceforge.net create
+The authenticity of host 'shell.sourceforge.net (216.34.181.119)' can't be established.
+RSA key fingerprint is 80:1c:ee:50:14:cd:ef:28:3e:82:c6:ef:44:55:d7:74.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'shell.sourceforge.net,216.34.181.119' (RSA) to the list of known hosts.
+
+Requesting a new shell for "illyrian" and waiting for it to start.
+queued... creating... starting...
+
+This is an interactive shell created for user illyrian,classmaker.
+Use the "timeleft" command to see how much time remains before shutdown.
+Use the "shutdown" command to destroy the shell before the time limit.
+For path information and login help, type "sf-help".
+
+[illyrian@shell-23002 ~]$
+[illyrian@shell-23002 ~]$ pwd
+/home/users/i/il/illyrian
+[illyrian@shell-23002 ~]$ ls
+userweb
+[illyrian@shell-23002 ~]$ ls -alF
+total 32
+drwxr-xr-x 3 illyrian users 4096 Feb  1  2011 ./
+drwxr-xr-x 3 root     root  4096 Jun 11 05:49 ../
+-rw-r--r-- 1 illyrian users   33 Jan 22  2009 .bash_logout
+-rw-r--r-- 1 illyrian users  176 Jan 22  2009 .bash_profile
+-rw-r--r-- 1 illyrian users  124 Jan 22  2009 .bashrc
+-rw-r--r-- 1 illyrian users  515 Jun 15  2008 .emacs
+drwxr-xr-x 4 illyrian users 4096 Dec  9  2010 .mozilla/
+-rw-r--r-- 1 illyrian users  633 Jun 13  2009 .zshrc
+lrwxrwxrwx 1 root     root    27 Apr 25 21:38 userweb -> /home/userweb/i/il/illyrian
+[illyrian@shell-23002 ~]$ ln -s /home/project-web/classmaker classmaker
+[illyrian@shell-23002 ~]$ ls -alF
+total 32
+drwxr-xr-x 3 illyrian users      4096 Jun 11 05:52 ./
+drwxr-xr-x 3 root     root       4096 Jun 11 05:49 ../
+-rw-r--r-- 1 illyrian users        33 Jan 22  2009 .bash_logout
+-rw-r--r-- 1 illyrian users       176 Jan 22  2009 .bash_profile
+-rw-r--r-- 1 illyrian users       124 Jan 22  2009 .bashrc
+-rw-r--r-- 1 illyrian users       515 Jun 15  2008 .emacs
+drwxr-xr-x 4 illyrian users      4096 Dec  9  2010 .mozilla/
+-rw-r--r-- 1 illyrian users       633 Jun 13  2009 .zshrc
+lrwxrwxrwx 1 illyrian classmaker   28 Jun 11 05:52 classmaker -> /home/project-web/classmaker/
+lrwxrwxrwx 1 root     root         27 Apr 25 21:38 userweb -> /home/userweb/i/il/illyrian
+[illyrian@shell-23002 ~]$ cd classmaker
+[illyrian@shell-23002 classmaker]$ ls
+cgi-bin  htdocs
+[illyrian@shell-23002 classmaker]$ pwd
+/home/users/i/il/illyrian/classmaker
+[illyrian@shell-23002 classmaker]$ cd -
+/home/users/i/il/illyrian
+[illyrian@shell-23002 classmaker]$ shutdown
+Requesting that your shell be shut down.
+This request will be processed soon.
+[illyrian@shell-23002 classmaker]$
+Broadcast message from root (Mon Jun 11 05:57:09 2012):
+
+The system is going down for system halt NOW!
+Connection to shell-23002 closed by remote host.
+Connection to shell-23002 closed.
+Connection to shell.sourceforge.net closed.
+
+dstrong@fujitsu ~/.ssh
+$
+

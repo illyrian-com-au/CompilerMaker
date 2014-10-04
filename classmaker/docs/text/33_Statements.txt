@@ -1,0 +1,465 @@
+[Home]
+
+----
+
+Language Features
+=================
+
+Control Statements
+------------------
+
+_Scoped Code Blocks_
+
+<code>ClassMaker</code> provides the following methods to create scoped code blocks.
+
+<pre>
+    public Labelled Begin() throws ClassMakerException
+    public void End() throws ClassMakerException
+</pre>
+
+A <code>Begin</code> and <code>End</code> pair create a code block that limits the scope of variables 
+declared within the code block. Other statements may include a code block of multiple statements
+but they do not limit variable scope.
+
+In the following code the variable <code>a</code> is declared twice in different scoped code blocks.
+Consequently, the variable can be declared as an integer in one code block and a character in the other.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+    if (n > 0)
+    {
+        int a;
+        a = n++;
+    }
+    else
+    {
+        char a;
+        a = '0';
+        n = a - n;
+    }
+</pre></td>
+<td><pre>
+    If(GT(Get("n"), Literal(0)));
+    Begin();
+        Declare("a", int.class, 0);
+        Set("a", Inc("n"));
+    End();
+    Else();
+    Begin();
+        Declare("a", char.class, 0);
+        Set("a", Literal('0'));
+        Set("n", Subt(Get("a"), Get("n")));
+    End();
+    EndIf();
+</pre></td></tr>
+</table>
+
+<code>Begin</code> and <code>End</code> are also used to define the code block for a method, as described in the section
+about [Methods].
+
+_If Statement_
+
+<code>ClassMaker</code> provides the following methods to create if statements.
+
+<pre>
+    public Labelled If(Type condition) throws ClassMakerException;
+    public void Else() throws ClassMakerException;
+    public void EndIf() throws ClassMakerException;
+</pre>
+
+There may be any number of statements between the <code>If</code>, <code>Else</code> and <code>EndIf</code> method calls.
+Unlike java, there is an implicit code block between each clause.
+
+An exception will be thrown if the clauses do not balance, for example, if an <code>Else</code> method is
+called when not preceded by an <code>If</code> call and followed by an <code>EndIf</code> call.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+    if (a<0) {
+        a = 0;
+    }
+</pre></td>
+<td><pre>
+    If(LT(Get("a"), Literal(0)));
+        Set("a", Literal(0));
+    EndIf();
+</pre></td></tr>
+<tr><td><pre>
+    if (a<0) {
+        a = 0;
+    } else {
+        a = 1;
+    }
+</pre></td>
+<td><pre>
+    If(LT(Get("a"), Literal(0)));
+        Set("a", Literal(0));
+    Else();
+        Set("a", Literal(1));
+    EndIf();
+</pre></td></tr>
+</table>
+
+_While loop_
+
+A while loop can be created using the following methods from <code>ClassMaker</code>.
+
+<pre>
+    public Labelled Loop() throws ClassMakerException
+    public void While(Type condition) throws ClassMakerException
+    public void EndLoop() throws ClassMakerException
+</pre>
+
+The <code>While</code> clause can appear at the start or end of the loop, either after the <code>Loop</code>
+clause or just before the <code>EndLoop</code> clause. In actual fact it could appear anywhere in the loop
+as ClassMaker places no restrictions on the placement of the <code>While</code> clause, but the traditional
+place is at the start of the loop or occasionally at the end.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+    x = 1;
+    while (n>0)
+    {
+        x = x * n;
+        --n;
+    }
+</pre></td>
+<td><pre>
+    Eval(Set("x", Literal(1)));
+    Loop();
+        While(GT(Get("n"), Literal(0)));
+        Eval(Set("x", Mult(Get("x"), Get("n"))));
+        Eval(Dec("n"));
+    EndLoop();
+</pre></td></tr>
+</table>
+
+_For loop_
+
+The methods for generating a for loop in <code>ClassMaker</code> look like this.
+
+<pre>
+    public ForWhile For(Type declare) throws ClassMakerException;
+    interface ForWhile
+    {
+        ForStep While(Type condition) throws ClassMakerException;
+    }
+    interface ForStep
+    {
+        Labelled Step(Type step) throws ClassMakerException;
+    }
+    public void EndFor() throws ClassMakerException
+</pre>
+
+While this looks daunting it actually comes down to this simple sequence.
+
+<pre>
+    For( <assignment> ).While( <condition> ).Step( <increment> );
+</pre>
+
+The <code>For</code> method expects an expression which is usually an assignment, although this is not enforced.
+The <code>While</code> method expects a boolean expression and will complain if it doesn't get one.
+The Step method expects another expression which usually increments a value, although again, this is not enforced.
+Any or all of the expressions may be omitted by providing <code>null</code>.
+
+The call to <code>EndFor</code> terminates the loop.
+
+The following code calculates factorial for a given <code>n</code>.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+&nbsp;
+    for (x=1; n>0; --n) 
+    {
+        x = x * n;
+    }
+</pre></td>
+<td><pre>
+&nbsp;
+    For(Set("x", Literal(1))).While(GT(Get("n"), Literal(0))).Step(Dec("n"));
+        Eval(Set("x", Mult(Get("x"), Get("n"))));
+    EndFor();
+</pre></td></tr>
+</table>
+
+_Break & Continue_
+
+The usual way to shortcut evaluation in the middle of a loop in java is to use a <code>break</code>
+or <code>continue</code> statement. The equivalents in <code>ClassMaker</code> are named similarly.
+
+<pre>
+    public void Break() throws ClassMakerException
+    public void Continue() throws ClassMakerException
+</pre>
+
+The <code>While</code> clause in a loop is optional; a <code>break</code> can be used instead. The following
+code sums values up to <code>n</code>, the second version excludes multiples of 2.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+    // Sum all values up to n.
+    x = 0;
+    while (true) {
+        if (n<=0) {
+            break;
+        }
+        x = x + n;
+        --n;
+    }
+</pre></td>
+<td><pre>
+    Eval(Set("x", Literal(0)));
+    Loop();
+        If(LE(Get("n"), Literal(0)));
+            Break();
+        EndIf();
+        Eval(Set("x", Add(Get("x"), Get("n"))));
+        Eval(Dec("n"));
+    EndLoop();
+</pre></td></tr>
+<tr><td><pre>
+    // Sum all values up to n, except multiples of 2
+    x = 0;
+    while (true) {
+        y = n--;
+        if (y<=0) {
+            break;
+        }
+        if ((y % 2) == 0) {
+           continue;
+        }
+        x = x + y;
+    }
+</pre></td>
+<td><pre>
+     Eval(Set("x", Literal(0)));
+     Loop();
+         Eval(Set("y", PostDec("n")));
+         If(LE(Get("y"), Literal(0)));
+             Break();
+         EndIf();
+         If(EQ(Rem(Get("y"), Literal(2)), Literal(0)));
+             Continue();
+         EndIf();
+         Eval(Set("x", Add(Get("x"), Get("y"))));
+     EndLoop();
+</pre></td></tr>
+</table>
+
+_Switch_
+
+<code>ClassMaker</code> provides the following methods to support the <code>switch</code> statement.
+
+<pre>
+    public Labelled Switch(Type switchType) throws ClassMakerException;
+    public void Case(int key) throws ClassMakerException;
+    public void Break() throws ClassMakerException
+    public void Break(String label) throws ClassMakerException
+    public void Default() throws ClassMakerException;
+    public void EndSwitch() throws ClassMakerException;
+</pre>
+
+The <code>Case(int key)</code> method will accept an <code>int</code>, <code>char</code>, <code>short</code> or <code>byte</code> type.
+
+<code>ClassMaker</code> will generate different byte-code for the switch depending upon whether the keys
+are contiguous or non-contiguous. It will generate a table-switch in the former situation or a
+lookup-switch in the latter.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+&nbsp;
+    y = 0;
+    switch (x)
+    {
+        case 0:
+            y = 1;
+            break;
+        case 4:
+            y = 2;
+            break;
+        case 2:
+            y = 3;
+            break;
+        case 6:
+            y = 4;
+            break;
+        default:
+            y = 0;
+            break;
+    }
+</pre></td>
+<td><pre>
+&nbsp;
+    Set("y", Literal(0));
+    Switch(Get("x"));
+    {
+        Case(0);
+            Set("y", Literal(1));
+            Break();
+        Case(4);
+            Set("y", Literal(3));
+            Break();
+        Case(2);
+            Set("y", Literal(2));
+            Break();
+        Case(6);
+            Set("y", Literal(4));
+            Break();
+        Default();
+            Set("y", Literal(0));
+            Break();
+    }
+    EndSwitch();
+</pre></td></tr>
+</table>
+
+_Try catch finally_
+
+<code>ClassMaker</code> provides the following methods to perform exception handling.
+
+<pre>
+    public Labelled Try();
+    public void Catch(Class javaClass, String name) throws ClassMakerException;
+    public void Catch(String exceptionName, String name)
+    public void Finally() throws ClassMakerException;
+    public void EndTry() throws ClassMakerException;
+</pre>
+
+There are two versions of the <code>Catch</code> method. You will use the version that
+takes a reflection <code>Class</code> most of the time. The version that takes a
+!String is necessary when you are catching an exception class
+that you are generating at runtime.
+
+The generated code in the <code>Finally</code> clause is always executed, as you would expect.
+The code is put in a subroutine and the subroutine is invoked:
+
+ * after execution of the <code>Try</code> block completes normally
+ * after a <code>Catch</code> clause processes an exception
+ * as appropriate when <code>Break</code>, <code>Continue</code> or <code>Return</code> methods are called
+ * whenever an exception passes through the method without being caught.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+     try
+     {
+         x = func.unary(x);
+     }
+     catch (FileNotFoundException ex1)
+     {
+         x = 10000;
+     }
+     catch (IllegalArgumentException ex1)
+     {
+         x = 20000;
+     }
+     finally
+     {
+         x = x + 100;
+     }
+</pre></td>
+<td><pre>
+     Try();
+     {
+         Eval(Set("x", Call(Get("func"), "unary", Push(Get("x")))));
+     }
+     Catch(FileNotFoundException.class, "ex1");
+     {
+         Eval(Set("x", Literal(10000)));
+     }
+     Catch(IllegalArgumentException.class, "ex2");
+     {
+         Eval(Set("x", Literal(20000)));
+     }
+     Finally()
+     {
+         Eval(Set("x", Add(Get("x"), Literal(100))));
+     }
+     EndTry();
+</pre></td></tr>
+</table>
+
+_Labelled Break & Continue_
+
+ClassMaker provides the following interface and methods to support labelled Break and Continue.
+
+<pre>
+    public interface Labelled
+    {
+        void setLabel(String label);
+        String getLabel();
+    }
+    public void Break(String label) throws ClassMakerException
+    public void Continue(String label) throws ClassMakerException
+</pre>
+
+The <code>Labelled</code> interface is returned by all !ClassMaker statements to allow
+them to be labelled. It is then possible to <code>Break</code> to the labelled
+statement. Labelled loops can also be the target of a <code>Continue</code> method.
+
+Statements may be labelled as follows.
+
+<pre>
+    Begin().setLabel("HERE");
+    If(<cond>).setLabel("THERE");
+    Loop().setLabel("LOOP");
+    For(<expr>).While(<cond>).Step(<expr>).setLabel("FORLOOP");
+    Switch().setLabel("EXIT");
+    Try().setLabel("TRYING");
+</pre>
+
+The following example demonstrates several of these uses.
+
+<table border="1" width="100%">
+<tr><td>Java code</td><td>ClassMaker code</td></tr>
+<tr><td><pre>
+    outer: {
+        loop:  for (j=1; j<=3; j++) 
+        {
+            switch (i) {
+            case 1:
+                break;
+            case 2:
+                continue;
+            case 3:
+                break loop;
+            case 4:
+                continue loop;
+            case 5:
+                break outer;
+            }
+            n++;
+        }
+    }
+</pre></td>
+<td><pre>
+    Begin().setLabel("outer");
+        For(Set("j", Literal(1))).While(LE(Get("j"), Literal(3))).Step(Inc("j")).setLabel("loop");
+            Switch(Get("i"));
+            Case(1);
+                Break();
+            Case(2);
+                Continue();
+            Case(3);
+                Break("loop");
+            Case(4);
+                Continue("loop");
+            Case(5);
+                Break("outer");
+            EndSwitch();
+            Eval(Inc("n"));
+        EndFor();
+    End();
+</pre></td></tr>
+</table>
+
+----
+
+[Home]
+

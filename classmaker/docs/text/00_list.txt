@@ -1,0 +1,71 @@
+ClassMaker
+
+Introduction
+
+Simple use of ClassMaker
+
+Language features
+
+  Expressions
+    Literals
+    Simple arithmatic
+    Assignment
+    Increment and decrement
+    Logic expressions
+    Strings
+    Arrays
+    Eval
+
+  Fields
+    Local variables
+    Member variables
+    Static variables
+    Array variables
+    Variable scope
+
+  Structures
+    If then
+    While loop
+    For loop
+    Switch
+    Try catch finaly
+
+  Methods
+    Declaring methods
+    Calling methods
+    Returning values
+    Constructors
+    Forward declarations
+
+  Classes
+    Importing
+    Extending a class
+    Declaring a class
+    Implementing an interface
+
+  Type conversion and promotion
+    Numeric promotion
+    Method invocation conversion
+    Assignment conversion
+    Casting conversion
+    String conversion and assignment
+    Resolving methods
+
+  Unsupported features
+    Assignment operator combinations
+    Inner classes
+    Generics
+
+Generating classes
+  Extending ClassMakerBase
+  Shared ClassMakerFactory
+  Creating class files
+  Code generation Exceptions
+  ClassLoader
+  Two pass code generation
+
+ClassMaker classes in the debugger
+    Source code and line numbers
+    Scoped variables
+    Stepping through generating source code
+
