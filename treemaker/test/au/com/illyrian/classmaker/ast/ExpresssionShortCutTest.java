@@ -1,0 +1,67 @@
+// Copyright (c) 2010, Donald Strong.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice, this
+//    list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// The views and conclusions contained in the software and documentation are those
+// of the authors and should not be interpreted as representing official policies,
+// either expressed or implied, of the FreeBSD Project.
+
+package au.com.illyrian.classmaker.ast;
+
+import junit.framework.TestCase;
+import au.com.illyrian.classmaker.SourceLine;
+import au.com.illyrian.classmaker.types.Type;
+
+public class ExpresssionShortCutTest extends TestCase
+{
+    MockExpressionIfc buf = new MockExpressionIfc();
+    AstExpressionVisitor visitor = new AstExpressionVisitor(buf);
+    AstExpressionFactoryNew ast = new AstExpressionFactoryNew();
+   
+    public void testAndThen()
+    {
+        AstExpression expr = ast.AndThen(ast.AndThen(ast.Name("a"), ast.Name("b")), ast.Name("c"));
+        assertEquals("Wrong toString()", "a && b  && c ", expr.toString());
+        Type type = expr.resolveType(visitor);
+        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong output", "load(a) {&&$ load(b) &&$ load(c) ,$} ", buf.toString());        
+    }
+
+    public void testOrElse()
+    {
+        AstExpression expr = ast.OrElse(ast.OrElse(ast.Name("a"), ast.Name("b")), ast.Name("c"));
+        assertEquals("Wrong toString()", "a || b  || c ", expr.toString());
+        Type type = expr.resolveType(visitor);
+        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong output", "load(a) {||$ load(b) ||$ load(c) ,$} ", buf.toString());        
+    }
+    /*
+    public void testAndThenOrElse()
+    {
+        AstExpression expr = ast.OrElse(ast.AndThen(ast.Name("a"), ast.Name("b")), ast.Name("c"));
+        assertEquals("Wrong toString()", "a && b  || c ", expr.toString());
+        Type type = expr.resolveType(visitor);
+        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong output", "load(a) {&&$ load(b) {||$ load(c) $}} ", buf.toString());        
+    }
+    */
+}
