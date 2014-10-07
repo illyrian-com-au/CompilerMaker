@@ -163,7 +163,7 @@ public class ExampleClassesTest extends TestCase
         assertEquals("Unary test", 4, exec.eval(2, 2));
     }
 
-    // Classes Example - Implementing an generated Interface 
+    // Classes Example - Implementing a generated Interface 
     public void testGeneratedInterface() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
@@ -225,7 +225,8 @@ public class ExampleClassesTest extends TestCase
         assertTrue("File does not exist: " + classFile.getAbsolutePath(), classFile.exists());
         
         // Load the Class from the classpath and create an instance.
-        Class squareClass = ClassMakerBase.getSharedFactory().getClassLoader().loadClass(className);
+        //Class squareClass = ClassMakerBase.getSharedFactory().getClassLoader().loadClass(className);
+        Class squareClass = maker.getFactory().getClassLoader().loadClass(className);
         assertEquals("Class Name", className, squareClass.getName());
         Square exec = (Square)squareClass.newInstance();
         assertEquals("Square test", 4, exec.square(2));

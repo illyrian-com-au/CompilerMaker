@@ -45,7 +45,8 @@ public abstract class AstExpressionBase implements AstExpression, SourceLine
     
     public String resolvePath(AstExpressionVisitor visitor)
     {
-        return null;
+        //return null;
+        throw new IllegalStateException("Cannot resolve Path: " + getClass().getSimpleName());
     }
 
     /**
@@ -70,12 +71,12 @@ public abstract class AstExpressionBase implements AstExpression, SourceLine
 
     public AndOrExpression resolveOrElse(AstExpressionVisitor visitor)
     {
-        throw new IllegalStateException("Cannot resolve OrElse: " + getClass().getSimpleName());
+    	return visitor.resolveOrElse(this);
     }
 
     public AndOrExpression resolveAndThen(AstExpressionVisitor visitor)
     {
-        throw new IllegalStateException("Cannot resolve AndThen: " + getClass().getSimpleName());
+    	return visitor.resolveAndThen(this);
     }
 
     public void setSourceLine(SourceLine sourceLine)

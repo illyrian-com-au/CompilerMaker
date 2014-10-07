@@ -1,2 +1,6 @@
 /build
 /build-dstrong.properties
+/.settings/
+/.classpath
+/.DS_Store
+/.project

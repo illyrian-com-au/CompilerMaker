@@ -470,18 +470,6 @@ public class ExpresssionBasicTest extends TestCase
         } catch (IllegalStateException ex) {
             // success
         }
-        try {
-            term.resolveOrElse(visitor);
-            fail("Expected IllegalStateException");
-        } catch (IllegalStateException ex) {
-            // success
-        }
-        try {
-            term.resolveAndThen(visitor);
-            fail("Expected IllegalStateException");
-        } catch (IllegalStateException ex) {
-            // success
-        }
         
         try {
             visitor.resolveType(term);

@@ -43,7 +43,16 @@ public class ExpresssionShortCutTest extends TestCase
         assertEquals("Wrong toString()", "a && b  && c ", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
-        assertEquals("Wrong output", "load(a) {&&$ load(b) &&$ load(c) ,$} ", buf.toString());        
+        assertEquals("Wrong output", "load(a) {&& load(b) && load(c) } ", buf.toString());        
+    }
+
+    public void testAndThen4()
+    {
+        AstExpression expr = ast.AndThen(ast.AndThen(ast.AndThen(ast.Name("a"), ast.Name("b")), ast.Name("c")), ast.Name("d"));
+        assertEquals("Wrong toString()", "a && b  && c  && d ", expr.toString());
+        Type type = expr.resolveType(visitor);
+        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong output", "load(a) {&& load(b) && load(c) && load(d) } ", buf.toString());        
     }
 
     public void testOrElse()
@@ -52,16 +61,42 @@ public class ExpresssionShortCutTest extends TestCase
         assertEquals("Wrong toString()", "a || b  || c ", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
-        assertEquals("Wrong output", "load(a) {||$ load(b) ||$ load(c) ,$} ", buf.toString());        
+        assertEquals("Wrong output", "load(a) {|| load(b) || load(c) } ", buf.toString());        
     }
-    /*
+    
     public void testAndThenOrElse()
     {
         AstExpression expr = ast.OrElse(ast.AndThen(ast.Name("a"), ast.Name("b")), ast.Name("c"));
         assertEquals("Wrong toString()", "a && b  || c ", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
-        assertEquals("Wrong output", "load(a) {&&$ load(b) {||$ load(c) $}} ", buf.toString());        
+        assertEquals("Wrong output", "load(a) {&& load(b) } {|| load(c) } ", buf.toString());        
     }
-    */
+
+    public void testOrElseAndThen()
+    {
+        AstExpression expr = ast.AndThen(ast.OrElse(ast.Name("a"), ast.Name("b")), ast.Name("c"));
+        assertEquals("Wrong toString()", "a || b  && c ", expr.toString());
+        Type type = expr.resolveType(visitor);
+        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong output", "load(a) {|| load(b) } {&& load(c) } ", buf.toString());        
+    }
+
+    public void testOrElseAndThenOrElse()
+    {
+        AstExpression expr = ast.AndThen(ast.OrElse(ast.Name("a"), ast.Name("b")), ast.OrElse(ast.Name("c"), ast.Name("d")));
+        assertEquals("Wrong toString()", "a || b  && c || d  ", expr.toString());
+        Type type = expr.resolveType(visitor);
+        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong output", "load(a) {|| load(b) } {&& load(c) {|| load(d) } } ", buf.toString());        
+    }
+
+    public void testAndThenOrElseAndThen()
+    {
+        AstExpression expr = ast.OrElse(ast.AndThen(ast.Name("a"), ast.Name("b")), ast.AndThen(ast.Name("c"), ast.Name("d")));
+        assertEquals("Wrong toString()", "a && b  || c && d  ", expr.toString());
+        Type type = expr.resolveType(visitor);
+        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong output", "load(a) {&& load(b) } {|| load(c) {&& load(d) } } ", buf.toString());        
+    }
 }

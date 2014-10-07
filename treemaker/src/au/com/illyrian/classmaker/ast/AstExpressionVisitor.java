@@ -440,14 +440,16 @@ public class AstExpressionVisitor
         }
     }
     
-    public AndOrExpression resolveOrElse(AndThenOperator tree)
+    public AndOrExpression resolveOrElse(AstExpression tree)
     {
-    	return null;
+        Type cond = tree.resolveType(this);    	
+        return maker.OrElse(cond);
     }
     
-    public AndOrExpression resolveAndThen(OrElseOperator tree)
+    public AndOrExpression resolveAndThen(AstExpression tree)
     {
-    	return null;
+        Type cond = tree.resolveType(this);    	
+        return maker.AndThen(cond);
     }
     
     public String toString()

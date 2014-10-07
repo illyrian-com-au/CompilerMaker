@@ -51,6 +51,11 @@ public class MethodCall extends AstExpressionBase
         return visitor.resolveCallStack(this);
     }
     
+    public String resolvePath(AstExpressionVisitor visitor)
+    {
+        return null;
+    }
+
     public ActualParameter getParams()
     {
         return params;

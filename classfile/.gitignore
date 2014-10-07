@@ -1,2 +1,6 @@
 /build/
 /lib/
+/.settings/
+/.classpath
+/.DS_Store
+/.project

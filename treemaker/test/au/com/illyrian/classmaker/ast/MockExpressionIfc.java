@@ -226,13 +226,6 @@ public class MockExpressionIfc implements ExpressionIfc, SourceLine
         return callStack;
     }
     
-//    public CallStack Push(DeclaredType declared)
-//    {
-//        CallStack callStack = new CallStack(null);
-//        callStack.setDeclaredType(declared);
-//        return callStack;
-//    }
-
     public CallStack Push()
     {
         return new CallStack(null);
@@ -897,31 +890,31 @@ public class MockExpressionIfc implements ExpressionIfc, SourceLine
     
     public AndOrExpression AndThen(AndOrExpression andOr, Type cond)
     {
-        buf.append("&&$ ");
+        buf.append("&& ");
         return andOr;
     }
 
     public AndOrExpression AndThen(Type cond)
     {
-        buf.append("{&&$ ");
+        buf.append("{&& ");
         return new AndOrExpression();
     }
 
     public AndOrExpression OrElse(AndOrExpression andOr, Type cond)
     {
-        buf.append("||$ ");
+        buf.append("|| ");
         return andOr;
     }
 
     public AndOrExpression OrElse(Type cond)
     {
-        buf.append("{||$ ");
+        buf.append("{|| ");
         return new AndOrExpression();
     }
 
     public Type Logic(AndOrExpression andOr, Type cond)
     {
-        buf.append(",$} ");
+        buf.append("} ");
         return ClassMaker.BOOLEAN_TYPE;
     }
 
