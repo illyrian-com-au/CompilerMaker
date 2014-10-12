@@ -3,7 +3,7 @@ package au.com.illyrian.expressionparser;
 import au.com.illyrian.parser.impl.PrecidenceActionString;
 
 
-public class TextExpressionAction extends PrecidenceActionString implements ExpressionAction
+public class TextExpressionAction extends PrecidenceActionString implements ExpressionAction <String>
 {
     protected StringBuffer module = new StringBuffer();
     

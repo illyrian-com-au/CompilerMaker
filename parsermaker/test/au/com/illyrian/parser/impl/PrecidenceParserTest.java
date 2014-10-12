@@ -7,7 +7,6 @@ import java.io.StringWriter;
 import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.impl.PrecidenceParser;
-
 import junit.framework.TestCase;
 
 public class PrecidenceParserTest extends TestCase
@@ -39,6 +38,8 @@ public class PrecidenceParserTest extends TestCase
         parser.addInfixOperator("%", ExpressionAction.REM, 2, Operator.BINARY, true);
         parser.addInfixOperator("+", ExpressionAction.ADD, 1, Operator.BINARY, true);
         parser.addInfixOperator("-", ExpressionAction.SUBT, 1, Operator.BINARY, true);
+        PrecidenceActionString actions = new PrecidenceActionString();
+        parser.setPrecidenceActions(actions);
         return parser;
     }
 
@@ -102,6 +103,8 @@ public class PrecidenceParserTest extends TestCase
         parser.addInfixOperator("+", ExpressionAction.ADD, 11, Operator.BINARY, true);
         parser.addInfixOperator("-", ExpressionAction.SUBT, 11, Operator.BINARY, true);
         parser.addInfixOperator("=", ExpressionAction.ASSIGN, 1, Operator.BINARY, false);
+        PrecidenceActionString actions = new PrecidenceActionString();
+        parser.setPrecidenceActions(actions);
         return parser;
     }
 

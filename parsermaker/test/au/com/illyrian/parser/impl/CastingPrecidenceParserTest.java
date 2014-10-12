@@ -11,6 +11,7 @@ import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.OperatorImpl;
 import au.com.illyrian.parser.impl.PrecidenceParser;
+import au.com.illyrian.parser.maker.ExpressionActionMaker;
 
 public class CastingPrecidenceParserTest extends TestCase
 {
@@ -45,6 +46,8 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.addInfixOperator("||", ExpressionAction.ORELSE, 3, Operator.BINARY, true);
         parser.addInfixOperator("?", ExpressionAction.ORELSE, 2, Operator.BINARY, true);
         parser.addInfixOperator(":", ExpressionAction.ORELSE, 2, Operator.BINARY, true);
+        PrecidenceActionString actions = new PrecidenceActionString();
+        parser.setPrecidenceActions(actions);
         return parser;
     }
 

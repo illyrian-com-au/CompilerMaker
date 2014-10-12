@@ -10,8 +10,6 @@
 
 package au.com.illyrian.expressionparser;
 
-import au.com.illyrian.parser.Operator;
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.PrecidenceAction;
 
 /**
@@ -20,7 +18,7 @@ import au.com.illyrian.parser.impl.PrecidenceAction;
  *
  * @author strongd
  */
-public interface ExpressionAction extends PrecidenceAction
+public interface ExpressionAction <T> extends PrecidenceAction <T>
 {
 //    /* Unary operators */
 //    public static final int DOT = 9;

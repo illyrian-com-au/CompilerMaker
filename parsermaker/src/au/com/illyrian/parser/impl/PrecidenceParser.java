@@ -25,7 +25,7 @@ public class PrecidenceParser extends ParserBase
     public PrecidenceAction getPrecidenceActions()
     {
         if (precidenceActions == null)
-            precidenceActions = defaultPrecidenceActions();
+        	throw new IllegalStateException("PrecidenceAction not provided.");
         return precidenceActions;
     }
 
@@ -33,14 +33,6 @@ public class PrecidenceParser extends ParserBase
     {
         precidenceActions = actions;
     }
-
-    public PrecidenceAction defaultPrecidenceActions()
-    {
-        PrecidenceActionString action = new PrecidenceActionString();
-        getCompileUnit().visitParser(action); // FIXME - change to visit()
-        return action;
-    }
-
 
     public Operator addInfixOperator(String name, int index, int precedence, int arity, boolean leftAssociative)
     {

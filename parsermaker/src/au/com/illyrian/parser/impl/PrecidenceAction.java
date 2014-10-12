@@ -20,7 +20,7 @@ import au.com.illyrian.parser.ParserException;
  *
  * @author strongd
  */
-public interface PrecidenceAction
+public interface PrecidenceAction<T>
 {
     /* Unary operators */
     public static final int DOT = 9;
@@ -72,7 +72,7 @@ public interface PrecidenceAction
      * @throws ParserException
      *             - if an error occurs.
      */
-    public Object literalAction(Integer value) throws ParserException;
+    public T literalAction(Integer value) throws ParserException;
 
     /**
      * Perform an action to process an Identifier.
@@ -83,7 +83,7 @@ public interface PrecidenceAction
      * @throws ParserException -
      *             if an error occurs.
      */
-    public Object identifierAction(String name) throws ParserException;
+    public T identifierAction(String name) throws ParserException;
 
     /**
      * Perform an action to process an Integer.
@@ -92,7 +92,7 @@ public interface PrecidenceAction
      * @return an object representing the literal.
      * @throws ParserException - if an error occurs.
      */
-    public Object literalAction(Lexer lexer) throws ParserException;
+    public T literalAction(Lexer lexer) throws ParserException;
 
     /**
      * Perform an action to process parentheses.
@@ -103,7 +103,7 @@ public interface PrecidenceAction
      * @throws ParserException -
      *             if an error occurs.
      */
-    public Object parenthesesAction(Object expr) throws ParserException;
+    public T parenthesesAction(T expr) throws ParserException;
 
     /**
      * Perform an action to process an infix operator.
@@ -114,7 +114,7 @@ public interface PrecidenceAction
      * @return an object representing the operation
      * @throws ParserException - if an error occurs
      */
-    public Object infixAction(Operator operator, Object leftOperand, Object rightOperand) throws ParserException;
+    public T infixAction(Operator operator, T leftOperand, T rightOperand) throws ParserException;
 
     /**
      * Perform an action to process an infix operator.
@@ -124,7 +124,7 @@ public interface PrecidenceAction
      * @return an object representing the operation
      * @throws ParserException - if an error occurs
      */
-    public Object prefixAction(Operator operator, Object operand) throws ParserException;
+    public T prefixAction(Operator operator, T operand) throws ParserException;
 
     /**
      * Perform an action to process an infix operator.
@@ -134,24 +134,24 @@ public interface PrecidenceAction
      * @return an object representing the operation
      * @throws ParserException - if an error occurs
      */
-    public Object postfixAction(Operator operator, Object operand) throws ParserException;
+    public T postfixAction(Operator operator, T operand) throws ParserException;
 
-    public Object bracketAction(Operator operator, Object leftOperand, Object rightOperand) throws ParserException;
+    public T bracketAction(Operator operator, T leftOperand, T rightOperand) throws ParserException;
 
-    public Object assignAction(Operator operator, Object leftOperand, String name, Object rightOperand) throws ParserException;
+    public T assignAction(Operator operator, T leftOperand, String name, T rightOperand) throws ParserException;
 
-    public Object assignAction(Operator operator, String name, Object rightOperand) throws ParserException;
+    public T assignAction(Operator operator, String name, T rightOperand) throws ParserException;
 
-    public Object postProcess(Object result) throws ParserException;
+    public T postProcess(T result) throws ParserException;
 
-    public Object castAction(Object type, Object value) throws ParserException;
+    public T castAction(T type, T value) throws ParserException;
 
-    public Object callAction(Object callStack) throws ParserException;
+    public T callAction(T callStack) throws ParserException;
 
-    public Object beginParameters(Object name) throws ParserException;
+    public T beginParameters(T name) throws ParserException;
 
-    public Object addParameter(Object callStack, Object param) throws ParserException;
+    public T addParameter(T callStack, T param) throws ParserException;
 
-    public Object preProcess(Object operand, Operator nextOperator) throws ParserException;
+    public T preProcess(T operand, Operator nextOperator) throws ParserException;
 
 }
