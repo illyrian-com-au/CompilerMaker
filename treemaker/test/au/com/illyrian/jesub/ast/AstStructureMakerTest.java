@@ -14,12 +14,6 @@ public class AstStructureMakerTest extends ClassMakerTestCase
 {
     ClassMakerFactory factory = new ClassMakerFactory();
     ClassMaker maker = factory.createClassMaker();
-    AstExpressionFactory expr;
-
-    public void setUp()
-    {
-        expr = new AstExpressionFactory(maker);
-    }
 
     public void testDeclareModule() throws Exception
     {

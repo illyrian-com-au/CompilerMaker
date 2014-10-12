@@ -39,6 +39,7 @@ public class AstExpressionFactory
     Stack<AstExpression>  stack = new Stack<AstExpression>();
     AstExpressionVisitor visitor;
     
+    // FIXME - make private then remove.
     public AstExpressionFactory(ExpressionIfc classMaker)
     {
         maker = classMaker;

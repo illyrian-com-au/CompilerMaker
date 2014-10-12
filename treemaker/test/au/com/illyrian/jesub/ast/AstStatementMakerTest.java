@@ -5,6 +5,7 @@ import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
+import au.com.illyrian.classmaker.ast.AstExpressionFactoryNew;
 import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.ast.TerminalName;
 
@@ -12,12 +13,6 @@ public class AstStatementMakerTest extends ClassMakerTestCase
 {
     ClassMakerFactory factory = new ClassMakerFactory();
     ClassMaker maker = factory.createClassMaker();
-    AstExpressionFactory expr;
-
-    public void setUp()
-    {
-        expr = new AstExpressionFactory(maker);
-    }
 
     public interface Eval
     {
