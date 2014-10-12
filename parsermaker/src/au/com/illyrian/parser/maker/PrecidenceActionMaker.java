@@ -29,7 +29,7 @@ package au.com.illyrian.parser.maker;
 
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerLocation;
-import au.com.illyrian.classmaker.ast.AstExpressionFactory;
+import au.com.illyrian.classmaker.ast.AstExpressionFactoryOld;
 import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.Operator;
@@ -39,7 +39,7 @@ import au.com.illyrian.parser.impl.PrecidenceAction;
 public class PrecidenceActionMaker implements PrecidenceAction, ClassMakerLocation
 {
     private ClassMaker  maker = null;
-    AstExpressionFactory ast = null;
+    AstExpressionFactoryOld ast = null;
 
     public void setClassMaker(ClassMaker classMaker) 
     {
@@ -53,10 +53,10 @@ public class PrecidenceActionMaker implements PrecidenceAction, ClassMakerLocati
         return maker;
     }
     
-    AstExpressionFactory ast()
+    AstExpressionFactoryOld ast()
     {
         if (ast == null)
-            ast = new AstExpressionFactory(getClassMaker());
+            ast = new AstExpressionFactoryOld(getClassMaker());
         return ast;
     }
 

@@ -34,7 +34,7 @@ import au.com.illyrian.jesub.ast.AstStructureVisitor;
 public class ExpresssionMethodCallTest extends TestCase
 {
     MockExpressionIfc buf = new MockExpressionIfc();
-    AstExpressionFactoryNew build = new AstExpressionFactoryNew();
+    AstExpressionFactory build = new AstExpressionFactory();
     AstStructureVisitor visitor = new AstStructureVisitor(buf);
 
     public void testLocalCall()

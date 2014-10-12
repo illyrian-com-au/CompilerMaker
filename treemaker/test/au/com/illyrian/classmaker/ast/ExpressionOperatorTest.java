@@ -34,7 +34,7 @@ public class ExpressionOperatorTest extends TestCase
 {
     MockExpressionIfc buf = new MockExpressionIfc();
     AstExpressionVisitor visitor = new AstExpressionVisitor(buf);
-    AstExpressionFactoryNew ast = new AstExpressionFactoryNew();
+    AstExpressionFactory ast = new AstExpressionFactory();
 
     public void testBasicAdd()
     {

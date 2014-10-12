@@ -27,310 +27,224 @@
 
 package au.com.illyrian.classmaker.ast;
 
-import java.util.EmptyStackException;
-import java.util.Stack;
-
-import au.com.illyrian.classmaker.ExpressionIfc;
-import au.com.illyrian.classmaker.types.Type;
-
 public class AstExpressionFactory
 {
-    private final ExpressionIfc maker;
-    Stack<AstExpression>  stack = new Stack<AstExpression>();
-    AstExpressionVisitor visitor;
-    
-    // FIXME - make private then remove.
-    public AstExpressionFactory(ExpressionIfc classMaker)
+    public AstExpressionFactory()
     {
-        maker = classMaker;
-        visitor = new AstExpressionVisitor(classMaker);
     }
 
-    // State access methods
-    public ExpressionIfc getExpressionIfc()
+    public TerminalName Name(String name)
     {
-        return maker;
+        return new TerminalName(name);
+    }
+    
+    public TerminalString Literal(String string)
+    {
+        return new TerminalString(string);
+    }
+    
+    public TerminalNumber Literal(long value)
+    {
+        return new TerminalNumber(value);
+    }
+    
+    public TerminalNumber Literal(int value)
+    {
+        return new TerminalNumber(value);
+    }
+    
+    public TerminalNumber Literal(short value)
+    {
+        return new TerminalNumber(value);
+    }
+    
+    public TerminalNumber Literal(byte value)
+    {
+        return new TerminalNumber(value);
+    }
+    
+    public TerminalNumber Literal(char ch)
+    {
+        return new TerminalNumber(ch);
+    }
+    
+    public TerminalDecimal Literal(double value)
+    {
+        return new TerminalDecimal(value);
+    }
+    
+    public TerminalDecimal Literal(float value)
+    {
+        return new TerminalDecimal(value);
+    }
+    
+    public DotOperator Dot(AstExpression left, AstExpression right)
+    {
+        return new DotOperator(left, right);
+    }
+    
+    public AssignmentOperator Assign(AstExpression left, AstExpression right)
+    {
+        return new AssignmentOperator(left, right);
+    }
+    
+    public BinaryOperator Add(AstExpression left, AstExpression right)
+    {
+        return new BinaryOperator(BinaryOperator.ADD, left, right);
+    }
+    
+    public BinaryOperator Subt(AstExpression left, AstExpression right)
+    {
+        return new BinaryOperator(BinaryOperator.SUBT, left, right);
+    }
+    
+    public BinaryOperator Mult(AstExpression left, AstExpression right)
+    {
+        return new BinaryOperator(BinaryOperator.MULT, left, right);
+    }
+    
+    public BinaryOperator Div(AstExpression left, AstExpression right)
+    {
+        return new BinaryOperator(BinaryOperator.DIV, left, right);
     }
 
-    public AstExpressionVisitor getVisitor()
+    public BinaryOperator Rem(AstExpression left, AstExpression right)
     {
-        return visitor;
+        return new BinaryOperator(BinaryOperator.REM, left, right);
     }
 
-    public AstExpression peek()
+    public BinaryOperator SHL(AstExpression left, AstExpression right)
     {
-        return stack.peek();
-    }
-    
-    protected void push(AstExpression element)
-    {
-        stack.push(element);
-    }
-    
-    public AstExpression pop()
-    {
-        try {
-            return stack.pop();
-        } catch (EmptyStackException ex) {
-            throw new IllegalStateException(getClass().getSimpleName() + " - Stack is empty");
-        }
+        return new BinaryOperator(BinaryOperator.SHL, left, right);
     }
 
-    public void name(String name)
+    public BinaryOperator SHR(AstExpression left, AstExpression right)
     {
-        push(new TerminalName(name));
-    }
-    
-    public void literal(String string)
-    {
-        push(new TerminalString(string));
-    }
-    
-    public void literal(long value)
-    {
-        push(new TerminalNumber(value));
-    }
-    
-    public void literal(int value)
-    {
-        push(new TerminalNumber(value));
-    }
-    
-    public void literal(short value)
-    {
-        push(new TerminalNumber(value));
-    }
-    
-    public void literal(byte value)
-    {
-        push(new TerminalNumber(value));
-    }
-    
-    public void literal(char ch)
-    {
-        push(new TerminalNumber(ch));
-    }
-    
-    public void literal(double value)
-    {
-        push(new TerminalDecimal(value));
-    }
-    
-    public void literal(float value)
-    {
-        push(new TerminalDecimal(value));
-    }
-    
-    public void dot()
-    {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new DotOperator(left, right));
-    }
-    
-    public void assign()
-    {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new AssignmentOperator(left, right));
-    }
-    
-    public void add()
-    {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.ADD, left, right));
-    }
-    
-    public void subt()
-    {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.SUBT, left, right));
-    }
-    
-    public void mult()
-    {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.MULT, left, right));
-    }
-    
-    public void div()
-    {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.DIV, left, right));
+        return new BinaryOperator(BinaryOperator.SHR, left, right);
     }
 
-    public void rem()
+    public BinaryOperator USHR(AstExpression left, AstExpression right)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.REM, left, right));
+        return new BinaryOperator(BinaryOperator.USHR, left, right);
     }
 
-    public void shl()
+    public BinaryOperator And(AstExpression left, AstExpression right)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.SHL, left, right));
+        return new BinaryOperator(BinaryOperator.AND, left, right);
     }
 
-    public void shr()
+    public BinaryOperator Or(AstExpression left, AstExpression right)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.SHR, left, right));
+        return new BinaryOperator(BinaryOperator.OR, left, right);
     }
 
-    public void ushr()
+    public BinaryOperator Xor(AstExpression left, AstExpression right)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.USHR, left, right));
+        return new BinaryOperator(BinaryOperator.XOR, left, right);
     }
 
-    public void and()
+    public UnaryOperator Neg(AstExpression expr)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.AND, left, right));
-    }
-
-    public void or()
-    {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.OR, left, right));
-    }
-
-    public void xor()
-    {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.XOR, left, right));
-    }
-
-    public void neg()
-    {
-        push(new UnaryOperator(UnaryOperator.NEG, pop()));
+        return new UnaryOperator(UnaryOperator.NEG, expr);
     }
     
-    public void gt()
+    public BinaryOperator GT(AstExpression left, AstExpression right)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.GT, left, right));
+        return new BinaryOperator(BinaryOperator.GT, left, right);
     }
 
-    public void lt()
+    public BinaryOperator LT(AstExpression left, AstExpression right)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.LT, left, right));
+        return new BinaryOperator(BinaryOperator.LT, left, right);
     }
 
-    public void ge()
+    public BinaryOperator GE(AstExpression left, AstExpression right)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.GE, left, right));
+        return new BinaryOperator(BinaryOperator.GE, left, right);
     }
 
-    public void le()
+    public BinaryOperator LE(AstExpression left, AstExpression right)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.LE, left, right));
+        return new BinaryOperator(BinaryOperator.LE, left, right);
     }
 
-    public void eq()
+    public BinaryOperator EQ(AstExpression left, AstExpression right)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.EQ, left, right));
+        return new BinaryOperator(BinaryOperator.EQ, left, right);
     }
 
-    public void ne()
+    public BinaryOperator NE(AstExpression left, AstExpression right)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new BinaryOperator(BinaryOperator.NE, left, right));
+        return new BinaryOperator(BinaryOperator.NE, left, right);
     }
 
-    public void not()
+    public UnaryOperator Not(AstExpression expr)
     {
-        push(new UnaryOperator(UnaryOperator.NOT, pop()));
+        return new UnaryOperator(UnaryOperator.NOT, expr);
     }
     
-    public void inv()
+    public UnaryOperator Inv(AstExpression expr)
     {
-        push(new UnaryOperator(UnaryOperator.INV, pop()));
+        return new UnaryOperator(UnaryOperator.INV, expr);
     }
     
-    public void inc()
+    public IncrementOperator Inc(AstExpression expr)
     {
-        push(new IncrementOperator(pop()));
+        return new IncrementOperator(expr);
     }
     
-    public void dec()
+    public DecrementOperator Dec(AstExpression expr)
     {
-        push(new DecrementOperator(pop()));
+        return new DecrementOperator(expr);
     }
 
-    public void postinc()
+    public PostIncrementOperator PostInc(AstExpression expr)
     {
-        push(new PostIncrementOperator(pop()));
+        return new PostIncrementOperator(expr);
     }
 
-    public void postdec()
+    public PostDecrementOperator PostDec(AstExpression expr)
     {
-        push(new PostDecrementOperator(pop()));
+        return new PostDecrementOperator(expr);
     }
     
-    public void cast()
+    public AndThenOperator AndThen(AstExpression left, AstExpression right)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new CastOperator(left, right));
+        return new AndThenOperator(left, right);
     }
 
-    public void checkinstance()
+    public OrElseOperator OrElse(AstExpression left, AstExpression right)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new InstanceOfOperator(left, right));
+        return new OrElseOperator(left, right);
     }
 
-    public void emptyParams()
+    public CastOperator Cast(AstExpression left, AstExpression right)
     {
-        push(null);
+        return new CastOperator(left, right);
+    }
+
+    public InstanceOfOperator InstanceOf(AstExpression left, AstExpression right)
+    {
+        return new InstanceOfOperator(left, right);
+    }
+
+    public ActualParameter Push(ActualParameter left, AstExpression right)
+    {
+        return new ActualParameter(left, right);
     }
     
-    public void param()
+    public ActualParameter Push(AstExpression expr)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new ActualParameter(left, right));
+        return new ActualParameter(null, expr);
     }
     
-    public void call()
+    public MethodCall Call(TerminalName left, ActualParameter right)
     {
-        AstExpression right = pop();
-        AstExpression left = pop();
-        push(new MethodCall((TerminalName)left, (ActualParameter)right));
-    }
-    
-    public Type resolve()
-    {
-        if (stack.size() != 1)
-            throw new IllegalStateException(getClass().getSimpleName() + " - Stack has more elements: " + this);
-        return pop().resolveType(visitor);
+        return new MethodCall(left, right);
     }
     
     public String toString()
     {
-        return stack.toString();
+        return "AstExpresssionFactory()";
     }
 }
