@@ -38,27 +38,27 @@ public class ExpressionDelegate //implements ExpressionIfc
         return classMaker.New(declared);
     }
 
-    public void Init(ClassType classType, CallStack actualParameters) throws ClassMakerException
+    public void Init(ClassType classType, CallStackMaker actualParameters) throws ClassMakerException
     {
         classMaker.Init(classType, actualParameters);
     }
 
-    public Type Call(Class javaClass, String methodName, CallStack actualParameters) throws ClassMakerException
+    public Type Call(Class javaClass, String methodName, CallStackMaker actualParameters) throws ClassMakerException
     {
         return classMaker.Call(javaClass, methodName, actualParameters);
     }
 
-    public Type Call(String className, String methodName, CallStack actualParameters) throws ClassMakerException
+    public Type Call(String className, String methodName, CallStackMaker actualParameters) throws ClassMakerException
     {
         return classMaker.Call(className, methodName, actualParameters);
     }
 
-    public Type Call(Type reference, String methodName, CallStack actualParameters) throws ClassMakerException
+    public Type Call(Type reference, String methodName, CallStackMaker actualParameters) throws ClassMakerException
     {
         return classMaker.Call(reference, actualParameters);
     }
 
-    public Type Call(Type reference, CallStack actualParameters) throws ClassMakerException
+    public Type Call(Type reference, CallStackMaker actualParameters) throws ClassMakerException
     {
         return classMaker.Call(reference, actualParameters);
     }
@@ -318,7 +318,7 @@ public class ExpressionDelegate //implements ExpressionIfc
         return classMaker.NewArray(arrayType, size);
     }
 
-    public ArrayType NewArray(Type array, CallStack dimensions)
+    public ArrayType NewArray(Type array, CallStackMaker dimensions)
     {
         return classMaker.NewArray(array, dimensions);
     }

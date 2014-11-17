@@ -1,6 +1,5 @@
 package au.com.illyrian.classmaker;
 
-import au.com.illyrian.classmaker.ClassMaker.ForStatement;
 import au.com.illyrian.classmaker.ClassMaker.ForWhile;
 import au.com.illyrian.classmaker.ClassMaker.Labelled;
 import au.com.illyrian.classmaker.members.MakerField;
@@ -88,7 +87,7 @@ public interface ExpressionIfc
 //     * @param classType the type of the base class
 //     * @param actualParameters the types of the actual parameters in the call stack
 //     */
-//    public void Init(ClassType classType, CallStack actualParameters) throws ClassMakerException;
+//    public void Init(ClassType classType, Pushable actualParameters) throws ClassMakerException;
 //
     //################## Method calls ##########################
     /**
@@ -101,7 +100,7 @@ public interface ExpressionIfc
      * @param actualParameters the types of the actual parameters in the call stack
      * @return the return type of the called method
      */
-    //public Type Call(Class javaClass, String methodName, CallStack actualParameters) throws ClassMakerException;
+    //public Type Call(Class javaClass, String methodName, Pushable actualParameters) throws ClassMakerException;
 
     /**
      * Calls a static method in the named class that is appropriate for the actual parameters.
@@ -138,7 +137,7 @@ public interface ExpressionIfc
      * @param actualParameters the types of the actual parameters in the call stack
      * @return the return type of the called method
      */
-    //public Type Call(CallStack actualParameters) throws ClassMakerException;
+    //public Type Call(Pushable actualParameters) throws ClassMakerException;
 
     // Special references
     /**
@@ -1403,11 +1402,9 @@ public interface ExpressionIfc
      * @return the value of the array element before if is decremented
      */
     public Type PostDecAt(Type array, Type index) throws ClassMakerException;
-
+    
     public CallStack Push(Type reference);
 
-//    public CallStack Push(DeclaredType declared);
-    
     public CallStack Push();
 
     /**

@@ -34,13 +34,20 @@ public class PrettyPrintWriter extends PrintWriter
 {
     int offset = 0;
     public static final String BLANKS = "                                        ";
+    boolean isStart = true;
     
     public PrettyPrintWriter()
     {
         super(new StringWriter());
     }
     
-    public int indent(int increment)
+    public void indent()
+    {
+        super.write(BLANKS, 0, offset);
+        isStart = false;
+    }
+    
+    public void println(int increment)
     {
         if (offset + increment > BLANKS.length())
             offset = BLANKS.length();
@@ -48,13 +55,20 @@ public class PrettyPrintWriter extends PrintWriter
             offset = 0;
         else
             offset += increment;
-        return offset;
+    	println();
+    }
+    
+    public void write(String s, int off, int len) 
+    {
+    	if (isStart)
+    		indent();
+    	super.write(s,  off,  len);
     }
     
     public void println()
     {
         super.println();
-        print(BLANKS.substring(0, offset));
+        isStart = true;
     }
     
     public String toString()

@@ -142,9 +142,9 @@ public class ClassMakerTest extends TestCase
         assertEquals("public", ClassMaker.ACC_ABSTRACT, maker.fromModifierString("abstract"));
         assertEquals("public", ClassMaker.ACC_STRICTFP, maker.fromModifierString("strictfp"));
         try {
-            maker.fromModifierString("pulbic");
+            ClassMaker.fromModifierString("pulbic");
             fail("ClassMakerException expected");
-        } catch (ClassMakerException ex)
+        } catch (IllegalArgumentException ex)
         {
             assertEquals("Invalid modifier", "Invalid modifier: pulbic", ex.getMessage());
         }
@@ -154,8 +154,8 @@ public class ClassMakerTest extends TestCase
     {
         try {
             maker.addModifier(ClassMaker.ACC_PUBLIC, "pulbic");
-            fail("ClassMakerException expected");
-        } catch (ClassMakerException ex)
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
         {
             assertEquals("Invalid modifier", "Invalid modifier: pulbic", ex.getMessage());
         }

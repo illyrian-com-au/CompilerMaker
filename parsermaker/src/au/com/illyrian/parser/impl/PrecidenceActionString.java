@@ -26,7 +26,7 @@ public class PrecidenceActionString implements PrecidenceAction<String>
         return callStack + " " + param;
     }
 
-    public String callAction(String callStack) throws ParserException
+    public String callAction(String name, String callStack) throws ParserException
     {
         return callStack + ")";
     }

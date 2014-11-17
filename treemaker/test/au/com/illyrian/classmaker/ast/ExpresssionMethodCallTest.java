@@ -28,12 +28,13 @@
 package au.com.illyrian.classmaker.ast;
 
 import junit.framework.TestCase;
+import au.com.illyrian.classmaker.ExpressionIfc;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public class ExpresssionMethodCallTest extends TestCase
 {
-    MockExpressionIfc buf = new MockExpressionIfc();
+    ExpressionIfc buf = new ClassMakerText();
     AstExpressionFactory build = new AstExpressionFactory();
     AstStructureVisitor visitor = new AstStructureVisitor(buf);
 
@@ -43,7 +44,7 @@ public class ExpresssionMethodCallTest extends TestCase
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong toString()", "f(null) ", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "load(this) call($,f()) ", buf.toString());
+        assertEquals("Wrong output", "[Call(This(), \"f\", Push())]", buf.toString());
     }
 
     public void testDotsCall()
@@ -52,7 +53,7 @@ public class ExpresssionMethodCallTest extends TestCase
     			build.Call(build.Name("f"), null));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "load(x) load($,y) load($,z) call($,f()) ", buf.toString());
+        assertEquals("Wrong output", "[Call(Get(Get(Get(\"x\"), \"y\"), \"z\"), \"f\", Push())]", buf.toString());
     }
 
     public void testStaticCall()
@@ -61,7 +62,7 @@ public class ExpresssionMethodCallTest extends TestCase
     			build.Call(build.Name("f"), null));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong stack contents", "call(\"java.lang.Object\",f()) ", buf.toString());
+        assertEquals("Wrong stack contents", "[Call(\"java.lang.Object\", \"f\", Push())]", buf.toString());
     }
 
     public void testLocalCallParams()
@@ -71,7 +72,7 @@ public class ExpresssionMethodCallTest extends TestCase
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong toString()", "f(1, 2, 3) ", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "load(this) 1 2 3 call($,f($$$)) ", buf.toString());
+        assertEquals("Wrong output", "[Call(This(), \"f\", Push(Literal(1)).Push(Literal(2)).Push(Literal(3)))]", buf.toString());
     }
 
     public void testOtherCallParams()
@@ -80,7 +81,7 @@ public class ExpresssionMethodCallTest extends TestCase
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong toString()", "x.f(1) ", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "load(x) 1 call($,f($)) ", buf.toString());
+        assertEquals("Wrong output", "[Call(Get(\"x\"), \"f\", Push(Literal(1)))]", buf.toString());
     }
 
     public void testStaticCallParams()
@@ -90,7 +91,7 @@ public class ExpresssionMethodCallTest extends TestCase
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong toString()", "java.lang.Object.f(1) ", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "1 call(\"java.lang.Object\",f($)) ", buf.toString());
+        assertEquals("Wrong output", "[Call(\"java.lang.Object\", \"f\", Push(Literal(1)))]", buf.toString());
     }
 
     public void testLocalCallExpressions()
@@ -100,7 +101,7 @@ public class ExpresssionMethodCallTest extends TestCase
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong toString()", "f((2 * 3), \"Hello\", a) ", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "load(this) 2 3 *$$ \"Hello\" load(a) call($,f($$$)) ", buf.toString());
+        assertEquals("Wrong output", "[Call(This(), \"f\", Push(Mult(Literal(2), Literal(3))).Push(Literal(\"Hello\")).Push(Get(\"a\")))]", buf.toString());
     }
 
 }

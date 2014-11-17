@@ -32,6 +32,7 @@ import java.util.Vector;
 
 import au.com.illyrian.classmaker.CallStack;
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerException;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.converters.AssignmentConversion;
 import au.com.illyrian.classmaker.converters.MethodInvocationConversion;
@@ -133,7 +134,7 @@ public class MethodResolver
      * @see MethodInvocationConversion
      * @param candidates the list of candidates
      */
-    void removeIncompatableCandidates(Vector<MakerMethod> candidates, CallStack actualParameters)
+    void removeIncompatableCandidates(Vector<MakerMethod> candidates, CallStack parameters)
     {
         // Compare the actual and formal parameters.
         Iterator<MakerMethod> iter = candidates.iterator();
@@ -141,10 +142,11 @@ public class MethodResolver
         {
             MakerMethod method = iter.next();
             Type[] formalParameters = method.getFormalParams();
+            Type [] actualParameters = parameters.toArray();
 
             // Remove candidates with the wrong number of parameters
             int formalSize = formalParameters.length;
-            int actualSize = actualParameters.size();
+            int actualSize = actualParameters.length;
             if (formalSize != actualSize)
             {
 //                System.out.println("Remove " + method.toString() + ", wrong number of parameters.");
@@ -156,7 +158,7 @@ public class MethodResolver
             for (int i = 0; i < formalSize; i++)
             {
                 Type formal = formalParameters[i];
-                Type actual = actualParameters.get(i);
+                Type actual = actualParameters[i];
                 if (!invokeConverter.isConvertable(actual, formal))
                 {
 //                    System.out.println("Remove " + method.toString() + ", incompatable parameter:"

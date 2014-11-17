@@ -241,7 +241,7 @@ public class ClassMaker implements ExpressionIfc
     public static final String CONTINUE = "continue";
 
     /** An empty call stack that may be used to call methods with no parameters */
-    private final CallStack EMPTY_CALL_STACK = new CallStack(this);
+    private final CallStackMaker EMPTY_CALL_STACK = new CallStackMaker(this);
     /** Constant for the name of a constructor method */
     public static final String INIT = "<init>";
 
@@ -973,7 +973,7 @@ public class ClassMaker implements ExpressionIfc
         return modifiers | modifier;
     }
     
-    public int fromModifierString(String value)
+    public static int fromModifierString(String value)
     {
         if ("public".equals((value)))
             return ClassMaker.ACC_PUBLIC;
@@ -998,7 +998,7 @@ public class ClassMaker implements ExpressionIfc
         else if ("strictfp".equals((value)))
             return ClassMaker.ACC_STRICTFP;
         else 
-            throw createException("ClassMaker.InvalidModifier_1", value);
+            throw new IllegalArgumentException("Invalid modifier: " + value);
     }
 
     /**
@@ -2240,7 +2240,7 @@ public class ClassMaker implements ExpressionIfc
      * @param actualParameters the Types of the actual parameters in the call stack
      * @return the return type of the called method
      */
-    public Type Call(Type reference, CallStack actualParameters) throws ClassMakerException
+    public Type Call(Type reference, CallStackMaker actualParameters) throws ClassMakerException
     {
         return methodCall(reference, actualParameters, false);
     }
@@ -2492,7 +2492,7 @@ public class ClassMaker implements ExpressionIfc
      */
     public CallStack Push() throws ClassMakerException
     {
-        return new CallStack(this);
+        return new CallStackMaker(this);
     }
 
     /**
@@ -4996,7 +4996,7 @@ public class ClassMaker implements ExpressionIfc
                 return BOOLEAN_TYPE;
             }
         }
-        throw new IllegalArgumentException("Cannot GT(" + op1.getName() + "," + op2.getName() + ")");
+        throw createException("ClassMaker.CannotGTTypes_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -5046,7 +5046,7 @@ public class ClassMaker implements ExpressionIfc
                 return BOOLEAN_TYPE;
             }
         }
-        throw new IllegalArgumentException("Cannot GE(" + op1.getName() + "," + op2.getName() + ")");
+        throw createException("ClassMaker.CannotGETypes_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -5096,7 +5096,7 @@ public class ClassMaker implements ExpressionIfc
                 return BOOLEAN_TYPE;
             }
         }
-        throw new IllegalArgumentException("Cannot LE(" + op1.getName() + "," + op2.getName() + ")");
+        throw createException("ClassMaker.CannotLETypes_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -5146,7 +5146,7 @@ public class ClassMaker implements ExpressionIfc
                 return BOOLEAN_TYPE;
             }
         }
-        throw new IllegalArgumentException("Cannot LT(" + op1.getName() + "," + op2.getName() + ")");
+        throw createException("ClassMaker.CannotLTTypes_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -5181,6 +5181,7 @@ public class ClassMaker implements ExpressionIfc
             markLineNumber(); // possibly add a new line number entry.
             switch (op1.toPrimitive().index)
             {
+            case PrimitiveType.BOOLEAN_INDEX: // fall thru
             case PrimitiveType.BYTE_INDEX: // fall thru
             case PrimitiveType.SHORT_INDEX: // fall thru
             case PrimitiveType.CHAR_INDEX: // fall thru
@@ -5201,7 +5202,7 @@ public class ClassMaker implements ExpressionIfc
                 return BOOLEAN_TYPE;
             }
         }
-        throw new IllegalArgumentException("Cannot EQ(" + op1.getName() + "," + op2.getName() + ")");
+        throw createException("ClassMaker.CannotEQTypes_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -5237,6 +5238,7 @@ public class ClassMaker implements ExpressionIfc
             markLineNumber(); // possibly add a new line number entry.
             switch (op1.toPrimitive().index)
             {
+            case PrimitiveType.BOOLEAN_INDEX: // fall thru
             case PrimitiveType.BYTE_INDEX: // fall thru
             case PrimitiveType.SHORT_INDEX: // fall thru
             case PrimitiveType.CHAR_INDEX: // fall thru
@@ -5257,7 +5259,7 @@ public class ClassMaker implements ExpressionIfc
                 return BOOLEAN_TYPE;
             }
         }
-        throw new IllegalArgumentException("Cannot NE(" + op1.getName() + "," + op2.getName() + ")");
+        throw createException("ClassMaker.CannotNETypes_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -5385,14 +5387,15 @@ public class ClassMaker implements ExpressionIfc
         if (!isArray(array))
             throw createException("ClassMaker.NotATypeOfArray_1", array.getName());
         ArrayType arrayType = array.toArray();
-        for (int i = 0; i < dimensions.size(); i++)
+        Type [] dims = dimensions.toArray();
+        for (int i = 0; i < dims.length; i++)
         {
-            Type sizeType = dimensions.get(i);
+            Type sizeType = dims[i];
             checkArrayDimensionType("Type of array dimension " + i, sizeType);
         }
         markLineNumber(); // possibly add a new line number entry.
 
-        cfw.add(ByteCode.MULTIANEWARRAY, arrayType.getSignature(), (byte) dimensions.size());
+        cfw.add(ByteCode.MULTIANEWARRAY, arrayType.getSignature(), (byte) dims.length);
         return arrayType;
     }
 
@@ -8200,6 +8203,7 @@ public class ClassMaker implements ExpressionIfc
      */
     public static class AndOrExpression
     {
+    	public AndOrExpression prev = null;
         /** jump address for AND logic */
         public int jumpAnd = 0;
         /** jump address for OR logic */
@@ -8224,22 +8228,42 @@ public class ClassMaker implements ExpressionIfc
     public Type Logic(AndOrExpression andOr, Type cond)
     {
         if (getClassFileWriter() == null) return null;
-//        Type condType = load(cond);
         if (!BOOLEAN_TYPE.equals(cond))
             throw createException("ClassMaker.LogicConditionMustBeBoolean_1", cond.getName());
-        if (andOr.jumpAnd != 0)
+//        if (andOr.jumpAnd != 0)
+//        {
+//            cfw.markLabel(andOr.jumpAnd);
+//            andOr.jumpAnd = 0;
+//        }
+//        if (andOr.jumpOr != 0)
+//        {
+//            cfw.markLabel(andOr.jumpOr);
+//            andOr.jumpOr = 0;
+//        }
+    	markAndThenLabel(andOr);
+    	markOrElseLabel(andOr);
+
+        return cond;
+    }
+    
+    private void markAndThenLabel(AndOrExpression andOr)
+    {
+        if (andOr != null && andOr.jumpAnd != 0)
         {
             cfw.markLabel(andOr.jumpAnd);
             andOr.jumpAnd = 0;
+            markAndThenLabel(andOr.prev);
         }
+    }
 
-        if (andOr.jumpOr != 0)
+    private void markOrElseLabel(AndOrExpression andOr)
+    {
+        if (andOr != null && andOr.jumpOr != 0)
         {
             cfw.markLabel(andOr.jumpOr);
             andOr.jumpOr = 0;
+            markOrElseLabel(andOr.prev);
         }
-
-        return cond;
     }
 
     /**
@@ -8254,20 +8278,25 @@ public class ClassMaker implements ExpressionIfc
      <pre>
      Logic(AndThen(AndThen(Get("a")), Get("b")), Get("c"))
      </pre>
-     * @param andOr preceeding logical expression
+     * @param previous preceeding logical expression
      * @param cond next conditional expression
      * @return logic expression including shortcut logic
      */
-    public AndOrExpression AndThen(AndOrExpression andOr, Type cond)
+    public AndOrExpression AndThen(AndOrExpression previous, Type cond)
     {
         if (getClassFileWriter() == null) return null;
-        if (andOr.jumpOr != 0)
-        {
-            cfw.markLabel(andOr.jumpOr);
-            andOr.jumpOr = 0;
-        }
-
-        return AndThen(cond);
+//        if (previous.jumpOr != 0)
+//        {
+//            cfw.markLabel(previous.jumpOr);
+//            previous.jumpOr = 0;
+//        }
+        // handle change from && to || operator
+        markOrElseLabel(previous);
+        
+        // Chain similar shortcut operators
+        AndOrExpression andOr = AndThen(cond);
+        andOr.prev = previous;
+        return andOr;
     }
 
     /**
@@ -8319,16 +8348,22 @@ public class ClassMaker implements ExpressionIfc
      * @param cond next conditional expression
      * @return logic expression including shortcut logic
      */
-    public AndOrExpression OrElse(AndOrExpression andOr, Type cond)
+    public AndOrExpression OrElse(AndOrExpression previous, Type cond)
     {
         if (getClassFileWriter() == null) return null;
-        if (andOr.jumpAnd != 0)
-        {
-            cfw.markLabel(andOr.jumpAnd);
-            andOr.jumpAnd = 0;
-        }
-
-        return OrElse(cond);
+//        if (previous.jumpAnd != 0)
+//        {
+//            cfw.markLabel(previous.jumpAnd);
+//            previous.jumpAnd = 0;
+//        }
+//        return OrElse(cond);
+        // handle change from && to || operator
+        markAndThenLabel(previous);
+        
+        // Chain similar shortcut operators
+        AndOrExpression andOr = OrElse(cond);
+        andOr.prev = previous;
+        return andOr;
     }
 
     /**

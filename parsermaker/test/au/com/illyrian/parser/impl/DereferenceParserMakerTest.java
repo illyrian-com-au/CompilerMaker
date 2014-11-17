@@ -1,31 +1,25 @@
 package au.com.illyrian.parser.impl;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
+import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.expressionparser.FuncA;
 import au.com.illyrian.expressionparser.FuncABC;
-import au.com.illyrian.parser.CompileUnit;
+import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Operator;
-import au.com.illyrian.parser.maker.CompileModuleMaker;
-import au.com.illyrian.parser.maker.ExpressionActionMaker;
+import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class DereferenceParserMakerTest extends ClassMakerTestCase
 {
-    StringWriter writer;
-    PrintWriter  out;
     ClassMakerFactory factory = new ClassMakerFactory();
     ClassMaker maker = factory.createClassMaker();
 
-    PrecidenceParser createDereferenceParser()
+    PrecidenceParser createParser()
     {
         PrecidenceParser parser = new PrecidenceParser();
         parser.addInfixOperator(".", ExpressionAction.DOT, 16, Operator.BINARY, true);
@@ -36,22 +30,11 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
         parser.addInfixOperator("+", ExpressionAction.ADD, 11, Operator.BINARY, true);
         parser.addInfixOperator("-", ExpressionAction.SUBT, 11, Operator.BINARY, true);
         parser.addInfixOperator("=", ExpressionAction.ASSIGN, 1, Operator.BINARY, false);
-        ExpressionActionMaker actions = new ExpressionActionMaker();
+        PrecidenceActionFactory actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
         return parser;
     }
 
-    public void setUp()
-    {
-        writer = new StringWriter() ;
-        out = new PrintWriter(writer);
-    }
-
-    public StringReader getReader()
-    {
-        return new StringReader(writer.toString());
-    }
-    
     ClassMaker methodFuncA(ClassMaker maker)
     {
         maker.setPackageName("au.com.illyrian.parser.impl");
@@ -85,27 +68,21 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
         maker.End();
     }
 
-    CompileUnit createCompileModule(PrecidenceParser parser) throws IOException
+    private Type parseExpression(String input) throws ParserException
     {
-        Input input = new LexerInputStream(getReader(), null);
-        
-        CompileModuleMaker compile = new CompileModuleMaker();
-        compile.setInput(input);
-        compile.setClassMaker(maker);
-        compile.visitParser(parser);
-        compile.visitParser(parser.getPrecidenceActions());
-        return compile;
+        Input lexer = new LexerInputString(input);
+        PrecidenceParser parser = createParser();
+        parser.setInput(lexer);
+        parser.nextToken();
+        AstExpression expr = (AstExpression)parser.expression();
+    	AstStructureVisitor visitor = new AstStructureVisitor(maker);
+        return expr.resolveType(visitor);
     }
 
     public void testGetValue1() throws Exception
     {
-        out.println("a");
-        
-        PrecidenceParser parser = createDereferenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("a");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -116,13 +93,8 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
 
     public void testGetValue2() throws Exception
     {
-        out.println("id");
-        
-        PrecidenceParser parser = createDereferenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("id");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -135,13 +107,8 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
 
     public void testGetField1() throws Exception
     {
-        out.println("other.id");
-        
-        PrecidenceParser parser = createDereferenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("other.id");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -154,13 +121,8 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
 
     public void testGetField2() throws Exception
     {
-        out.println("(other).id");
-        
-        PrecidenceParser parser = createDereferenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("(other).id");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -173,13 +135,8 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
 
     public void testGetField3() throws Exception
     {
-        out.println("other.other.id");
-        
-        PrecidenceParser parser = createDereferenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("other.other.id");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -192,14 +149,10 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
 
     public void testGetField4() throws Exception
     {
-        out.println("10 + -other.id + a");
-        
-        PrecidenceParser parser = createDereferenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("10 + -other.id + a");
         endMethod(maker, result);
+//        out.println("10 + -other.id + a");
         
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
@@ -211,13 +164,8 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
 
     public void testGetStatic1() throws Exception
     {
-        out.println("Test.const");
-        
-        PrecidenceParser parser = createDereferenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("Test.const");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -229,14 +177,10 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
 
     public void testGetStatic2() throws Exception
     {
-        out.println("au.com.illyrian.parser.impl.Test.const");
-        
-        PrecidenceParser parser = createDereferenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("au.com.illyrian.parser.impl.Test.const");
         endMethod(maker, result);
+//        out.println("au.com.illyrian.parser.impl.Test.const");
         
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
@@ -247,13 +191,8 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
 
     public void testAssignField1() throws Exception
     {
-        out.println("other.id = 1");
-        
-        PrecidenceParser parser = createDereferenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("other.id = 1");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -268,13 +207,8 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
 
     public void testAssignField2() throws Exception
     {
-        out.println("other.id = a");
-        
-        PrecidenceParser parser = createDereferenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("other.id = a");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -289,13 +223,8 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
 
     public void testAssignStatic1() throws Exception
     {
-        out.println("Test.const = a");
-        
-        PrecidenceParser parser = createDereferenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("Test.const = a");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -310,14 +239,10 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
 
     public void testAssignStatic2() throws Exception
     {
-        out.println("au.com.illyrian.parser.impl.Test.const = a");
-        
-        PrecidenceParser parser = createDereferenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("au.com.illyrian.parser.impl.Test.const = a");
         endMethod(maker, result);
+//        out.println("au.com.illyrian.parser.impl.Test.const = a");
         
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();

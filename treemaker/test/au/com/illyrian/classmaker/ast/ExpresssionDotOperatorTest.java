@@ -30,12 +30,13 @@ package au.com.illyrian.classmaker.ast;
 import junit.framework.TestCase;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerException;
+import au.com.illyrian.classmaker.ExpressionIfc;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public class ExpresssionDotOperatorTest extends TestCase
 {
-    MockExpressionIfc buf = new MockExpressionIfc();
+    ExpressionIfc buf = new ClassMakerText();
     AstExpressionFactory build = new AstExpressionFactory();
     AstStructureVisitor visitor = new AstStructureVisitor(buf);
 
@@ -44,7 +45,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     	AstExpression ast = build.Dot(build.Dot(build.Dot(build.Name("x"), build.Name("y")), build.Name("z")), build.Name("a"));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "load(x) load($,y) load($,z) load($,a) ", buf.toString());
+        assertEquals("Wrong output", "[Get(Get(Get(Get(\"x\"), \"y\"), \"z\"), \"a\")]", buf.toString());
     }
 
     public void testStaticGet_Xyza()
@@ -52,7 +53,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     	AstExpression ast = build.Dot(build.Dot(build.Dot(build.Name("Object"), build.Name("y")), build.Name("z")), build.Name("a"));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "load(\"java.lang.Object\",y) load($,z) load($,a) ", buf.toString());
+        assertEquals("Wrong output", "[Get(Get(Get(\"java.lang.Object\", \"y\"), \"z\"), \"a\")]", buf.toString());
         assertTrue("Stack does not contain a Type", type == ClassMaker.INT_TYPE);
     }
 
@@ -61,7 +62,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     	AstExpression ast = build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Object")), build.Name("a"));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong stack contents", "load(\"java.lang.Object\",a) ", buf.toString());
+        assertEquals("Wrong stack contents", "[Get(\"java.lang.Object\", \"a\")]", buf.toString());
     }
 
     public void testDotInc()
@@ -69,7 +70,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     	AstExpression ast = build.Inc(build.Dot(build.Dot(build.Dot(build.Name("x"), build.Name("y")), build.Name("z")), build.Name("a")));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong stack contents", "load(x) load($,y) load($,z) inc($,a) ", buf.toString());
+        assertEquals("Wrong stack contents", "[Inc(Get(Get(Get(\"x\"), \"y\"), \"z\"), \"a\")]", buf.toString());
     }
 
     public void testStaticInc()
@@ -77,7 +78,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     	AstExpression ast = build.Inc(build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Object")), build.Name("a")));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong stack contents", "inc(\"java.lang.Object\",a) ", buf.toString());
+        assertEquals("Wrong stack contents", "[Inc(\"java.lang.Object\", \"a\")]", buf.toString());
     }
 
     public void testDotDec()
@@ -85,7 +86,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     	AstExpression ast = build.Dec(build.Dot(build.Dot(build.Dot(build.Name("x"), build.Name("y")), build.Name("z")), build.Name("a")));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong stack contents", "load(x) load($,y) load($,z) dec($,a) ", buf.toString());
+        assertEquals("Wrong stack contents", "[Dec(Get(Get(Get(\"x\"), \"y\"), \"z\"), \"a\")]", buf.toString());
     }
 
     public void testStaticDec()
@@ -93,7 +94,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     	AstExpression ast = build.Dec(build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Object")), build.Name("a")));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong stack contents", "dec(\"java.lang.Object\",a) ", buf.toString());
+        assertEquals("Wrong stack contents", "[Dec(\"java.lang.Object\", \"a\")]", buf.toString());
     }
 
     public void testDotPostInc()
@@ -101,7 +102,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     	AstExpression ast = build.PostInc(build.Dot(build.Dot(build.Dot(build.Name("x"), build.Name("y")), build.Name("z")), build.Name("a")));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong stack contents", "load(x) load($,y) load($,z) postinc($,a) ", buf.toString());
+        assertEquals("Wrong stack contents", "[PostInc(Get(Get(Get(\"x\"), \"y\"), \"z\"), \"a\")]", buf.toString());
     }
 
     public void testStaticPostInc()
@@ -109,7 +110,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     	AstExpression ast = build.PostInc(build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Object")), build.Name("a")));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong stack contents", "postinc(\"java.lang.Object\",a) ", buf.toString());
+        assertEquals("Wrong stack contents", "[PostInc(\"java.lang.Object\", \"a\")]", buf.toString());
     }
 
     public void testDotPostDec()
@@ -117,7 +118,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     	AstExpression ast = build.PostDec(build.Dot(build.Dot(build.Dot(build.Name("x"), build.Name("y")), build.Name("z")), build.Name("a")));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong stack contents", "load(x) load($,y) load($,z) postdec($,a) ", buf.toString());
+        assertEquals("Wrong stack contents", "[PostDec(Get(Get(Get(\"x\"), \"y\"), \"z\"), \"a\")]", buf.toString());
     }
 
     public void testStaticPostDec()
@@ -125,7 +126,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     	AstExpression ast = build.PostDec(build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Object")), build.Name("a")));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong stack contents", "postdec(\"java.lang.Object\",a) ", buf.toString());
+        assertEquals("Wrong stack contents", "[PostDec(\"java.lang.Object\", \"a\")]", buf.toString());
     }
 
     public void testUnknownPathDotException()

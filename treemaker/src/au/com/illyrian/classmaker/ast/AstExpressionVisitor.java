@@ -366,7 +366,9 @@ public class AstExpressionVisitor
     
     public String resolvePath(DotOperator term)
     {
-        return term.leftOperand.resolvePath(this) + "." + term.rightOperand.resolvePath(this);
+    	String left = term.leftOperand.resolvePath(this);
+    	String right = term.rightOperand.resolvePath(this);
+        return left + "." + right;
     }
 
     // resolveCallStack(...)

@@ -8,15 +8,19 @@ import java.io.StringWriter;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
+import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.expressionparser.FuncA;
 import au.com.illyrian.expressionparser.FuncABC;
+import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.CompileUnit;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Operator;
+import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.maker.CompileModuleMaker;
 import au.com.illyrian.parser.maker.ExpressionActionMaker;
+import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class MethodParserMakerTest extends ClassMakerTestCase
 {
@@ -25,7 +29,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     ClassMakerFactory factory = new ClassMakerFactory();
     ClassMaker maker = factory.createClassMaker();
     
-    PrecidenceParser createPrecidenceParser()
+    PrecidenceParser createParser()
     {
         PrecidenceParser parser = new JavaOperatorPrecedenceParser();
         parser.addLedOperator("(", ")", ExpressionAction.CALL, 17, Operator.PARAMS, true);
@@ -36,8 +40,8 @@ public class MethodParserMakerTest extends ClassMakerTestCase
         parser.addLedOperator("+", ExpressionAction.ADD, 12, Operator.BINARY, true);
         parser.addLedOperator("-", ExpressionAction.SUBT, 12, Operator.BINARY, true);
 
-        ExpressionActionMaker actions = new ExpressionActionMaker();
-        parser.setPrecidenceActions(actions);
+        PrecidenceActionFactory actions1 = new PrecidenceActionFactory();
+        parser.setPrecidenceActions(actions1);
         return parser;
     }
 
@@ -120,17 +124,23 @@ public class MethodParserMakerTest extends ClassMakerTestCase
         return compile;
     }
 
+    private Type parseExpression(String input) throws ParserException
+    {
+        Input lexer = new LexerInputString(input);
+        PrecidenceParser parser = createParser();
+        parser.setInput(lexer);
+        parser.nextToken();
+        AstExpression expr = (AstExpression)parser.expression();
+    	AstStructureVisitor visitor = new AstStructureVisitor(maker);
+        return expr.resolveType(visitor);
+    }
+
     public void testGetZ() throws Exception
     {
-        out.println("getZ()");
-        
-        PrecidenceParser parser = createPrecidenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("getZ()");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -141,13 +151,8 @@ public class MethodParserMakerTest extends ClassMakerTestCase
 
     public void testSelfGetZ() throws Exception
     {
-        out.println("self.getZ()");
-        
-        PrecidenceParser parser = createPrecidenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("self.getZ()");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -161,13 +166,8 @@ public class MethodParserMakerTest extends ClassMakerTestCase
 
     public void testSetZ() throws Exception
     {
-        out.println("setZ(a)");
-        
-        PrecidenceParser parser = createPrecidenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("setZ(a)");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -181,13 +181,8 @@ public class MethodParserMakerTest extends ClassMakerTestCase
 
     public void testSetABC() throws Exception
     {
-        out.println("set(a, b, c)");
-        
-        PrecidenceParser parser = createPrecidenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncABC(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("set(a, b, c)");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -205,13 +200,8 @@ public class MethodParserMakerTest extends ClassMakerTestCase
 
     public void testSelfSetABC() throws Exception
     {
-        out.println("self.set(a, b, c)");
-        
-        PrecidenceParser parser = createPrecidenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncABC(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("self.set(a, b, c)");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -230,13 +220,8 @@ public class MethodParserMakerTest extends ClassMakerTestCase
 
     public void testOtherA() throws Exception
     {
-        out.println("other.a");
-        
-        PrecidenceParser parser = createPrecidenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("other.a");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -253,48 +238,18 @@ public class MethodParserMakerTest extends ClassMakerTestCase
 
     public void testOtherGetA() throws Exception
     {
-        out.println("other.getA()");
-        
-        PrecidenceParser parser = createPrecidenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("other.getA()");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         Other other = new Other();
         setField(parserClass, instance, "other", other);
-//        setField(parserClass, instance, "self", instance);
         FuncA func = (FuncA)instance;
         assertEquals("Wrong result", 0, func.f(0));
         other.a = 3;
         setIntField(parserClass, instance, "z", 3);
         assertEquals("Wrong result", 3, func.f(0));
     }
-/*
-    public void testMakerOtherGetA() throws Exception
-    {
-        System.out.println("testMakerOtherGetA()");
-        
-        PrecidenceParser parser = createPrecidenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
-        methodFuncA(maker);
-        Object result = maker.Call(maker.Get("other"), "getA", maker.Push());
-        endMethod(maker, result);
-        
-        Class parserClass = maker.defineClass();
-        Object instance = parserClass.newInstance();
-        Other other = new Other();
-        setField(parserClass, instance, "other", other);
-        setField(parserClass, instance, "self", instance);
-        FuncA func = (FuncA)instance;
-        assertEquals("Wrong result", 0, func.f(0));
-        other.a = 3;
-        setIntField(parserClass, instance, "z", 3);
-        assertEquals("Wrong result", 3, func.f(0));
-    }
-*/
 }

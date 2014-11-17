@@ -27,12 +27,13 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.ExpressionIfc;
 import au.com.illyrian.classmaker.types.Type;
 import junit.framework.TestCase;
 
 public class ExpressionOperatorTest extends TestCase
 {
-    MockExpressionIfc buf = new MockExpressionIfc();
+    ExpressionIfc buf = new ClassMakerText();
     AstExpressionVisitor visitor = new AstExpressionVisitor(buf);
     AstExpressionFactory ast = new AstExpressionFactory();
 
@@ -42,7 +43,7 @@ public class ExpressionOperatorTest extends TestCase
         assertEquals("Wrong toString()", "(1 + 2)", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "1 2 +$$ ", buf.toString());
+        assertEquals("Wrong output", "[Add(Literal(1), Literal(2))]", buf.toString());
     }
 
     public void testManyAdds()
@@ -51,7 +52,7 @@ public class ExpressionOperatorTest extends TestCase
         assertEquals("Wrong toString()", "(((1 + 2) + 3) + 4)", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "1 2 +$$ 3 +$$ 4 +$$ ", buf.toString());
+        assertEquals("Wrong output", "[Add(Add(Add(Literal(1), Literal(2)), Literal(3)), Literal(4))]", buf.toString());
     }
 
     public void testManyTypes()
@@ -61,7 +62,7 @@ public class ExpressionOperatorTest extends TestCase
         assertEquals("Wrong toString()", "(((1b + 2s) + 3l) + 'A')", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(long)", type.toString());
-        assertEquals("Wrong output", "1b 2s +$$ 3l +$$ 'A' +$$ ", buf.toString());
+        assertEquals("Wrong output", "[Add(Add(Add(Literal(1), Literal(2)), Literal(3l)), Literal('A'))]", buf.toString());
     }
 
     public void testAssignDecimals()
@@ -70,7 +71,7 @@ public class ExpressionOperatorTest extends TestCase
         assertEquals("Wrong toString()", "x = (3.141f + 9.87654321)", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(double)", type.toString());
-        assertEquals("Wrong output", "3.141f 9.87654321d +$$ assign(x,$) ", buf.toString());
+        assertEquals("Wrong output", "[Assign(\"x\", Add(Literal(3.141f), Literal(9.87654321)))]", buf.toString());
     }
 
     public void testString()
@@ -79,7 +80,7 @@ public class ExpressionOperatorTest extends TestCase
         assertEquals("Wrong toString()", "(\"Hello \" + \"World \")", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "ClassType(java.lang.String)", type.toString());
-        assertEquals("Wrong output", "\"Hello \" \"World \" +$$ ", buf.toString());
+        assertEquals("Wrong output", "[Add(Literal(\"Hello \"), Literal(\"World \"))]", buf.toString());
     }
 
     public void testArithmeticOps1()
@@ -91,7 +92,7 @@ public class ExpressionOperatorTest extends TestCase
         assertEquals("Wrong toString()", "((-(((2 + 3) - 3) * 4) / 2) % 3)", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "2 3 +$$ 3 -$$ 4 *$$ -$ 2 /$$ 3 %$$ ", buf.toString());
+        assertEquals("Wrong output", "[Rem(Div(Neg(Mult(Subt(Add(Literal(2), Literal(3)), Literal(3)), Literal(4))), Literal(2)), Literal(3))]", buf.toString());
     }
 
     public void testBitshiftOps1()
@@ -100,7 +101,7 @@ public class ExpressionOperatorTest extends TestCase
         assertEquals("Wrong toString()", "(~((299 << 3) >> 2) >>> 4)", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "299 3 <<$$ 2 >>$$ ^$ 4 >>>$$ ", buf.toString());
+        assertEquals("Wrong output", "[USHR(Inv(SHR(SHL(Literal(299), Literal(3)), Literal(2))), Literal(4))]", buf.toString());
     }
 
     public void testBitwiseOps1()
@@ -109,7 +110,7 @@ public class ExpressionOperatorTest extends TestCase
         assertEquals("Wrong toString()", "((2 | 3) ^ (2 & 4))", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "2 3 |$$ 2 4 &$$ ~$$ ", buf.toString());
+        assertEquals("Wrong output", "[Xor(Or(Literal(2), Literal(3)), And(Literal(2), Literal(4)))]", buf.toString());
     }
 
     public void testRelationOps1()
@@ -118,7 +119,7 @@ public class ExpressionOperatorTest extends TestCase
         assertEquals("Wrong toString()", "!((2 > 3) == (2 < 4))", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
-        assertEquals("Wrong output", "2 3 >$$ 2 4 <$$ ==$$ !$ ", buf.toString());
+        assertEquals("Wrong output", "[Not(EQ(GT(Literal(2), Literal(3)), LT(Literal(2), Literal(4))))]", buf.toString());
     }
 
     public void testRelationOps2()
@@ -127,7 +128,7 @@ public class ExpressionOperatorTest extends TestCase
         assertEquals("Wrong toString()", "((2 >= 3) != (2 <= 4))", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
-        assertEquals("Wrong output", "2 3 >=$$ 2 4 <=$$ !=$$ ", buf.toString());
+        assertEquals("Wrong output", "[NE(GE(Literal(2), Literal(3)), LE(Literal(2), Literal(4)))]", buf.toString());
     }
 
     public void testNegativeOps()
@@ -138,7 +139,7 @@ public class ExpressionOperatorTest extends TestCase
         assertEquals("Wrong toString()", "-(-2 - -(-3 / -(-2 * -3)))", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "2 -$ 3 -$ 2 -$ 3 -$ *$$ -$ /$$ -$ -$$ -$ ", buf.toString());
+        assertEquals("Wrong output", "[Neg(Subt(Neg(Literal(2)), Neg(Div(Neg(Literal(3)), Neg(Mult(Neg(Literal(2)), Neg(Literal(3))))))))]", buf.toString());
     }
 
 }

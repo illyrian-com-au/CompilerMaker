@@ -1,27 +1,21 @@
 package au.com.illyrian.parser.impl;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
+import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.expressionparser.FuncA;
 import au.com.illyrian.expressionparser.FuncABC;
-import au.com.illyrian.parser.CompileUnit;
+import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Operator;
-import au.com.illyrian.parser.maker.CompileModuleMaker;
-import au.com.illyrian.parser.maker.ExpressionActionMaker;
+import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class AssignParserMakerTest extends ClassMakerTestCase
 {
-    StringWriter writer;
-    PrintWriter  out;
     ClassMakerFactory factory = new ClassMakerFactory();
     ClassMaker maker = factory.createClassMaker();
 
@@ -40,20 +34,9 @@ public class AssignParserMakerTest extends ClassMakerTestCase
         parser.addInfixOperator("+", ExpressionAction.ADD, 11, Operator.BINARY, true);
         parser.addInfixOperator("-", ExpressionAction.SUBT, 11, Operator.BINARY, true);
         parser.addInfixOperator("=", ExpressionAction.ASSIGN, 1, Operator.BINARY, false);
-        ExpressionActionMaker actions = new ExpressionActionMaker();
+        PrecidenceActionFactory actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
         return parser;
-    }
-
-    public void setUp()
-    {
-        writer = new StringWriter() ;
-        out = new PrintWriter(writer);
-    }
-
-    public StringReader getReader()
-    {
-        return new StringReader(writer.toString());
     }
     
     ClassMaker methodFuncA(ClassMaker maker)
@@ -88,27 +71,21 @@ public class AssignParserMakerTest extends ClassMakerTestCase
         maker.End();
     }
 
-    CompileUnit createCompileModule(PrecidenceParser parser) throws IOException
+    private Type parseExpression(String input) throws ParserException
     {
-        Input input = new LexerInputStream(getReader(), null);
-        
-        CompileModuleMaker compile = new CompileModuleMaker();
-        compile.setInput(input);
-        compile.setClassMaker(maker);
-        compile.visitParser(parser);
-        compile.visitParser(parser.getPrecidenceActions());
-        return compile;
+        Input lexer = new LexerInputString(input);
+        PrecidenceParser parser = createIncrementParser();
+        parser.setInput(lexer);
+        parser.nextToken();
+        AstExpression expr = (AstExpression)parser.expression();
+    	AstStructureVisitor visitor = new AstStructureVisitor(maker);
+        return expr.resolveType(visitor);
     }
 
     public void testGetLocal1() throws Exception
     {
-        out.println("a");
-        
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("a");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -122,13 +99,8 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testSimpleMaths1() throws Exception
     {
-        out.println("a * 3 + b / 2");
-        
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncABC(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("a * 3 + b / 2");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -142,13 +114,8 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testSimpleMaths2() throws Exception
     {
-        out.println("a - b * c");
-        
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncABC(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("a - b * c");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -163,13 +130,8 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testSimpleMaths3() throws Exception
     {
-        out.println("a - -b - c");
-        
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncABC(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("a - -b - c");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -181,13 +143,8 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testSimpleMaths4() throws Exception
     {
-        out.println("a / b + a % c");
-        
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncABC(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("a / b + a % c");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -199,15 +156,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     
     public void testAssignLocal1() throws Exception
     {
-        out.println("a = 1");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("a = 1");
         endMethod(maker, result);
-        
+
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
         
         Class parserClass = maker.defineClass();
@@ -220,15 +172,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testAssignLocal2() throws Exception
     {
-        out.println("a = b * c");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncABC(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("a = b * c");
         endMethod(maker, result);
-        
+
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
         
         Class parserClass = maker.defineClass();
@@ -241,15 +188,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testAssignField1() throws Exception
     {
-        out.println("id = 2");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("id = 2");
         endMethod(maker, result);
-        
+
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
         
         Class parserClass = maker.defineClass();
@@ -264,15 +206,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testAssignField2() throws Exception
     {
-        out.println("id = a");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("id = a");
         endMethod(maker, result);
-        
+
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
         
         Class parserClass = maker.defineClass();
@@ -292,15 +229,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testAssignField3() throws Exception
     {
-        out.println("id = a / 3");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("id = a / 3");
         endMethod(maker, result);
-        
+
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
         
         Class parserClass = maker.defineClass();
@@ -320,15 +252,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testAssignField4() throws Exception
     {
-        out.println("id = id + a");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("id = id + a");
         endMethod(maker, result);
-        
+
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
         
         Class parserClass = maker.defineClass();
@@ -347,15 +274,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testIncLocal1() throws Exception
     {
-        out.println("++a");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("++a");
         endMethod(maker, result);
-        
+
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
         
         Class parserClass = maker.defineClass();
@@ -367,15 +289,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testIncLocal2() throws Exception
     {
-        out.println("++a *2");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("++a *2");
         endMethod(maker, result);
-        
+
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
         
         Class parserClass = maker.defineClass();
@@ -387,15 +304,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testPostIncLocal1() throws Exception
     {
-        out.println("a++");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("a++");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -404,15 +316,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testPostIncLocal2() throws Exception
     {
-        out.println("-a++");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("-a++");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -421,15 +328,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testDecLocal1() throws Exception
     {
-        out.println("--a");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("--a");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -438,15 +340,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testDecLocal2() throws Exception
     {
-        out.println("- --a");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("- --a");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -455,15 +352,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testPostDecLocal1() throws Exception
     {
-        out.println("a-- - -1");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("a-- - -1");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -472,15 +364,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testPostDecLocal2() throws Exception
     {
-        out.println("a--");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("a--");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -489,15 +376,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testIncField1() throws Exception
     {
-        out.println("++id");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("++id");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -510,15 +392,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testIncField2() throws Exception
     {
-        out.println("10 - ++id * 2");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("10 - ++id * 2");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -530,15 +407,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testPostIncField1() throws Exception
     {
-        out.println("id++");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("id++");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -550,15 +422,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testPostIncField2() throws Exception
     {
-        out.println("3 + -id++");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("3 + -id++");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -570,15 +437,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testDecField1() throws Exception
     {
-        out.println("--id");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("--id");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -590,15 +452,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testDecField2() throws Exception
     {
-        out.println("1 + --id - 1");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("1 + --id - 1");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -610,15 +467,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testPostDecField1() throws Exception
     {
-        out.println("id--");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("id--");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -630,15 +482,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testPostDecField2() throws Exception
     {
-        out.println("1 + id-- - 1");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("1 + id-- - 1");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncA func = (FuncA)instance;
@@ -652,15 +499,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     
     public void testIncOtherField1() throws Exception
     {
-        out.println("++other.id"); // FIXME - refer to different class
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("++other.id");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         Object other = parserClass.newInstance();
@@ -675,15 +517,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testIncOtherField2() throws Exception
     {
-        out.println("10 - ++other.id * 2");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("10 - ++other.id * 2");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         Object other = parserClass.newInstance();
@@ -697,15 +534,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testPostIncOtherField1() throws Exception
     {
-        out.println("other.id++");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("other.id++");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         Object other = parserClass.newInstance();
@@ -719,15 +551,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testPostIncOtherField2() throws Exception
     {
-        out.println("3 + -other.id++");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("3 + -other.id++");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         Object other = parserClass.newInstance();
@@ -741,15 +568,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testDecOtherField1() throws Exception
     {
-        out.println("--other.id");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("--other.id");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         Object other = parserClass.newInstance();
@@ -763,15 +585,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testDecOtherField2() throws Exception
     {
-        out.println("1 + --other.id - 1");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("1 + --other.id - 1");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         Object other = parserClass.newInstance();
@@ -785,15 +602,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testPostDecOtherField1() throws Exception
     {
-        out.println("other.id--");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("other.id--");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         Object other = parserClass.newInstance();
@@ -807,15 +619,10 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     public void testPostDecOtherField2() throws Exception
     {
-        out.println("1 + other.id-- - 1");
-
-        PrecidenceParser parser = createIncrementParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("1 + other.id-- - 1");
         endMethod(maker, result);
-        
+
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         Object other = parserClass.newInstance();
@@ -826,4 +633,5 @@ public class AssignParserMakerTest extends ClassMakerTestCase
         int id = getIntField(parserClass, other, "id");
         assertEquals("Set Field", 5, id);
     }
+
 }

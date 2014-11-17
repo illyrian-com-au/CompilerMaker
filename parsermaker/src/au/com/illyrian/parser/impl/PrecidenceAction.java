@@ -62,18 +62,6 @@ public interface PrecidenceAction<T>
     /* Other operators */
     public static final int CALL = 101;
     
-    
-    /**
-     * Perform an action to process an Integer.
-     * 
-     * @param value
-     *            - the integer value.
-     * @return an expression structure containing the integer.
-     * @throws ParserException
-     *             - if an error occurs.
-     */
-    public T literalAction(Integer value) throws ParserException;
-
     /**
      * Perform an action to process an Identifier.
      *
@@ -138,20 +126,22 @@ public interface PrecidenceAction<T>
 
     public T bracketAction(Operator operator, T leftOperand, T rightOperand) throws ParserException;
 
-    public T assignAction(Operator operator, T leftOperand, String name, T rightOperand) throws ParserException;
-
-    public T assignAction(Operator operator, String name, T rightOperand) throws ParserException;
-
-    public T postProcess(T result) throws ParserException;
-
     public T castAction(T type, T value) throws ParserException;
 
-    public T callAction(T callStack) throws ParserException;
+    public T callAction(T name, T callStack) throws ParserException;
 
     public T beginParameters(T name) throws ParserException;
 
     public T addParameter(T callStack, T param) throws ParserException;
 
-    public T preProcess(T operand, Operator nextOperator) throws ParserException;
+    /**
+     * @deprecated
+     */
+    public T postProcess(T result) throws ParserException;
+    
+    /**
+     * @deprecated
+     */
+  public T preProcess(T operand, Operator nextOperator) throws ParserException;
 
 }

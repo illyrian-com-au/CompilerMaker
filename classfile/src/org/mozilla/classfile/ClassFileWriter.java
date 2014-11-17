@@ -1420,7 +1420,7 @@ public class ClassFileWriter implements ByteCode {
             int pc = itsLabelTable[label];
             if (pc == -1) {
                 // Unlocated label
-                throw new RuntimeException("Unlocated label");
+                throw new RuntimeException("Unlocated label:" + i + ", fixup: " + fixup);
             }
             // -1 to get delta from instruction start
             int offset = pc - (fixupSite - 1);

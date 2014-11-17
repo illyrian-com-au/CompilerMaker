@@ -49,8 +49,14 @@ public class ClassMakerException extends RuntimeException implements SourceLine
     public ClassMakerException(SourceLine sourceFile, String msg)
     {
         super(msg);
-        filename   = sourceFile.getFilename();
-        lineNumber = sourceFile.getLineNumber();
+        if (sourceFile != null)
+        {
+        	filename   = sourceFile.getFilename();
+        	lineNumber = sourceFile.getLineNumber();
+        } else {
+        	filename = null;
+        	lineNumber = 0;
+        }
     }
 
     /**

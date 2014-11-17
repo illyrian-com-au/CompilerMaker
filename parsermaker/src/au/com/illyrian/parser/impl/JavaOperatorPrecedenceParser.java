@@ -41,7 +41,7 @@ public class JavaOperatorPrecedenceParser extends PrecidenceParser
         {
             Object params = actualParameters(leftOperand);
             expect(Lexer.CLOSE_P, operator.endName, null);
-            leftOperand = getPrecidenceActions().callAction(params);
+            leftOperand = getPrecidenceActions().callAction(leftOperand, params);
         }
         else
           throw new IllegalStateException("Unknown operator arity: " + operator.mode);
@@ -137,8 +137,8 @@ public class JavaOperatorPrecedenceParser extends PrecidenceParser
         Object callStack = getPrecidenceActions().beginParameters(leftOperand);
         while (!match(Lexer.CLOSE_P, ")"))
         {
-            Type param = (Type)expression(0);
-            getPrecidenceActions().addParameter(callStack, param);
+            Object param = expression(0);
+            callStack = getPrecidenceActions().addParameter(callStack, param);
             if (!accept(Lexer.DELIMITER, ",") && !match(Lexer.CLOSE_P, ")"))
                 throw new ParserException("Actual parameter list expected: " + toString());
         }

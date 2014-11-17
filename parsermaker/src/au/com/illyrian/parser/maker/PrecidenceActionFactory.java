@@ -27,89 +27,76 @@
 
 package au.com.illyrian.parser.maker;
 
-import au.com.illyrian.classmaker.ClassMaker;
-import au.com.illyrian.classmaker.ClassMakerLocation;
-import au.com.illyrian.classmaker.ast.AstExpressionFactoryOld;
+import au.com.illyrian.classmaker.ast.ActualParameter;
+import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.ast.AstExpressionFactory;
+import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.expressionparser.ExpressionAction;
+import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.PrecidenceAction;
 
-public class PrecidenceActionMaker implements PrecidenceAction, ClassMakerLocation
+public class PrecidenceActionFactory implements PrecidenceAction
 {
-    private ClassMaker  maker = null;
-    AstExpressionFactoryOld ast = null;
-
-    public void setClassMaker(ClassMaker classMaker) 
-    {
-        maker = classMaker;
-    }
-
-    public ClassMaker getClassMaker()
-    {
-        if (maker == null)
-            throw new NullPointerException("classMaker is null.");
-        return maker;
-    }
+    AstExpressionFactory build = new AstExpressionFactory();
     
-    AstExpressionFactoryOld ast()
+    public PrecidenceActionFactory()
     {
-        if (ast == null)
-            ast = new AstExpressionFactoryOld(getClassMaker());
-        return ast;
+    	super();
     }
 
-    public Object literalAction(Integer value) throws ParserException
+    public AstExpressionFactory ast()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return build;
     }
 
-    public Object identifierAction(String name) throws ParserException
+    public AstExpression identifierAction(String name) throws ParserException
     {
-        ast().name(name);
-        return null;
+        return build.Name(name);
     }
 
     public Object callAction(Object name, Object callStack) throws ParserException
     {
-        ast().call();
-        return null;
+    	TerminalName name1 = (TerminalName)name;
+    	ActualParameter params = (ActualParameter)callStack;
+        return build.Call(name1, params);
     }
 
     public Object beginParameters(Object name) throws ParserException
     {
-        ast().emptyParams();
         return null;
     }
 
     public Object addParameter(Object callStack, Object param) throws ParserException
     {
-        ast().param();
-        return null;
+    	ActualParameter left = (ActualParameter)callStack;
+    	AstExpression right = (AstExpression)param;
+        return build.Push(left, right);
     }
 
-    public Object literalAction(Lexer lexer) throws ParserException
+    public AstExpression literalAction(Lexer lexer) throws ParserException
     {
+    	AstExpression result = null;
         switch (lexer.getToken())
         {
         case Lexer.INTEGER:
-            ast().literal(lexer.getTokenInteger());
+        	result = build.Literal(lexer.getTokenInteger());
             break;
         case Lexer.DECIMAL:
-            ast().literal(lexer.getTokenFloat());
+        	result = build.Literal(lexer.getTokenFloat());
             break;
         case Lexer.CHARACTER:
-            ast().literal(lexer.getTokenInteger());
+        	result = build.Literal(lexer.getTokenInteger());
             break;
         case Lexer.STRING:
-            ast().literal(lexer.getTokenValue());
+        	result = build.Literal(lexer.getTokenValue());
             break;
         default:
             throw new ParserException("Cannot handle: " + lexer);
         }
-        return null;
+        return result;
     }
 
     public Object parenthesesAction(Object expr) throws ParserException
@@ -117,112 +104,138 @@ public class PrecidenceActionMaker implements PrecidenceAction, ClassMakerLocati
         return expr;
     }
 
-    public Object infixAction(Operator operator, Object leftOperand, Object rightOperand)
+    public AstExpression infixAction(Operator operator, Object leftOperand, Object rightOperand)
             throws ParserException
     {
+    	AstExpression result = null;
+    	AstExpression left = (AstExpression)leftOperand;
+    	AstExpression right = (AstExpression)rightOperand;
         switch (operator.getIndex())
         {
         case ExpressionAction.ADD:
-            ast().add();
+            result = build.Add(left, right);
             break;
         case ExpressionAction.SUBT:
-            ast().subt();
+            result = build.Subt(left, right);
             break;
         case ExpressionAction.MULT:
-            ast().mult();
+        	result = build.Mult(left, right);
             break;
         case ExpressionAction.DIV:
-            ast().div();
+        	result = build.Div(left, right);
             break;
         case ExpressionAction.REM:
-            ast().rem();
+        	result = build.Rem(left, right);
             break;
         case ExpressionAction.DOT:
-            ast().dot();
+        	result = build.Dot(left, right);
             break;
         case ExpressionAction.ASSIGN:
-            ast().assign();
+        	result = build.Assign(left, right);
+            break;
+        case ExpressionAction.EQ:
+        	result = build.EQ(left, right);
+            break;
+        case ExpressionAction.NE:
+        	result = build.NE(left, right);
+            break;
+        case ExpressionAction.LE:
+        	result = build.LE(left, right);
+            break;
+        case ExpressionAction.GE:
+        	result = build.GE(left, right);
+            break;
+        case ExpressionAction.GT:
+        	result = build.GT(left, right);
+            break;
+        case ExpressionAction.LT:
+        	result = build.LT(left, right);
+            break;
+        case ExpressionAction.ANDTHEN:
+        	result = build.AndThen(left, right);
+            break;
+        case ExpressionAction.ORELSE:
+        	result = build.OrElse(left, right);
             break;
         default:
             throw new IllegalStateException("Don't know how to process binary operator: " + operator);
         }
-        return null;
+        return result;
     }
 
-    public Object prefixAction(Operator operator, Object operand) throws ParserException
+    public AstExpression prefixAction(Operator operator, Object operand) throws ParserException
     {
+    	AstExpression result = null;
+    	AstExpression expr = (AstExpression)operand;
         switch (operator.getIndex())
         {
         case ExpressionAction.NEG:
-            ast().neg();
+        	result = build.Neg(expr);
             break;
         case ExpressionAction.NOT:
-            ast().not();
+        	result = build.Not(expr);
             break;
         case ExpressionAction.INV:
-            ast().inv();
+        	result = build.Inv(expr);
             break;
         case ExpressionAction.INC:
-            ast().inc();
+        	result = build.Inc(expr);
             break;
         case ExpressionAction.DEC:
-            ast().dec();
+        	result = build.Dec(expr);
             break;
         default:
             throw new IllegalStateException("Don't know how to process prefix operator: " + operator);
         }
-        return null;
+        return result;
     }
 
-    public Object postfixAction(Operator operator, Object operand) throws ParserException
+    public AstExpression postfixAction(Operator operator, Object operand) throws ParserException
     {
+    	AstExpression result = null;
+    	AstExpression expr = (AstExpression)operand;
         switch (operator.getIndex())
         {
         case ExpressionAction.POSTINC:
-            ast().postinc();
+        	result =build.PostInc(expr);
             break;
         case ExpressionAction.POSTDEC:
-            ast().postdec();
+        	result =build.PostDec(expr);
             break;
         default:
             throw new IllegalStateException("Don't know how to process postfix operator: " + operator);
         }
-        return null;
+        return result;
     }
 
-    public Object bracketAction(Operator operator, Object leftOperand, Object rightOperand) throws ParserException
+    public AstExpression bracketAction(Operator operator, Object leftOperand, Object rightOperand) throws ParserException
     {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public Object assignAction(Operator operator, Object leftOperand, String name, Object rightOperand)
-            throws ParserException
+    public AstExpression castAction(Object type, Object value) throws ParserException
     {
-        return null; // FIXME remove assignAction
+    	AstExpression typeExpr = (AstExpression)type;
+    	AstExpression valueExpr = (AstExpression)value;
+        return build.Cast(typeExpr, valueExpr);
     }
 
-    public Object assignAction(Operator operator, String name, Object rightOperand) throws ParserException
-    {
-        // TODO Auto-generated method stub
-        return null; // FIXME remove assignAction
-    }
+    /**
+     * @deprecated
+     */
+	public Object postProcess(Object result) throws ParserException {
+    	AstExpression expr = (AstExpression)result;
+		return expr;
+	}
 
-    public Object preProcess(Object operand, Operator nextOperator) throws ParserException
-    {
-        return operand; // FIXME - remove preprocess
-    }
-
-    public Object postProcess(Object result) throws ParserException
-    {
-        return ast().resolve();
-    }
-
-    public Object castAction(Object type, Object value) throws ParserException
-    {
-        ast().cast();
-        return null;
-    }
+    /**
+     * @deprecated
+     */
+	public Object preProcess(Object operand, Operator nextOperator)
+			throws ParserException {
+		return operand;
+	}
 
     
 }

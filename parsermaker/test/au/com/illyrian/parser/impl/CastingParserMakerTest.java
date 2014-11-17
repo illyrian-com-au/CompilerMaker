@@ -1,31 +1,25 @@
 package au.com.illyrian.parser.impl;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
+import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.expressionparser.FuncA;
 import au.com.illyrian.expressionparser.FuncABC;
-import au.com.illyrian.parser.CompileUnit;
+import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Operator;
-import au.com.illyrian.parser.maker.CompileModuleMaker;
-import au.com.illyrian.parser.maker.ExpressionActionMaker;
+import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class CastingParserMakerTest extends ClassMakerTestCase
 {
-    StringWriter writer;
-    PrintWriter  out;
     ClassMakerFactory factory = new ClassMakerFactory();
     ClassMaker maker = factory.createClassMaker();
     
-    PrecidenceParser createPrecidenceParser()
+    PrecidenceParser createParser()
     {
         PrecidenceParser parser = new JavaOperatorPrecedenceParser();
         parser.addLedOperator(".", ExpressionAction.DOT, 16, Operator.BINARY, true);
@@ -36,22 +30,11 @@ public class CastingParserMakerTest extends ClassMakerTestCase
         parser.addLedOperator("+", ExpressionAction.ADD, 12, Operator.BINARY, true);
         parser.addLedOperator("-", ExpressionAction.SUBT, 12, Operator.BINARY, true);
 
-        ExpressionActionMaker actions = new ExpressionActionMaker();
+        PrecidenceActionFactory actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
         return parser;
     }
 
-    public void setUp()
-    {
-        writer = new StringWriter() ;
-        out = new PrintWriter(writer);
-    }
-
-    public StringReader getReader()
-    {
-        return new StringReader(writer.toString());
-    }
-    
     ClassMaker methodFuncA(ClassMaker maker)
     {
         maker.setPackageName("au.com.illyrian.parser.impl");
@@ -85,27 +68,21 @@ public class CastingParserMakerTest extends ClassMakerTestCase
         maker.End();
     }
 
-    CompileUnit createCompileModule(PrecidenceParser parser) throws IOException
+    private Type parseExpression(String input) throws ParserException
     {
-        Input input = new LexerInputStream(getReader(), null);
-        
-        CompileModuleMaker compile = new CompileModuleMaker();
-        compile.setInput(input);
-        compile.setClassMaker(maker);
-        compile.visitParser(parser);
-        compile.visitParser(parser.getPrecidenceActions());
-        return compile;
+        Input lexer = new LexerInputString(input);
+        PrecidenceParser parser = createParser();
+        parser.setInput(lexer);
+        parser.nextToken();
+        AstExpression expr = (AstExpression)parser.expression();
+    	AstStructureVisitor visitor = new AstStructureVisitor(maker);
+        return expr.resolveType(visitor);
     }
 
     public void testCastingParser1() throws Exception
     {
-        out.println("(byte)a");
-        
-        PrecidenceParser parser = createPrecidenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("(byte)a");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -116,13 +93,8 @@ public class CastingParserMakerTest extends ClassMakerTestCase
 
     public void testCastingParser2() throws Exception
     {
-        out.println("(byte)(a + (char)2)");
-        
-        PrecidenceParser parser = createPrecidenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("(byte)(a + (char)2)");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -133,13 +105,8 @@ public class CastingParserMakerTest extends ClassMakerTestCase
 
     public void testCastingParser3() throws Exception
     {
-        out.println("(short)id");
-        
-        PrecidenceParser parser = createPrecidenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("(short)id");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -152,13 +119,8 @@ public class CastingParserMakerTest extends ClassMakerTestCase
 
     public void testCastingParser4() throws Exception
     {
-        out.println("(short)other.id");
-        
-        PrecidenceParser parser = createPrecidenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("(short) other.id");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -171,13 +133,8 @@ public class CastingParserMakerTest extends ClassMakerTestCase
 
     public void testCastingParser5() throws Exception
     {
-        out.println("(byte)(short)(int)(long)3");
-        
-        PrecidenceParser parser = createPrecidenceParser();
-        createCompileModule(parser);
-        parser.nextToken();
         methodFuncA(maker);
-        Object result = parser.expression();
+        Type result = parseExpression("(byte)(short)(int)(long)3");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
