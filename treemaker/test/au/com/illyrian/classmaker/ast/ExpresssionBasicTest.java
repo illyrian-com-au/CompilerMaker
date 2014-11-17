@@ -188,7 +188,7 @@ public class ExpresssionBasicTest extends TestCase
         assertEquals("Wrong toString()", "Object.a", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "[Get(\"Object\", \"a\")]", buf.toString());
+        assertEquals("Wrong output", "[Get(\"java.lang.Object\", \"a\")]", buf.toString());
     }
 
     public void testIntClassGet()
