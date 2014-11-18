@@ -1,4 +1,4 @@
-package au.com.illyrian.parser.impl;
+package au.com.illyrian.parser.maker;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -18,6 +18,10 @@ import au.com.illyrian.parser.CompileUnit;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.impl.JavaOperatorPrecedenceParser;
+import au.com.illyrian.parser.impl.LexerInputStream;
+import au.com.illyrian.parser.impl.LexerInputString;
+import au.com.illyrian.parser.impl.PrecidenceParser;
 import au.com.illyrian.parser.maker.CompileModuleMaker;
 import au.com.illyrian.parser.maker.ExpressionActionMaker;
 import au.com.illyrian.parser.maker.PrecidenceActionFactory;
@@ -32,13 +36,20 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     PrecidenceParser createParser()
     {
         PrecidenceParser parser = new JavaOperatorPrecedenceParser();
-        parser.addLedOperator("(", ")", ExpressionAction.CALL, 17, Operator.PARAMS, true);
-        parser.addLedOperator(".", ExpressionAction.DOT, 16, Operator.BINARY, true);
-        parser.addLedOperator("[", "]", ExpressionAction.DOT, 16, Operator.BRACKET, true);
-        parser.addNudOperator("-", ExpressionAction.NEG, 15, Operator.PREFIX, true);
-        parser.addNudOperator("(", ")", ExpressionAction.CAST, 14, Operator.BRACKET, true);
-        parser.addLedOperator("+", ExpressionAction.ADD, 12, Operator.BINARY, true);
-        parser.addLedOperator("-", ExpressionAction.SUBT, 12, Operator.BINARY, true);
+        parser.addPostfixOperator("(", ")", ExpressionAction.CALL, 17, Operator.PARAMS);
+        parser.addInfixOperator(".", ExpressionAction.DOT, 16, Operator.BINARY, true);
+        parser.addPostfixOperator("[", "]", ExpressionAction.DOT, 16, Operator.BRACKET);
+        parser.addPrefixOperator("-", ExpressionAction.NEG, 15, Operator.PREFIX);
+        parser.addPrefixOperator("(", ")", ExpressionAction.CAST, 14, Operator.BRACKET);
+        parser.addInfixOperator("+", ExpressionAction.ADD, 12, Operator.BINARY, true);
+        parser.addInfixOperator("-", ExpressionAction.SUBT, 12, Operator.BINARY, true);
+//        parser.addLedOperator("(", ")", ExpressionAction.CALL, 17, Operator.PARAMS, true);
+//        parser.addLedOperator(".", ExpressionAction.DOT, 16, Operator.BINARY, true);
+//        parser.addLedOperator("[", "]", ExpressionAction.DOT, 16, Operator.BRACKET, true);
+//        parser.addNudOperator("-", ExpressionAction.NEG, 15, Operator.PREFIX, true);
+//        parser.addNudOperator("(", ")", ExpressionAction.CAST, 14, Operator.BRACKET, true);
+//        parser.addLedOperator("+", ExpressionAction.ADD, 12, Operator.BINARY, true);
+//        parser.addLedOperator("-", ExpressionAction.SUBT, 12, Operator.BINARY, true);
 
         PrecidenceActionFactory actions1 = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions1);

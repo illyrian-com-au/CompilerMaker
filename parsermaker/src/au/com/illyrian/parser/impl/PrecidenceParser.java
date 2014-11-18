@@ -36,28 +36,27 @@ public class PrecidenceParser extends ParserBase
 
     public Operator addInfixOperator(String name, int index, int precedence, int arity, boolean leftAssociative)
     {
-        OperatorImpl op = new OperatorImpl(name, index, precedence, arity, leftAssociative);
-        ledOperators.put(name, op);
-        return op;
+        return addLedOperator(name, null, index, precedence, arity, leftAssociative);
     }
     
     public Operator addPrefixOperator(String name, int index, int precedence, int arity)
     {
-        OperatorImpl op = new OperatorImpl(name, index, precedence, arity, true);
-        nudOperators.put(name, op);
-        return op;
+        return addNudOperator(name, null, index, precedence, arity, true);
+    }
+    
+    public Operator addPrefixOperator(String leftName, String rightName, int index, int precedence, int arity)
+    {
+        return addNudOperator(leftName, rightName, index, precedence, arity, true);
     }
     
     public Operator addPostfixOperator(String name, int index, int precedence, int arity)
     {
-        OperatorImpl op = new OperatorImpl(name, index, precedence, arity, true);
-        ledOperators.put(name, op);
-        return op;
+        return addLedOperator(name, null, index, precedence, arity, true);
     }
     
-    protected OperatorImpl addNudOperator(String name, int index, int precedence, int arity, boolean leftAssociative)
+    public Operator addPostfixOperator(String leftName, String rightName, int index, int precedence, int arity)
     {
-        return addNudOperator(name, null, index, precedence, arity, leftAssociative);
+        return addLedOperator(leftName, rightName, index, precedence, arity, true);
     }
     
     protected OperatorImpl addNudOperator(String leftName, String rightName, int index, int precedence, int arity, boolean leftAssociative)
@@ -65,11 +64,6 @@ public class PrecidenceParser extends ParserBase
         OperatorImpl op = new OperatorImpl(leftName, rightName, index, precedence, arity, leftAssociative);
         nudOperators.put(leftName, op);
         return op;
-    }
-    
-    protected OperatorImpl addLedOperator(String name, int index, int precedence, int arity, boolean leftAssociative)
-    {
-        return addLedOperator(name, null, index, precedence, arity, leftAssociative);
     }
     
     protected OperatorImpl addLedOperator(String leftName, String rightName, int index, int precedence, int arity, boolean leftAssociative)

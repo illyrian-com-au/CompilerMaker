@@ -1,4 +1,4 @@
-package au.com.illyrian.parser.impl;
+package au.com.illyrian.parser.maker;
 
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
@@ -12,6 +12,9 @@ import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.impl.JavaOperatorPrecedenceParser;
+import au.com.illyrian.parser.impl.LexerInputString;
+import au.com.illyrian.parser.impl.PrecidenceParser;
 import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class CastingParserMakerTest extends ClassMakerTestCase
@@ -22,13 +25,13 @@ public class CastingParserMakerTest extends ClassMakerTestCase
     PrecidenceParser createParser()
     {
         PrecidenceParser parser = new JavaOperatorPrecedenceParser();
-        parser.addLedOperator(".", ExpressionAction.DOT, 16, Operator.BINARY, true);
-        parser.addLedOperator("(", ")", ExpressionAction.DOT, 16, Operator.BRACKET, true);
-        parser.addLedOperator("[", "]", ExpressionAction.DOT, 16, Operator.BRACKET, true);
-        parser.addNudOperator("-", ExpressionAction.NEG, 15, Operator.PREFIX, true);
-        parser.addNudOperator("(", ")", ExpressionAction.DOT, 14, Operator.BRACKET, true);
-        parser.addLedOperator("+", ExpressionAction.ADD, 12, Operator.BINARY, true);
-        parser.addLedOperator("-", ExpressionAction.SUBT, 12, Operator.BINARY, true);
+        parser.addInfixOperator(".", ExpressionAction.DOT, 16, Operator.BINARY, true);
+        parser.addPostfixOperator("(", ")", ExpressionAction.DOT, 16, Operator.BRACKET);
+        parser.addPostfixOperator("[", "]", ExpressionAction.DOT, 16, Operator.BRACKET);
+        parser.addPrefixOperator("-", ExpressionAction.NEG, 15, Operator.PREFIX);
+        parser.addPrefixOperator("(", ")", ExpressionAction.DOT, 14, Operator.BRACKET);
+        parser.addInfixOperator("+", ExpressionAction.ADD, 12, Operator.BINARY, true);
+        parser.addInfixOperator("-", ExpressionAction.SUBT, 12, Operator.BINARY, true);
 
         PrecidenceActionFactory actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);

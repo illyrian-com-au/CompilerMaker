@@ -197,7 +197,7 @@ public class JesubParser extends PrecidenceParser
         return declare_body();
     }
 
-    /** access_modifiers :== { "public" | protected" | "private" | "abstract" | "final" 
+    /** access_modifiers :== { "public" | "protected" | "private" | "abstract" | "final" 
      *                                  | "static" | "strictfp" | "transient" | "volatile" */
     public Object access_modifiers() throws ParserException
     {

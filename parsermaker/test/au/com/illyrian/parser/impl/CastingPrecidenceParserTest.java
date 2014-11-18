@@ -35,13 +35,13 @@ public class CastingPrecidenceParserTest extends TestCase
     PrecidenceParser createReferenceParser()
     {
         PrecidenceParser parser = new JavaOperatorPrecedenceParser();
-        parser.addLedOperator("(", ")", ExpressionAction.DOT, 17, Operator.PARAMS, false);
-        parser.addLedOperator(".", ExpressionAction.DOT, 16, Operator.BINARY, true);
-        parser.addLedOperator("[", "]", ExpressionAction.DOT, 16, Operator.BRACKET, true);
-        parser.addNudOperator("-", ExpressionAction.NEG, 15, Operator.PREFIX, true);
-        parser.addNudOperator("(", ")", ExpressionAction.DOT, 14, Operator.BRACKET, true);
-        parser.addLedOperator("+", ExpressionAction.ADD, 12, Operator.BINARY, true);
-        parser.addLedOperator("-", ExpressionAction.SUBT, 12, Operator.BINARY, true);
+        parser.addPostfixOperator("(", ")", ExpressionAction.DOT, 17, Operator.PARAMS);
+        parser.addInfixOperator(".", ExpressionAction.DOT, 16, Operator.BINARY, true);
+        parser.addPostfixOperator("[", "]", ExpressionAction.DOT, 16, Operator.BRACKET);
+        parser.addPrefixOperator("-", ExpressionAction.NEG, 15, Operator.PREFIX);
+        parser.addPrefixOperator("(", ")", ExpressionAction.DOT, 14, Operator.BRACKET);
+        parser.addInfixOperator("+", ExpressionAction.ADD, 12, Operator.BINARY, true);
+        parser.addInfixOperator("-", ExpressionAction.SUBT, 12, Operator.BINARY, true);
         parser.addInfixOperator("&&", ExpressionAction.ORELSE, 4, Operator.BINARY, true);
         parser.addInfixOperator("||", ExpressionAction.ORELSE, 3, Operator.BINARY, true);
         parser.addInfixOperator("?", ExpressionAction.ORELSE, 2, Operator.BINARY, true);

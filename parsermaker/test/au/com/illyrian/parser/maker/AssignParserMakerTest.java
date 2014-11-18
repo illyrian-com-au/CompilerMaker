@@ -1,4 +1,4 @@
-package au.com.illyrian.parser.impl;
+package au.com.illyrian.parser.maker;
 
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
@@ -12,6 +12,8 @@ import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.impl.LexerInputString;
+import au.com.illyrian.parser.impl.PrecidenceParser;
 import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class AssignParserMakerTest extends ClassMakerTestCase
