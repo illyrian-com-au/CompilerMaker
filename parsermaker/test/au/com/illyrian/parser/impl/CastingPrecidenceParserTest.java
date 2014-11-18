@@ -6,12 +6,7 @@ import java.io.StringWriter;
 
 import junit.framework.TestCase;
 import au.com.illyrian.expressionparser.ExpressionAction;
-import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.Operator;
-import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.OperatorImpl;
-import au.com.illyrian.parser.impl.PrecidenceParser;
-import au.com.illyrian.parser.maker.ExpressionActionMaker;
 
 public class CastingPrecidenceParserTest extends TestCase
 {

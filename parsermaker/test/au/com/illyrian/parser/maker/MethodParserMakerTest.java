@@ -22,9 +22,6 @@ import au.com.illyrian.parser.impl.JavaOperatorPrecedenceParser;
 import au.com.illyrian.parser.impl.LexerInputStream;
 import au.com.illyrian.parser.impl.LexerInputString;
 import au.com.illyrian.parser.impl.PrecidenceParser;
-import au.com.illyrian.parser.maker.CompileModuleMaker;
-import au.com.illyrian.parser.maker.ExpressionActionMaker;
-import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class MethodParserMakerTest extends ClassMakerTestCase
 {
