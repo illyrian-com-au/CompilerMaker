@@ -36,6 +36,9 @@ import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.PrecidenceAction;
 
+/**
+ * @deprecated
+ */
 public class PrecidenceActionMaker implements PrecidenceAction, ClassMakerLocation
 {
     private ClassMaker  maker = null;

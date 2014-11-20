@@ -31,7 +31,9 @@ import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.expressionparser.ExpressionAction;
 
-
+/**
+ * @deprecated
+ */
 public class ExpressionActionMaker extends PrecidenceActionMaker implements ExpressionAction
 {
 

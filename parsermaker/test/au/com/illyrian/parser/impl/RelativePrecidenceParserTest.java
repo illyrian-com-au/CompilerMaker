@@ -11,6 +11,7 @@ import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.OperatorImpl;
 import au.com.illyrian.parser.impl.PrecidenceParser;
+import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class RelativePrecidenceParserTest extends TestCase
 {
@@ -36,9 +37,9 @@ public class RelativePrecidenceParserTest extends TestCase
         PrecidenceParser parser = new JavaOperatorPrecedenceParser();
         parser.addInfixOperator("==", ExpressionAction.EQ, 8, Operator.BINARY, true);
         parser.addInfixOperator("!=", ExpressionAction.NE, 8, Operator.BINARY, true);
-        parser.addInfixOperator("&&", ExpressionAction.ORELSE, 4, Operator.SHORTCUT, false);
-        parser.addInfixOperator("||", ExpressionAction.ANDTHEN, 3, Operator.SHORTCUT, false);
-        PrecidenceActionString actions = new PrecidenceActionString();
+        parser.addInfixOperator("&&", ExpressionAction.ANDTHEN, 4, Operator.BINARY, true);
+        parser.addInfixOperator("||", ExpressionAction.ORELSE, 3, Operator.BINARY, true);
+        PrecidenceAction actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
        return parser;
     }
@@ -51,7 +52,7 @@ public class RelativePrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a b == c !=", result.toString());
+        assertEquals("Wrong expression", "((a == b) != c)", result.toString());
     }
 
     public void testShortcutParser2() throws Exception
@@ -62,7 +63,7 @@ public class RelativePrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a &&{b}", result.toString());
+        assertEquals("Wrong expression", "(a && b)", result.toString());
     }
 
     public void testShortcutParser3() throws Exception
@@ -73,7 +74,7 @@ public class RelativePrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a &&{b &&{c &&{d &&{e}}}}", result.toString());
+        assertEquals("Wrong expression", "((((a && b) && c) && d) && e)", result.toString());
     }
 
     public void testShortcutParser4() throws Exception
@@ -84,7 +85,7 @@ public class RelativePrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a ||{b ||{c ||{d ||{e}}}}", result.toString());
+        assertEquals("Wrong expression", "((((a || b) || c) || d) || e)", result.toString());
     }
 
     public void testShortcutParser5() throws Exception
@@ -95,7 +96,7 @@ public class RelativePrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a ||{b &&{c} ||{d &&{e}}}", result.toString());
+        assertEquals("Wrong expression", "((a || (b && c)) || (d && e))", result.toString());
     }
 
     public void testShortcutParser6() throws Exception
@@ -106,7 +107,7 @@ public class RelativePrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a &&{b &&{c}} ||{d &&{e &&{f}}}", result.toString());
+        assertEquals("Wrong expression", "(((a && b) && c) || ((d && e) && f))", result.toString());
     }
 
     public void testShortcutParser7() throws Exception
@@ -117,7 +118,7 @@ public class RelativePrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a ||{b ||{c &&{d} ||{e ||{f}}}}", result.toString());
+        assertEquals("Wrong expression", "((((a || b) || (c && d)) || e) || f)", result.toString());
     }
 
     public void testShortcutParser8() throws Exception
@@ -128,7 +129,7 @@ public class RelativePrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a b == ||{c d != &&{e f ==}}", result.toString());
+        assertEquals("Wrong expression", "((a == b) || ((c != d) && (e == f)))", result.toString());
     }
 
     public void testShortcutParser9() throws Exception
@@ -139,7 +140,7 @@ public class RelativePrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a b == &&{c d !=} ||{e f ==}", result.toString());
+        assertEquals("Wrong expression", "(((a == b) && (c != d)) || (e == f))", result.toString());
     }
 
 }

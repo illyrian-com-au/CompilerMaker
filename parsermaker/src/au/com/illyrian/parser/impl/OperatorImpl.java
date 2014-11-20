@@ -81,6 +81,7 @@ public class OperatorImpl implements Operator
         buf.append("Operator(\"").append(name).append("\", ");
         if (endName != null)
             buf.append(endName).append(", ");
+        buf.append(index).append(", ");
         buf.append(precedence).append(", ");
         switch (mode)
         {

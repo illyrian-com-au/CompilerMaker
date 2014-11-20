@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.impl.PrecidenceParser;
+import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 import junit.framework.TestCase;
 
 public class PrecidenceParserTest extends TestCase
@@ -31,14 +32,14 @@ public class PrecidenceParserTest extends TestCase
     PrecidenceParser createSimpleParser()
     {
         PrecidenceParser parser = new PrecidenceParser();
-        parser.addInfixOperator("^", ExpressionAction.NOP, 5, Operator.BINARY, false);
+        parser.addInfixOperator("^", ExpressionAction.XOR, 5, Operator.BINARY, false);
         parser.addPrefixOperator("-", ExpressionAction.NEG, 4, Operator.PREFIX);
         parser.addInfixOperator("*", ExpressionAction.MULT, 2, Operator.BINARY, true);
         parser.addInfixOperator("/", ExpressionAction.DIV, 2, Operator.BINARY, true);
         parser.addInfixOperator("%", ExpressionAction.REM, 2, Operator.BINARY, true);
         parser.addInfixOperator("+", ExpressionAction.ADD, 1, Operator.BINARY, true);
         parser.addInfixOperator("-", ExpressionAction.SUBT, 1, Operator.BINARY, true);
-        PrecidenceActionString actions = new PrecidenceActionString();
+        PrecidenceAction actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
         return parser;
     }
@@ -52,7 +53,7 @@ public class PrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("a 3 * b 2 / +", result.toString());
+        assertEquals("((a * 3) + (b / 2))", result.toString());
     }
 
     public void testSimpleParser2() throws Exception
@@ -63,7 +64,7 @@ public class PrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a b ^ c d ^ * e f ^ g (h i +) ^ / +", result.toString());
+        assertEquals("Wrong expression", "(((a ^ b) * (c ^ d)) + ((e ^ f) / (g ^ (h + i))))", result.toString());
     }
 
     public void testSimpleParser3() throws Exception
@@ -74,7 +75,7 @@ public class PrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a b c ^ -$ ^ d e f -$ ^ ^ -$ -", result.toString());
+        assertEquals("Wrong expression", "((a ^ -((b ^ c))) - -((d ^ (e ^ -(f)))))", result.toString());
     }
 
     public void testSimpleParser4() throws Exception
@@ -85,7 +86,7 @@ public class PrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a b * c d ^ - e f * -", result.toString());
+        assertEquals("Wrong expression", "(((a * b) - (c ^ d)) - (e * f))", result.toString());
     }
 
     PrecidenceParser createIncrementParser()
@@ -103,7 +104,7 @@ public class PrecidenceParserTest extends TestCase
         parser.addInfixOperator("+", ExpressionAction.ADD, 11, Operator.BINARY, true);
         parser.addInfixOperator("-", ExpressionAction.SUBT, 11, Operator.BINARY, true);
         parser.addInfixOperator("=", ExpressionAction.ASSIGN, 1, Operator.BINARY, false);
-        PrecidenceActionString actions = new PrecidenceActionString();
+        PrecidenceAction actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
         return parser;
     }
@@ -116,7 +117,7 @@ public class PrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a $--", result.toString());
+        assertEquals("Wrong expression", "(a)--", result.toString());
     }
 
     public void testPostincAddPostdec() throws Exception
@@ -127,7 +128,7 @@ public class PrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a $++ b $-- +", result.toString());
+        assertEquals("Wrong expression", "((a)++ + (b)--)", result.toString());
     }
 
     public void testPostdecMultPostinc() throws Exception
@@ -138,7 +139,7 @@ public class PrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a $-- b $++ *", result.toString());
+        assertEquals("Wrong expression", "((a)-- * (b)++)", result.toString());
     }
 
     public void testIncrementParser1() throws Exception
@@ -149,10 +150,10 @@ public class PrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "b a $-- ++$ -$ =", result.toString());
+        assertEquals("Wrong expression", "(b = -(++((a)--)))", result.toString());
     }
 
-    public void testIncrementParser2() throws Exception
+    public void testAssignNegParser2() throws Exception
     {
         out.println("b = - z.a");
         PrecidenceParser parser = createIncrementParser();
@@ -160,10 +161,10 @@ public class PrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "b z a . -$ =", result.toString());
+        assertEquals("Wrong expression", "(b = -(z.a))", result.toString());
     }
 
-    public void testPostIncParser3() throws Exception
+    public void testPostDecParser3() throws Exception
     {
         out.println("z.a--");
         PrecidenceParser parser = createIncrementParser();
@@ -171,10 +172,10 @@ public class PrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "z a . $--", result.toString());
+        assertEquals("Wrong expression", "(z.a)--", result.toString());
     }
 
-    public void testPreIncParser3() throws Exception
+    public void testPreDecParser3() throws Exception
     {
         out.println("--z.a");
         PrecidenceParser parser = createIncrementParser();
@@ -182,10 +183,10 @@ public class PrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "z a . --$", result.toString());
+        assertEquals("Wrong expression", "--(z.a)", result.toString());
     }
 
-    public void testPrePostIncParser3() throws Exception
+    public void testPrePostDecParser3() throws Exception
     {
         out.println("--z.a--");
         PrecidenceParser parser = createIncrementParser();
@@ -193,6 +194,6 @@ public class PrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "z a . $-- --$", result.toString());
+        assertEquals("Wrong expression", "--((z.a)--)", result.toString());
     }
 }

@@ -157,6 +157,10 @@ public class PrecidenceActionFactory implements PrecidenceAction
         case ExpressionAction.ORELSE:
         	result = build.OrElse(left, right);
             break;
+        case ExpressionAction.XOR:
+        	result = build.Xor(left, right);
+            break;
+            // FIXME add other binary operators
         default:
             throw new IllegalStateException("Don't know how to process binary operator: " + operator);
         }
@@ -210,8 +214,9 @@ public class PrecidenceActionFactory implements PrecidenceAction
 
     public AstExpression bracketAction(Operator operator, Object leftOperand, Object rightOperand) throws ParserException
     {
-        // TODO Auto-generated method stub
-        return null;
+    	AstExpression leftExpr = (AstExpression)leftOperand;
+    	AstExpression rightExpr = (AstExpression)rightOperand;
+        return build.ArrayIndex(leftExpr, rightExpr);
     }
 
     public AstExpression castAction(Object type, Object value) throws ParserException
