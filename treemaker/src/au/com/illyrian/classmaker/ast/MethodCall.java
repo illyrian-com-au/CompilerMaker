@@ -68,6 +68,6 @@ public class MethodCall extends AstExpressionBase
     
     public String toString()
     {
-        return methodName + "(" + params + ") ";
+        return methodName + "(" + params + ")";
     }
 }

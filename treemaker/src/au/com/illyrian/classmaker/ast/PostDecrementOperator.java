@@ -45,6 +45,6 @@ public class PostDecrementOperator extends AstExpressionBase
     
     public String toString()
     {
-        return "postdec(" + operand + ") ";
+        return "(" + operand + ")--";
     }
 }

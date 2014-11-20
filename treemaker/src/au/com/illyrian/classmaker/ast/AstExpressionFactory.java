@@ -223,6 +223,11 @@ public class AstExpressionFactory
         return new CastOperator(left, right);
     }
 
+    public ArrayIndex ArrayIndex(AstExpression left, AstExpression right)
+    {
+        return new ArrayIndex(left, right);
+    }
+
     public InstanceOfOperator InstanceOf(AstExpression left, AstExpression right)
     {
         return new InstanceOfOperator(left, right);

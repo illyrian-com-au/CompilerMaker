@@ -57,7 +57,7 @@ public class CastOperator extends AstExpressionBase
     
     public String toString()
     {
-        return "cast(" + leftOperand + "," + rightOperand + ")";
+        return "cast(" + leftOperand + ", " + rightOperand + ")";
     }
 
 }

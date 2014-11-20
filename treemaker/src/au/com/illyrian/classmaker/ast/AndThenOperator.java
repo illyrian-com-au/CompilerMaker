@@ -61,7 +61,7 @@ public class AndThenOperator extends AstExpressionBase
         if (leftOperand == null)
             return rightOperand + "";
         else
-            return leftOperand + " && " + rightOperand + " ";
+            return "(" + leftOperand + " && " + rightOperand + ")";
     }
 
 }

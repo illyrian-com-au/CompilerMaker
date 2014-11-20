@@ -72,11 +72,11 @@ public class UnaryOperator extends AstExpressionBase
         switch (getOperatorType())
         {
         case NEG:
-            return "-" + operand;
+            return "-(" + operand + ")";
         case INV:
-            return "~" + operand;
+            return "~(" + operand + ")";
         case NOT:
-            return "!" + operand;
+            return "!(" + operand + ")";
         default:
             return operand + " unknown unary operator: " + getOperatorType();
         }

@@ -45,6 +45,6 @@ public class IncrementOperator extends AstExpressionBase
     
     public String toString()
     {
-        return "inc(" + operand + ") ";
+        return "++(" + operand + ")";
     }
 }

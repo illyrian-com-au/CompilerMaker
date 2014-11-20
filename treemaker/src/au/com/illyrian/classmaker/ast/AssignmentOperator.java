@@ -47,7 +47,7 @@ public class AssignmentOperator extends AstExpressionBase
     
     public String toString()
     {
-        return leftOperand + " = " + rightOperand;
+        return "(" + leftOperand + " = " + rightOperand + ")";
     }
 
 }

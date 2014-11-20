@@ -45,6 +45,6 @@ public class DecrementOperator extends AstExpressionBase
     
     public String toString()
     {
-        return "dec(" + operand + ") ";
+        return "--(" + operand + ")";
     }
 }

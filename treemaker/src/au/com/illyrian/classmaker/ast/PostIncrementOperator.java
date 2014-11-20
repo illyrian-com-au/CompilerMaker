@@ -45,6 +45,6 @@ public class PostIncrementOperator extends AstExpressionBase
     
     public String toString()
     {
-        return "postinc(" + operand + ") ";
+        return "(" + operand + ")++";
     }
 }
