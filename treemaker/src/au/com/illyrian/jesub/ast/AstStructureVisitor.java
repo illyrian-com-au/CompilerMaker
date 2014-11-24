@@ -46,10 +46,10 @@ public class AstStructureVisitor extends AstExpressionVisitor
     
     public void resolveDeclaration(AstDeclareModule unit)
     {
-        String packageName = unit.packageName.resolvePath(this);
+        String packageName = unit.getPackageName().resolvePath(this);
         maker.setPackageName(packageName);
-        resolveImport(unit.importsList);
-        unit.declareClass.resolveDeclaration(this);
+        resolveImport(unit.getImportsList());
+        unit.getDeclareClass().resolveDeclaration(this);
     }
 
     public void resolveDeclaration(AstDeclareClass unit)
@@ -72,12 +72,13 @@ public class AstStructureVisitor extends AstExpressionVisitor
         }
     }
     
-    public void resolveImport(Vector<ResolvePath> list)
+    public void resolveImport(ResolvePath[] list)
     {
-        for (ResolvePath item : list)
-        {
-            resolveImport(item);
-        }
+    	if (list != null)
+	        for (ResolvePath item : list)
+	        {
+	            resolveImport(item);
+	        }
     }
     
     public void resolveImport(ResolvePath className)
@@ -88,10 +89,11 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveImplements(ResolvePath[] list)
     {
-        for (ResolvePath item : list)
-        {
-            resolveImplements(item);
-        }
+    	if (list != null)
+	        for (ResolvePath item : list)
+	        {
+	            resolveImplements(item);
+	        }
     }
     
     public void resolveImplements(ResolvePath className)

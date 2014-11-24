@@ -75,7 +75,7 @@ public class AstStatementMakerTest extends ClassMakerTestCase
    
     public void testReturnStatement() throws Exception
     {
-        AstStructureFactory build = new AstStructureFactory();
+        AstStructureFactoryOld build = new AstStructureFactoryOld();
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
         build.Modifier("public");
         build.ClassName(build.Name("Test"));
@@ -106,7 +106,7 @@ public class AstStatementMakerTest extends ClassMakerTestCase
 
     public void testIfBranch() throws Exception
     {
-        AstStructureFactory build = new AstStructureFactory();
+        AstStructureFactoryOld build = new AstStructureFactoryOld();
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
         build.Modifier("public");
         build.ClassName(build.Name("Test"));
@@ -145,7 +145,7 @@ public class AstStatementMakerTest extends ClassMakerTestCase
 
     public void testIfElseBranch() throws Exception
     {
-        AstStructureFactory build = new AstStructureFactory();
+        AstStructureFactoryOld build = new AstStructureFactoryOld();
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
         build.Modifier("public");
         build.ClassName(build.Name("Test"));
@@ -195,7 +195,7 @@ public class AstStatementMakerTest extends ClassMakerTestCase
     
     public void testWhileFactorial() throws Exception
     {
-        AstStructureFactory build = new AstStructureFactory();
+        AstStructureFactoryOld build = new AstStructureFactoryOld();
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
         build.Modifier("public");
         build.ClassName(build.Name("Test"));

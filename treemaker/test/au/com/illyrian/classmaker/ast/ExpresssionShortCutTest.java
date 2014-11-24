@@ -40,7 +40,7 @@ public class ExpresssionShortCutTest extends TestCase
     public void testAndThen()
     {
         AstExpression expr = ast.AndThen(ast.AndThen(ast.Name("a"), ast.Name("b")), ast.Name("c"));
-        assertEquals("Wrong toString()", "a && b  && c ", expr.toString());
+        assertEquals("Wrong toString()", "((a && b) && c)", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
         assertEquals("Wrong output", "[Logic(AndThen(AndThen(Get(\"a\")), Get(\"b\")), Get(\"c\"))]", buf.toString());        
@@ -49,7 +49,7 @@ public class ExpresssionShortCutTest extends TestCase
     public void testAndThen4()
     {
         AstExpression expr = ast.AndThen(ast.AndThen(ast.AndThen(ast.Name("a"), ast.Name("b")), ast.Name("c")), ast.Name("d"));
-        assertEquals("Wrong toString()", "a && b  && c  && d ", expr.toString());
+        assertEquals("Wrong toString()", "(((a && b) && c) && d)", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
         assertEquals("Wrong output", "[Logic(AndThen(AndThen(AndThen(Get(\"a\")), Get(\"b\")), Get(\"c\")), Get(\"d\"))]", buf.toString());        
@@ -58,7 +58,7 @@ public class ExpresssionShortCutTest extends TestCase
     public void testOrElse()
     {
         AstExpression expr = ast.OrElse(ast.OrElse(ast.Name("a"), ast.Name("b")), ast.Name("c"));
-        assertEquals("Wrong toString()", "a || b  || c ", expr.toString());
+        assertEquals("Wrong toString()", "((a || b) || c)", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
         assertEquals("Wrong output", "[Logic(OrElse(OrElse(Get(\"a\")), Get(\"b\")), Get(\"c\"))]", buf.toString());        
@@ -67,7 +67,7 @@ public class ExpresssionShortCutTest extends TestCase
     public void testAndThenOrElse()
     {
         AstExpression expr = ast.OrElse(ast.AndThen(ast.Name("a"), ast.Name("b")), ast.Name("c"));
-        assertEquals("Wrong toString()", "a && b  || c ", expr.toString());
+        assertEquals("Wrong toString()", "((a && b) || c)", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
         assertEquals("Wrong output", "[Logic(OrElse(Logic(AndThen(Get(\"a\")), Get(\"b\"))), Get(\"c\"))]", buf.toString());        
@@ -76,7 +76,7 @@ public class ExpresssionShortCutTest extends TestCase
     public void testOrElseAndThen()
     {
         AstExpression expr = ast.AndThen(ast.OrElse(ast.Name("a"), ast.Name("b")), ast.Name("c"));
-        assertEquals("Wrong toString()", "a || b  && c ", expr.toString());
+        assertEquals("Wrong toString()", "((a || b) && c)", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
         assertEquals("Wrong output", "[Logic(AndThen(Logic(OrElse(Get(\"a\")), Get(\"b\"))), Get(\"c\"))]", buf.toString());        
@@ -85,7 +85,7 @@ public class ExpresssionShortCutTest extends TestCase
     public void testOrElseAndThenOrElse()
     {
         AstExpression expr = ast.AndThen(ast.OrElse(ast.Name("a"), ast.Name("b")), ast.OrElse(ast.Name("c"), ast.Name("d")));
-        assertEquals("Wrong toString()", "a || b  && c || d  ", expr.toString());
+        assertEquals("Wrong toString()", "((a || b) && (c || d))", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
         String expected = 
@@ -96,7 +96,7 @@ public class ExpresssionShortCutTest extends TestCase
     public void testAndThenOrElseAndThen()
     {
         AstExpression expr = ast.OrElse(ast.AndThen(ast.Name("a"), ast.Name("b")), ast.AndThen(ast.Name("c"), ast.Name("d")));
-        assertEquals("Wrong toString()", "a && b  || c && d  ", expr.toString());
+        assertEquals("Wrong toString()", "((a && b) || (c && d))", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
         String expected = 

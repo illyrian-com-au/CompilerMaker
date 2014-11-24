@@ -42,7 +42,7 @@ public class ExpresssionMethodCallTest extends TestCase
     {
     	AstExpression ast = build.Call(build.Name("f"), null);
         Type type = ast.resolveType(visitor);
-        assertEquals("Wrong toString()", "f(null) ", ast.toString());
+        assertEquals("Wrong toString()", "f(null)", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Call(This(), \"f\", Push())]", buf.toString());
     }
@@ -70,7 +70,7 @@ public class ExpresssionMethodCallTest extends TestCase
     	AstExpression ast = build.Call(build.Name("f"), 
     			build.Push(build.Push(build.Push(build.Literal(1)), build.Literal(2)), build.Literal(3)));
         Type type = ast.resolveType(visitor);
-        assertEquals("Wrong toString()", "f(1, 2, 3) ", ast.toString());
+        assertEquals("Wrong toString()", "f(1, 2, 3)", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Call(This(), \"f\", Push(Literal(1)).Push(Literal(2)).Push(Literal(3)))]", buf.toString());
     }
@@ -79,7 +79,7 @@ public class ExpresssionMethodCallTest extends TestCase
     {
     	AstExpression ast = build.Dot(build.Name("x"), build.Call(build.Name("f"), build.Push(build.Literal(1))));
         Type type = ast.resolveType(visitor);
-        assertEquals("Wrong toString()", "x.f(1) ", ast.toString());
+        assertEquals("Wrong toString()", "x.f(1)", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Call(Get(\"x\"), \"f\", Push(Literal(1)))]", buf.toString());
     }
@@ -89,7 +89,7 @@ public class ExpresssionMethodCallTest extends TestCase
     	AstExpression ast = build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Object")), 
     			build.Call(build.Name("f"), build.Push(build.Literal(1))));
         Type type = ast.resolveType(visitor);
-        assertEquals("Wrong toString()", "java.lang.Object.f(1) ", ast.toString());
+        assertEquals("Wrong toString()", "java.lang.Object.f(1)", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Call(\"java.lang.Object\", \"f\", Push(Literal(1)))]", buf.toString());
     }
@@ -99,7 +99,7 @@ public class ExpresssionMethodCallTest extends TestCase
     	AstExpression ast = build.Call(build.Name("f"), 
     			build.Push(build.Push(build.Push(build.Mult(build.Literal(2), build.Literal(3))), build.Literal("Hello")), build.Name("a")));
         Type type = ast.resolveType(visitor);
-        assertEquals("Wrong toString()", "f((2 * 3), \"Hello\", a) ", ast.toString());
+        assertEquals("Wrong toString()", "f((2 * 3), \"Hello\", a)", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Call(This(), \"f\", Push(Mult(Literal(2), Literal(3))).Push(Literal(\"Hello\")).Push(Get(\"a\")))]", buf.toString());
     }

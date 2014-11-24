@@ -38,7 +38,7 @@ import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.classmaker.ast.TerminalNumber;
 
-public class AstStructureFactory
+public class AstStructureFactoryOld
 {
     AstDeclareModule declareModule = new AstDeclareModule();
 
@@ -50,7 +50,7 @@ public class AstStructureFactory
     private AstModifiers modifierList = null;
     private Stack<AstStructure> statementStack = new Stack<AstStructure>();
 
-    public AstStructureFactory()
+    public AstStructureFactoryOld()
     {
     }
     

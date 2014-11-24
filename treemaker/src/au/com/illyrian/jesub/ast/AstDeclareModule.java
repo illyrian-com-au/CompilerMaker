@@ -35,9 +35,12 @@ import au.com.illyrian.classmaker.ast.ResolvePath;
 public class AstDeclareModule extends AstStructureBase
 {
     String fileName;
-    ResolvePath packageName;
-    Vector<ResolvePath> importsList = new Vector<ResolvePath>();
-    AstDeclareClass declareClass;
+    private ResolvePath packageName;
+    private ResolvePath [] importsList = null;
+    private Vector<ResolvePath> importsVector = new Vector<ResolvePath>();
+    private AstDeclareClass declaredClass;
+    
+    private static final ResolvePath [] IMPORTS_PROTO = new ResolvePath[0];
     
     public AstDeclareModule()
     {
@@ -45,7 +48,7 @@ public class AstDeclareModule extends AstStructureBase
     
     public AstDeclareModule(AstDeclareClass declareClass)
     {
-        this.declareClass = declareClass;
+        this.declaredClass = declareClass;
     }
     
     public AstDeclareModule(String fileName)
@@ -53,6 +56,13 @@ public class AstDeclareModule extends AstStructureBase
         setFileName(fileName);
     }
    
+    public AstDeclareModule(ResolvePath packageName, ResolvePath [] importsList, AstDeclareClass declaredClass)
+    {
+    	this.packageName = packageName;
+    	this.importsList = importsList;
+    	this.declaredClass = declaredClass;
+    }
+    
     public void setFileName(String fileName)
     {
         this.fileName = fileName;
@@ -73,29 +83,26 @@ public class AstDeclareModule extends AstStructureBase
         this.packageName = packageName;
     }
 
-    public Vector<ResolvePath> getImportsList()
+    public ResolvePath [] getImportsList()
     {
+    	if (importsList == null || importsList.length != importsVector.size())
+    		importsList = importsVector.toArray(IMPORTS_PROTO);
         return importsList;
-    }
-
-    public void setImportsList(Vector<ResolvePath> importsList)
-    {
-        this.importsList = importsList;
     }
 
     public void addImportsList(ResolvePath className)
     {
-        this.importsList.add(className);
+        this.importsVector.add(className);
     }
 
     public AstDeclareClass getDeclareClass()
     {
-        return declareClass;
+        return declaredClass;
     }
 
     public void setDeclareClass(AstDeclareClass declareClass)
     {
-        this.declareClass = declareClass;
+        this.declaredClass = declareClass;
     }
 
     public void resolveDeclaration(AstStructureVisitor visitor)

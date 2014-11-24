@@ -47,6 +47,7 @@ public class PrecidenceActionMaker implements PrecidenceAction, ClassMakerLocati
     public void setClassMaker(ClassMaker classMaker) 
     {
         maker = classMaker;
+        ast = new AstExpressionFactoryOld(classMaker);
     }
 
     public ClassMaker getClassMaker()
@@ -58,8 +59,8 @@ public class PrecidenceActionMaker implements PrecidenceAction, ClassMakerLocati
     
     AstExpressionFactoryOld ast()
     {
-        if (ast == null)
-            ast = new AstExpressionFactoryOld(getClassMaker());
+        if (maker == null)
+            throw new NullPointerException("Factory is null.");
         return ast;
     }
 

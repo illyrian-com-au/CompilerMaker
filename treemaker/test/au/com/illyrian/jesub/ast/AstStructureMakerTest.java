@@ -16,7 +16,7 @@ public class AstStructureMakerTest extends ClassMakerTestCase
 
     public void testDeclareModule() throws Exception
     {
-        AstStructureFactory build = new AstStructureFactory();
+        AstStructureFactoryOld build = new AstStructureFactoryOld();
         AstExpression auCom = build.Dot(build.Name("au"), build.Name("com"));
         assertEquals("Wrong resolvePath", "au.com", auCom.toString());
         AstExpression auComIllyrian = build.Dot(auCom, build.Name("illyrian"));
@@ -49,7 +49,7 @@ public class AstStructureMakerTest extends ClassMakerTestCase
 
     public void testDeclareClass() throws Exception
     {
-        AstStructureFactory build = new AstStructureFactory();
+        AstStructureFactoryOld build = new AstStructureFactoryOld();
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
         build.ClassName(build.Name("Test"));
         build.Extends(build.Name("AstStructureBase"));
@@ -84,7 +84,7 @@ public class AstStructureMakerTest extends ClassMakerTestCase
     
     public void testDeclareVariable() throws Exception
     {
-        AstStructureFactory build = new AstStructureFactory();
+        AstStructureFactoryOld build = new AstStructureFactoryOld();
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
         build.Modifier("public");
         build.ClassName(build.Name("Test"));
@@ -122,7 +122,7 @@ public class AstStructureMakerTest extends ClassMakerTestCase
 
     public void testDeclareMethod() throws Exception
     {
-        AstStructureFactory build = new AstStructureFactory();
+        AstStructureFactoryOld build = new AstStructureFactoryOld();
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
         build.Modifier("public");
         build.ClassName(build.Name("Test"));

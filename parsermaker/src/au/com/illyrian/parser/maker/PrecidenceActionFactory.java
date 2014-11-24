@@ -32,7 +32,6 @@ import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.expressionparser.ExpressionAction;
-import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParserException;
