@@ -13,14 +13,12 @@ package au.com.illyrian.expressionparser;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParseExpression;
 import au.com.illyrian.parser.ParseMember;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.impl.Operator;
 import au.com.illyrian.parser.impl.PrecidenceParser;
-import au.com.illyrian.parser.maker.ExpressionActionMaker;
-import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 /**
  *
@@ -44,6 +42,7 @@ public class ExpressionParser extends PrecidenceParser
 
     /** The actions to be applied to the recognised input tokens. */
     private ExpressionAction    expressionAction;
+//    private PrecidenceAction    expressionAction;
     
     /**
      * Public constructor for the search query parser. When no actions are provided the parser only performs validation.
@@ -91,6 +90,7 @@ public class ExpressionParser extends PrecidenceParser
         addInfixOperator(">=", ExpressionAction.GE, 9, Operator.BINARY, true);
         addInfixOperator("==", ExpressionAction.EQ, 8, Operator.BINARY, true);
         addInfixOperator("!=", ExpressionAction.NE, 8, Operator.BINARY, true);
+        addInfixOperator("instanceof", ExpressionAction.INSTANCEOF, 8, Operator.BINARY, true);
         addInfixOperator("&", ExpressionAction.AND, 7, Operator.BINARY, true);
         addInfixOperator("^", ExpressionAction.XOR, 6, Operator.BINARY, true);
         addInfixOperator("|", ExpressionAction.OR, 5, Operator.BINARY, true);
@@ -133,7 +133,7 @@ public class ExpressionParser extends PrecidenceParser
 
     public ExpressionAction defaultExpressionAction()
     {
-    	ExpressionActionMaker action = new ExpressionActionMaker();
+    	ExpressionActionFactory action = new ExpressionActionFactory();
     	action.setClassMaker(getClassMaker());
         return action;
     }

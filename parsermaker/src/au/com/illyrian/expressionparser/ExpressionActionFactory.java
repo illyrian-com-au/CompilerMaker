@@ -25,17 +25,33 @@
 // of the authors and should not be interpreted as representing official policies,
 // either expressed or implied, of the FreeBSD Project.
 
-package au.com.illyrian.parser.maker;
+package au.com.illyrian.expressionparser;
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerLocation;
+import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
 import au.com.illyrian.classmaker.types.Type;
-import au.com.illyrian.expressionparser.ExpressionAction;
+import au.com.illyrian.jesub.ast.AstStructureVisitor;
+import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
-/**
- * @deprecated
- */
-public class ExpressionActionMaker extends PrecidenceActionMaker implements ExpressionAction
+public class ExpressionActionFactory extends PrecidenceActionFactory 
+    implements ExpressionAction, ClassMakerLocation
 {
+    private ClassMaker  maker = null;
+
+    public void setClassMaker(ClassMaker classMaker) 
+    {
+        maker = classMaker;
+    }
+
+    public ClassMaker getClassMaker()
+    {
+        if (maker == null)
+            throw new NullPointerException("classMaker is null.");
+        return maker;
+    }
 
     public Object declareFunctionName(String identifier)
     {
@@ -97,4 +113,10 @@ public class ExpressionActionMaker extends PrecidenceActionMaker implements Expr
         return null;
     }
     
+	public Object postProcess(Object result) throws ParserException {
+    	AstExpression expr = (AstExpression)result;
+    	AstExpressionVisitor visitor = new AstExpressionVisitor(maker);
+        Type type = expr.resolveType(visitor);
+		return type;
+	}
 }

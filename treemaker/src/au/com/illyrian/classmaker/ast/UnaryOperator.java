@@ -78,7 +78,7 @@ public class UnaryOperator extends AstExpressionBase
         case NOT:
             return "!(" + operand + ")";
         default:
-            return operand + " unknown unary operator: " + getOperatorType();
+            return "#" + getOperatorType() + "(" + operand + ")";
         }
     }
 }

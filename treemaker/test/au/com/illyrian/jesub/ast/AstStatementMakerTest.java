@@ -3,9 +3,6 @@ package au.com.illyrian.jesub.ast;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
-import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.classmaker.ast.AstExpressionFactoryOld;
-import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.ast.TerminalName;
 
@@ -75,7 +72,7 @@ public class AstStatementMakerTest extends ClassMakerTestCase
    
     public void testReturnStatement() throws Exception
     {
-        AstStructureFactoryOld build = new AstStructureFactoryOld();
+        AstStructureFactory build = new AstStructureFactory();
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
         build.Modifier("public");
         build.ClassName(build.Name("Test"));
@@ -106,7 +103,7 @@ public class AstStatementMakerTest extends ClassMakerTestCase
 
     public void testIfBranch() throws Exception
     {
-        AstStructureFactoryOld build = new AstStructureFactoryOld();
+        AstStructureFactory build = new AstStructureFactory();
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
         build.Modifier("public");
         build.ClassName(build.Name("Test"));
@@ -145,7 +142,7 @@ public class AstStatementMakerTest extends ClassMakerTestCase
 
     public void testIfElseBranch() throws Exception
     {
-        AstStructureFactoryOld build = new AstStructureFactoryOld();
+        AstStructureFactory build = new AstStructureFactory();
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
         build.Modifier("public");
         build.ClassName(build.Name("Test"));
@@ -195,7 +192,7 @@ public class AstStatementMakerTest extends ClassMakerTestCase
     
     public void testWhileFactorial() throws Exception
     {
-        AstStructureFactoryOld build = new AstStructureFactoryOld();
+        AstStructureFactory build = new AstStructureFactory();
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
         build.Modifier("public");
         build.ClassName(build.Name("Test"));

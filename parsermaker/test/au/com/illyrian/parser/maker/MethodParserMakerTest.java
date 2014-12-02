@@ -16,11 +16,11 @@ import au.com.illyrian.expressionparser.FuncABC;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.CompileUnit;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.JavaOperatorPrecedenceParser;
 import au.com.illyrian.parser.impl.LexerInputStream;
 import au.com.illyrian.parser.impl.LexerInputString;
+import au.com.illyrian.parser.impl.Operator;
 import au.com.illyrian.parser.impl.PrecidenceParser;
 
 public class MethodParserMakerTest extends ClassMakerTestCase

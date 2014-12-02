@@ -11,7 +11,6 @@
 package au.com.illyrian.parser.impl;
 
 import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParserException;
 
 /**
@@ -61,6 +60,7 @@ public interface PrecidenceAction<T>
 
     /* Other operators */
     public static final int CALL = 101;
+    public static final int INDEX = 101;
     
     /**
      * Perform an action to process an Identifier.
@@ -139,9 +139,4 @@ public interface PrecidenceAction<T>
      */
     public T postProcess(T result) throws ParserException;
     
-    /**
-     * @deprecated
-     */
-  public T preProcess(T operand, Operator nextOperator) throws ParserException;
-
 }

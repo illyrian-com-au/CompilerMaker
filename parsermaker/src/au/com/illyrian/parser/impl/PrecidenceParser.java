@@ -3,7 +3,6 @@ package au.com.illyrian.parser.impl;
 import java.util.Properties;
 
 import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParserException;
 
 public class PrecidenceParser extends ParserBase
@@ -59,21 +58,21 @@ public class PrecidenceParser extends ParserBase
         return addLedOperator(leftName, rightName, index, precedence, arity, true);
     }
     
-    protected OperatorImpl addNudOperator(String leftName, String rightName, int index, int precedence, int arity, boolean leftAssociative)
+    protected Operator addNudOperator(String leftName, String rightName, int index, int precedence, int arity, boolean leftAssociative)
     {
-        OperatorImpl op = new OperatorImpl(leftName, rightName, index, precedence, arity, leftAssociative);
+        Operator op = new Operator(leftName, rightName, index, precedence, arity, leftAssociative);
         nudOperators.put(leftName, op);
         return op;
     }
     
-    protected OperatorImpl addLedOperator(String leftName, String rightName, int index, int precedence, int arity, boolean leftAssociative)
+    protected Operator addLedOperator(String leftName, String rightName, int index, int precedence, int arity, boolean leftAssociative)
     {
-        OperatorImpl op = new OperatorImpl(leftName, rightName, index, precedence, arity, leftAssociative);
+        Operator op = new Operator(leftName, rightName, index, precedence, arity, leftAssociative);
         ledOperators.put(leftName, op);
         return op;
     }
     
-    protected OperatorImpl getNudOperator() throws ParserException
+    protected Operator getNudOperator() throws ParserException
     {
         Object operator = null;
         int token = getToken();
@@ -86,10 +85,10 @@ public class PrecidenceParser extends ParserBase
             if (operator == null && token == Lexer.OPERATOR && ledOperators.get(lookup) == null)
                 throw new ParserException("Operator not implemented: " + getLexer().getTokenValue());
         }
-        return (OperatorImpl)operator;
+        return (Operator)operator;
     }
 
-    protected OperatorImpl getLedOperator() throws ParserException
+    protected Operator getLedOperator() throws ParserException
     {
         Object operator = null;
         int token = getToken();
@@ -102,7 +101,7 @@ public class PrecidenceParser extends ParserBase
             if (operator == null && token == Lexer.OPERATOR && nudOperators.get(lookup) == null)
                 throw new ParserException("Operator not implemented: " + getLexer().getTokenValue());
         }
-        return (OperatorImpl)operator;
+        return (Operator)operator;
     }
 
     public Object expression() throws ParserException
@@ -115,7 +114,7 @@ public class PrecidenceParser extends ParserBase
     protected Object expression(int minPrecedence) throws ParserException
     {
         Object leftOperand = unaryExpression(minPrecedence);
-        OperatorImpl operator = null;
+        Operator operator = null;
         while ((operator = getLedOperator()) != null && operator.precedence >= minPrecedence)
         {
             nextToken();
@@ -124,7 +123,7 @@ public class PrecidenceParser extends ParserBase
         return leftOperand;
     }
     
-    protected Object ledExpression(Object leftOperand, OperatorImpl operator, int minPrecedence) throws ParserException
+    protected Object ledExpression(Object leftOperand, Operator operator, int minPrecedence) throws ParserException
     {
         if (operator.mode == Operator.BINARY)
         {
@@ -157,7 +156,7 @@ public class PrecidenceParser extends ParserBase
     protected Object unaryExpression(int minPrecidence) throws ParserException
     {
         Object result = null;
-        OperatorImpl nudOperator = null; 
+        Operator nudOperator = null; 
         if ((nudOperator = getNudOperator()) != null)
         {
             nextToken();
@@ -191,7 +190,7 @@ public class PrecidenceParser extends ParserBase
         return result;
     }
     
-    protected Object nudExpression(OperatorImpl nudOperator, int minPrecedence) throws ParserException
+    protected Object nudExpression(Operator nudOperator, int minPrecedence) throws ParserException
     {
         Object result = null;
         if (nudOperator.mode == Operator.PREFIX )

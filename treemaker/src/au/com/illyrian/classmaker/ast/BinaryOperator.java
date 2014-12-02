@@ -34,6 +34,7 @@ public class BinaryOperator extends AstExpressionBase
     public static final int MULT = 21;
     public static final int DIV = 22;
     public static final int REM = 23;
+    public static final int POW = 24; // Not a java operator
     public static final int ADD = 31;
     public static final int SUBT = 32;
     public static final int SHL = 41;
@@ -119,7 +120,7 @@ public class BinaryOperator extends AstExpressionBase
         case OR :
             return "(" + leftOperand + " | " + rightOperand + ")";
         default:
-            return "(" + leftOperand + " " + rightOperand + " unknown operator: " + getOperatorType() + ")";
+            return "(" + leftOperand + " #" + getOperatorType() + "# " + rightOperand + ")";
         }
     }
 }

@@ -33,8 +33,9 @@ import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.impl.Operator;
+import au.com.illyrian.parser.impl.Operator;
 import au.com.illyrian.parser.impl.PrecidenceAction;
 
 public class PrecidenceActionFactory implements PrecidenceAction
@@ -158,6 +159,21 @@ public class PrecidenceActionFactory implements PrecidenceAction
             break;
         case ExpressionAction.XOR:
         	result = build.Xor(left, right);
+            break;
+        case ExpressionAction.SHL:
+        	result = build.SHL(left, right);
+            break;
+        case ExpressionAction.SHR:
+        	result = build.SHR(left, right);
+            break;
+        case ExpressionAction.USHR:
+        	result = build.USHR(left, right);
+            break;
+        case ExpressionAction.AND:
+        	result = build.And(left, right);
+            break;
+        case ExpressionAction.OR:
+        	result = build.Or(left, right);
             break;
             // FIXME add other binary operators
         default:

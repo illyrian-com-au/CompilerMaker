@@ -1,9 +1,15 @@
 package au.com.illyrian.parser.impl;
 
-import au.com.illyrian.parser.Operator;
 
-public class OperatorImpl implements Operator
+public class Operator
 {
+    public static final int PREFIX = 1;
+    public static final int POSTFIX = 2;
+    public static final int BINARY = 4;
+    public static final int TERNARY = 8;
+    public static final int BRACKET = 16;
+    public static final int PARAMS = 32;
+
     public final String name;
     public final int index;
     public final int precedence;
@@ -11,7 +17,7 @@ public class OperatorImpl implements Operator
     public final boolean leftAssociative;
     public final String endName;
 
-    public OperatorImpl(String name, int index, int precedence, int arity, boolean leftAssociative)
+    public Operator(String name, int index, int precedence, int arity, boolean leftAssociative)
     {
         this.name = name;
         this.endName = null;
@@ -21,7 +27,7 @@ public class OperatorImpl implements Operator
         this.leftAssociative = leftAssociative;
     }
     
-    public OperatorImpl(String name, String endName, int index, int precedence, int arity, boolean leftAssociative)
+    public Operator(String name, String endName, int index, int precedence, int arity, boolean leftAssociative)
     {
         this.name = name;
         this.endName = endName;
@@ -99,12 +105,6 @@ public class OperatorImpl implements Operator
             break;
         case Operator.BRACKET:
             buf.append("bracket, ");
-            break;
-//        case Operator.IDENTCHAIN:
-//            buf.append("identchain, ");
-//            break;
-        case Operator.SHORTCUT:
-            buf.append("shortcut, ");
             break;
         default:
             buf.append("<error!>, ");

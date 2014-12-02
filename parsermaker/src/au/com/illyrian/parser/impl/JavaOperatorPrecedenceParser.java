@@ -1,8 +1,6 @@
 package au.com.illyrian.parser.impl;
 
-import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.Operator;
 import au.com.illyrian.parser.ParserException;
 
 public class JavaOperatorPrecedenceParser extends PrecidenceParser
@@ -12,15 +10,9 @@ public class JavaOperatorPrecedenceParser extends PrecidenceParser
         super();
     }
     
-    protected Object ledExpression(Object leftOperand, OperatorImpl operator, int minPrecedence) throws ParserException
+    protected Object ledExpression(Object leftOperand, Operator operator, int minPrecedence) throws ParserException
     {
-        if (operator.mode == Operator.SHORTCUT)
-        {
-            leftOperand = getPrecidenceActions().preProcess(leftOperand, operator);
-            Object rightOperand = expression(operator.precedence);
-            leftOperand = getPrecidenceActions().infixAction(operator, leftOperand, rightOperand);
-        }
-        else if (operator.mode == Operator.BINARY)
+        if (operator.mode == Operator.BINARY)
         {
           int nextPrecidence = operator.leftAssociative ? 
                  operator.precedence + 1 : operator.precedence;
@@ -51,7 +43,7 @@ public class JavaOperatorPrecedenceParser extends PrecidenceParser
     protected Object unaryExpression(int minPrecidence) throws ParserException
     {
         Object result = null;
-        OperatorImpl nudOperator = null; 
+        Operator nudOperator = null; 
         if ((nudOperator = getNudOperator()) != null)
         {
             nextToken();
@@ -93,7 +85,7 @@ public class JavaOperatorPrecedenceParser extends PrecidenceParser
         return result;
     }
 
-    protected Object nudExpression(OperatorImpl nudOperator, int minPrecedence) throws ParserException
+    protected Object nudExpression(Operator nudOperator, int minPrecedence) throws ParserException
     {
         Object result = null;
         if (nudOperator.mode == Operator.PREFIX )

@@ -394,4 +394,5 @@ public class ExpressionModuleMakerTest extends TestCase
         assertEquals("f(-4,6, 2)", 12, func.f(-4, 6, 2));
         assertEquals("f(3,4,2)", 8, func.f(3,4,2));
     }
+
 }
