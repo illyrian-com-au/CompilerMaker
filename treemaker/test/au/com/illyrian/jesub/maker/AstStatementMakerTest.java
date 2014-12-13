@@ -1,11 +1,15 @@
-package au.com.illyrian.jesub.ast;
+package au.com.illyrian.jesub.maker;
 
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
-import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.ast.TerminalName;
+import au.com.illyrian.jesub.ast.AstDeclareMethod;
+import au.com.illyrian.jesub.ast.AstDeclareVariable;
+import au.com.illyrian.jesub.ast.AstModifiers;
+import au.com.illyrian.jesub.ast.AstStructureFactoryMaker;
+import au.com.illyrian.jesub.ast.AstStructureLink;
 
 public class AstStatementMakerTest extends ClassMakerTestCase
 {

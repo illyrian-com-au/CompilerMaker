@@ -27,43 +27,25 @@
 
 package au.com.illyrian.classmaker.ast;
 
-import au.com.illyrian.classmaker.members.MakerField;
-import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
-
-public class TerminalName extends AstExpressionBase implements ResolvePath
+public class AstExpressionLink extends AstExpressionBase
 {
-    private final String name;
-    
-    public TerminalName(String name)
+	public final AstExpression left;
+	public final AstExpression right;
+	
+    public AstExpressionLink(AstExpression left, AstExpression right)
     {
-        this.name = name;
-    }
-    
-    public String getName()
-    {
-        return name;
-    }
+    	if (left == null && right == null)
+    		throw new IllegalStateException("Left and right expressions are both null");
 
-    public Type resolveType(AstExpressionVisitor visitor)
-    {
-        return visitor.resolveType(this);
-    }
-
-    public Type resolveTypeOrNull(AstExpressionVisitor visitor)
-    {
-        return visitor.resolveTypeOrNull(this);
-    }
-
-    public MakerField resolveMakerField(AstExpressionVisitor visitor)
-    {
-        return visitor.resolveMakerField(this);
+    	this.left = left;
+    	this.right = right;
     }
     
-    public String resolvePath(AstExpressionVisitor visitor)
+    public void resolveImport(AstStructureVisitor visitor)
     {
-        return visitor.resolvePath(this);
+         visitor.resolveImport(this);
     }
 
     public void resolveImplements(AstStructureVisitor visitor)
@@ -71,13 +53,13 @@ public class TerminalName extends AstExpressionBase implements ResolvePath
          visitor.resolveImplements(this);
     }
 
-    public void resolveImport(AstStructureVisitor visitor)
-    {
-         visitor.resolveImport(this);
-    }
-
     public String toString()
     {
-        return name;
+    	if (left == null)
+    		return right.toString();
+    	else if (right == null)
+    		return left.toString();
+    	else 
+    		return left + ", " + right;
     }
 }

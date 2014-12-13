@@ -25,59 +25,57 @@
 // of the authors and should not be interpreted as representing official policies,
 // either expressed or implied, of the FreeBSD Project.
 
-package au.com.illyrian.classmaker.ast;
-
-import au.com.illyrian.classmaker.members.MakerField;
-import au.com.illyrian.classmaker.types.Type;
-import au.com.illyrian.jesub.ast.AstStructureVisitor;
+package au.com.illyrian.jesub.ast;
 
 
-public class TerminalName extends AstExpressionBase implements ResolvePath
+
+public class AstStructureLink extends AstStructureBase
 {
-    private final String name;
-    
-    public TerminalName(String name)
+	public final AstStructure left;
+	public final AstStructure right;
+	
+    public AstStructureLink(AstStructure left, AstStructure right)
     {
-        this.name = name;
-    }
-    
-    public String getName()
-    {
-        return name;
-    }
+    	if (left == null && right == null)
+    		throw new IllegalStateException("Left and right structures are both null");
 
-    public Type resolveType(AstExpressionVisitor visitor)
-    {
-        return visitor.resolveType(this);
-    }
-
-    public Type resolveTypeOrNull(AstExpressionVisitor visitor)
-    {
-        return visitor.resolveTypeOrNull(this);
-    }
-
-    public MakerField resolveMakerField(AstExpressionVisitor visitor)
-    {
-        return visitor.resolveMakerField(this);
+    	this.left = left;
+    	this.right = right;
     }
     
-    public String resolvePath(AstExpressionVisitor visitor)
+//    public static AstStructure [] toArray(AstStructureLink link)
+//    {
+//    	if (link == null)
+//        	return new AstStructure [0];
+//    	else
+//    		return link.toArray(0);
+//    }
+//    
+//    private AstStructure [] toArray(int n)
+//    {
+//    	AstStructure [] result;
+//    	if (next == null) {
+//        	result = new AstStructure [n+1];
+//    	} else {
+//    		result = next.toArray(n+1);
+//    	}
+//    	result[n] = element;
+//    	return result;
+//    } 
+//    
+    public void resolveDeclaration(AstStructureVisitor visitor)
     {
-        return visitor.resolvePath(this);
+         visitor.resolveDeclaration(this);
     }
 
-    public void resolveImplements(AstStructureVisitor visitor)
-    {
-         visitor.resolveImplements(this);
-    }
-
-    public void resolveImport(AstStructureVisitor visitor)
-    {
-         visitor.resolveImport(this);
-    }
-
+    
     public String toString()
     {
-        return name;
+    	if (left == null)
+    		return right.toString();
+    	else if (right == null)
+    		return left.toString();
+    	else 
+    		return left + ", " + right;
     }
 }

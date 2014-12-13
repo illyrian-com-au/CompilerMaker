@@ -2,6 +2,7 @@ package au.com.illyrian.classmaker.ast;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Stack;
 
 import au.com.illyrian.classmaker.CallStackMaker;
@@ -27,7 +28,12 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc
 	
     public ClassMakerText()
     {
-        super(new StringWriter());
+        this(new StringWriter());
+    }
+    
+    public ClassMakerText(Writer out)
+    {
+        super(out);
     }
     
 	@Override

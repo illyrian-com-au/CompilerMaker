@@ -31,6 +31,7 @@ import au.com.illyrian.classmaker.CallStack;
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public interface AstExpression extends ResolvePath
 {
@@ -47,4 +48,8 @@ public interface AstExpression extends ResolvePath
     public AndOrExpression resolveAndThen(AstExpressionVisitor visitor);
     
     public AndOrExpression resolveOrElse(AstExpressionVisitor visitor);
+    
+    public void resolveImport(AstStructureVisitor visitor);
+
+    public void resolveImplements(AstStructureVisitor visitor);
 }

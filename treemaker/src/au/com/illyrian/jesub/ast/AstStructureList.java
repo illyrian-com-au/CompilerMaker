@@ -53,7 +53,7 @@ public class AstStructureList extends AstStatementBase
     	return list.lastElement();
     }
     
-    public AstStructure [] getList()
+    public AstStructure [] toArray()
     {
         return list.toArray(PROTO);
     }
@@ -63,11 +63,6 @@ public class AstStructureList extends AstStatementBase
     	return this;
     }
     
-//    public void resolveImport(AstStructureVisitor visitor)
-//    {
-//        visitor.resolveImport(this);
-//    }
-
     public void resolveDeclaration(AstStructureVisitor visitor)
     {
         visitor.resolveDeclaration(this);

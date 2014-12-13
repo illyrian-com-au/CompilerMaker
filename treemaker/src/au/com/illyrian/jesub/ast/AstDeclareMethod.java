@@ -28,13 +28,14 @@
 package au.com.illyrian.jesub.ast;
 
 import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.ast.TerminalName;
 
 public class AstDeclareMethod extends AstDeclareVariable
 {
-    AstStructureList parameters = null;
-    AstStructureList methodBody = null;
+	AstStructureLink parameters = null;
+	AstStructureLink methodBody = null;
     
     public AstDeclareMethod(AstModifiers modifiers, ResolvePath type, TerminalName name)
     {
@@ -42,7 +43,7 @@ public class AstDeclareMethod extends AstDeclareVariable
     }
 
     public AstDeclareMethod(AstModifiers modifiers, ResolvePath type, TerminalName name, 
-            AstStructureList params, AstStructureList code)
+    		AstStructureLink params, AstStructureLink code)
     {
         super(modifiers, type, name);
         this.parameters = params;
@@ -50,36 +51,34 @@ public class AstDeclareMethod extends AstDeclareVariable
     }
 
     
-    public AstStructureList getParameters()
+    public AstStructureLink getParameters()
     {
         return parameters;
     }
 
-    public void setParameters(AstStructureList parameters)
+    public void setParameters(AstStructureLink parameters)
     {
         this.parameters = parameters;
     }
     
     public void addParameter(AstDeclareVariable param)
     {
-        if (parameters == null)
-            setParameters(new AstStructureList());
-        parameters.add(param);
+        parameters = new AstStructureLink(parameters, param);
     }
     
-    public AstStructureList getMethodBody()
+    public AstStructureLink getMethodBody()
     {
         return methodBody;
     }
 
-    public void setMethodBody(AstStructureList methodBody)
+    public void setMethodBody(AstStructureLink methodBody)
     {
         this.methodBody = methodBody;
     }
 
     public void addStatement(AstStructure statement)
     {
-        methodBody.add(statement);
+        methodBody = new AstStructureLink(methodBody, statement);
     }
 
     public void resolveDeclaration(AstStructureVisitor visitor)

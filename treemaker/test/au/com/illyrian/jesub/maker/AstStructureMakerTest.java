@@ -1,13 +1,13 @@
-package au.com.illyrian.jesub.ast;
+package au.com.illyrian.jesub.maker;
 
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.DeclaredType;
+import au.com.illyrian.jesub.ast.AstStructureFactoryMaker;
 
 public class AstStructureMakerTest extends ClassMakerTestCase
 {
@@ -75,7 +75,7 @@ public class AstStructureMakerTest extends ClassMakerTestCase
         ClassType superClass = maker.getSuperClass();
         assertEquals("Super class:", "au.com.illyrian.jesub.ast.AstStructureBase", superClass.getName());
     }
-    
+
     public static class FuncABC 
     {
         public int valueA; 

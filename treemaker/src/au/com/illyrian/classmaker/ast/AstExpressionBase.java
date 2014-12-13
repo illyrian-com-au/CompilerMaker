@@ -32,6 +32,7 @@ import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public abstract class AstExpressionBase implements AstExpression, SourceLine
 {
@@ -78,6 +79,17 @@ public abstract class AstExpressionBase implements AstExpression, SourceLine
     {
     	return visitor.resolveAndThen(this);
     }
+    
+    public void resolveImport(AstStructureVisitor visitor)
+    {
+        throw new IllegalStateException("Cannot resolveImports: " + getClass().getSimpleName());
+    }
+
+    public void resolveImplements(AstStructureVisitor visitor)
+    {
+        throw new IllegalStateException("Cannot resolveImplements: " + getClass().getSimpleName());
+    }
+
 
     public void setSourceLine(SourceLine sourceLine)
     {

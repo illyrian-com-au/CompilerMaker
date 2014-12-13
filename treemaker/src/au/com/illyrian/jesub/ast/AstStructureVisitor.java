@@ -30,6 +30,8 @@ package au.com.illyrian.jesub.ast;
 import java.util.Vector;
 
 import au.com.illyrian.classmaker.ExpressionIfc;
+import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
 import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.types.Type;
@@ -49,18 +51,19 @@ public class AstStructureVisitor extends AstExpressionVisitor
         String packageName = unit.getPackageName().resolvePath(this);
         maker.setPackageName(packageName);
         resolveImport(unit.getImportsList());
-        unit.getDeclareClass().resolveDeclaration(this);
+        if (unit.getDeclareClass() != null)
+        	unit.getDeclareClass().resolveDeclaration(this);
     }
 
     public void resolveDeclaration(AstDeclareClass unit)
     {
-        int modifiers = resolveModifiers(unit.modifiers);
+        int modifiers = resolveModifiers(unit.getModifiers());
         maker.setClassModifiers(modifiers);
-        String className = unit.className.resolvePath(this);
+        String className = unit.getClassName().resolvePath(this);
         maker.setSimpleClassName(className);
-        resolveExtends(unit.baseClass);
+        resolveExtends(unit.getExtends());
         resolveImplements(unit.getImplementsList());
-        resolveDeclaration(unit.membersList);
+        resolveDeclaration(unit.getMembersList());
     }
 
     public void resolveExtends(ResolvePath className)
@@ -72,34 +75,44 @@ public class AstStructureVisitor extends AstExpressionVisitor
         }
     }
     
-    public void resolveImport(ResolvePath[] list)
+    public void resolveImport(AstExpressionLink link)
     {
-    	if (list != null)
-	        for (ResolvePath item : list)
-	        {
-	            resolveImport(item);
-	        }
+    	if (link != null)
+    	{
+    		if (link.left != null)	
+    			link.left.resolveImport(this);
+    		if (link.right != null)	
+    			link.right.resolveImport(this);
+    	}
     }
     
-    public void resolveImport(ResolvePath className)
+    public void resolveImport(AstExpression className)
     {
-        String name = className.resolvePath(this);
-        maker.Import(name);
+    	if (className != null)
+    	{
+    		String name = className.resolvePath(this);
+    		maker.Import(name);
+    	}
     }
 
-    public void resolveImplements(ResolvePath[] list)
+    public void resolveImplements(AstExpressionLink link)
     {
-    	if (list != null)
-	        for (ResolvePath item : list)
-	        {
-	            resolveImplements(item);
-	        }
+    	if (link != null)
+    	{
+    		if (link.left != null)	
+    			link.left.resolveImplements(this);
+    		if (link.right != null)	
+    			link.right.resolveImplements(this);
+    	}
     }
     
     public void resolveImplements(ResolvePath className)
     {
-        String name = className.resolvePath(this);
-        maker.Implements(name);
+    	if (className != null)
+    	{
+	        String name = className.resolvePath(this);
+	        maker.Implements(name);
+    	}
     }
     
     public int resolveModifiers(AstModifiers modifiers)
@@ -107,7 +120,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
         int modifierBits = 0; 
         if (modifiers != null)
         {
-            String modifierName = modifiers.modifier;
+            String modifierName = modifiers.modifier.getName();
             modifierBits = resolveModifiers(modifiers.next);
             modifierBits = maker.addModifier(modifierBits, modifierName);
         }
@@ -116,10 +129,21 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveDeclaration(AstStructureList list)
     {
-        for (AstStructure item : list.getList())
+        for (AstStructure item : list.toArray())
         {
             item.resolveDeclaration(this);
         }
+    }
+
+    public void resolveDeclaration(AstStructureLink link)
+    {
+    	if (link != null)
+    	{
+	    	if (link.left != null)
+	    		link.left.resolveDeclaration(this);
+	    	if (link.right != null)
+	    		link.right.resolveDeclaration(this);
+    	}
     }
 
     public void resolveDeclaration(AstDeclareVariable member)
@@ -136,7 +160,8 @@ public class AstStructureVisitor extends AstExpressionVisitor
         String type   = method.type.resolvePath(this);
         String name   = method.name.resolvePath(this);
         maker.Method(name, type, modifiers);
-        resolveDeclaration(method.parameters);
+        if (method.parameters != null)
+        	method.parameters.resolveDeclaration(this);
         if (method.methodBody != null)
         {
             maker.Begin();
@@ -152,9 +177,20 @@ public class AstStructureVisitor extends AstExpressionVisitor
 //        resolveDeclaration(declare);
 //    }
     
+    public void resolveStatement(AstStructureLink link)
+    {
+    	if (link != null)
+    	{
+	    	if (link.left != null)
+	    		link.left.resolveStatement(this);
+	    	if (link.right != null)
+	    		link.right.resolveStatement(this);
+    	}
+    }
+    
     public void resolveStatement(AstStructureList list)
     {
-        for (AstStructure item : list.getList())
+        for (AstStructure item : list.toArray())
         {
             item.resolveStatement(this);
         }

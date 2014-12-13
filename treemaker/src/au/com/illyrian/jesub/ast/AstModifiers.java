@@ -27,12 +27,20 @@
 
 package au.com.illyrian.jesub.ast;
 
+import au.com.illyrian.classmaker.ast.TerminalName;
+
 public class AstModifiers extends AstStructureBase
 {
-    String modifier;
-    AstModifiers next;
+    public final TerminalName modifier;
+    public final AstModifiers next;
     
     public AstModifiers(String modifier, AstModifiers next)
+    {
+        this.modifier = new TerminalName(modifier);
+        this.next = next;
+    }
+
+    public AstModifiers(TerminalName modifier, AstModifiers next)
     {
         this.modifier = modifier;
         this.next = next;
@@ -46,7 +54,7 @@ public class AstModifiers extends AstStructureBase
     public String toString()
     {
         if (next == null)
-            return modifier;
+            return "" + modifier;
         else
             return next + " " + modifier;
     }

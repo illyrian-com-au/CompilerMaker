@@ -29,29 +29,22 @@ package au.com.illyrian.jesub.ast;
 
 import java.util.Vector;
 
+import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.ast.TerminalName;
 
 
 public class AstDeclareClass extends AstStructureBase
 {
-    AstModifiers modifiers;
-    TerminalName className;
-    ResolvePath baseClass;
-    Vector<ResolvePath> implementsList;
-    AstStructureList membersList;
-    
-    private static final ResolvePath [] PATH_ARRAY = new ResolvePath[0];
+    private AstModifiers modifiers;
+    private TerminalName className;
+    private AstExpression baseClass;
+    private AstExpressionLink implementsList = null;
+    private AstStructureLink membersList = null;
     
     public AstDeclareClass()
     {
-        implementsList = new Vector <ResolvePath>();
-        membersList = new AstStructureList();
-    }
-    
-    public AstDeclareClass(AstModifiers modifiers, String className)
-    {
-        this(modifiers, new TerminalName(className));
     }
     
     public AstDeclareClass(AstModifiers modifiers, TerminalName className)
@@ -59,6 +52,16 @@ public class AstDeclareClass extends AstStructureBase
         this();
         setModifiers(modifiers);
         setClassName(className);
+    }
+    
+    public AstDeclareClass(AstModifiers modifiers, TerminalName className, AstExpression baseClass, 
+    		AstExpressionLink implementsList, AstStructureLink membersList)
+    {
+        setModifiers(modifiers);
+        setClassName(className);
+        setExtends(baseClass);
+        setImplementsList(implementsList);
+        setMembersList(membersList);
     }
     
     public AstModifiers getModifiers()
@@ -81,7 +84,7 @@ public class AstDeclareClass extends AstStructureBase
         return className;
     }
     
-    public void setExtends(ResolvePath className)
+    public void setExtends(AstExpression className)
     {
         this.baseClass = className;
     }
@@ -91,29 +94,36 @@ public class AstDeclareClass extends AstStructureBase
         return baseClass;
     }
 
-    public ResolvePath[] getImplementsList()
+    public AstExpressionLink getImplementsList()
     {
-        return implementsList.toArray(PATH_ARRAY);
+        return implementsList;
     }
 
-    public void addImplements(ResolvePath className)
+    public void setImplementsList(AstExpressionLink implementsList)
     {
-        implementsList.add(className);
+        this.implementsList = implementsList;
     }
 
-    public AstStructureList getMembersList()
+    public void addImplements(AstExpression className)
+    {
+        AstExpressionLink link = new AstExpressionLink(implementsList, className);
+        implementsList = link;
+    }
+
+    public AstStructureLink getMembersList()
     {
         return membersList;
     }
 
-    public void setMembersList(AstStructureList membersList)
+    public void setMembersList(AstStructureLink membersList)
     {
         this.membersList = membersList;
     }
 
     public void addMember(AstStructure member)
     {
-        membersList.add(member);
+        AstStructureLink link = new AstStructureLink(membersList, member);
+        membersList = link;
     }
 
     public void resolveDeclaration(AstStructureVisitor visitor)
@@ -125,23 +135,15 @@ public class AstDeclareClass extends AstStructureBase
     {
     	StringBuffer buf = new StringBuffer();
     	if (modifiers != null)
-    		buf.append(modifiers.toString());
-    	buf.append(" class ");
+    		buf.append(modifiers + " ");
+    	buf.append("class " + className + "");
     	if (baseClass != null)
-    	{
-    		buf.append("extends ");
-    		buf.append(baseClass);
-    	}
-    	if (implementsList.size() > 0)
-    	{
-    		buf.append(" implements ");
-    		for (ResolvePath item: implementsList)
-    		{
-    			buf.append(item);
-    			buf.append(", ");
-    		}
-    	}
+    		buf.append(" extends " + baseClass);
+    	if (implementsList != null)
+    		buf.append("\n    implements " + implementsList );
+    	buf.append("\n{...}");
     	
     	return buf.toString();
     }
+
 }

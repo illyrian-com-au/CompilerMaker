@@ -29,70 +29,47 @@ package au.com.illyrian.jesub.ast;
 
 import java.util.Vector;
 
+import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.ResolvePath;
 
 
 public class AstDeclareModule extends AstStructureBase
 {
-    String fileName;
-    private ResolvePath packageName;
-    private ResolvePath [] importsList = null;
-    private Vector<ResolvePath> importsVector = new Vector<ResolvePath>();
+    private AstExpression packageName;
+    private AstExpressionLink importsList = null;
     private AstDeclareClass declaredClass;
-    
-    private static final ResolvePath [] IMPORTS_PROTO = new ResolvePath[0];
     
     public AstDeclareModule()
     {
     }
     
-    public AstDeclareModule(AstDeclareClass declareClass)
-    {
-        this.declaredClass = declareClass;
-    }
-    
-    public AstDeclareModule(String fileName)
-    {
-        setFileName(fileName);
-    }
-   
-    public AstDeclareModule(ResolvePath packageName, ResolvePath [] importsList, AstDeclareClass declaredClass)
+    public AstDeclareModule(AstExpression packageName, AstExpressionLink importsList, AstDeclareClass declaredClass)
     {
     	this.packageName = packageName;
     	this.importsList = importsList;
     	this.declaredClass = declaredClass;
     }
     
-    public void setFileName(String fileName)
-    {
-        this.fileName = fileName;
-    }
-
-    public String getFileName()
-    {
-        return fileName;
-    }
-
     public ResolvePath getPackageName()
     {
         return packageName;
     }
 
-    public void setPackageName(ResolvePath packageName)
+    public void setPackageName(AstExpression packageName)
     {
         this.packageName = packageName;
     }
 
-    public ResolvePath [] getImportsList()
+    public AstExpressionLink getImportsList()
     {
-    	if (importsList == null || importsList.length != importsVector.size())
-    		importsList = importsVector.toArray(IMPORTS_PROTO);
         return importsList;
     }
 
-    public void addImportsList(ResolvePath className)
+    public void addImportsList(AstExpression className)
     {
-        this.importsVector.add(className);
+        AstExpressionLink link = new AstExpressionLink(importsList, className);
+        importsList = link;
     }
 
     public AstDeclareClass getDeclareClass()
@@ -112,7 +89,16 @@ public class AstDeclareModule extends AstStructureBase
     
     public String toString()
     {
-    	String fileString = (fileName== null ? "" : "Filename " + fileName + ";\n");
-    	return fileString + "package " + packageName + ";\n";
+    	StringBuffer buf = new StringBuffer();
+    	if (packageName != null)
+    		buf.append("package " + packageName + ";\n");
+    	if (importsList != null)
+    		buf.append("import " + importsList + ";\n");
+    	
+    	if (declaredClass.getModifiers() != null)
+    		buf.append(declaredClass.getModifiers().toString());
+    	buf.append("class " + declaredClass.getClassName() + " ...");
+    	
+    	return buf.toString();
     }
 }

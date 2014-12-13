@@ -27,264 +27,127 @@
 
 package au.com.illyrian.jesub.ast;
 
-import java.util.Stack;
-
 import au.com.illyrian.classmaker.ast.AssignmentOperator;
 import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.ast.AstExpressionFactory;
+import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.BinaryOperator;
 import au.com.illyrian.classmaker.ast.DecrementOperator;
 import au.com.illyrian.classmaker.ast.DotOperator;
-import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.classmaker.ast.TerminalNumber;
 
-public class AstStructureFactory
+public class AstStructureFactory extends AstExpressionFactory
 {
-    AstDeclareModule declareModule = new AstDeclareModule();
-
-    // Work in progress
-    AstDeclareClass declareClass = null;
-    AstDeclareMethod declareMethod = null;
-
-    // Temporary structures
-    private AstModifiers modifierList = null;
-    private Stack<AstStructure> statementStack = new Stack<AstStructure>();
-
     public AstStructureFactory()
     {
     }
     
-    public AstDeclareModule getModule()
+    AstDeclareModule Module(AstExpression packageName, AstExpressionLink importsList, AstDeclareClass declaredClass)
     {
-        return declareModule;
+    	return new AstDeclareModule(packageName, importsList, declaredClass);
     }
     
-    public void Package(ResolvePath packageName)
+    public AstExpressionLink Link(AstExpression left, AstExpression right)
     {
-        declareModule.setPackageName(packageName);
+        return new AstExpressionLink(left, right);
     }
     
-    public void Import(ResolvePath className)
+    public AstStructureLink Link(AstStructure left, AstStructure right)
     {
-        declareModule.addImportsList(className);
+        return new AstStructureLink(left, right);
     }
     
-    public void Modifier(String modifier)
+    public AstModifiers Modifier(TerminalName modifier, AstModifiers next)
     {
-        modifierList = new AstModifiers(modifier, modifierList);
+        return new AstModifiers(modifier, next);
     }
     
-    public AstModifiers popModifiers()
+    public AstDeclareClass DeclareClass(AstModifiers modifiers, TerminalName name, AstExpression baseClass, 
+    		AstExpressionLink implementsList, AstStructureLink membersList)
     {
-        AstModifiers temp = modifierList;
-        modifierList = null;
-        return temp;
-    }
-    
-    public AstDeclareClass ClassName(TerminalName name)
-    {
-        return ClassName(popModifiers(), name);
-    }
-    
-    public AstDeclareClass ClassName(AstModifiers modifiers, TerminalName name)
-    {
-        assert(declareClass == null);
-        declareClass = new AstDeclareClass(modifiers, name);
-        declareModule.setDeclareClass(declareClass);
+    	AstDeclareClass declareClass = new AstDeclareClass(modifiers, name, baseClass, implementsList, membersList);
         return declareClass;
     }
     
-    public void Extends(ResolvePath classPath)
+    public AstDeclareVariable DeclareVariable(AstModifiers modifiers, AstExpression type, TerminalName name)
     {
-        assert(declareClass != null);
-        declareClass.setExtends(classPath);
+        return new AstDeclareVariable(modifiers, type, name);
     }
     
-    public void Implements(ResolvePath className)
+    public AstDeclareMethod Method(AstModifiers modifiers, AstExpression type, TerminalName name, 
+    		AstStructureLink params, AstStructureLink code)
     {
-        assert(declareClass != null);
-        declareClass.addImplements(className);
+    	AstDeclareMethod declareMethod = new AstDeclareMethod(modifiers, type, name, params, code);
+    	return declareMethod;
     }
     
-    public void Declare(ResolvePath type, TerminalName name)
-    {
-        Declare(popModifiers(), type, name);
-    }
-    
-    public void Declare(AstModifiers modifiers, ResolvePath type, TerminalName name)
-    {
-        assert(declareMethod != null);
-        AstDeclareVariable variable = new AstDeclareVariable(modifiers, type, name);
-        if (declareMethod == null)
-            declareClass.addMember(variable);
-        else if (declareMethod.getMethodBody() == null)
-            declareMethod.addParameter(variable);
-        else // Local variable
-            declareMethod.addStatement(variable);
-    }
-    
-    public void Method(ResolvePath type, TerminalName name)
-    {
-        Method(popModifiers(), type, name);
-    }
-    
-    public void Method(AstModifiers modifiers, ResolvePath type, TerminalName name)
-    {
-        assert(declareMethod == null);
-        declareMethod = new AstDeclareMethod(modifiers, type, name);
-    }
-    
-    public void Begin()
-    {
-        assert(declareMethod != null);
-    	AstStructureList code = new AstStructureList();
-    	statementStack.push(code);
-        declareMethod.setMethodBody(code);
-    }
-    
-    public void End()
-    {
-        assert(declareMethod != null);
-        assert(declareClass != null);
-        declareClass.addMember(declareMethod);
-        declareMethod = null;
-    }
-    
-    public void Reserved(String reserved)
-    {
-    	AstStatementReserved stmt = AstStatementReserved.lookup(reserved);
-    	addStatement(stmt);
-    }
-
-    public void Return(AstExpression value)
+    public AstStatementReturn Return(AstExpression value)
     {
         AstStatementReturn stmt = new AstStatementReturn(value);
-        addStatement(stmt);
+        return stmt;
     }
     
-    public void Eval(AstExpression value)
+    public AstStatementEval Eval(AstExpression value)
     {
         AstStatementEval stmt = new AstStatementEval(value);
-        addStatement(stmt);
+        return stmt;
     }
     
-    private AstStructureList castList(AstStructure stmt)
+    public AstStatementIf If(AstExpression condition, AstStructureLink thenStatement, AstStructureLink elseStatement)
     {
-    	if (stmt instanceof AstStructureList)
-    		return (AstStructureList)stmt;
-    	throw new IllegalStateException("Expected class AstStructureList on stack but was " + stmt.getClass().getSimpleName());
+    	AstStatementIf stmt = new AstStatementIf(condition, thenStatement, elseStatement);
+    	return stmt;
     }
     
-    private void addStatement(AstStructure stmt)
+    public AstStatementWhile While(AstExpression condition, AstStructureLink bodyStatement)
     {
-    	AstStructureList code = castList(statementStack.peek());
-    	code.add(stmt);
+    	AstStatementWhile stmt = new AstStatementWhile(condition, bodyStatement);
+    	return stmt;
     }
     
-    private AstStatementIf castIf(AstStructure stmt)
-    {
-    	if (stmt instanceof AstStatementIf)
-    		return (AstStatementIf)stmt;
-    	throw new IllegalStateException("Expected class AstStatementIf on stack but was " + stmt.getClass().getSimpleName());
-    }
-    
-    public void If(AstExpression condition)
-    {
-    	AstStatementIf stmt = new AstStatementIf();
-    	stmt.setCondition(condition);
-    	statementStack.push(stmt);
-    	AstStructureList thenCode = new AstStructureList();
-    	statementStack.push(thenCode);
-    }
-    
-    public void Else()
-    {
-    	AstStructureList thenCode = castList(statementStack.pop());
-    	AstStatementIf ifStmt = castIf(statementStack.peek());
-    	ifStmt.setThenCode(thenCode);
-    	AstStructureList elseCode = new AstStructureList();
-    	statementStack.push(elseCode);
-    }
-    
-    public void EndIf()
-    {
-    	AstStructureList code = castList(statementStack.pop());
-    	AstStatementIf ifStmt = castIf(statementStack.peek());
-    	if (ifStmt.getThenCode() == null)
-    		ifStmt.setThenCode(code);
-    	else
-    		ifStmt.setElseCode(code);
-    	statementStack.pop();
-        declareMethod.addStatement(ifStmt);
-    }
-    
-    private AstStatementWhile castWhile(AstStructure stmt)
-    {
-    	if (stmt instanceof AstStatementWhile)
-    		return (AstStatementWhile)stmt;
-    	throw new IllegalStateException("Expected class AstStatementWhile on stack but was " + stmt.getClass().getSimpleName());
-    }
-    
-    public void While(AstExpression condition)
-    {
-    	AstStatementWhile stmt = new AstStatementWhile();
-    	stmt.setCondition(condition);
-    	statementStack.push(stmt);
-    	AstStructureList whileCode = new AstStructureList();
-    	statementStack.push(whileCode);    	
-    }
-    
-    public void EndWhile()
-    {
-    	AstStructureList code = castList(statementStack.pop());
-    	AstStatementWhile whileStmt = castWhile(statementStack.pop());
-    	whileStmt.setLoopCode(code);
-    	// FIXME - add to code block
-        declareMethod.addStatement(whileStmt);
-    }
-    
-    public AssignmentOperator Assign(AstExpression left, AstExpression right)
-    {
-        return new AssignmentOperator(left, right);
-    }
-    
-    public DotOperator Dot(AstExpression left, TerminalName right)
-    {
-        return new DotOperator(left, right);
-    }
-    
-    public BinaryOperator Mult(AstExpression left, AstExpression right)
-    {
-        return new BinaryOperator(BinaryOperator.MULT, left, right);
-    }
-    
-    public BinaryOperator Div(AstExpression left, AstExpression right)
-    {
-        return new BinaryOperator(BinaryOperator.DIV, left, right);
-    }
-    
-    public BinaryOperator NE(AstExpression left, AstExpression right)
-    {
-        return new BinaryOperator(BinaryOperator.NE, left, right);
-    }
-    
-    public BinaryOperator GT(AstExpression left, AstExpression right)
-    {
-        return new BinaryOperator(BinaryOperator.GT, left, right);
-    }
-    
-    public DecrementOperator Dec(AstExpression expr)
-    {
-        return new DecrementOperator(expr);
-    }
-    
-    public TerminalNumber Literal(int value)
-    {
-        return new TerminalNumber(value);
-    }
-
-    public TerminalName Name(String name)
-    {
-        return new TerminalName(name);
-    }
+//    public AssignmentOperator Assign(AstExpression left, AstExpression right)
+//    {
+//        return new AssignmentOperator(left, right);
+//    }
+//    
+//    public DotOperator Dot(AstExpression left, TerminalName right)
+//    {
+//        return new DotOperator(left, right);
+//    }
+//    
+//    public BinaryOperator Mult(AstExpression left, AstExpression right)
+//    {
+//        return new BinaryOperator(BinaryOperator.MULT, left, right);
+//    }
+//    
+//    public BinaryOperator Div(AstExpression left, AstExpression right)
+//    {
+//        return new BinaryOperator(BinaryOperator.DIV, left, right);
+//    }
+//    
+//    public BinaryOperator NE(AstExpression left, AstExpression right)
+//    {
+//        return new BinaryOperator(BinaryOperator.NE, left, right);
+//    }
+//    
+//    public BinaryOperator GT(AstExpression left, AstExpression right)
+//    {
+//        return new BinaryOperator(BinaryOperator.GT, left, right);
+//    }
+//    
+//    public DecrementOperator Dec(AstExpression expr)
+//    {
+//        return new DecrementOperator(expr);
+//    }
+//    
+//    public TerminalNumber Literal(int value)
+//    {
+//        return new TerminalNumber(value);
+//    }
+//
+//    public TerminalName Name(String name)
+//    {
+//        return new TerminalName(name);
+//    }
 }
