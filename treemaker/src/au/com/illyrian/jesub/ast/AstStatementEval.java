@@ -45,6 +45,6 @@ public class AstStatementEval extends AstStructureBase
     
     public String toString()
     {
-    	return expression + ";\n";
+    	return expression + "";
     }
 }

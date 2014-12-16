@@ -29,6 +29,9 @@ package au.com.illyrian.jesub.ast;
 
 import java.util.Vector;
 
+import au.com.illyrian.classmaker.ClassMaker.ForStep;
+import au.com.illyrian.classmaker.ClassMaker.ForWhile;
+import au.com.illyrian.classmaker.ClassMaker.Labelled;
 import au.com.illyrian.classmaker.ExpressionIfc;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionLink;
@@ -62,7 +65,8 @@ public class AstStructureVisitor extends AstExpressionVisitor
         String className = unit.getClassName().resolvePath(this);
         maker.setSimpleClassName(className);
         resolveExtends(unit.getExtends());
-        resolveImplements(unit.getImplementsList());
+        if (unit.getImplementsList() != null)
+        	unit.getImplementsList().resolveImplements(this);
         resolveDeclaration(unit.getMembersList());
     }
 
@@ -106,7 +110,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
     	}
     }
     
-    public void resolveImplements(ResolvePath className)
+    public void resolveImplements(AstExpression className)
     {
     	if (className != null)
     	{
@@ -165,7 +169,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
         if (method.methodBody != null)
         {
             maker.Begin();
-            resolveStatement(method.methodBody);
+            method.methodBody.resolveStatement(this);
             maker.End();
         }
         else
@@ -245,6 +249,20 @@ public class AstStructureVisitor extends AstExpressionVisitor
         maker.Loop();
         Type cond = statement.condition.resolveType(this);
         maker.While(cond);
+        statement.loopCode.resolveStatement(this);
+        maker.EndLoop();
+        
+    }
+
+    public void resolveStatement(AstStatementFor statement)
+    {
+    	Type init = (statement.getInitialise() == null) ? null : statement.getInitialise().resolveType(this);
+        ForWhile step1 = maker.For(init);
+        Type cond = (statement.getCondition() == null) ? null : statement.getCondition().resolveType(this);
+        ForStep step2 = step1.While(cond);
+    	Type dec = (statement.getIncrement() == null) ? null : statement.getIncrement().resolveType(this);
+        Labelled step3 = step2.Step(dec);
+
         statement.loopCode.resolveStatement(this);
         maker.EndLoop();
         

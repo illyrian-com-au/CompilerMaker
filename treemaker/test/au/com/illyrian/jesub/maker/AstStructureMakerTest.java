@@ -104,7 +104,7 @@ public class AstStructureMakerTest extends ClassMakerTestCase
     public void testDeclareVariable() throws Exception
     {
         AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
-        build.Package(build.Name("au.com.illyrian.jesub.ast"));
+        build.Package(build.Name("au.com.illyrian.jesub.maker"));
         build.Modifier("public");
         build.ClassName(build.Name("Test"));
         build.Extends(build.Name(FuncABC.class.getName()));
@@ -124,12 +124,12 @@ public class AstStructureMakerTest extends ClassMakerTestCase
         
         declareFuncABC(maker);
         
-        assertEquals("Package name:", "au.com.illyrian.jesub.ast", maker.getPackageName());
-        assertEquals("Package name:", getClass().getPackage().getName(), maker.getPackageName());
+        assertEquals("Not the same package as Test case", getClass().getPackage().getName(), maker.getPackageName());
+        assertEquals("Package name:", "au.com.illyrian.jesub.maker", maker.getPackageName());
         assertEquals("Class name:", "Test", maker.getSimpleClassName());
-        assertEquals("Fully Qualified Class name:", "au.com.illyrian.jesub.ast.Test", maker.getFullyQualifiedClassName());
+        assertEquals("Fully Qualified Class name:", "au.com.illyrian.jesub.maker.Test", maker.getFullyQualifiedClassName());
         ClassType superClass = maker.getSuperClass();
-        assertEquals("Super class:", "au.com.illyrian.jesub.ast.FuncABC", superClass.getName());
+        assertEquals("Super class:", "au.com.illyrian.jesub.maker.AstStructureMakerTest$FuncABC", superClass.getName());
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncABC func = (FuncABC)instance;
@@ -142,7 +142,7 @@ public class AstStructureMakerTest extends ClassMakerTestCase
     public void testDeclareMethod() throws Exception
     {
         AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
-        build.Package(build.Name("au.com.illyrian.jesub.ast"));
+        build.Package(build.Name("au.com.illyrian.jesub.maker"));
         build.Modifier("public");
         build.ClassName(build.Name("Test"));
         build.Extends(build.Name(FuncABC.class.getName()));
@@ -162,15 +162,12 @@ public class AstStructureMakerTest extends ClassMakerTestCase
         }
         build.End();
         
-//        AstStructureVisitor visitor = new AstStructureVisitor(maker);
-//        build.getModule().resolveDeclaration(visitor);
-        
-        assertEquals("Package name:", "au.com.illyrian.jesub.ast", maker.getPackageName());
-        assertEquals("Package name:", getClass().getPackage().getName(), maker.getPackageName());
+        assertEquals("Not the same package as Test case", getClass().getPackage().getName(), maker.getPackageName());
+        assertEquals("Package name:", "au.com.illyrian.jesub.maker", maker.getPackageName());
         assertEquals("Class name:", "Test", maker.getSimpleClassName());
-        assertEquals("Fully Qualified Class name:", "au.com.illyrian.jesub.ast.Test", maker.getFullyQualifiedClassName());
+        assertEquals("Fully Qualified Class name:", "au.com.illyrian.jesub.maker.Test", maker.getFullyQualifiedClassName());
         ClassType superClass = maker.getSuperClass();
-        assertEquals("Super class:", "au.com.illyrian.jesub.ast.FuncABC", superClass.getName());
+        assertEquals("Super class:", "au.com.illyrian.jesub.maker.AstStructureMakerTest$FuncABC", superClass.getName());
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         FuncABC func = (FuncABC)instance;

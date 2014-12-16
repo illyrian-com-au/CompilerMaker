@@ -3,6 +3,7 @@ package au.com.illyrian.jesub.maker;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
+import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.jesub.ast.AstDeclareMethod;
@@ -47,7 +48,7 @@ public class AstStatementMakerTest extends ClassMakerTestCase
     AstDeclareMethod binaryMethod(AstStructureLink code) throws Exception
     {
         AstModifiers publicModifier = new AstModifiers("public", null);
-        ResolvePath type = new TerminalName("int");
+        AstExpression type = new TerminalName("int");
         TerminalName name = new TerminalName("binary");
         TerminalName x = new TerminalName("x");
         TerminalName y = new TerminalName("y");
@@ -62,7 +63,7 @@ public class AstStatementMakerTest extends ClassMakerTestCase
     AstDeclareMethod unaryMethod(AstStructureLink code) throws Exception
     {
         AstModifiers publicModifier = new AstModifiers("public", null);
-        ResolvePath type = new TerminalName("int");
+        AstExpression type = new TerminalName("int");
         TerminalName name = new TerminalName("unary");
         TerminalName n = new TerminalName("n");
         AstDeclareVariable paramN = new AstDeclareVariable(null, type, n);

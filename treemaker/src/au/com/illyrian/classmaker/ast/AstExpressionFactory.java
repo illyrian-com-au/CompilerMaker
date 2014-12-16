@@ -247,7 +247,12 @@ public class AstExpressionFactory
     {
         return new MethodCall(left, right);
     }
-    
+
+    public AstExpressionLink Link(AstExpression left, AstExpression right)
+    {
+        return new AstExpressionLink(left, right);
+    }
+   
     public String toString()
     {
         return "AstExpresssionFactory()";

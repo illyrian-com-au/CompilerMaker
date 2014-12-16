@@ -68,14 +68,19 @@ public class AstStructureLink extends AstStructureBase
          visitor.resolveDeclaration(this);
     }
 
+    public void resolveStatement(AstStructureVisitor visitor)
+    {
+        visitor.resolveStatement(this);
+    }
+
     
     public String toString()
     {
     	if (left == null)
-    		return right.toString();
+    		return "" + right;
     	else if (right == null)
-    		return left.toString();
+    		return "" + left;
     	else 
-    		return left + ", " + right;
+    		return left + ";\n" + right;
     }
 }

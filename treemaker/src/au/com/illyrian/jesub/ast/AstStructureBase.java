@@ -48,7 +48,7 @@ public class AstStructureBase extends AstExpressionBase implements AstStructure
 
     public void resolveStatement(AstStructureVisitor visitor)
     {
-        throw new IllegalStateException("Cannot resolve Statement: " + getClass().getSimpleName());
+        throw new IllegalStateException("No override for resolveStatement in " + getClass().getSimpleName());
     }
 
     public void resolveImport(AstStructureVisitor visitor)

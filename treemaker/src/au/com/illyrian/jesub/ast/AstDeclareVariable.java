@@ -27,18 +27,16 @@
 
 package au.com.illyrian.jesub.ast;
 
-import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.ast.TerminalName;
 
 public class AstDeclareVariable extends AstStructureBase
 {
     TerminalName name;
-    ResolvePath type;
+    AstExpression type;
     AstModifiers modifiers;
     
-    public AstDeclareVariable(AstModifiers modifiers, ResolvePath type, TerminalName name)
+    public AstDeclareVariable(AstModifiers modifiers, AstExpression type, TerminalName name)
     {
         this.modifiers = modifiers;
         this.type = type;
@@ -58,7 +56,7 @@ public class AstDeclareVariable extends AstStructureBase
     
     public String toString()
     {
-    	String modString = modifiers == null ? "" : modifiers.toString();
-    	return modString + " " + type + " " + name;
+    	String modString = modifiers == null ? "" : modifiers + " ";
+    	return modString + type + " " + name;
     }
 }

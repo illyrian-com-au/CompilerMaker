@@ -88,6 +88,6 @@ public class AstStatementIf extends AstStatementBase
 	
 	public String toString()
 	{
-		return "if (" + getCondition() + ") ... " + (elseCode == null ? "" : " else ... ; ");
+		return "if (" + getCondition() + ") ... " + (elseCode == null ? "" : " else ... ");
 	}
 }

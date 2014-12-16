@@ -54,8 +54,8 @@ public abstract class ClassMakerTestCase extends TestCase
 
     public static int getIntField(Class myClass, Object myObj, String name) throws IllegalAccessException, NoSuchFieldException
     {
-        //Field sidField = myClass.getDeclaredField(name);
-        Field sidField = myClass.getField(name);
+        Field sidField = myClass.getDeclaredField(name);
+        //Field sidField = myClass.getField(name);
         return sidField.getInt(myObj);
     }
 

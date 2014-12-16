@@ -27,8 +27,6 @@
 
 package au.com.illyrian.jesub.ast;
 
-import java.util.Vector;
-
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.ResolvePath;
@@ -96,7 +94,7 @@ public class AstDeclareModule extends AstStructureBase
     		buf.append("import " + importsList + ";\n");
     	
     	if (declaredClass.getModifiers() != null)
-    		buf.append(declaredClass.getModifiers().toString());
+    		buf.append(declaredClass.getModifiers() + " ");
     	buf.append("class " + declaredClass.getClassName() + " ...");
     	
     	return buf.toString();

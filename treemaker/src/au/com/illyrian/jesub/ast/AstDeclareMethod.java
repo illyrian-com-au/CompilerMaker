@@ -28,22 +28,20 @@
 package au.com.illyrian.jesub.ast;
 
 import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.classmaker.ast.AstExpressionLink;
-import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.ast.TerminalName;
 
 public class AstDeclareMethod extends AstDeclareVariable
 {
-	AstStructureLink parameters = null;
-	AstStructureLink methodBody = null;
+	AstStructure parameters = null;
+	AstStructure methodBody = null;
     
-    public AstDeclareMethod(AstModifiers modifiers, ResolvePath type, TerminalName name)
+    public AstDeclareMethod(AstModifiers modifiers, AstExpression type, TerminalName name)
     {
         super(modifiers, type, name);
     }
 
-    public AstDeclareMethod(AstModifiers modifiers, ResolvePath type, TerminalName name, 
-    		AstStructureLink params, AstStructureLink code)
+    public AstDeclareMethod(AstModifiers modifiers, AstExpression type, TerminalName name, 
+    		AstStructure params, AstStructure code)
     {
         super(modifiers, type, name);
         this.parameters = params;
@@ -51,7 +49,7 @@ public class AstDeclareMethod extends AstDeclareVariable
     }
 
     
-    public AstStructureLink getParameters()
+    public AstStructure getParameters()
     {
         return parameters;
     }
@@ -66,7 +64,7 @@ public class AstDeclareMethod extends AstDeclareVariable
         parameters = new AstStructureLink(parameters, param);
     }
     
-    public AstStructureLink getMethodBody()
+    public AstStructure getMethodBody()
     {
         return methodBody;
     }
@@ -84,5 +82,10 @@ public class AstDeclareMethod extends AstDeclareVariable
     public void resolveDeclaration(AstStructureVisitor visitor)
     {
         visitor.resolveDeclaration(this);
+    }
+    
+    public String toString()
+    {
+    	return super.toString() + "(" + parameters + ")";
     }
 }

@@ -27,15 +27,10 @@
 
 package au.com.illyrian.jesub.ast;
 
-import au.com.illyrian.classmaker.ast.AssignmentOperator;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.ast.AstExpressionLink;
-import au.com.illyrian.classmaker.ast.BinaryOperator;
-import au.com.illyrian.classmaker.ast.DecrementOperator;
-import au.com.illyrian.classmaker.ast.DotOperator;
 import au.com.illyrian.classmaker.ast.TerminalName;
-import au.com.illyrian.classmaker.ast.TerminalNumber;
 
 public class AstStructureFactory extends AstExpressionFactory
 {
@@ -48,35 +43,35 @@ public class AstStructureFactory extends AstExpressionFactory
     	return new AstDeclareModule(packageName, importsList, declaredClass);
     }
     
-    public AstExpressionLink Link(AstExpression left, AstExpression right)
-    {
-        return new AstExpressionLink(left, right);
-    }
-    
     public AstStructureLink Link(AstStructure left, AstStructure right)
     {
         return new AstStructureLink(left, right);
     }
     
-    public AstModifiers Modifier(TerminalName modifier, AstModifiers next)
+    public AstModifiers Modifier(String modifier, AstModifiers next)
     {
         return new AstModifiers(modifier, next);
     }
     
+    public AstModifiers Modifier(String modifier)
+    {
+        return new AstModifiers(modifier, null);
+    }
+    
     public AstDeclareClass DeclareClass(AstModifiers modifiers, TerminalName name, AstExpression baseClass, 
-    		AstExpressionLink implementsList, AstStructureLink membersList)
+    		AstExpression implementsList, AstStructureLink membersList)
     {
     	AstDeclareClass declareClass = new AstDeclareClass(modifiers, name, baseClass, implementsList, membersList);
         return declareClass;
     }
     
-    public AstDeclareVariable DeclareVariable(AstModifiers modifiers, AstExpression type, TerminalName name)
+    public AstDeclareVariable Declare(AstModifiers modifiers, AstExpression type, TerminalName name)
     {
         return new AstDeclareVariable(modifiers, type, name);
     }
     
     public AstDeclareMethod Method(AstModifiers modifiers, AstExpression type, TerminalName name, 
-    		AstStructureLink params, AstStructureLink code)
+    		AstStructure params, AstStructure code)
     {
     	AstDeclareMethod declareMethod = new AstDeclareMethod(modifiers, type, name, params, code);
     	return declareMethod;
@@ -94,60 +89,25 @@ public class AstStructureFactory extends AstExpressionFactory
         return stmt;
     }
     
-    public AstStatementIf If(AstExpression condition, AstStructureLink thenStatement, AstStructureLink elseStatement)
+    public AstStatementIf If(AstExpression condition, AstStructure thenStatement, AstStructure elseStatement)
     {
     	AstStatementIf stmt = new AstStatementIf(condition, thenStatement, elseStatement);
     	return stmt;
     }
     
-    public AstStatementWhile While(AstExpression condition, AstStructureLink bodyStatement)
+    public AstStatementWhile While(AstExpression condition, AstStructure bodyStatement)
     {
     	AstStatementWhile stmt = new AstStatementWhile(condition, bodyStatement);
     	return stmt;
     }
     
-//    public AssignmentOperator Assign(AstExpression left, AstExpression right)
-//    {
-//        return new AssignmentOperator(left, right);
-//    }
-//    
-//    public DotOperator Dot(AstExpression left, TerminalName right)
-//    {
-//        return new DotOperator(left, right);
-//    }
-//    
-//    public BinaryOperator Mult(AstExpression left, AstExpression right)
-//    {
-//        return new BinaryOperator(BinaryOperator.MULT, left, right);
-//    }
-//    
-//    public BinaryOperator Div(AstExpression left, AstExpression right)
-//    {
-//        return new BinaryOperator(BinaryOperator.DIV, left, right);
-//    }
-//    
-//    public BinaryOperator NE(AstExpression left, AstExpression right)
-//    {
-//        return new BinaryOperator(BinaryOperator.NE, left, right);
-//    }
-//    
-//    public BinaryOperator GT(AstExpression left, AstExpression right)
-//    {
-//        return new BinaryOperator(BinaryOperator.GT, left, right);
-//    }
-//    
-//    public DecrementOperator Dec(AstExpression expr)
-//    {
-//        return new DecrementOperator(expr);
-//    }
-//    
-//    public TerminalNumber Literal(int value)
-//    {
-//        return new TerminalNumber(value);
-//    }
-//
-//    public TerminalName Name(String name)
-//    {
-//        return new TerminalName(name);
-//    }
+    public AstStatementFor For(AstExpression init, AstExpression cond, AstExpression step, AstStructure code)
+    {
+    	AstStatementFor stmt = new AstStatementFor(init, cond, step, code);
+    	return stmt;
+    }
+    
+    // FIXME Break / Continue
+    // FIXME Switch
+    // FIXME Try Catch
 }

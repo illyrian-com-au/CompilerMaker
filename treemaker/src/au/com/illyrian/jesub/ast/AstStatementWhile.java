@@ -71,6 +71,6 @@ public class AstStatementWhile extends AstStructureBase
     
     public String toString()
     {
-    	return "while (" + condition + ") ... ;";
+    	return "while (" + condition + ") ... ";
     }
 }
