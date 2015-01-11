@@ -2,6 +2,8 @@ package au.com.illyrian.classmaker;
 
 import au.com.illyrian.classmaker.ClassMaker.ForWhile;
 import au.com.illyrian.classmaker.ClassMaker.Labelled;
+import au.com.illyrian.classmaker.ClassMaker.SwitchStatement;
+import au.com.illyrian.classmaker.ClassMaker.TryCatchFinally;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
@@ -1572,6 +1574,41 @@ public interface ExpressionIfc
     /** Continues the enclosing <code>Loop<code> statement with the given label.     */
     public void Continue(String label) throws ClassMakerException;
 
+    /** Begins a <code>Switch</code> statement. */
+    public Labelled Switch(Type type);
+
+    /** Adds a <code>Case</code> clause of a <code>Switch</code> statement. */
+    public void Case(int key);
+    
+    /** Adds a <code>Default</code> clause of a <code>Switch</code> statement. */
+    public void Default();
+
+    /** Ends a <code>Switch</code> statement. */
+    public void EndSwitch();
+
+    /**
+     * Begins a <code>Try Catch Finally</code> block.
+     */
+    public Labelled Try();
+
+    /**
+     * Catches the Exception and stores it in a the named local variable.
+     */
+    public void Catch(String exceptionName, String name);
+
+    /**
+     * Catches the Exception represented by the java Class.
+     */
+    public void Catch(Class javaClass, String name) throws ClassMakerException;
+
+    /**
+     * Starts a Finally block.
+     */
+    public void Finally() throws ClassMakerException;
+
+    /**
+     * Ends a <code>Try Catch Finally</code> block.     */
+    public void EndTry() throws ClassMakerException;
 
     // Exception handling
     public ClassMakerException createException(String msg);

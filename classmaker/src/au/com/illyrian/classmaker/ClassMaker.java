@@ -360,7 +360,7 @@ public class ClassMaker implements ExpressionIfc
      * @throws ClassMakerException if it is too late to call this method
      */
     public void setPackageName(String packageName) throws ClassMakerException
-    {
+    { // FIXME change to Package
         if (cfw != null)
             throw createException("ClassMaker.ToLateToNameThePackage");
         this.packageName = packageName;
@@ -673,6 +673,13 @@ public class ClassMaker implements ExpressionIfc
         if (cfw == null && generationPass != FIRST_PASS)
             setClassFileWriter(defaultClassFileWriter());
         return cfw;
+    }
+    
+    protected boolean isDebugCode()
+    {
+    	if (getClassFileWriter() != null)
+    		return cfw.isDebugCode();
+    	return false;
     }
 
     /** <code>ClassMaker</code>s share a common <code>ClassMakerFactory</code>. */
@@ -2388,6 +2395,8 @@ public class ClassMaker implements ExpressionIfc
             throw createException("ClassMaker.ClassCannotBeThrown_1", exception.getName());
 
         markLineNumber(); // possibly add a new line number entry.
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("Throw("+exception+");");
         cfw.add(ByteCode.ATHROW);
 
         // Throwing an exception is the equivalent of calling return;
@@ -2403,6 +2412,8 @@ public class ClassMaker implements ExpressionIfc
     {
         if (getClassFileWriter() == null)
             return;
+        if (isDebugCode())
+        	cfw.setDebugComment("Return();");
 
         // Call any finally subroutines before returning
         Statement stmt = topStatement();
@@ -2430,6 +2441,8 @@ public class ClassMaker implements ExpressionIfc
     {
         if (getClassFileWriter() == null)
             return;
+        if (isDebugCode())
+        	cfw.setDebugComment("Return(" + type + ");");
 
         // Call any finally subroutines before returning
         Statement stmt = topStatement();
@@ -2537,6 +2550,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() != null)
         {
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode())
+            	cfw.setDebugComment("This();");
             cfw.addLoadThis();
         }
         return thisClass;
@@ -2560,6 +2575,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() != null)
         {
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode())
+            	cfw.setDebugComment("Super();");
             cfw.addLoadThis();
         }
         return superClass;
@@ -2581,6 +2598,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() != null)
         {
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode())
+            	cfw.setDebugComment("Null();");
             cfw.add(ByteCode.ACONST_NULL);
         }
         return NULL_TYPE;
@@ -2604,6 +2623,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() != null)
         {
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode())
+            	cfw.setDebugComment("Literal(" + value + ");");
             cfw.addPush(value);
         }
         return DOUBLE_TYPE;
@@ -2626,6 +2647,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() != null)
         {
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode())
+            	cfw.setDebugComment("Literal(" + value + ");");
             cfw.addPush(value);
         }
         return FLOAT_TYPE;
@@ -2648,6 +2671,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() != null)
         {
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode())
+            	cfw.setDebugComment("Literal(" + value + ");");
             cfw.addPush(value);
         }
         return LONG_TYPE;
@@ -2670,6 +2695,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() != null)
         {
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode())
+            	cfw.setDebugComment("Literal(" + value + ");");
             cfw.addPush(value);
         }
         // Return the most specific type.
@@ -2699,6 +2726,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() != null)
         {
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode())
+            	cfw.setDebugComment("Literal(\'" + value + "\');");
             cfw.addPush(value);
         }
         return CHAR_TYPE;
@@ -2721,6 +2750,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() != null)
         {
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode())
+            	cfw.setDebugComment("Literal(" + value + ");");
             cfw.add(ByteCode.BIPUSH, value); // constant byte operand
         }
         return BYTE_TYPE;
@@ -2743,6 +2774,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() != null)
         {
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode())
+            	cfw.setDebugComment("Literal(" + value + ");");
             cfw.add(ByteCode.SIPUSH, value); // constant short operand
         }
         return SHORT_TYPE;
@@ -2765,6 +2798,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() != null)
         {
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode())
+            	cfw.setDebugComment("Literal(" + value + ");");
             cfw.addPush(value); // constant boolean operand
         }
         return BOOLEAN_TYPE;
@@ -2787,6 +2822,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() != null)
         {
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode())
+            	cfw.setDebugComment("Literal(" + value + ");");
             cfw.addLoadConstant(value);
         }
         return STRING_TYPE;
@@ -2812,6 +2849,8 @@ public class ClassMaker implements ExpressionIfc
      */
     public Type Assign(String name, Type type) throws ClassMakerException
     {
+    	if (isDebugCode())
+    		cfw.setDebugComment("Assign(" + name + ", " + type + ")");
         dup(type);
         Set(name, type);
         return type;
@@ -2835,6 +2874,8 @@ public class ClassMaker implements ExpressionIfc
      */
     public Type Assign(Type refType, String fieldName, Type valueType) throws ClassMakerException
     {
+    	if (isDebugCode())
+    		cfw.setDebugComment("Assign(" + refType + ", " + fieldName + ", " + valueType + ")");
         // Duplicate the value on top of the stack and put it under the reference.
         // Stack: reference, value
         dupunder(refType, valueType);
@@ -2862,6 +2903,8 @@ public class ClassMaker implements ExpressionIfc
      */
     public Type Assign(String className, String fieldName, Type type) throws ClassMakerException
     {
+    	if (isDebugCode())
+    		cfw.setDebugComment("Assign(" + className + ", " + fieldName + ", " + type + ")");
         dup(type);
         Set(className, fieldName, type);
         return type;
@@ -2959,6 +3002,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Set(String name, Type valueType) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+        if (isDebugCode())
+        	cfw.setDebugComment("Set(" + name + ", " + valueType + ")");
         markLineNumber(); // possibly add a new line number entry.
 
         MakerField field = Find(name);
@@ -2991,6 +3036,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Set(Type reference, String fieldName, Type valueType) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("Set(" + reference + ", " + fieldName + ", " + valueType + ")");
         MakerField field = Find(reference, fieldName);
         Type declaredType = field.getType();
         if (!getFactory().getAssignmentConversion().isConvertable(valueType, declaredType))
@@ -3027,6 +3074,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Set(String className, String fieldName, Type valueType) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("Set(" + className + ", " + fieldName + ", " + valueType + ")");
         MakerField field = Find(className, fieldName);
         Type declaredType = field.getType();
 
@@ -3057,6 +3106,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Get(Type reference, String fieldName) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("Get(" + reference + ", " + fieldName+ ")");
         MakerField field = Find(reference, fieldName);
         return loadField(field);
     }
@@ -3077,6 +3128,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Get(String className, String fieldName) throws ClassMakerException
     { 
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("Get(\"" + className + "\", " + fieldName+ ")");
         MakerField field = Find(className, fieldName);
         return loadField(field);
     }
@@ -3090,6 +3143,8 @@ public class ClassMaker implements ExpressionIfc
     {
         if (getClassFileWriter() == null) return null;
         MakerField field = Find(name);
+        if (isDebugCode())
+        	cfw.setDebugComment("Get(" + name + ");");
         return loadLocal(field);
     }
 
@@ -3424,6 +3479,47 @@ public class ClassMaker implements ExpressionIfc
         return null;
     }
 
+    private void initLocal(int index)
+    {
+    	MakerField field = localTable.get(index);
+    	Type type = field.getType();
+        int slot = field.getSlot();
+        if (isClass(type))
+        {
+        	cfw.add(ByteCode.ACONST_NULL);
+            cfw.addAStore(slot);
+            return;
+        }
+        else if (isPrimitive(type))
+        {
+            switch (type.toPrimitive().index)
+            {
+            case PrimitiveType.BOOLEAN_INDEX: // fall thru
+            case PrimitiveType.CHAR_INDEX: // fall thru
+            case PrimitiveType.BYTE_INDEX: // fall thru
+            case PrimitiveType.SHORT_INDEX: // fall thru
+            case PrimitiveType.INT_INDEX:
+            	cfw.add(ByteCode.ICONST_0);
+                cfw.addIStore(slot);
+                return;
+            case PrimitiveType.LONG_INDEX:
+            	cfw.add(ByteCode.LCONST_0);
+                cfw.addLStore(slot);
+                return;
+            case PrimitiveType.DOUBLE_INDEX:
+            	cfw.add(ByteCode.DCONST_0);
+                cfw.addDStore(slot);
+                return;
+            case PrimitiveType.FLOAT_INDEX:
+            	cfw.add(ByteCode.FCONST_0);
+                cfw.addFStore(slot);
+                return;
+            }
+        }
+        // Should never get here.
+        throw createException("ClassMaker.DontKnowHowToStoreType_1", type.getName());
+    }
+
     /** 
      * Get the maximum local slots used by this method.
      * <br/>
@@ -3616,10 +3712,16 @@ public class ClassMaker implements ExpressionIfc
             {
                 MakerField local = lookupLocal(index);
                 addToScope(local, getScopeLevel());
+                if (isInBody())
+                {
+                	if (isDebugCode())
+                		cfw.setDebugComment("initialise local " + name);
+                	initLocal(index);
+                }
             }
         }
     }
-
+    
     /**
      * The nesting level of the current scoped code block.
      * @return the nesting level of the current scoped code block
@@ -3690,6 +3792,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Cast(Type source, DeclaredType target) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("Cast("+source+", "+target+");");
         Type targetType = target.getType();
         if (getFactory().getCastingConversion().isConvertable(source, targetType))
             return getFactory().getCastingConversion().convertTo(this, source, targetType);
@@ -3723,6 +3827,8 @@ public class ClassMaker implements ExpressionIfc
     public Type InstanceOf(Type reference, String target)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("InstanceOf("+reference+", "+target+");");
         DeclaredType declared = findDeclaredType(target);
         if (reference.toClass() == null)
             throw createException("ClassMaker.InstanceOfMustTestAClass_1", reference.getName());
@@ -4005,6 +4111,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Add(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("Add("+op1+", "+op2+");");
         if (isPrimitive(op1) && isPrimitive(op2))
         {
             if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
@@ -4090,6 +4198,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Subt(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("Subt("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4167,6 +4277,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Mult(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("Mult("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4244,6 +4356,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Div(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("Div("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4321,6 +4435,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Rem(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("Rem("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4395,8 +4511,9 @@ public class ClassMaker implements ExpressionIfc
      */
     public Type Neg(Type type)
     {
-//        Type type = load(value);
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("Neg("+type+");");
         if (getFactory().getNumericPromotion().isConvertable(type))
         {
             type = getFactory().getNumericPromotion().convertTo(this, type);
@@ -4444,6 +4561,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Xor(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("Xor("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4516,6 +4635,8 @@ public class ClassMaker implements ExpressionIfc
     public Type And(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("And("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4588,6 +4709,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Or(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("Or("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4659,6 +4782,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Inv(Type op1)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("Inv("+op1+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType()))
         {
             op1 = getFactory().getNumericPromotion().convertTo(this, op1.getType());
@@ -4734,6 +4859,8 @@ public class ClassMaker implements ExpressionIfc
     public Type SHL(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("SHL("+op1+", "+op2+");");
         // Promote left and right operands independantly.
         if (getFactory().getNumericPromotion().isConvertable(op1.getType()))
         {
@@ -4811,6 +4938,8 @@ public class ClassMaker implements ExpressionIfc
     public Type SHR(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("SHR("+op1+", "+op2+");");
         // Promote left and right operands independantly.
         if (getFactory().getNumericPromotion().isConvertable(op1.getType()))
         {
@@ -4888,6 +5017,8 @@ public class ClassMaker implements ExpressionIfc
     public Type USHR(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("USHR("+op1+", "+op2+");");
         // Promote left and right operands independantly.
         if (getFactory().getNumericPromotion().isConvertable(op1.getType()))
         {
@@ -4967,6 +5098,8 @@ public class ClassMaker implements ExpressionIfc
     public Type GT(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("GT("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -5017,6 +5150,8 @@ public class ClassMaker implements ExpressionIfc
     public Type GE(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("GE("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -5067,6 +5202,8 @@ public class ClassMaker implements ExpressionIfc
     public Type LE(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("LE("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -5117,6 +5254,8 @@ public class ClassMaker implements ExpressionIfc
     public Type LT(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("LT("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -5167,6 +5306,8 @@ public class ClassMaker implements ExpressionIfc
     public Type EQ(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("EQ("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -5223,6 +5364,8 @@ public class ClassMaker implements ExpressionIfc
     public Type NE(Type op1, Type op2)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("NE("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -5275,9 +5418,11 @@ public class ClassMaker implements ExpressionIfc
         int jumpFalse = cfw.acquireLabel();
 
         cfw.add(ifOperator, jumpTrue);
+        if (isDebugCode()) cfw.setDebugComment("false");
         cfw.add(ByteCode.ICONST_0);
         cfw.add(ByteCode.GOTO, jumpFalse);
         cfw.markLabel(jumpTrue);
+        if (isDebugCode()) cfw.setDebugComment("true");
         cfw.add(ByteCode.ICONST_1);
         cfw.markLabel(jumpFalse);
     }
@@ -5301,9 +5446,10 @@ public class ClassMaker implements ExpressionIfc
         if (isPrimitive(op1))
         {
             markLineNumber(); // possibly add a new line number entry.
-            switch (op1.toPrimitive().index)
+            if (cfw.isDebugCode()) 
+            	cfw.setDebugComment("Not("+op1+");");
+            if (op1.toPrimitive().index == PrimitiveType.BOOLEAN_INDEX)
             {
-            case PrimitiveType.BOOLEAN_INDEX:
                 cfw.add(ByteCode.ICONST_1);
                 cfw.add(ByteCode.IXOR);
                 return BOOLEAN_TYPE;
@@ -5669,9 +5815,12 @@ public class ClassMaker implements ExpressionIfc
     public void Eval(Type type)
     {
         if (getClassFileWriter() == null) return;
-        //Type type = load(value);
         if (!VOID_TYPE.equals(type))
+        {
+        	if (isDebugCode())
+            	cfw.setDebugComment("Eval("+ type + ")");
             pop(type.getType());
+        }
     }
 
     /**
@@ -5785,6 +5934,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Inc(String name) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("Inc(" + name + ")");
         MakerField local = Find(name);
         return Inc(local);
     }
@@ -5813,6 +5964,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Inc(Type reference, String name) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("Inc(" + reference + ", " + name+ ")");
         MakerField field = Find(reference, name);
         return Inc(field);
     }
@@ -5853,6 +6006,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Inc(String className, String name) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("Inc(\"" + className + "\", " + name+ ")");
         MakerField field = Find(className, name);
         return Inc(field);
     }
@@ -5896,8 +6051,6 @@ public class ClassMaker implements ExpressionIfc
      */
     public Type Inc(MakerField field) throws ClassMakerException
     {
-//        lvalue = findPath(lvalue);
-//        MakerField field = lvalue.toField();
         if (field != null)
         {
             if (field.isLocal())
@@ -5928,6 +6081,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Dec(String name) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("Dec(" + name + ")");
         MakerField local = Find(name);
         return Dec(local);
     }
@@ -5956,6 +6111,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Dec(Type reference, String name) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("Dec(" + reference + ", " + name+ ")");
         MakerField field = Find(reference, name);
         return Dec(field);
     }
@@ -5998,6 +6155,8 @@ public class ClassMaker implements ExpressionIfc
     public Type Dec(String className, String name) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("Dec(\"" + className + "\", " + name+ ")");
         MakerField field = Find(className, name);
         return Dec(field);
     }
@@ -6073,6 +6232,8 @@ public class ClassMaker implements ExpressionIfc
     public Type PostInc(String name) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("PostInc(" + name+ ")");
         MakerField local = Find(name);
         return postIncLocal(local);
     }
@@ -6102,6 +6263,8 @@ public class ClassMaker implements ExpressionIfc
     public Type PostInc(Type reference, String name) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("PostInc(" + reference + ", " + name+ ")");
         MakerField field = Find(reference, name);
         return PostInc(field);
     }
@@ -6145,6 +6308,8 @@ public class ClassMaker implements ExpressionIfc
     public Type PostInc(String className, String name) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("PostInc(\"" + className + "\", " + name+ ")");
         MakerField field = Find(className, name);
         return postIncStatic(field);
     }
@@ -6188,8 +6353,6 @@ public class ClassMaker implements ExpressionIfc
      */
     public Type PostInc(MakerField field) throws ClassMakerException
     {
-//        lvalue = findPath(lvalue);
-//        MakerField field = lvalue.toField();
         if (field != null)
         {
             if (field.isLocal())
@@ -6220,6 +6383,8 @@ public class ClassMaker implements ExpressionIfc
     public Type PostDec(String name) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("PostDec(" + name+ ")");
         MakerField local = Find(name);
         return postDecLocal(local);
     }
@@ -6248,6 +6413,8 @@ public class ClassMaker implements ExpressionIfc
     public Type PostDec(Type reference, String name) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("PostDec(" + reference + ", " + name+ ")");
         MakerField field = Find(reference, name);
         return PostDec(field);
     }
@@ -6291,6 +6458,8 @@ public class ClassMaker implements ExpressionIfc
     public Type PostDec(String className, String name) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
+    	if (isDebugCode())
+    		cfw.setDebugComment("PostDec(\"" + className + "\", " + name+ ")");
         MakerField field = Find(className, name);
         return postDecStatic(field);
     }
@@ -6334,8 +6503,6 @@ public class ClassMaker implements ExpressionIfc
      */
     public Type PostDec(MakerField field) throws ClassMakerException
     {
-//        lvalue = findPath(lvalue);
-//        MakerField field = lvalue.toField();
         if (field != null)
         {
             if (field.isLocal())
@@ -6367,7 +6534,6 @@ public class ClassMaker implements ExpressionIfc
     public Type IncAt(Type array, Type index) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
-//        Type type = load(array);
         ArrayType arrayType = array.toArray();
         Type indexType = index; //load(index);
         if (arrayType == null)
@@ -6420,7 +6586,6 @@ public class ClassMaker implements ExpressionIfc
     public Type DecAt(Type array, Type index) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
-//        Type type = load(array); // FIXME
         ArrayType arrayType = array.toArray();
         Type indexType = index; //load(index);
         if (arrayType == null)
@@ -6473,7 +6638,6 @@ public class ClassMaker implements ExpressionIfc
     public Type PostIncAt(Type array, Type index) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
-//        Type type = load(array);
         ArrayType arrayType = array.toArray();
         Type indexType = index; //load(index);
         if (arrayType == null)
@@ -6997,6 +7161,7 @@ public class ClassMaker implements ExpressionIfc
                 throw createException("ClassMaker.IfConditionMustBeBoolean_1", condition.getName());
             }
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode()) cfw.setDebugComment("If");
 
             endStatement = cfw.acquireLabel();
             // Boolean value on stack will be 1 to execute Then block or 0 to
@@ -7016,6 +7181,7 @@ public class ClassMaker implements ExpressionIfc
             if (jumpElse != 0)
                 throw createException("ClassMaker.ElseCalledTwice");
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode()) cfw.setDebugComment("Else");
 
             jumpElse = cfw.acquireLabel();
             cfw.add(ByteCode.GOTO, jumpElse);
@@ -7032,6 +7198,7 @@ public class ClassMaker implements ExpressionIfc
             if (getClassFileWriter() != null)
             {
                 markLineNumber(); // possibly add a new line number entry.
+                if (isDebugCode()) cfw.setDebugComment("End If");
 
                 if (jumpElse != 0)
                 {
@@ -7147,6 +7314,8 @@ public class ClassMaker implements ExpressionIfc
         {
             if (getClassFileWriter() == null) return;
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode()) cfw.setDebugComment("Loop()");
+
             beginLoop = cfw.acquireLabel();
             endLoop = cfw.acquireLabel();
             cfw.markLabel(beginLoop);
@@ -7168,7 +7337,10 @@ public class ClassMaker implements ExpressionIfc
                     throw createException("ClassMaker.LoopDoesNotContainBreak");
                 markLineNumber(); // possibly add a new line number entry.
 
+                if (isDebugCode()) cfw.setDebugComment("   Jump to begining of Loop");
                 cfw.add(ByteCode.GOTO, beginLoop);
+
+                if (isDebugCode()) cfw.setDebugComment("End of Loop");
                 cfw.markLabel(endLoop);
             }
             // Pop LoopStatement off statement stack.
@@ -7189,6 +7361,7 @@ public class ClassMaker implements ExpressionIfc
                 throw createException("ClassMaker.WhileConditionMustBeTypeBooleanNot_1", condition.getName());
             }
             markLineNumber(); // possibly add a new line number entry.
+            if (isDebugCode()) cfw.setDebugComment("    jump conditional to end of loop");
             // Boolean value on stack will be 1 (true) to continute Loop or 0 (false) to exit Loop.
             cfw.add(ByteCode.IFEQ, endLoop);   // Break out of the loop if equal to zero.
             breakCount++;
@@ -7209,11 +7382,14 @@ public class ClassMaker implements ExpressionIfc
         {
             if (BREAK.equals(jumpTarget) && (label == null || label.equals(getLabel())))
             {   // Break jumps to the end of the loop
+                if (isDebugCode()) cfw.setDebugComment("    Break jumps to end of loop" + (label == null ? "" : label));
                 cfw.add(ByteCode.GOTO, endLoop);
                 breakCount++;
             }
             else if (CONTINUE.equals(jumpTarget) && (label == null || label.equals(getLabel())))
             {   // Continue jumps to the start of the loop
+                if (isDebugCode()) 
+                	cfw.setDebugComment("    Continue jumps to start of loop " + (label == null ? "" : label));
                 continueLoop();
             }
             else
@@ -7276,6 +7452,7 @@ public class ClassMaker implements ExpressionIfc
             markLineNumber(); // possibly add a new line number entry.
             beginLoop = cfw.acquireLabel();
             endLoop = cfw.acquireLabel();
+            if (isDebugCode()) cfw.setDebugComment("For loop");
             cfw.markLabel(beginLoop);
             cfw.add(ByteCode.NOP);
         }
@@ -7296,6 +7473,7 @@ public class ClassMaker implements ExpressionIfc
             {
                 throw createException("ClassMaker.WhileConditionMustBeTypeBooleanNot_1", condition.getName());
             }
+            if (isDebugCode()) cfw.setDebugComment("For while");
             markLineNumber(); // possibly add a new line number entry.
             // Boolean value on stack will be 1 (true) to continute Loop or 0 (false) to exit Loop.
             cfw.add(ByteCode.IFEQ, endLoop);   // Break out of the loop if equal to zero.
@@ -7319,6 +7497,7 @@ public class ClassMaker implements ExpressionIfc
         public Labelled Step(Type step) throws ClassMakerException
         {
             if (getClassFileWriter() == null) return this;
+            if (isDebugCode()) cfw.setDebugComment("For step");
             Eval(step);
             markLineNumber(); // possibly add a new line number entry.
 
@@ -7343,6 +7522,7 @@ public class ClassMaker implements ExpressionIfc
                     throw createException("ClassMaker.ForDoesNotContainBreak");
                 markLineNumber(); // possibly add a new line number entry.
 
+                if (isDebugCode()) cfw.setDebugComment("For end");
                 // Handles a For() statement with or without While() and Step() clauses.
                 if (!calledWhile)
                 {
@@ -7547,6 +7727,8 @@ public class ClassMaker implements ExpressionIfc
     public void Break(String label) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return;
+   	   if (isDebugCode()) 
+   		   cfw.setDebugComment("Break(" + (label == null ? "" : label) + ")");
         Statement stmt = topStatement();
         markLineNumber(); // possibly add a new line number entry.
         if (stmt.jumpToTarget(BREAK, label) == null)
@@ -7571,6 +7753,8 @@ public class ClassMaker implements ExpressionIfc
     public void Continue(String label) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return;
+    	   if (isDebugCode()) 
+       		   cfw.setDebugComment("Continue(" + (label == null ? "" : label) + ")");
         Statement stmt = topStatement();
         markLineNumber(); // possibly add a new line number entry.
         if (stmt.jumpToTarget(CONTINUE, label) == null)
@@ -7624,6 +7808,8 @@ public class ClassMaker implements ExpressionIfc
             startLineNumber = (short)getSourceLine().getLineNumber();
             beginSwitch = cfw.acquireLabel();
             endSwitch = cfw.acquireLabel();
+            if (cfw.isDebugCode()) 
+            	cfw.setDebugComment("Switch("+switchType+");");
             cfw.add(ByteCode.GOTO, beginSwitch);
         }
 
@@ -7638,6 +7824,8 @@ public class ClassMaker implements ExpressionIfc
         public void Case(int caseKey)
         {
             if (getClassFileWriter() == null) return;
+            if (cfw.isDebugCode()) 
+            	cfw.setDebugComment("Case("+caseKey+");");
             markLineNumber(); // possibly add a new line number entry.
             int caseLabel = cfw.acquireLabel();
             cfw.markLabel(caseLabel);
@@ -7655,6 +7843,8 @@ public class ClassMaker implements ExpressionIfc
         public void Default()
         {
             if (getClassFileWriter() == null) return;
+            if (cfw.isDebugCode()) 
+            	cfw.setDebugComment("Default();");
             if (defaultSwitch != 0)
                 throw createException("ClassMaker.MoreThanOneDefaultInSwitch");
             markLineNumber(); // possibly add a new line number entry.
@@ -7678,6 +7868,8 @@ public class ClassMaker implements ExpressionIfc
             if (getClassFileWriter() == null) return;
             if (caseSize == 0)
             	throw createException("ClassMaker.NoCaseClauseInSwitch");
+            if (cfw.isDebugCode()) 
+            	cfw.setDebugComment("EndSwitch();");
             if (defaultSwitch == 0)
             {   // Ensure there is a default option that does nothing.
             	Default();
@@ -7763,7 +7955,9 @@ public class ClassMaker implements ExpressionIfc
 
         /** Generates the bytecode for a <code>Switch<code> statement with contiguous keys. */
        protected void createTableSwitch()
-        {
+       {
+    	   if (cfw.isDebugCode()) 
+    		   cfw.setDebugComment("Table Switch");
             int low = cases[0];
             int high = cases[caseSize - 2];
             int startSwitch = cfw.addTableSwitch(low, high);
@@ -7787,6 +7981,8 @@ public class ClassMaker implements ExpressionIfc
        /** Generates the bytecode for a <code>Switch<code> statement with <b>non-</b>contiguous keys. */
         protected void createLookupSwitch()
         {
+     	   if (cfw.isDebugCode()) 
+    		   cfw.setDebugComment("Lookup Switch");
             int startSwitch = cfw.addLookupSwitch(caseSize / 2);
             cfw.addLookupSwitchDefaultLabel(startSwitch, defaultSwitch);
             int prev = cases[0] - 1;
@@ -7911,10 +8107,14 @@ public class ClassMaker implements ExpressionIfc
 
         /* Reference to the finally subroutine which is called from many places. */
         int finallySubroutine = 0;
+        int startFinallyBlock = 0;
 
         /* An anonomous local variable holds the return PC for the finally subroutine. */
         int finallyReturnSlot = 0;
-
+        int endFinallyBlock = 0;
+        
+        int finalyExceptionSlot = -1;
+        
         /**
          * Begins a <code>Try Catch Finally</code> block.
          * </br>
@@ -7923,6 +8123,8 @@ public class ClassMaker implements ExpressionIfc
         public void Try()
         {
             if (getClassFileWriter() == null) return;
+            if (isDebugCode())
+            	cfw.setDebugComment("Try();");
             startTryBlock = cfw.acquireLabel();
             endCatchBlock = cfw.acquireLabel();
             cfw.markLabel(startTryBlock);
@@ -7939,6 +8141,8 @@ public class ClassMaker implements ExpressionIfc
         public void Catch(Type exceptionType, String name) throws ClassMakerException
         {
             if (getClassFileWriter() == null) return;
+            if (isDebugCode())
+            	cfw.setDebugComment("Catch(" + exceptionType + ", " + name  + ");");
             endTryCatchBlock();
 
             // catch (Exception ex)
@@ -7953,7 +8157,20 @@ public class ClassMaker implements ExpressionIfc
             Eval(Set(name, exceptionType));
         }
 
-        /**
+        protected void endTryCatchBlock2()
+        {
+            if (endTryBlock == 0)
+            {
+                endTryBlock = cfw.acquireLabel();
+                cfw.markLabel(endTryBlock);
+            }
+            finalyExceptionSlot = storeAnonymousValue(OBJECT_TYPE);
+            // initialise slot
+            // Jump over remaining catch and finally blocks.
+            cfw.add(ByteCode.GOTO, endCatchBlock);
+        }
+
+       /**
          * Starts a Finaly block.
          * </br>
          * Begins a subroutine that will always be executed regardless of the execution path.
@@ -7968,11 +8185,13 @@ public class ClassMaker implements ExpressionIfc
         public void Finally()
         {
             if (getClassFileWriter() == null) return;
+            if (isDebugCode())
+            	cfw.setDebugComment("Finally();");
             endTryCatchBlock();
 
             // Start finaly block
             int catchBlockAll = cfw.acquireLabel();
-            cfw.addExceptionHandler(startTryBlock, catchBlockAll, catchBlockAll, null);
+            cfw.addExceptionHandler(startTryBlock, endTryBlock, catchBlockAll, null);
             cfw.markLabel(catchBlockAll);
             // An exception pointer has been pushed onto the stack.
             cfw.adjustStackTop(1);
@@ -7980,16 +8199,24 @@ public class ClassMaker implements ExpressionIfc
             markLineNumber(); // possibly add a new line number entry.
 
             // Store the exception pointer in an anonomous local variable.
+            if (cfw.isDebugCode())
+            	cfw.setDebugComment("Store reference to exception");
             int finalyExceptionAddress = storeAnonymousValue(OBJECT_TYPE);
 
             // Jump to the finally subroutine
             callFinallySubroutine();
 
             // Rethrow the exception.
+            if (cfw.isDebugCode())
+            	cfw.setDebugComment("Load reference to exception");
             loadAnonymousValue(finalyExceptionAddress);
+            if (cfw.isDebugCode())
+            	cfw.setDebugComment("Rethrow exception");
             cfw.add(ByteCode.ATHROW);
 
             // Finaly subroutine
+            if (cfw.isDebugCode())
+            	cfw.setDebugComment("finally subroutine");
             cfw.markLabel(finallySubroutine);
 
             // Store return address in an annonomous local variable.
@@ -8005,6 +8232,8 @@ public class ClassMaker implements ExpressionIfc
         {
             if (getClassFileWriter() != null)
             {
+                if (cfw.isDebugCode()) 
+                	cfw.setDebugComment("EndTry();");
                 if (finallyReturnSlot != 0)
                 {
                     MakerField local = localTable.get(finallyReturnSlot);
@@ -8041,6 +8270,8 @@ public class ClassMaker implements ExpressionIfc
         {
             if (finallySubroutine != 0)
             {
+            	if (cfw.isDebugCode())
+            		cfw.setDebugComment("jump to finally subroutine");
                 cfw.add(ByteCode.JSR, finallySubroutine);
             }
         }
@@ -8230,17 +8461,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() == null) return null;
         if (!BOOLEAN_TYPE.equals(cond))
             throw createException("ClassMaker.LogicConditionMustBeBoolean_1", cond.getName());
-//        if (andOr.jumpAnd != 0)
-//        {
-//            cfw.markLabel(andOr.jumpAnd);
-//            andOr.jumpAnd = 0;
-//        }
-//        if (andOr.jumpOr != 0)
-//        {
-//            cfw.markLabel(andOr.jumpOr);
-//            andOr.jumpOr = 0;
-//        }
-    	markAndThenLabel(andOr);
+
+        markAndThenLabel(andOr);
     	markOrElseLabel(andOr);
 
         return cond;
@@ -8250,9 +8472,14 @@ public class ClassMaker implements ExpressionIfc
     {
         if (andOr != null && andOr.jumpAnd != 0)
         {
+        	if (cfw.isDebugCode()) cfw.setDebugComment("preserve result on stack");
+        	int temp = cfw.acquireLabel();
+        	cfw.add(ByteCode.GOTO, temp);
             cfw.markLabel(andOr.jumpAnd);
             andOr.jumpAnd = 0;
-            markAndThenLabel(andOr.prev);
+        	if (cfw.isDebugCode()) cfw.setDebugComment("|| expression evaluates to false");
+            cfw.add(ByteCode.ICONST_0);
+            cfw.markLabel(temp);
         }
     }
 
@@ -8260,9 +8487,14 @@ public class ClassMaker implements ExpressionIfc
     {
         if (andOr != null && andOr.jumpOr != 0)
         {
+        	if (cfw.isDebugCode()) cfw.setDebugComment("preserve result on stack");
+        	int temp = cfw.acquireLabel();
+        	cfw.add(ByteCode.GOTO, temp);
             cfw.markLabel(andOr.jumpOr);
             andOr.jumpOr = 0;
-            markOrElseLabel(andOr.prev);
+        	if (cfw.isDebugCode()) cfw.setDebugComment("|| expression evaluates to true");
+            cfw.add(ByteCode.ICONST_1);
+            cfw.markLabel(temp);
         }
     }
 
@@ -8285,17 +8517,26 @@ public class ClassMaker implements ExpressionIfc
     public AndOrExpression AndThen(AndOrExpression previous, Type cond)
     {
         if (getClassFileWriter() == null) return null;
-//        if (previous.jumpOr != 0)
-//        {
-//            cfw.markLabel(previous.jumpOr);
-//            previous.jumpOr = 0;
-//        }
+        if (!BOOLEAN_TYPE.equals(cond))
+            throw createException("ClassMaker.AndThenConditionMustBeBoolean_1", cond.getName());
+
         // handle change from && to || operator
         markOrElseLabel(previous);
         
-        // Chain similar shortcut operators
-        AndOrExpression andOr = AndThen(cond);
-        andOr.prev = previous;
+        AndOrExpression andOr = new AndOrExpression();
+        andOr.prev = previous;  // Chain similar shortcut operators
+        // Jump to the same label as the previous AndThen expression, if available.
+        andOr.jumpAnd = (previous == null || previous.jumpAnd == 0) ? cfw.acquireLabel() : previous.jumpAnd;
+        //dup(BOOLEAN_TYPE); // Duplicate value so it is on stack at and of jump.
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("&& Jump if false on stack");
+        cfw.add(ByteCode.IFEQ, andOr.jumpAnd); // Jump over other expression if
+                                                // cond is false.
+        //cfw.add(ByteCode.POP); // Previous value now irrelevant so remove from
+                                // stack.
+
+        markLineNumber(); // possibly add a new line number entry.
+
         return andOr;
     }
 
@@ -8316,20 +8557,7 @@ public class ClassMaker implements ExpressionIfc
      */
     public AndOrExpression AndThen(Type cond)
     {
-        if (getClassFileWriter() == null) return null;
-        AndOrExpression andOr = new AndOrExpression();
-        if (!BOOLEAN_TYPE.equals(cond))
-            throw createException("ClassMaker.AndThenConditionMustBeBoolean_1", cond.getName());
-
-        andOr.jumpAnd = cfw.acquireLabel();
-        dup(BOOLEAN_TYPE); // Duplicate value so it is on stack at and of jump.
-        cfw.add(ByteCode.IFEQ, andOr.jumpAnd); // Jump over other expression if
-                                                // cond is false.
-        cfw.add(ByteCode.POP); // Previous value now irrelevant so remove from
-                                // stack.
-
-        markLineNumber(); // possibly add a new line number entry.
-        return andOr;
+    	return AndThen(null, cond);
     }
 
     /**
@@ -8351,18 +8579,25 @@ public class ClassMaker implements ExpressionIfc
     public AndOrExpression OrElse(AndOrExpression previous, Type cond)
     {
         if (getClassFileWriter() == null) return null;
-//        if (previous.jumpAnd != 0)
-//        {
-//            cfw.markLabel(previous.jumpAnd);
-//            previous.jumpAnd = 0;
-//        }
-//        return OrElse(cond);
+        if (!BOOLEAN_TYPE.equals(cond))
+            throw createException("ClassMaker.OrElseConditionMustBeBoolean_1", cond.getName());
+
         // handle change from && to || operator
         markAndThenLabel(previous);
         
-        // Chain similar shortcut operators
-        AndOrExpression andOr = OrElse(cond);
-        andOr.prev = previous;
+        AndOrExpression andOr = new AndOrExpression();
+        andOr.prev = previous;  // Chain similar shortcut operators
+        // Jump to the same label as the previous OrElse expression, if available.
+        andOr.jumpOr = (previous == null || previous.jumpOr == 0) ? cfw.acquireLabel() : previous.jumpOr;
+        
+        //dup(BOOLEAN_TYPE); // Duplicate cond so it is on stack at end of jump.
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("|| Jump if true on stack");
+        cfw.add(ByteCode.IFNE, andOr.jumpOr); // Jump over other expression if cond is true.
+        //cfw.add(ByteCode.POP); // Previous cond now irrelevant so remove from stack.
+
+        markLineNumber(); // possibly add a new line number entry.
+
         return andOr;
     }
 
@@ -8383,20 +8618,7 @@ public class ClassMaker implements ExpressionIfc
      */
     public AndOrExpression OrElse(Type cond)
     {
-        if (getClassFileWriter() == null) return null;
-        if (!BOOLEAN_TYPE.equals(cond))
-            throw createException("ClassMaker.OrElseConditionMustBeBoolean_1", cond.getName());
-
-        AndOrExpression andOr = new AndOrExpression();
-        andOr.jumpOr = cfw.acquireLabel();
-        dup(BOOLEAN_TYPE); // Duplicate cond so it is on stack at end of jump.
-        cfw.add(ByteCode.IFNE, andOr.jumpOr); // Jump over other expression if
-                                                // cond is true.
-        cfw.add(ByteCode.POP); // Previous cond now irrelevant so remove from
-                                // stack.
-
-        markLineNumber(); // possibly add a new line number entry.
-        return andOr;
+    	return OrElse(null, cond);
     }
 
     /**

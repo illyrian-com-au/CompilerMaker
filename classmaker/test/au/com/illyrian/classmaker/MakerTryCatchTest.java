@@ -28,6 +28,7 @@
 package au.com.illyrian.classmaker;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class MakerTryCatchTest extends ClassMakerTestCase
 {
@@ -50,7 +51,7 @@ public class MakerTryCatchTest extends ClassMakerTestCase
     {
         factory = new ClassMakerFactory();
         maker = factory.createClassMaker("MyClass", Object.class, "au/com/illyrian/classmaker/MakerTryCatchTest.java");
-        defaultConstructor();
+        //defaultConstructor();
     }
 
     // Generate default constructor
@@ -108,7 +109,7 @@ public class MakerTryCatchTest extends ClassMakerTestCase
     }
 
     public static final String ILLEGAL_ARGUMENT_EXCEPTION = "java/lang/IllegalArgumentException";
-
+/*
     public void testThrowUncheckedException() throws Exception
     {
 nl(93);
@@ -604,6 +605,10 @@ nl();   maker.End();
                 {
                     Eval(Set("x", Literal(10000)));
                 }
+        		Catch(IOException.class, "ex2"); 
+        		{
+        			Eval(Assign("x", Literal(-10)));
+        		}
                 Finally();
                 {
                     Eval(Inc("x"));
@@ -626,7 +631,61 @@ nl();   maker.End();
         assertEquals("Wrong value for exec.unary()", 10001, exec.unary(-1));
 
     }
+*/
+    public static class Unreliable {
+    	public int f(int a) throws IOException
+    	{
+    		if (a < 0)
+    			throw new IllegalStateException("Exception thrown as part of test");
+    		else if (a == 0)
+    			throw new IOException("Exception thrown as part of test");
+    		else
+    			return a;
+    	}
+    }
 
+    public void testTryCatchFinally2() throws Exception
+    {
+        maker = factory.createClassMaker();
+        maker.setPackageName(getClass().getPackage().getName());
+        maker.setClassModifiers(ClassMaker.ACC_PUBLIC);
+        maker.setSimpleClassName("Test");
+        maker.Extends(Unreliable.class);
+        maker.Implements(Unary.class);
+        
+        maker.Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Declare("x", int.class, 0);
+
+        // Method body
+        maker.Begin();
+        {
+            maker.Declare("y", int.class, 0);
+        	maker.Try(); 
+        	{
+        	    maker.Eval(maker.Call(maker.This(), "f", maker.Push(maker.Get("x"))));
+        	    maker.Eval(maker.Assign("y", maker.Get("x")));
+        	} maker.Catch(IOException.class, "ex1"); {
+        	    maker.Eval(maker.Assign("y", maker.Literal(-10)));
+        	} maker.Catch("IllegalStateException", "ex2"); {
+        	    maker.Eval(maker.Assign("y", maker.Literal(-100)));
+        	} maker.Finally(); {
+        		maker.Eval(maker.Inc("y"));
+        	}
+        	maker.EndTry();
+            maker.Return(maker.Get("y"));
+        }
+        maker.End();
+
+        Class parserClass = maker.defineClass();
+        Object instance = parserClass.newInstance();
+        Unary exec = (Unary)instance;
+
+        assertEquals("Wrong value for exec.unary()", 2, exec.unary(1));
+        assertEquals("Wrong value for exec.unary()", 3, exec.unary(2));
+        assertEquals("Wrong value for exec.unary()", -9, exec.unary(0));
+        assertEquals("Wrong value for exec.unary()", -99, exec.unary(-1));
+    }
+/*
     public void testTryException() throws Exception
     {
 
@@ -670,4 +729,5 @@ nl();   maker.End();
             assertEquals("Wrong message", "Class java.lang.String cannot be thrown", ex.getMessage());
         }
     }
+    */
 }

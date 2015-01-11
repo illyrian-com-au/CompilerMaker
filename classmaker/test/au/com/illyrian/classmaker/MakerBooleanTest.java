@@ -30,7 +30,6 @@ package au.com.illyrian.classmaker;
 import org.mozilla.classfile.ByteCode;
 
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
-import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 
 public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode

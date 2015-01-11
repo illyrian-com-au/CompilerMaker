@@ -28,8 +28,6 @@
 package au.com.illyrian.classmaker;
 
 import java.lang.reflect.Field;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
@@ -37,7 +35,6 @@ public abstract class ClassMakerTestCase extends TestCase
 {
     public void setUp() throws Exception
     {
-       // Logger.getGlobal().setLevel(Level.FINE);
     }
     
     public static char getCharField(Class myClass, Object myObj, String name) throws IllegalAccessException, NoSuchFieldException
@@ -54,8 +51,8 @@ public abstract class ClassMakerTestCase extends TestCase
 
     public static int getIntField(Class myClass, Object myObj, String name) throws IllegalAccessException, NoSuchFieldException
     {
-        Field sidField = myClass.getDeclaredField(name);
-        //Field sidField = myClass.getField(name);
+        //Field sidField = myClass.getDeclaredField(name);
+        Field sidField = myClass.getField(name);
         return sidField.getInt(myObj);
     }
 
