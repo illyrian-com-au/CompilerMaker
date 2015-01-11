@@ -25,40 +25,29 @@
 // of the authors and should not be interpreted as representing official policies,
 // either expressed or implied, of the FreeBSD Project.
 
-package au.com.illyrian.classmaker.ast;
+package au.com.illyrian.jesub.ast;
 
-import au.com.illyrian.classmaker.CallStack;
-import au.com.illyrian.classmaker.types.Type;
-
-public class ActualParameter extends AstExpressionBase
+public abstract class AstCompoundBase extends AstStructureBase
 {
-    AstExpression leftExpression;
-    AstExpression rightExpression;
+    protected AstStructure  code;
     
-    public ActualParameter(AstExpression left, AstExpression right)
+    public AstCompoundBase()
     {
-        leftExpression = left;
-        rightExpression = right;
-    }
-    
-    public Type resolveType(AstExpressionVisitor visitor)
-    {
-        return null;
-    }
-    
-    public CallStack resolveCallStack(AstExpressionVisitor visitor)
-    {
-        return visitor.resolveCallStack(this);
-    }
-    
-    public String toString()
-    {
-        if (leftExpression == null)
-            return "" + rightExpression;
-        else if (rightExpression == null)
-            return leftExpression + "";
-        else
-            return leftExpression + ", " + rightExpression;
+        this.code = null;
     }
 
+	public AstStructure getCode() 
+	{
+		return code;
+	}
+
+    public void setCode(AstStructure code) 
+    {
+		this.code = code;
+	}
+
+	public void add(AstStructure stmt)
+    {
+    	code = new AstStructureLink(code, stmt);
+    }
 }

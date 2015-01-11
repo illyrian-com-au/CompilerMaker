@@ -8,7 +8,6 @@ import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.CompileModule;
 import au.com.illyrian.parser.impl.LexerInputString;
 import au.com.illyrian.parser.impl.Operator;
-import au.com.illyrian.parser.impl.Operator;
 import au.com.illyrian.parser.impl.PrecidenceAction;
 import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 

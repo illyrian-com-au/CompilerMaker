@@ -2,7 +2,6 @@ package au.com.illyrian.domainparser;
 
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
 
 import junit.framework.TestCase;
 import au.com.illyrian.jesub.PrettyPrintWriter;

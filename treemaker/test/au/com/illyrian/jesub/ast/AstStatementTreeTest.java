@@ -312,7 +312,70 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         assertEquals("Wrong value for exec.unary()", 5040, exec.unary(7));
         assertEquals("Wrong value for exec.unary()", 40320, exec.unary(8));
     }
-  /*  
+
+    public void testSwitch() throws Exception
+    {
+        AstStructureFactory build = new AstStructureFactory();
+        AstExpression packageName = build.Name("au.com.illyrian.jesub.ast");
+
+        AstExpression intType = build.Name("int");
+        AstModifiers astPublic = build.Modifier("public");
+        
+        // Declare method
+        AstDeclareMethod method = build.Method(astPublic, intType, build.Name("unary"), null, null);
+        method.addParameter(build.Declare(null, build.Name("int"), build.Name("x")));
+
+      	method.addStatement(build.Declare(null, intType, build.Name("y")));
+      	AstStatementSwitch stmt = build.Switch(build.Name("x"), null);
+      	stmt.add(build.Case(build.Literal(0)));
+      	stmt.add(build.Eval(build.Assign(build.Name("y"), build.Literal(1))));
+      	stmt.add(build.Break());
+      	stmt.add(build.Case(build.Literal(2)));
+      	stmt.add(build.Eval(build.Assign(build.Name("y"), build.Literal(2))));
+      	stmt.add(build.Break());
+      	stmt.add(build.Case(build.Literal(4)));
+      	stmt.add(build.Eval(build.Assign(build.Name("y"), build.Literal(3))));
+      	stmt.add(build.Break());
+      	stmt.add(build.Case(build.Literal(6)));
+      	stmt.add(build.Eval(build.Assign(build.Name("y"), build.Literal(4))));
+      	stmt.add(build.Break());
+      	stmt.add(build.Default());
+      	stmt.add(build.Eval(build.Assign(build.Name("y"), build.Literal(0))));
+      	stmt.add(build.Break());
+      	method.addStatement(stmt);;
+      	method.addStatement(build.Return(build.Name("y")));
+
+        // Declare Class
+        AstModifiers modifiers = build.Modifier("public");
+        TerminalName name = build.Name("Test");
+        TerminalName impl = build.Name(Unary.class.getName());
+        AstDeclareClass declareClass = build.DeclareClass(modifiers, name, null, null, null);
+        declareClass.addImplements(impl);
+        declareClass.addMember(method);
+        
+        // Declare Module
+        AstDeclareModule module = build.Module(packageName, null, declareClass);
+
+        AstStructureVisitor visitor = new AstStructureVisitor(maker);
+        module.resolveDeclaration(visitor);
+
+        Class parserClass = maker.defineClass();
+        Object instance = parserClass.newInstance();
+        Unary exec = (Unary)instance;
+
+        assertEquals("Wrong value for exec.unary()", 1, exec.unary(0));
+
+        assertEquals("Wrong value for exec.unary()", 0, exec.unary(-1));
+        assertEquals("Wrong value for exec.unary()", 1, exec.unary(0));
+        assertEquals("Wrong value for exec.unary()", 0, exec.unary(1));
+        assertEquals("Wrong value for exec.unary()", 2, exec.unary(2));
+        assertEquals("Wrong value for exec.unary()", 0, exec.unary(3));
+        assertEquals("Wrong value for exec.unary()", 3, exec.unary(4));
+        assertEquals("Wrong value for exec.unary()", 0, exec.unary(5));
+        assertEquals("Wrong value for exec.unary()", 4, exec.unary(6));
+    }
+
+    /*  
     public void unknownVariableTest()
     {
     	// FIXME test local and member variables

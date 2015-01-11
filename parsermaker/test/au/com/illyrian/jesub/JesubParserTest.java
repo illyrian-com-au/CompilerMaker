@@ -2,11 +2,9 @@ package au.com.illyrian.jesub;
 
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
 
 import junit.framework.TestCase;
 import au.com.illyrian.domainparser.ModuleParser;
-import au.com.illyrian.jesub.PrettyPrintWriter;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.CompileModule;
@@ -47,6 +45,7 @@ public class JesubParserTest  extends TestCase
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
         assertEquals("Output text", expected.toString(), output.toString());
+	    expected.close();
 	}
 
 	public void testClassModifierPublic() throws Exception
@@ -68,6 +67,7 @@ public class JesubParserTest  extends TestCase
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
         assertEquals("Output text", expected.toString(), output.toString());
+	    expected.close();
     }
 
     public void testClassModifierMany() throws Exception
@@ -89,6 +89,7 @@ public class JesubParserTest  extends TestCase
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
         assertEquals("Output text", expected.toString(), output.toString());
+	    expected.close();
     }
 
     public void testClassExtends() throws Exception
@@ -111,6 +112,7 @@ public class JesubParserTest  extends TestCase
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
         assertEquals("Output text", expected.toString(), output.toString());
+	    expected.close();
     }
 
     public void testClassImplements() throws Exception
@@ -133,6 +135,7 @@ public class JesubParserTest  extends TestCase
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
         assertEquals("Output text", expected.toString(), output.toString());
+	    expected.close();
     }
 
     public void testClassImplementsMany() throws Exception
@@ -157,6 +160,7 @@ public class JesubParserTest  extends TestCase
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
         assertEquals("Output text", expected.toString(), output.toString());
+	    expected.close();
     }
 
     public void testClassExtendsImplements() throws Exception
@@ -182,6 +186,7 @@ public class JesubParserTest  extends TestCase
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
         assertEquals("Output text", expected.toString(), output.toString());
+	    expected.close();
     }
 
 //    public void testClassImplementsRunnable() throws Exception

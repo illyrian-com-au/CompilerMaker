@@ -5,8 +5,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import junit.framework.TestCase;
-import au.com.illyrian.domainparser.ModuleAction;
-import au.com.illyrian.domainparser.TestModuleAction;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.impl.CompileModule;

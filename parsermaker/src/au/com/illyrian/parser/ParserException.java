@@ -132,11 +132,11 @@ public class ParserException extends Exception
         return sourceFilename;
     }
     
-    private void pad(StringBuffer buf, int offset, char ch)
-    {
-        for (int i=0; i<offset; i++)
-            buf.append(ch);
-    }
+//    private void pad(StringBuffer buf, int offset, char ch)
+//    {
+//        for (int i=0; i<offset; i++)
+//            buf.append(ch);
+//    }
     
     public String toString()
     {

@@ -1,10 +1,13 @@
 package au.com.illyrian.jesub.maker;
 
+import java.io.IOException;
+
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
+import au.com.illyrian.classmaker.MakerSwitchTest.BreakContinueIface;
+import au.com.illyrian.classmaker.MakerSwitchTest.Unary;
 import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.jesub.ast.AstDeclareMethod;
 import au.com.illyrian.jesub.ast.AstDeclareVariable;
@@ -94,9 +97,6 @@ public class AstStatementMakerTest extends ClassMakerTestCase
         }
         build.End();
 
-//        AstStructureVisitor visitor = new AstStructureVisitor(maker);
-//        build.getModule().resolveDeclaration(visitor);
-
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         Binary func = (Binary)instance;
@@ -131,9 +131,6 @@ public class AstStatementMakerTest extends ClassMakerTestCase
             build.Return(build.Name("id"));
         }
         build.End();
-
-//        AstStructureVisitor visitor = new AstStructureVisitor(maker);
-//        build.getModule().resolveDeclaration(visitor);
 
         Class myClass = maker.defineClass();
         Binary exec = (Binary)myClass.newInstance();
@@ -172,9 +169,6 @@ public class AstStatementMakerTest extends ClassMakerTestCase
             build.Return(build.Div(build.Name("x"), build.Name("y")));
         }
         build.End();
-
-//        AstStructureVisitor visitor = new AstStructureVisitor(maker);
-//        build.getModule().resolveDeclaration(visitor);
 
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
@@ -224,9 +218,6 @@ public class AstStatementMakerTest extends ClassMakerTestCase
         }
         build.End();
 
-//        AstStructureVisitor visitor = new AstStructureVisitor(maker);
-//        build.getModule().resolveDeclaration(visitor);
-
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
         Unary exec = (Unary)instance;
@@ -248,10 +239,205 @@ public class AstStatementMakerTest extends ClassMakerTestCase
         assertEquals("Wrong value for exec.unary()", 5040, exec.unary(7));
         assertEquals("Wrong value for exec.unary()", 40320, exec.unary(8));
     }
-  /*  
-    public void unknownVariableTest()
+
+    public void testBreakContinue() throws Exception
     {
-    	// FIXME test local and member variables
     }
-*/
+
+    public void testSwitch() throws Exception
+    {
+        AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
+        build.Package(build.Name("au.com.illyrian.jesub.ast"));
+        build.Modifier("public");
+        build.ClassName(build.Name("Test"));
+        build.Implements(build.Name(Unary.class.getName()));
+        
+        TerminalName intType = build.Name("int");
+        build.Modifier("public");
+        build.Declare(intType, build.Name("id"));
+
+        build.Modifier("public");
+        build.Method(intType, build.Name("unary"));
+        build.Declare(intType, build.Name("x"));
+
+        // Method body
+        build.Begin();
+        {
+        	build.Declare(intType, build.Name("y"));
+        	build.Switch(build.Name("x"));
+        	build.Case(build.Literal(0));
+        	    build.Eval(build.Assign(build.Name("y"), build.Literal(1)));
+        	    build.Break();
+            build.Case(build.Literal(2));
+        	    build.Eval(build.Assign(build.Name("y"), build.Literal(2)));
+        	    build.Break();
+            build.Case(build.Literal(4));
+        	    build.Eval(build.Assign(build.Name("y"), build.Literal(3)));
+        	    build.Break();
+            build.Case(build.Literal(6));
+        	    build.Eval(build.Assign(build.Name("y"), build.Literal(4)));
+        	    build.Break();
+            build.Default();
+        	    build.Eval(build.Assign(build.Name("y"), build.Literal(0)));
+        	    build.Break();
+        	build.EndSwitch();
+            build.Return(build.Name("y"));
+        }
+        build.End();
+
+        Class parserClass = maker.defineClass();
+        Object instance = parserClass.newInstance();
+        Unary exec = (Unary)instance;
+
+        assertEquals("Wrong value for exec.unary()", 0, exec.unary(-1));
+        assertEquals("Wrong value for exec.unary()", 1, exec.unary(0));
+        assertEquals("Wrong value for exec.unary()", 0, exec.unary(1));
+        assertEquals("Wrong value for exec.unary()", 2, exec.unary(2));
+        assertEquals("Wrong value for exec.unary()", 0, exec.unary(3));
+        assertEquals("Wrong value for exec.unary()", 3, exec.unary(4));
+        assertEquals("Wrong value for exec.unary()", 0, exec.unary(5));
+        assertEquals("Wrong value for exec.unary()", 4, exec.unary(6));
     }
+    
+    public static class Unreliable {
+    	public int f(int a) throws IOException
+    	{
+    		if (a < 0)
+    			throw new IllegalStateException("Exception thrown as part of test");
+    		else if (a == 0)
+    			throw new IOException("Exception thrown as part of test");
+    		else
+    			return a;
+    	}
+    }
+
+    public void testTryCatchFinally() throws Exception
+    {
+        AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
+        build.Package(build.Name("au.com.illyrian.jesub.ast"));
+        build.Modifier("public");
+        build.ClassName(build.Name("Test"));
+        build.Extends(build.Name(Unreliable.class.getName()));
+        build.Implements(build.Name(Unary.class.getName()));
+        
+        build.Modifier("public");
+        build.Declare(build.Name("int"), build.Name("id"));
+
+        build.Modifier("public");
+        build.Method(build.Name("int"), build.Name("unary"));
+        build.Declare(build.Name("int"), build.Name("x"));
+
+        // Method body
+        build.Begin();
+        {
+            build.Declare(build.Name("int"), build.Name("y"));
+        	build.Try(); 
+        	{
+        	    build.Eval(build.Call(build.Name("f"), build.Push(build.Name("x"))));
+        	    build.Eval(build.Assign(build.Name("y"), build.Name("x")));
+        	} build.Catch(build.Name(IOException.class.getName()), build.Name("ex1")); {
+        	    build.Eval(build.Assign(build.Name("y"), build.Literal(-10)));
+        	} build.Catch(build.Name("IllegalStateException"), build.Name("ex2")); {
+        	    build.Eval(build.Assign(build.Name("y"), build.Literal(-100)));
+        	} build.Finally(); {
+        		build.Eval(build.Inc(build.Name("y")));
+        	}
+        	build.EndTry();
+            build.Return(build.Name("y"));
+        }
+        build.End();
+
+        Class parserClass = maker.defineClass();
+        Object instance = parserClass.newInstance();
+        Unary exec = (Unary)instance;
+
+        assertEquals("Wrong value for exec.unary()", 2, exec.unary(1));
+        assertEquals("Wrong value for exec.unary()", 3, exec.unary(2));
+        assertEquals("Wrong value for exec.unary()", -9, exec.unary(0));
+        assertEquals("Wrong value for exec.unary()", -99, exec.unary(-1));
+    }
+
+//    public interface BreakContinueIface {
+//    	int breakContinue(int i);
+//    }
+
+//    public void testBreakContinueLoop() throws Exception
+//    {
+//        AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
+//        build.Package(build.Name("au.com.illyrian.jesub.ast"));
+//        build.Modifier("public");
+//        build.ClassName(build.Name("Test"));
+//        build.Implements(build.Name(BreakContinueIface.class.getName()));
+//        
+//        TerminalName intType = build.Name("int");
+//        build.Modifier("public");
+//        build.Method(intType, build.Name("breakContinue"));
+//        build.Declare(intType, build.Name("i"));
+//
+//        // Method body
+//        build.Begin();
+//        {
+//        	build.Declare(intType, build.Name("n"));
+//        	build.Eval(build.Assign(build.Name("n"), build.Literal(0)));
+//        	build.Declare(intType, build.Name("j"));
+//        	build.Switch(build.Name("x"));
+//        	build.Case(build.Literal(0));
+//        	    build.Eval(build.Assign(build.Name("y"), build.Literal(1)));
+//        	    build.Break();
+//        maker.Begin();
+//    	{
+//           	maker.Declare("n", int.class, 0);
+//           	maker.Set("n", maker.Literal(0));
+//           	maker.Declare("j", int.class, 0);
+//               // BEGIN - If statement example 6b
+//           	maker.Begin().setLabel("outer");
+//           	    maker.Try().setLabel("trying");
+//               	    maker.For(maker.Set("j", maker.Literal(1))).While(maker.LE(maker.Get("j"), maker.Literal(3))).Step(maker.Inc("j")).setLabel("loop");
+//               	        maker.If(maker.NE(maker.Get("i"), maker.Literal(0))).setLabel("branch");
+//    	        	    		maker.Switch(maker.Get("i")).setLabel("switch");
+//    	        	    		maker.Case(1);
+//    	        	    			maker.Break();
+//    	        	    		maker.Case(2);
+//    	        	    			maker.Continue();
+//    	        	    		maker.Case(3);
+//    	        	    			maker.Break("loop");
+//    	        	    		maker.Case(4);
+//    	        	    			maker.Continue("loop");
+//    	          	    		maker.Case(5);
+//    	        	    			maker.Break("switch");
+//    	        	    		maker.Case(6);
+//    	        	    			maker.Break("trying");
+//    	        	    		maker.Case(7);
+//    	        	    			maker.Break("outer");
+//    	        	    		maker.Case(8);
+//    	        	    		    maker.Break("branch");
+//    	        	    		maker.EndSwitch();
+//    	        	    		maker.Eval(maker.Inc("n"));
+//    	        	    	maker.Else();
+//      		        	    	maker.Eval(maker.Set("n", maker.Literal(100)));
+//    	        	    	maker.EndIf();
+//           	    	maker.EndFor();
+//           	    	maker.Eval(maker.Set("n", maker.Add(maker.Get("n"), maker.Get("i"))));
+//       	    	maker.Finally();
+//       	    		maker.Eval(maker.Inc("n"));
+//       	    	maker.EndTry();
+//           	maker.End();
+//           	maker.Return(maker.Get("n"));
+//    	}
+//    	maker.End();
+//
+//        Class testClass = maker.defineClass();
+//        BreakContinueIface exec = (BreakContinueIface)testClass.newInstance();
+//
+//        assertEquals("Else", 101, exec.breakContinue(0));
+//    	assertEquals("Break", 5, exec.breakContinue(1));
+//    	assertEquals("Continue", 3, exec.breakContinue(2));
+//    	assertEquals("Break loop", 4, exec.breakContinue(3));
+//    	assertEquals("Continue loop", 5, exec.breakContinue(4));
+//    	assertEquals("Break switch", 9, exec.breakContinue(5));
+//    	assertEquals("Break trying", 1, exec.breakContinue(6));
+//    	assertEquals("Break outer", 0, exec.breakContinue(7));        
+//    	assertEquals("Break branch", 9, exec.breakContinue(8)); // **
+//    	assertEquals("Default", 14, exec.breakContinue(10));        
+//    }
+}

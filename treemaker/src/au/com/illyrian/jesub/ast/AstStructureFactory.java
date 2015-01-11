@@ -31,6 +31,7 @@ import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.TerminalName;
+import au.com.illyrian.classmaker.ast.TerminalNumber;
 
 public class AstStructureFactory extends AstExpressionFactory
 {
@@ -107,7 +108,35 @@ public class AstStructureFactory extends AstExpressionFactory
     	return stmt;
     }
     
-    // FIXME Break / Continue
-    // FIXME Switch
+    public AstStatementBreak Break()
+    {
+    	AstStatementBreak stmt = new AstStatementBreak();
+    	return stmt;
+    }
+    
+    public AstStatementBreak Continue()
+    {
+    	AstStatementBreak stmt = new AstStatementBreak();
+    	return stmt;
+    }
+    
+    public AstStatementSwitch Switch(AstExpression expression, AstStructureLink code)
+    {
+    	AstStatementSwitch stmt = new AstStatementSwitch(expression, code);
+    	return stmt;
+    }
+    
+    public AstStatementCase Case(TerminalNumber value)
+    {
+    	AstStatementCase stmt = new AstStatementCase(value);
+    	return stmt;
+    }
+    
+    public AstStatementDefault Default()
+    {
+    	AstStatementDefault stmt = new AstStatementDefault();
+    	return stmt;
+    }
+    
     // FIXME Try Catch
 }

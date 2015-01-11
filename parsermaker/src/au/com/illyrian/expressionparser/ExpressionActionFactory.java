@@ -32,8 +32,6 @@ import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
 import au.com.illyrian.classmaker.types.Type;
-import au.com.illyrian.jesub.ast.AstStructureVisitor;
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class ExpressionActionFactory extends PrecidenceActionFactory 
@@ -100,9 +98,13 @@ public class ExpressionActionFactory extends PrecidenceActionFactory
         getClassMaker().Begin();
     }
 
-    public Object endMethod(Object type)
+    public Object endMethod(Object result)
     {
-        getClassMaker().Return((Type)type);
+    	AstExpression expr = (AstExpression)result;
+    	AstExpressionVisitor visitor = new AstExpressionVisitor(maker);
+        Type type = expr.resolveType(visitor);
+        
+        getClassMaker().Return(type);
         getClassMaker().End();
         return null;
     }
@@ -112,11 +114,4 @@ public class ExpressionActionFactory extends PrecidenceActionFactory
         // TODO Auto-generated method stub
         return null;
     }
-    
-	public Object postProcess(Object result) throws ParserException {
-    	AstExpression expr = (AstExpression)result;
-    	AstExpressionVisitor visitor = new AstExpressionVisitor(maker);
-        Type type = expr.resolveType(visitor);
-		return type;
-	}
 }

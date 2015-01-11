@@ -393,12 +393,12 @@ public class AstExpressionVisitor
     //      1st param
     public CallStack resolveCallStack(ActualParameter tree)
     {
-        if (tree.leftParams == null)
+        if (tree.leftExpression == null)
         {
             Type reference = tree.rightExpression.resolveType(this);
             return maker.Push(reference);
         } else {
-            CallStack actualParameters = tree.leftParams.resolveCallStack(this);
+            CallStack actualParameters = tree.leftExpression.resolveCallStack(this);
             Type reference = tree.rightExpression.resolveType(this);
             return actualParameters.Push(reference);
         }

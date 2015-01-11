@@ -868,6 +868,53 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc
 	}
 
 	@Override
+	public Labelled Switch(Type type) {
+		println("  Switch(" + type + ");");
+		return null;
+	}
+
+	@Override
+	public void Case(int key) {
+		println("  Case(" + key + ");");
+	}
+
+	@Override
+	public void Default() {
+		println("  Default();");
+	}
+
+	@Override
+	public void EndSwitch() {
+		println("  EndSwitch();");
+	}
+
+	@Override
+	public Labelled Try() {
+		println("  Try();");
+		return null;
+	}
+
+	@Override
+	public void Catch(String exceptionName, String name) {
+		println("  Catch(\"" + exceptionName + "\", \""  + name  + "\");");
+	}
+
+	@Override
+	public void Catch(Class javaClass, String name) throws ClassMakerException {
+		println("  Catch(" + javaClass.getCanonicalName() + ", \""  + name  + "\");");
+	}
+
+	@Override
+	public void Finally() throws ClassMakerException {
+		println("  Finally();");
+	}
+
+	@Override
+	public void EndTry() throws ClassMakerException {
+		println("  EndTry();");
+	}
+
+	@Override
 	public ClassMakerException createException(String msg) {
 		return new ClassMakerException(null, msg);
 	}

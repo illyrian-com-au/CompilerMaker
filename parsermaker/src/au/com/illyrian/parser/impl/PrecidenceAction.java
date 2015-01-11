@@ -133,10 +133,4 @@ public interface PrecidenceAction<T>
     public T beginParameters(T name) throws ParserException;
 
     public T addParameter(T callStack, T param) throws ParserException;
-
-    /**
-     * @deprecated
-     */
-    public T postProcess(T result) throws ParserException;
-    
 }

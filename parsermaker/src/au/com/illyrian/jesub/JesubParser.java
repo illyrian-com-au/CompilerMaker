@@ -9,7 +9,6 @@ import au.com.illyrian.parser.ParseExpression;
 import au.com.illyrian.parser.ParseMember;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.PrecidenceParser;
-import au.com.illyrian.parser.maker.ClassActionMaker;
 
 /**
 *

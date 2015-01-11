@@ -25,40 +25,52 @@
 // of the authors and should not be interpreted as representing official policies,
 // either expressed or implied, of the FreeBSD Project.
 
-package au.com.illyrian.classmaker.ast;
+package au.com.illyrian.jesub.ast;
 
-import au.com.illyrian.classmaker.CallStack;
-import au.com.illyrian.classmaker.types.Type;
 
-public class ActualParameter extends AstExpressionBase
+public class AstStatementTry extends AstCompoundBase
 {
-    AstExpression leftExpression;
-    AstExpression rightExpression;
+    AstStructure  catchClause = null;
+    AstStatementFinally  finallyClause = null;
     
-    public ActualParameter(AstExpression left, AstExpression right)
+    public AstStatementTry()
     {
-        leftExpression = left;
-        rightExpression = right;
     }
     
-    public Type resolveType(AstExpressionVisitor visitor)
+    public AstStatementTry(AstStructure  tryCode, AstStructure catchCode, AstStatementFinally finallyCode)
     {
-        return null;
+        setCode(tryCode);
+        this.catchClause = catchCode;
+        this.finallyClause = finallyCode;
     }
-    
-    public CallStack resolveCallStack(AstExpressionVisitor visitor)
+
+    public AstStructure getCatch() 
     {
-        return visitor.resolveCallStack(this);
+		return catchClause;
+	}
+
+	public void setCatch(AstStructure catchCode) 
+	{
+		this.catchClause = catchCode;
+	}
+
+	public AstStatementFinally getFinally() 
+	{
+		return finallyClause;
+	}
+
+	public void setFinally(AstStatementFinally finallyCode) 
+	{
+		this.finallyClause = finallyCode;
+	}
+
+	public void resolveStatement(AstStructureVisitor visitor)
+    {
+        visitor.resolveStatement(this);
     }
     
     public String toString()
     {
-        if (leftExpression == null)
-            return "" + rightExpression;
-        else if (rightExpression == null)
-            return leftExpression + "";
-        else
-            return leftExpression + ", " + rightExpression;
+    	return "Try {...}";
     }
-
 }

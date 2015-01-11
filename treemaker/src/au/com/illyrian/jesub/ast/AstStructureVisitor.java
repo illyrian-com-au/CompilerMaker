@@ -27,8 +27,6 @@
 
 package au.com.illyrian.jesub.ast;
 
-import java.util.Vector;
-
 import au.com.illyrian.classmaker.ClassMaker.ForStep;
 import au.com.illyrian.classmaker.ClassMaker.ForWhile;
 import au.com.illyrian.classmaker.ClassMaker.Labelled;
@@ -267,5 +265,67 @@ public class AstStructureVisitor extends AstExpressionVisitor
         maker.EndLoop();
         
     }
+
+
+	public void resolveStatement(AstStatementBreak statement) 
+	{
+		if (statement.label == null)
+			maker.Break();
+		else
+			maker.Break(statement.label.getName());
+	}
+
+	public void resolveStatement(AstStatementContinue statement) 
+	{
+		if (statement.label == null)
+			maker.Continue();
+		else
+			maker.Continue(statement.label.getName());
+	}
+
+	public void resolveStatement(AstStatementSwitch statement) 
+	{
+        Type cond = statement.expression.resolveType(this);
+		maker.Switch(cond);
+		statement.getCode().resolveStatement(this);
+		maker.EndSwitch();
+	}
+
+	public void resolveStatement(AstStatementCase statement) 
+	{
+		maker.Case(statement.value.intValue());
+	}
+
+	public void resolveStatement(AstStatementDefault statement) 
+	{
+		maker.Default();
+	}
+
+	public void resolveStatement(AstStatementCompound statement) 
+	{
+		maker.Begin();
+		statement.resolveStatement(this);
+		maker.End();
+	}
+
+	public void resolveStatement(AstStatementTry statement) 
+	{
+		maker.Try();
+		statement.code.resolveStatement(this);
+		statement.catchClause.resolveStatement(this);
+		statement.finallyClause.resolveStatement(this);
+		maker.EndTry();
+		
+	}
+
+	public void resolveStatement(AstStatementCatch catchClause) 
+	{
+		catchClause.getCode().resolveStatement(this);
+	}
+
+	public void resolveStatement(AstStatementFinally finallyClause) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

@@ -6,9 +6,6 @@ import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.domainparser.ModuleAction;
 import au.com.illyrian.parser.CompileUnit;
-import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.InvokeParser;
 
 public class ModuleActionMaker implements ModuleAction, ClassMakerLocation
 {

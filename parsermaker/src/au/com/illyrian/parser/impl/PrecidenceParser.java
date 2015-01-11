@@ -107,7 +107,6 @@ public class PrecidenceParser extends ParserBase
     public Object expression() throws ParserException
     {
         Object result = expression(0);
-        result = getPrecidenceActions().postProcess(result);
         return result;
     }
 

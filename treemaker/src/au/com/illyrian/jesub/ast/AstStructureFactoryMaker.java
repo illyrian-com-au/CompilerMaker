@@ -33,6 +33,7 @@ import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
 import au.com.illyrian.classmaker.ast.TerminalName;
+import au.com.illyrian.classmaker.ast.TerminalNumber;
 import au.com.illyrian.classmaker.types.Type;
 
 public class AstStructureFactoryMaker extends AstExpressionFactory implements ClassMakerLocation
@@ -185,5 +186,58 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
     {
     	maker.EndLoop();
     }
+
+    public void Break()
+    {
+    	maker.Break();
+    }
+
+    public void Continue()
+    {
+    	maker.Continue();
+    }
+
+	public void Switch(AstExpression expr) 
+	{
+    	Type type = expr.resolveType(visitor);
+		maker.Switch(type);
+	}
     
+    public void Case(TerminalNumber value)
+    {
+    	maker.Case(value.intValue());
+    }
+
+    public void Default()
+    {
+    	maker.Default();
+    }
+
+    public void EndSwitch()
+    {
+    	maker.EndSwitch();
+    }
+
+    public void Try()
+    {
+    	maker.Try();
+    }
+
+    public void Catch(AstExpression type, TerminalName name)
+    {
+    	String typeString = type.resolvePath(visitor);
+    	String nameString = name.getName();
+    	maker.Catch(typeString, nameString);
+    }
+
+    public void Finally()
+    {
+    	maker.Finally();
+    }
+
+    public void EndTry()
+    {
+    	maker.EndTry();
+    }
+
 }

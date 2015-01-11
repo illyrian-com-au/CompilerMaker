@@ -25,40 +25,31 @@
 // of the authors and should not be interpreted as representing official policies,
 // either expressed or implied, of the FreeBSD Project.
 
-package au.com.illyrian.classmaker.ast;
+package au.com.illyrian.jesub.ast;
 
-import au.com.illyrian.classmaker.CallStack;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.ast.TerminalName;
 
-public class ActualParameter extends AstExpressionBase
+public class AstStatementContinue extends AstStructureBase
 {
-    AstExpression leftExpression;
-    AstExpression rightExpression;
+    final TerminalName label;
     
-    public ActualParameter(AstExpression left, AstExpression right)
+    public AstStatementContinue()
     {
-        leftExpression = left;
-        rightExpression = right;
+        this.label = null;
     }
     
-    public Type resolveType(AstExpressionVisitor visitor)
+    public AstStatementContinue(TerminalName label)
     {
-        return null;
+        this.label = label;
     }
     
-    public CallStack resolveCallStack(AstExpressionVisitor visitor)
+    public void resolveStatement(AstStructureVisitor visitor)
     {
-        return visitor.resolveCallStack(this);
+        visitor.resolveStatement(this);
     }
     
     public String toString()
     {
-        if (leftExpression == null)
-            return "" + rightExpression;
-        else if (rightExpression == null)
-            return leftExpression + "";
-        else
-            return leftExpression + ", " + rightExpression;
+    	return "continue " + (label == null ? "" : label);
     }
-
 }

@@ -27,8 +27,6 @@
 
 package au.com.illyrian.jesub.ast;
 
-import java.util.Vector;
-
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.ResolvePath;

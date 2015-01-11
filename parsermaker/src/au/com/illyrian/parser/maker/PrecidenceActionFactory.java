@@ -35,7 +35,6 @@ import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.Operator;
-import au.com.illyrian.parser.impl.Operator;
 import au.com.illyrian.parser.impl.PrecidenceAction;
 
 public class PrecidenceActionFactory implements PrecidenceAction
@@ -241,21 +240,4 @@ public class PrecidenceActionFactory implements PrecidenceAction
         return build.Cast(typeExpr, valueExpr);
     }
 
-    /**
-     * @deprecated
-     */
-	public Object postProcess(Object result) throws ParserException {
-    	AstExpression expr = (AstExpression)result;
-		return expr;
-	}
-
-    /**
-     * @deprecated
-     */
-	public Object preProcess(Object operand, Operator nextOperator)
-			throws ParserException {
-		return operand;
-	}
-
-    
 }

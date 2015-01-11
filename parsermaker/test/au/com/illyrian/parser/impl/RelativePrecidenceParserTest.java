@@ -6,10 +6,6 @@ import java.io.StringWriter;
 
 import junit.framework.TestCase;
 import au.com.illyrian.expressionparser.ExpressionAction;
-import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.Operator;
-import au.com.illyrian.parser.impl.PrecidenceParser;
 import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class RelativePrecidenceParserTest extends TestCase
