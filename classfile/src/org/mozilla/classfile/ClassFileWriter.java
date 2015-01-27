@@ -88,7 +88,9 @@ public class ClassFileWriter implements ByteCode {
         if (sourceFileName != null)
             itsSourceFileNameIndex = itsConstantPool.addUtf8(sourceFileName);
         itsFlags = ACC_PUBLIC;
-        if (DEBUGCODE) setDebugCodeOutput();
+        if (DEBUGCODE) setDebugCodeOutput(System.out);
+        if (isDebugCode())
+        	debugString(".class " + className + " extends " +  superClassName);
     }
 
     public final String getClassName()
@@ -236,7 +238,7 @@ public class ClassFileWriter implements ByteCode {
                             itsConstantPool.addConstant(value));
         itsFields.add(field);
         if (isDebugCode())
-        	debugDirective(".field " + modifierStr(flags) + fieldName + " " + type);
+        	debugString(".field " + modifierStr(flags) + fieldName + " " + type);
     }
 
     /**
@@ -282,7 +284,7 @@ public class ClassFileWriter implements ByteCode {
                                                flags);
         itsMethods.add(itsCurrentMethod);
         if (isDebugCode())
-        	debugDirective(".method " + modifierStr(flags) +  methodName + type);
+        	debugString(".method " + modifierStr(flags) +  methodName + type);
     }
 
     /**
@@ -434,7 +436,7 @@ public class ClassFileWriter implements ByteCode {
         itsFixupTableTop = 0;
         itsVarDescriptors = null;
         if (isDebugCode())
-        	debugDirective(".end method");
+        	debugString(".end method");
     }
 
     /**
@@ -672,7 +674,7 @@ public class ClassFileWriter implements ByteCode {
      * @param theOperand2 the second operand of the bytecode
      */
     public void add(int theOpCode, int theOperand1, int theOperand2) {
-        if (DEBUGCODE) {
+        if (isDebugCode()) {
         	debugCode(bytecodeStr(theOpCode)
                   +", "+Integer.toHexString(theOperand1)
                   +", "+Integer.toString(theOperand2));
@@ -1180,10 +1182,10 @@ public class ClassFileWriter implements ByteCode {
     public void addLookupSwitchCaseLabel(int switchStart, int caseIndex, int caseKey, int jumpLabel)
     {
    	   if (isDebugCode()) 
-   		   if (caseKey < 0)
-   			   debugDirective("\tdefault: #" + Integer.toString(jumpLabel & 0x7FFFFFFF));
+   		   if (caseIndex < 0)
+   			   debugString("\tdefault: #" + Integer.toString(jumpLabel & 0x7FFFFFFF));
    		   else
-   			   debugDirective("\tcase: " + Integer.toString(caseKey) + ", #" + Integer.toString(jumpLabel & 0x7FFFFFFF));
+   			   debugString("\tcase: " + Integer.toString(caseKey) + ", #" + Integer.toString(jumpLabel & 0x7FFFFFFF));
         int jumpTarget = getLabelPC(jumpLabel);
         if (jumpTarget == 0)
             throw new IllegalStateException("Label must be marked before adding to LookupSwitch");
@@ -1297,9 +1299,9 @@ public class ClassFileWriter implements ByteCode {
     {
     	if (isDebugCode()) 
     		if (caseIndex < 0)
-    			debugDirective("\tdefault: #" + Integer.toString(caseLabel & 0x7FFFFFFF));
+    			debugString("\tdefault: #" + Integer.toString(caseLabel & 0x7FFFFFFF));
     		else
-    			debugDirective("\tcase: " + Integer.toString(caseIndex) + ", #" + Integer.toString(caseLabel & 0x7FFFFFFF));
+    			debugString("\tcase: " + Integer.toString(caseIndex) + ", #" + Integer.toString(caseLabel & 0x7FFFFFFF));
 
         int jumpTarget = getLabelPC(caseLabel);
         setTableSwitchJump(switchStart, caseIndex, jumpTarget);
@@ -1372,8 +1374,7 @@ public class ClassFileWriter implements ByteCode {
             throw new IllegalStateException("Can only mark label once");
         }
         
-        if (DEBUGCODE)
-        	debugLabel = label;
+      	debugLabel = label;
 
         itsLabelTable[label] = itsCodeBufferTop;
     }
@@ -1511,7 +1512,7 @@ public class ClassFileWriter implements ByteCode {
         if ((handlerLabel & 0x80000000) != 0x80000000)
             throw new IllegalArgumentException("Bad handlerLabel");
         if (isDebugCode())
-        	this.debugDirective("\t.catch " + (catchClassName == null ? "all" : catchClassName) 
+        	this.debugString("\t.catch " + (catchClassName == null ? "all" : catchClassName) 
         			+ " from #" + (startLabel & 0x7FFFFFFF)
         			+ " to #" + (endLabel & 0x7FFFFFFF)
         			+ " using #" + (handlerLabel & 0x7FFFFFFF));
@@ -2802,7 +2803,7 @@ public class ClassFileWriter implements ByteCode {
     	if (debugComment != null)
     	{
     		int offset = (stmt == null) ? 0 : (stmt.length()) / 8;
-    		if (offset > 3)
+    		if (offset > 2)
     			buf.append("\n").append(TABS);
     		else
     			buf.append(TABS.substring(offset, 3));
@@ -2812,9 +2813,9 @@ public class ClassFileWriter implements ByteCode {
     	getDebugCodeOutput().println(buf);
     }
     
-    private void debugDirective(String directive)
+    private void debugString(String message)
     {
-    	getDebugCodeOutput().println(directive);
+    	getDebugCodeOutput().println(message);
     }
     
     public void setDebugComment(String comment)
@@ -2828,14 +2829,6 @@ public class ClassFileWriter implements ByteCode {
 
 	public void setDebugCodeOutput(PrintStream printStream) {
 		this.debugCodeOutput = printStream;
-	}
-	
-	public void setDebugCodeOutput() {
-		this.debugCodeOutput = System.out;
-	}
-
-	public void resetDebugCodeOutput() {
-		this.debugCodeOutput = null;
 	}
 
 	public boolean isDebugCode()

@@ -222,6 +222,7 @@ public class SwitchTest extends ClassFileWriterTestCase
         startClass(CallClassStr, "org/mozilla/classfile/SwitchTest$Unary");
         defaultConstructor();
 
+        cfw.setDebugCodeOutput(System.out);
         cfw.startMethod("unary", "(I)I", (short) (ClassFileWriter.ACC_PUBLIC));
 
         // SET $2 = 0
@@ -272,10 +273,10 @@ public class SwitchTest extends ClassFileWriterTestCase
 
         cfw.stopMethod((short) 3);
 
-        byte[] code = cfw.getCodeAttribute();
+//        byte[] code = cfw.getCodeAttribute();
 //        byteCode(code, 0);
-        ClassFilePrinter printer = new ClassFilePrinter(System.out);
-        printer.byteCode(code);
+//        ClassFilePrinter printer = new ClassFilePrinter(System.out);
+//        printer.byteCode(code);
 
         Class myClass = defineClass(CallClassStr, cfw.toByteArray());
         Unary exec = (Unary)myClass.newInstance();

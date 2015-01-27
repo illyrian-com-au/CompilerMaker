@@ -844,10 +844,6 @@ nl();        maker.End();
         }
     }
 
-//  byte[] code = maker.getClassFileWriter().getCodeAttribute();
-//  ClassFilePrinter printer = new ClassFilePrinter(System.out);
-//  printer.byteCode(code);
-
     public void testForWhileStepMaker() throws Exception
     {
         ClassMaker maker = new ForWhileStepMaker();
@@ -1057,9 +1053,51 @@ nl();        maker.End();
         Class myClass = maker.defineClass();
         Unary exec = (Unary)myClass.newInstance();
 
-//      byte[] code = maker.getClassFileWriter().getCodeAttribute();
-//      ClassFilePrinter printer = new ClassFilePrinter(System.out);
-//      printer.byteCode(code);
+        assertEquals("Wrong value for exec.unary()", 0, exec.unary(0));
+        assertEquals("Wrong value for exec.unary()", 0, exec.unary(1));
+        assertEquals("Wrong value for exec.unary()", 2, exec.unary(2));
+        assertEquals("Wrong value for exec.unary()", 2, exec.unary(3));
+        assertEquals("Wrong value for exec.unary()", 6, exec.unary(4));
+        assertEquals("Wrong value for exec.unary()", 6, exec.unary(5));
+        assertEquals("Wrong value for exec.unary()", 12, exec.unary(6));
+    }
+
+    public void testForLoopBreakMaker() throws Exception
+    {
+    	maker.getClassFileWriter().setDebugCodeOutput(System.out);
+    	
+        maker.Implements(Unary.class);
+
+        maker.Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Declare("n", int.class, 0);
+        maker.Begin();
+        {
+        	maker.Declare("x", int.class, 0);
+        	maker.Set("x", maker.Literal(0));
+        	maker.For(null).While(null).Step(null);
+        	{
+        		maker.If(maker.LE(maker.Get("n"), maker.Literal(0)));
+        		{
+        			maker.Break();
+        		}
+        		maker.EndIf();
+        		// if (n%2 != 0){--n; continue;}
+        		maker.If(maker.NE(maker.Rem(maker.Get("n"), maker.Literal(2)), maker.Literal(0)));
+        		{
+        			maker.Eval(maker.Dec("n"));
+        			maker.Continue();
+        		}
+        		maker.EndIf();
+        		maker.Eval(maker.Set("x", maker.Add(maker.Get("x"), maker.Get("n"))));
+        		maker.Eval(maker.Dec("n"));
+        	}
+        	maker.EndFor();
+        	maker.Return(maker.Get("x"));
+        }
+        maker.End();
+
+        Class myClass = maker.defineClass();
+        Unary exec = (Unary)myClass.newInstance();
 
         assertEquals("Wrong value for exec.unary()", 0, exec.unary(0));
         assertEquals("Wrong value for exec.unary()", 0, exec.unary(1));

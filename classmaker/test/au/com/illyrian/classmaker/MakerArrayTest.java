@@ -44,6 +44,7 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
         factory = new ClassMakerFactory();
         maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
         defaultConstructor(maker);
+        //maker.getClassFileWriter().setDebugCodeOutput(System.out);
     }
 
 
@@ -426,6 +427,8 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
 
     public void testByteGetAt() throws Exception
     {
+        //maker.getClassFileWriter().setDebugCodeOutput(System.out);
+
         maker.Implements(UnaryInt.class);
         maker.Declare("values", maker.ArrayOf(ClassMaker.BYTE_TYPE), ACC_PUBLIC);
 
@@ -436,10 +439,9 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
             maker.Return(maker.GetAt(maker.Get(maker.This(), "values"), maker.Get("x")));
         maker.End();
 
-
-        byte[] code = maker.getClassFileWriter().getCodeAttribute();
-        ClassFilePrinter printer = new ClassFilePrinter(System.out);
-        printer.byteCode(code);
+//        byte[] code = maker.getClassFileWriter().getCodeAttribute();
+//        ClassFilePrinter printer = new ClassFilePrinter(System.out);
+//        printer.byteCode(code);
 
         Class myClass = maker.defineClass();
 

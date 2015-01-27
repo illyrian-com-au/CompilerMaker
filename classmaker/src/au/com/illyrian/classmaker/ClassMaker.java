@@ -5494,6 +5494,8 @@ public class ClassMaker implements ExpressionIfc
     public ArrayType NewArray(Type arrayType, Type size)
     {
         if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("NewArray("+arrayType+", "+size+");");
         if (!isArray(arrayType))
             throw createException("ClassMaker.NotATypeOfArray_1", arrayType.getName());
         checkArrayDimensionType("Array size", size);
@@ -5541,6 +5543,8 @@ public class ClassMaker implements ExpressionIfc
         }
         markLineNumber(); // possibly add a new line number entry.
 
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("NewArray("+array+", "+dims+");");
         cfw.add(ByteCode.MULTIANEWARRAY, arrayType.getSignature(), (byte) dims.length);
         return arrayType;
     }
@@ -5614,6 +5618,8 @@ public class ClassMaker implements ExpressionIfc
         Type indexType = index; //load(index);
         checkArrayIndex(indexType.getType());
         markLineNumber(); // possibly add a new line number entry.
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("GetAt("+array+", "+index+");");
 
         Type elementType = arrayType.getArrayOfType();
         if (isClass(elementType) || isArray(elementType))
@@ -5671,8 +5677,9 @@ public class ClassMaker implements ExpressionIfc
      */
     public Type AssignAt(Type arrayType, Type indexType, Type valueType)
     {
-        if (getClassFileWriter() == null)
-            return null;
+        if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("AssignAt("+arrayType+", "+indexType+", "+valueType+");");
         // Cannot dupunder two wide types so store value in an anonomous local variable.
         dup(valueType);
         int offset = storeAnonymousValue(valueType);
@@ -5699,8 +5706,9 @@ public class ClassMaker implements ExpressionIfc
      */
     public Type SetAt(Type arrayType, Type indexType, Type valueType)
     {
-        if (getClassFileWriter() == null)
-            return null;
+        if (getClassFileWriter() == null) return null;
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("SetAt("+arrayType+", "+indexType+", "+valueType+");");
         ArrayType element = arrayType.toArray();
         if (element == null)
             throw createException("ClassMaker.ArrayExpectedOnStack_1", arrayType.getName());
@@ -5766,6 +5774,8 @@ public class ClassMaker implements ExpressionIfc
         if (element == null)
             throw createException("ClassMaker.ArrayExpectedOnStack_1", array.getName());
         markLineNumber(); // possibly add a new line number entry.
+        if (cfw.isDebugCode()) 
+        	cfw.setDebugComment("Length("+array+");");
 
         cfw.add(ByteCode.ARRAYLENGTH);
         return INT_TYPE;
@@ -6131,7 +6141,7 @@ public class ClassMaker implements ExpressionIfc
 
         if (!increment(fieldType, -1))
             throw createException("ClassMaker.CannotDecrementFieldOfType_2", fieldName, fieldType.getName());
-        dupunder(thisClass, fieldType);
+        dupunder(classType, fieldType);
 
         // PUT myclass.id
         cfw.add(ByteCode.PUTFIELD, toSlashName(className), fieldName, fieldType.getSignature());
@@ -6145,12 +6155,12 @@ public class ClassMaker implements ExpressionIfc
      * The following code is equivalent.
      * <table border="1" width="100%">
      * <tr><td>Java code</td><td>ClassMaker code</td></tr>
-     * <tr><td><code>--obj.i;<code></td>
+     * <tr><td><code>--MyClass.i;<code></td>
      * <td><code>Dec("MyClass", "i")</code></td></tr>
      * </table>
      * @param className the short or fully qualified name of the class
      * @param name the name of the static member variable
-     * @return the value of the variable after if is decremented
+     * @return the value of the variable after it is decremented
      */
     public Type Dec(String className, String name) throws ClassMakerException
     {
@@ -6200,8 +6210,6 @@ public class ClassMaker implements ExpressionIfc
      */
     public Type Dec(MakerField field) throws ClassMakerException
     {
-//        lvalue = findPath(lvalue);
-//        MakerField field = lvalue.toField();
         if (field != null)
         {
             if (field.isLocal())
@@ -7469,14 +7477,18 @@ public class ClassMaker implements ExpressionIfc
         public ForStep While(Type condition) throws ClassMakerException
         {
             if (getClassFileWriter() == null) return this;
-            if (!BOOLEAN_TYPE.equals(condition))
-            {
-                throw createException("ClassMaker.WhileConditionMustBeTypeBooleanNot_1", condition.getName());
-            }
-            if (isDebugCode()) cfw.setDebugComment("For while");
             markLineNumber(); // possibly add a new line number entry.
-            // Boolean value on stack will be 1 (true) to continute Loop or 0 (false) to exit Loop.
-            cfw.add(ByteCode.IFEQ, endLoop);   // Break out of the loop if equal to zero.
+            if (condition != null)
+            {
+	            if (!BOOLEAN_TYPE.equals(condition))
+	            {
+	                throw createException("ClassMaker.WhileConditionMustBeTypeBooleanNot_1", condition.getName());
+	            }
+	            if (isDebugCode()) cfw.setDebugComment("For while");
+	            // Boolean value on stack will be 1 (true) to continute Loop or 0 (false) to exit Loop.
+	            cfw.add(ByteCode.IFEQ, endLoop);   // Break out of the loop if equal to zero.
+        	
+            }
             endStep = cfw.acquireLabel();
             beginStep = cfw.acquireLabel();
             cfw.add(ByteCode.GOTO, endStep);
@@ -7498,7 +7510,8 @@ public class ClassMaker implements ExpressionIfc
         {
             if (getClassFileWriter() == null) return this;
             if (isDebugCode()) cfw.setDebugComment("For step");
-            Eval(step);
+            if (step != null)
+            	Eval(step);
             markLineNumber(); // possibly add a new line number entry.
 
             cfw.add(ByteCode.GOTO, beginLoop);
@@ -7638,7 +7651,8 @@ public class ClassMaker implements ExpressionIfc
      */
     public ForWhile For(Type declare) throws ClassMakerException
     {
-        Eval(declare);
+    	if (declare != null)
+    		Eval(declare);
         ForStatement stmt = new ForStatement();
         stmt.Loop();
         return stmt;
