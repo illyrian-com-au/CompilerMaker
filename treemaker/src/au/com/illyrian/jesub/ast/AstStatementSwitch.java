@@ -33,7 +33,7 @@ public class AstStatementSwitch extends AstCompoundBase
 {
     final AstExpression expression;
     
-    public AstStatementSwitch(AstExpression expression, AstStructureLink code)
+    public AstStatementSwitch(AstExpression expression, AstStructure code)
     {
         this.expression = expression;
         setCode(code);
@@ -46,6 +46,7 @@ public class AstStatementSwitch extends AstCompoundBase
     
     public String toString()
     {
-    	return "switch (" + expression + ") ...";
+    	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
+		return label +  "switch (" + expression + ") {\n" + code + "\n}";
     }
 }

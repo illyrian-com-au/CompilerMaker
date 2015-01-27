@@ -28,6 +28,9 @@
 package au.com.illyrian.jesub.ast;
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMaker.ForStep;
+import au.com.illyrian.classmaker.ClassMaker.ForWhile;
+import au.com.illyrian.classmaker.ClassMaker.Labelled;
 import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
@@ -132,9 +135,10 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
     	maker.Method(varName, typeName, modifiers);
     }
     
-    public void Begin()
+    public Labelled Begin()
     {
-    	maker.Begin();
+    	Labelled labeller = maker.Begin();
+    	return labeller;
     }
     
     public void End()
@@ -159,10 +163,11 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
     	maker.Eval(type);
     }
     
-    public void If(AstExpression condition)
+    public Labelled If(AstExpression condition)
     {
     	Type type = condition.resolveType(visitor);
-    	maker.If(type);
+    	Labelled labeller = maker.If(type);
+    	return labeller;
     }
     
     public void Else()
@@ -175,11 +180,12 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
     	maker.EndIf();
     }
     
-    public void While(AstExpression condition)
+    public Labelled While(AstExpression condition)
     {
-    	maker.Loop();
+    	Labelled label = maker.Loop();
     	Type type = condition.resolveType(visitor);
     	maker.While(type);
+    	return label;
     }
     
     public void EndWhile()
@@ -187,9 +193,30 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
     	maker.EndLoop();
     }
 
+    public Labelled For(AstExpression initialise, AstExpression condition, AstExpression increment)
+    {
+    	Type type1 = (initialise == null) ? null : initialise.resolveType(visitor);
+    	ForWhile part1 = maker.For(type1);
+    	Type type2 = (condition == null) ? null : condition.resolveType(visitor);
+    	ForStep part2 = part1.While(type2);
+    	Type type3 = (increment == null) ? null : increment.resolveType(visitor);
+    	Labelled part3 = part2.Step(type3);
+    	return part3;
+    }
+    
+    public void EndFor()
+    {
+    	maker.EndFor();
+    }
+
     public void Break()
     {
     	maker.Break();
+    }
+
+    public void Break(TerminalName label)
+    {
+    	maker.Break(label.getName());
     }
 
     public void Continue()
@@ -197,10 +224,16 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
     	maker.Continue();
     }
 
-	public void Switch(AstExpression expr) 
+    public void Continue(TerminalName label)
+    {
+    	maker.Continue(label.getName());
+    }
+
+	public Labelled Switch(AstExpression expr) 
 	{
     	Type type = expr.resolveType(visitor);
-		maker.Switch(type);
+		Labelled labeller = maker.Switch(type);
+		return labeller;
 	}
     
     public void Case(TerminalNumber value)
@@ -218,9 +251,10 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
     	maker.EndSwitch();
     }
 
-    public void Try()
+    public Labelled Try()
     {
-    	maker.Try();
+    	Labelled labeller = maker.Try();
+    	return labeller;
     }
 
     public void Catch(AstExpression type, TerminalName name)

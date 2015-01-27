@@ -44,7 +44,7 @@ public class AstStructureFactory extends AstExpressionFactory
     	return new AstDeclareModule(packageName, importsList, declaredClass);
     }
     
-    public AstStructureLink Link(AstStructure left, AstStructure right)
+    public AstStructureLink Seq(AstStructure left, AstStructure right)
     {
         return new AstStructureLink(left, right);
     }
@@ -60,9 +60,16 @@ public class AstStructureFactory extends AstExpressionFactory
     }
     
     public AstDeclareClass DeclareClass(AstModifiers modifiers, TerminalName name, AstExpression baseClass, 
-    		AstExpression implementsList, AstStructureLink membersList)
+    		AstExpression implementsList, AstStructure membersList)
     {
     	AstDeclareClass declareClass = new AstDeclareClass(modifiers, name, baseClass, implementsList, membersList);
+        return declareClass;
+    }
+    
+    public AstDeclareClass DeclareClass(AstModifiers modifiers, TerminalName name, AstExpression baseClass, 
+    		AstExpression implementsList)
+    {
+    	AstDeclareClass declareClass = new AstDeclareClass(modifiers, name, baseClass, implementsList, null);
         return declareClass;
     }
     
@@ -90,6 +97,12 @@ public class AstStructureFactory extends AstExpressionFactory
         return stmt;
     }
     
+    public AstStatementCompound Compound()
+    {
+    	AstStatementCompound stmt = new AstStatementCompound();
+    	return stmt;
+    }
+    
     public AstStatementIf If(AstExpression condition, AstStructure thenStatement, AstStructure elseStatement)
     {
     	AstStatementIf stmt = new AstStatementIf(condition, thenStatement, elseStatement);
@@ -114,13 +127,37 @@ public class AstStructureFactory extends AstExpressionFactory
     	return stmt;
     }
     
-    public AstStatementBreak Continue()
+	public AstStructure Break(TerminalName name) 
+	{
+    	AstStatementBreak stmt = new AstStatementBreak(name);
+    	return stmt;
+	}
+
+	public AstStatementContinue Continue()
     {
-    	AstStatementBreak stmt = new AstStatementBreak();
+    	AstStatementContinue stmt = new AstStatementContinue();
     	return stmt;
     }
     
-    public AstStatementSwitch Switch(AstExpression expression, AstStructureLink code)
+	public AstStructure Continue(TerminalName name) 
+	{
+    	AstStatementContinue stmt = new AstStatementContinue(name);
+    	return stmt;
+	}
+
+	public AstCompoundBase setLabel(TerminalName label,	AstCompoundBase compound) 
+	{
+		compound.setLabel(label);
+		return compound;
+	}
+	
+	public AstStructure setLabel(TerminalName label, AstStatementIf statement) 
+	{
+		statement.setLabel(label);
+		return statement;
+	}
+
+   public AstStatementSwitch Switch(AstExpression expression, AstStructure code)
     {
     	AstStatementSwitch stmt = new AstStatementSwitch(expression, code);
     	return stmt;
@@ -138,5 +175,23 @@ public class AstStructureFactory extends AstExpressionFactory
     	return stmt;
     }
     
-    // FIXME Try Catch
+    public AstStatementTry Try(AstStructure  tryCode, AstStructure catchCode, AstStatementFinally finallyCode)
+    {
+    	AstStatementTry stmt = new AstStatementTry(tryCode, catchCode, finallyCode);
+    	return stmt;
+    }
+
+    public AstStatementCatch Catch(AstDeclareVariable exception, AstStructure catchCode)
+    {
+    	AstStatementCatch stmt = new AstStatementCatch(exception, catchCode);
+    	return stmt;
+    }
+
+    public AstStatementFinally Finally(AstStructure code)
+    {
+    	AstStatementFinally stmt = new AstStatementFinally(code);
+    	return stmt;
+    }
+
+
 }

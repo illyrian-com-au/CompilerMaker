@@ -28,7 +28,7 @@
 package au.com.illyrian.jesub.ast;
 
 
-public class AstStatementCatch extends AstCompoundBase
+public class AstStatementCatch extends AstCompoundBase implements AstStructure
 {
     private final AstDeclareVariable exception;
     
@@ -40,6 +40,7 @@ public class AstStatementCatch extends AstCompoundBase
     public AstStatementCatch(AstDeclareVariable exception, AstStructure catchCode)
     {
     	this.exception = exception;
+    	setCode(catchCode);
     }
 
     public AstDeclareVariable getException() 

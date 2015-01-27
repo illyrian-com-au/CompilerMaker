@@ -59,9 +59,10 @@ public class AstDeclareMethod extends AstDeclareVariable
         this.parameters = parameters;
     }
     
-    public void addParameter(AstDeclareVariable param)
+    public AstDeclareMethod addParameter(AstDeclareVariable param)
     {
         parameters = new AstStructureLink(parameters, param);
+        return this;
     }
     
     public AstStructure getMethodBody()
@@ -74,9 +75,10 @@ public class AstDeclareMethod extends AstDeclareVariable
         this.methodBody = methodBody;
     }
 
-    public void addStatement(AstStructure statement)
+    public AstDeclareMethod add(AstStructure statement)
     {
         methodBody = new AstStructureLink(methodBody, statement);
+        return this;
     }
 
     public void resolveDeclaration(AstStructureVisitor visitor)
@@ -86,6 +88,6 @@ public class AstDeclareMethod extends AstDeclareVariable
     
     public String toString()
     {
-    	return super.toString() + "(" + parameters + ")";
+    	return super.toString() + "(" + parameters + "){\n" + methodBody + "}\n /*end*/";
     }
 }

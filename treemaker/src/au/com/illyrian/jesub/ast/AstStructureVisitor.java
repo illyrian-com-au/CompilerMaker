@@ -65,7 +65,8 @@ public class AstStructureVisitor extends AstExpressionVisitor
         resolveExtends(unit.getExtends());
         if (unit.getImplementsList() != null)
         	unit.getImplementsList().resolveImplements(this);
-        resolveDeclaration(unit.getMembersList());
+        if (unit.getMembers() != null)
+        	unit.getMembers().resolveDeclaration(this);
     }
 
     public void resolveExtends(ResolvePath className)
@@ -174,11 +175,6 @@ public class AstStructureVisitor extends AstExpressionVisitor
             maker.Forward();
     }
     
-//    public void resolveStatement(AstDeclareVariable declare)
-//    {
-//        resolveDeclaration(declare);
-//    }
-    
     public void resolveStatement(AstStructureLink link)
     {
     	if (link != null)
@@ -231,8 +227,9 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStatementIf statement)
     {
+        String label = (statement.getLabel() == null) ? null : statement.getLabel().getName(); 
         Type type = statement.condition.resolveType(this);
-        maker.If(type);
+        maker.If(type).setLabel(label);;
         statement.thenCode.resolveStatement(this);
         if (statement.elseCode != null)
         {
@@ -244,10 +241,11 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStatementWhile statement)
     {
-        maker.Loop();
+        String label = (statement.getLabel() == null) ? null : statement.getLabel().getName(); 
+        maker.Loop().setLabel(label);
         Type cond = statement.condition.resolveType(this);
         maker.While(cond);
-        statement.loopCode.resolveStatement(this);
+        statement.getCode().resolveStatement(this);
         maker.EndLoop();
         
     }
@@ -260,12 +258,13 @@ public class AstStructureVisitor extends AstExpressionVisitor
         ForStep step2 = step1.While(cond);
     	Type dec = (statement.getIncrement() == null) ? null : statement.getIncrement().resolveType(this);
         Labelled step3 = step2.Step(dec);
+        String label = (statement.getLabel() == null) ? null : statement.getLabel().getName(); 
+        step3.setLabel(label);
 
-        statement.loopCode.resolveStatement(this);
+        statement.getCode().resolveStatement(this);
         maker.EndLoop();
         
     }
-
 
 	public void resolveStatement(AstStatementBreak statement) 
 	{
@@ -285,8 +284,9 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
 	public void resolveStatement(AstStatementSwitch statement) 
 	{
+        String label = (statement.getLabel() == null) ? null : statement.getLabel().getName(); 
         Type cond = statement.expression.resolveType(this);
-		maker.Switch(cond);
+		maker.Switch(cond).setLabel(label);
 		statement.getCode().resolveStatement(this);
 		maker.EndSwitch();
 	}
@@ -303,29 +303,38 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
 	public void resolveStatement(AstStatementCompound statement) 
 	{
-		maker.Begin();
-		statement.resolveStatement(this);
+        String label = (statement.getLabel() == null) ? null : statement.getLabel().getName(); 
+		maker.Begin().setLabel(label);
+		statement.code.resolveStatement(this);
 		maker.End();
 	}
 
 	public void resolveStatement(AstStatementTry statement) 
 	{
-		maker.Try();
-		statement.code.resolveStatement(this);
-		statement.catchClause.resolveStatement(this);
-		statement.finallyClause.resolveStatement(this);
+        String label = (statement.getLabel() == null) ? null : statement.getLabel().getName(); 
+		maker.Try().setLabel(label);
+		statement.getCode().resolveStatement(this);
+		if (statement.catchClause != null)
+			statement.catchClause.resolveStatement(this);
+		if (statement.finallyClause != null)
+			statement.finallyClause.resolveStatement(this);
 		maker.EndTry();
 		
 	}
 
 	public void resolveStatement(AstStatementCatch catchClause) 
 	{
+		AstDeclareVariable exception = catchClause.getException();
+		String exceptionName = exception.type.resolvePath(this);
+		String name = exception.name.getName();
+		maker.Catch(exceptionName, name);
+
 		catchClause.getCode().resolveStatement(this);
 	}
 
 	public void resolveStatement(AstStatementFinally finallyClause) {
-		// TODO Auto-generated method stub
-		
+		maker.Finally();
+		finallyClause.getCode().resolveStatement(this);
 	}
 
 }

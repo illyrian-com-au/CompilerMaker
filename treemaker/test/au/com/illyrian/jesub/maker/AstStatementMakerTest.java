@@ -5,8 +5,6 @@ import java.io.IOException;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
-import au.com.illyrian.classmaker.MakerSwitchTest.BreakContinueIface;
-import au.com.illyrian.classmaker.MakerSwitchTest.Unary;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.jesub.ast.AstDeclareMethod;
@@ -242,6 +240,47 @@ public class AstStatementMakerTest extends ClassMakerTestCase
 
     public void testBreakContinue() throws Exception
     {
+        AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
+        build.Implements(build.Name(Unary.class.getName()));
+
+        build.Modifier("public");
+        build.Method(build.Name("int"), build.Name("unary"));
+        build.Declare(build.Name("int"), build.Name("n"));
+        build.Begin();
+        {
+	        build.Declare(build.Name("int"), build.Name("x"));
+	        build.For(build.Assign(build.Name("x"), build.Literal(0)),null, null);
+	        {
+		        build.If(build.LE(build.Name("n"), build.Literal(0)));
+		        {
+		            build.Break();
+		        }
+		        build.EndIf();
+		        // if (n%2 != 0){--n; continue;}
+		        build.If(build.NE(build.Rem(build.Name("n"), build.Literal(2)), build.Literal(0)));
+		        {
+		        	build.Eval(build.Dec(build.Name("n")));
+		        	build.Continue();
+		        }
+		        build.EndIf();
+		        build.Eval(build.Assign(build.Name("x"), build.Add(build.Name("x"), build.Name("n"))));
+		        build.Eval(build.Dec(build.Name("n")));
+	        }
+	        build.EndFor();
+	        build.Return(build.Name("x"));
+        }
+        build.End();
+
+        Class myClass = maker.defineClass();
+        Unary exec = (Unary)myClass.newInstance();
+
+        assertEquals("Wrong value for exec.unary()", 0, exec.unary(0));
+        assertEquals("Wrong value for exec.unary()", 0, exec.unary(1));
+        assertEquals("Wrong value for exec.unary()", 2, exec.unary(2));
+        assertEquals("Wrong value for exec.unary()", 2, exec.unary(3));
+        assertEquals("Wrong value for exec.unary()", 6, exec.unary(4));
+        assertEquals("Wrong value for exec.unary()", 6, exec.unary(5));
+        assertEquals("Wrong value for exec.unary()", 12, exec.unary(6));
     }
 
     public void testSwitch() throws Exception
@@ -357,87 +396,101 @@ public class AstStatementMakerTest extends ClassMakerTestCase
         assertEquals("Wrong value for exec.unary()", -99, exec.unary(-1));
     }
 
-//    public interface BreakContinueIface {
-//    	int breakContinue(int i);
-//    }
+    public interface BreakContinueIface {
+    	int breakContinue(int i);
+    }
 
-//    public void testBreakContinueLoop() throws Exception
-//    {
-//        AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
-//        build.Package(build.Name("au.com.illyrian.jesub.ast"));
-//        build.Modifier("public");
-//        build.ClassName(build.Name("Test"));
-//        build.Implements(build.Name(BreakContinueIface.class.getName()));
-//        
-//        TerminalName intType = build.Name("int");
-//        build.Modifier("public");
-//        build.Method(intType, build.Name("breakContinue"));
-//        build.Declare(intType, build.Name("i"));
-//
-//        // Method body
-//        build.Begin();
-//        {
-//        	build.Declare(intType, build.Name("n"));
-//        	build.Eval(build.Assign(build.Name("n"), build.Literal(0)));
-//        	build.Declare(intType, build.Name("j"));
-//        	build.Switch(build.Name("x"));
-//        	build.Case(build.Literal(0));
-//        	    build.Eval(build.Assign(build.Name("y"), build.Literal(1)));
-//        	    build.Break();
-//        maker.Begin();
-//    	{
-//           	maker.Declare("n", int.class, 0);
-//           	maker.Set("n", maker.Literal(0));
-//           	maker.Declare("j", int.class, 0);
-//               // BEGIN - If statement example 6b
-//           	maker.Begin().setLabel("outer");
-//           	    maker.Try().setLabel("trying");
-//               	    maker.For(maker.Set("j", maker.Literal(1))).While(maker.LE(maker.Get("j"), maker.Literal(3))).Step(maker.Inc("j")).setLabel("loop");
-//               	        maker.If(maker.NE(maker.Get("i"), maker.Literal(0))).setLabel("branch");
-//    	        	    		maker.Switch(maker.Get("i")).setLabel("switch");
-//    	        	    		maker.Case(1);
-//    	        	    			maker.Break();
-//    	        	    		maker.Case(2);
-//    	        	    			maker.Continue();
-//    	        	    		maker.Case(3);
-//    	        	    			maker.Break("loop");
-//    	        	    		maker.Case(4);
-//    	        	    			maker.Continue("loop");
-//    	          	    		maker.Case(5);
-//    	        	    			maker.Break("switch");
-//    	        	    		maker.Case(6);
-//    	        	    			maker.Break("trying");
-//    	        	    		maker.Case(7);
-//    	        	    			maker.Break("outer");
-//    	        	    		maker.Case(8);
-//    	        	    		    maker.Break("branch");
-//    	        	    		maker.EndSwitch();
-//    	        	    		maker.Eval(maker.Inc("n"));
-//    	        	    	maker.Else();
-//      		        	    	maker.Eval(maker.Set("n", maker.Literal(100)));
-//    	        	    	maker.EndIf();
-//           	    	maker.EndFor();
-//           	    	maker.Eval(maker.Set("n", maker.Add(maker.Get("n"), maker.Get("i"))));
-//       	    	maker.Finally();
-//       	    		maker.Eval(maker.Inc("n"));
-//       	    	maker.EndTry();
-//           	maker.End();
-//           	maker.Return(maker.Get("n"));
-//    	}
-//    	maker.End();
-//
-//        Class testClass = maker.defineClass();
-//        BreakContinueIface exec = (BreakContinueIface)testClass.newInstance();
-//
-//        assertEquals("Else", 101, exec.breakContinue(0));
-//    	assertEquals("Break", 5, exec.breakContinue(1));
-//    	assertEquals("Continue", 3, exec.breakContinue(2));
-//    	assertEquals("Break loop", 4, exec.breakContinue(3));
-//    	assertEquals("Continue loop", 5, exec.breakContinue(4));
-//    	assertEquals("Break switch", 9, exec.breakContinue(5));
-//    	assertEquals("Break trying", 1, exec.breakContinue(6));
-//    	assertEquals("Break outer", 0, exec.breakContinue(7));        
-//    	assertEquals("Break branch", 9, exec.breakContinue(8)); // **
-//    	assertEquals("Default", 14, exec.breakContinue(10));        
-//    }
+    public void testBreakContinueLoop() throws Exception
+    {
+        AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
+        build.Package(build.Name("au.com.illyrian.jesub.ast"));
+        build.Modifier("public");
+        build.ClassName(build.Name("Test"));
+        build.Implements(build.Name(BreakContinueIface.class.getName()));
+        
+        TerminalName intType = build.Name("int");
+        build.Modifier("public");
+        build.Method(intType, build.Name("breakContinue"));
+        build.Declare(intType, build.Name("i"));
+
+        // Method body
+        build.Begin();
+        {
+        	build.Declare(intType, build.Name("n"));
+        	build.Eval(build.Assign(build.Name("n"), build.Literal(0)));
+        	build.Declare(intType, build.Name("j"));
+        	build.Begin().setLabel("outer");
+        	{
+        		build.Try().setLabel("trying");
+        		{
+        			build.For(build.Assign(build.Name("j"), build.Literal(1)),
+        				build.LE(build.Name("j"), build.Literal(3)),
+        				build.Inc(build.Name(("j")))).setLabel("loop");
+        			{
+        				build.If(build.NE(build.Name("i"), build.Literal(0))).setLabel("branch");
+        				{
+        					build.Switch(build.Name("i")).setLabel("switch");
+        					{
+        						build.Case(build.Literal(1));
+        						build.Break();
+
+        						build.Case(build.Literal(2));
+        						build.Continue();
+
+        						build.Case(build.Literal(3));
+	        	    			build.Break(build.Name("loop"));
+
+	        	    			build.Case(build.Literal(4));
+	        	    			build.Continue(build.Name("loop"));
+
+	        	    			build.Case(build.Literal(5));
+	        	    			build.Break(build.Name("switch"));
+
+	        	    			build.Case(build.Literal(6));
+	        	    			build.Break(build.Name("trying"));
+
+	        	    			build.Case(build.Literal(7));
+	        	    			build.Break(build.Name("outer"));
+
+	        	    			build.Case(build.Literal(8));
+	        	    		    build.Break(build.Name("branch"));
+        					}
+	        	    		build.EndSwitch();
+	        	    		build.Eval(build.Inc(build.Name("n")));
+        				}
+        				build.Else();
+        				{
+  		        	    	build.Eval(build.Assign(build.Name("n"), build.Literal(100)));
+        				}
+	        	    	build.EndIf();
+        			}
+        			build.EndFor();
+        			build.Eval(build.Assign(build.Name("n"), build.Add(build.Name("n"), build.Name("i"))));
+        		}
+        		build.Finally();
+        		{
+        			build.Eval(build.Inc(build.Name("n")));
+        		}
+        		build.EndTry();
+        	}
+        	build.End();
+        	build.Return(build.Name("n"));
+        }
+        build.End(); // Method
+
+
+        Class testClass = maker.defineClass();
+        BreakContinueIface exec = (BreakContinueIface)testClass.newInstance();
+
+        assertEquals("Else", 101, exec.breakContinue(0));
+    	assertEquals("Break", 5, exec.breakContinue(1));
+    	assertEquals("Continue", 3, exec.breakContinue(2));
+    	assertEquals("Break loop", 4, exec.breakContinue(3));
+    	assertEquals("Continue loop", 5, exec.breakContinue(4));
+    	assertEquals("Break switch", 9, exec.breakContinue(5));
+    	assertEquals("Break trying", 1, exec.breakContinue(6));
+    	assertEquals("Break outer", 0, exec.breakContinue(7));        
+    	assertEquals("Break branch", 9, exec.breakContinue(8));
+    	assertEquals("Default", 14, exec.breakContinue(10));        
+    }
 }

@@ -39,7 +39,7 @@ public class AstDeclareClass extends AstStructureBase
     private TerminalName className;
     private AstExpression baseClass;
     private AstExpression implementsList = null;
-    private AstStructureLink membersList = null;
+    private AstStructure  membersList = null;
     
     public AstDeclareClass()
     {
@@ -53,13 +53,13 @@ public class AstDeclareClass extends AstStructureBase
     }
     
     public AstDeclareClass(AstModifiers modifiers, TerminalName className, AstExpression baseClass, 
-    		AstExpression implementsList, AstStructureLink membersList)
+    		AstExpression implementsList, AstStructure membersList)
     {
         setModifiers(modifiers);
         setClassName(className);
         setExtends(baseClass);
         setImplementsList(implementsList);
-        setMembersList(membersList);
+        setMembers(membersList);
     }
     
     public AstModifiers getModifiers()
@@ -108,20 +108,21 @@ public class AstDeclareClass extends AstStructureBase
         implementsList = link;
     }
 
-    public AstStructureLink getMembersList()
+    public AstStructure getMembers()
     {
         return membersList;
     }
 
-    public void setMembersList(AstStructureLink membersList)
+    public void setMembers(AstStructure membersList)
     {
         this.membersList = membersList;
     }
 
-    public void addMember(AstStructure member)
+    public AstDeclareClass add(AstStructure member)
     {
         AstStructureLink link = new AstStructureLink(membersList, member);
         membersList = link;
+        return this;
     }
 
     public void resolveDeclaration(AstStructureVisitor visitor)

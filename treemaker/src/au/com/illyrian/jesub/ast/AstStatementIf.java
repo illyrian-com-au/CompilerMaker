@@ -28,12 +28,14 @@
 package au.com.illyrian.jesub.ast;
 
 import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.ast.TerminalName;
 
 public class AstStatementIf extends AstStatementBase
 {
     AstExpression condition = null;
     AstStructure  thenCode = null;
     AstStructure  elseCode = null;
+    protected TerminalName label;
     
     public AstStatementIf()
     {
@@ -76,18 +78,24 @@ public class AstStatementIf extends AstStatementBase
         this.elseCode = elseCode;
     }
 
-    public void resolveStatement(AstStructureVisitor visitor)
+    public TerminalName getLabel() {
+		return label;
+	}
+
+	public AstStatementIf setLabel(TerminalName label) {
+		this.label = label;
+		return this;
+	}
+
+	public void resolveStatement(AstStructureVisitor visitor)
     {
         visitor.resolveStatement(this);
     }
 
-	public AstStatementIf toIf() 
-	{
-		return this;
-	}
-	
 	public String toString()
 	{
-		return "if (" + getCondition() + ") ... " + (elseCode == null ? "" : " else ... ");
+    	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
+    	String alt = (elseCode == null) ? "" : " else\n" + elseCode;
+		return label +  "if (" + getCondition() + ")\n" + thenCode + alt;
 	}
 }

@@ -29,12 +29,11 @@ package au.com.illyrian.jesub.ast;
 
 import au.com.illyrian.classmaker.ast.AstExpression;
 
-public class AstStatementFor extends AstStructureBase
+public class AstStatementFor extends AstCompoundBase
 {
     AstExpression initialise = null;
     AstExpression condition = null;
     AstExpression increment = null;
-    AstStructure  loopCode = null;
     
     public AstStatementFor()
     {
@@ -42,10 +41,10 @@ public class AstStatementFor extends AstStructureBase
     
     public AstStatementFor(AstExpression init, AstExpression cond, AstExpression step, AstStructure code)
     {
+    	super(code);
         this.initialise = init;
         this.condition = cond;
         this.increment = step;
-        this.loopCode = code;
     }
 
     public AstExpression getInitialise()
@@ -78,16 +77,6 @@ public class AstStatementFor extends AstStructureBase
         this.increment = increment;
     }
 
-    public AstStructure getLoopCode()
-    {
-        return loopCode;
-    }
-
-    public void setLoopCode(AstStructure loopCode)
-    {
-        this.loopCode = loopCode;
-    }
-
     public void resolveStatement(AstStructureVisitor visitor)
     {
         visitor.resolveStatement(this);
@@ -95,6 +84,7 @@ public class AstStatementFor extends AstStructureBase
     
     public String toString()
     {
-    	return "for (" + initialise + "; " + condition + "; " + increment + ") ... ";
+    	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
+		return label +  "for (" + initialise + "; " + condition + "; " + increment + ")\n" + code;
     }
 }

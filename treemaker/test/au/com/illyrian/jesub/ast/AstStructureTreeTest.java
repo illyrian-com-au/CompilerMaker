@@ -141,10 +141,10 @@ public class AstStructureTreeTest extends ClassMakerTestCase
         TerminalName base = build.Name("au.com.illyrian.jesub.ast.FuncABC");
         
         AstDeclareClass declareClass = build.DeclareClass(modifiers, name, base, null, null);
-        declareClass.addMember(var1);
-        declareClass.addMember(var2);
-        declareClass.addMember(var3);
-        declareClass.addMember(var4);
+        declareClass.add(var1);
+        declareClass.add(var2);
+        declareClass.add(var3);
+        declareClass.add(var4);
         
         AstDeclareModule module = build.Module(packageName, null, declareClass);
 
@@ -183,7 +183,7 @@ public class AstStructureTreeTest extends ClassMakerTestCase
         AstStructure paramA = build.Declare(null, type, build.Name("a")); 
         AstStructure paramB = build.Declare(null, type, build.Name("b")); 
         AstStructure paramC = build.Declare(null, type, build.Name("c")); 
-        AstStructureLink params = build.Link(build.Link(paramA, paramB), paramC);
+        AstStructureLink params = build.Seq(build.Seq(paramA, paramB), paramC);
         AstStatementReturn body = build.Return(build.Div(build.Div(build.Name("a"), build.Name("b")), build.Name("c")));
         AstDeclareMethod method = build.Method(astPublic, type, build.Name("f"), params, body);
 
@@ -192,7 +192,7 @@ public class AstStructureTreeTest extends ClassMakerTestCase
         TerminalName name = build.Name("Test");
         TerminalName base = build.Name("au.com.illyrian.jesub.ast.FuncABC");
         AstDeclareClass declareClass = build.DeclareClass(modifiers, name, base, null, null);
-        declareClass.addMember(method);
+        declareClass.add(method);
         
         // Declare Module
         AstDeclareModule module = build.Module(packageName, null, declareClass);

@@ -27,13 +27,21 @@
 
 package au.com.illyrian.jesub.ast;
 
+import au.com.illyrian.classmaker.ast.TerminalName;
+
 public abstract class AstCompoundBase extends AstStructureBase
 {
     protected AstStructure  code;
+    protected TerminalName label;
     
     public AstCompoundBase()
     {
         this.code = null;
+    }
+
+    public AstCompoundBase(AstStructure code)
+    {
+        this.code = code;
     }
 
 	public AstStructure getCode() 
@@ -46,8 +54,18 @@ public abstract class AstCompoundBase extends AstStructureBase
 		this.code = code;
 	}
 
-	public void add(AstStructure stmt)
+	public TerminalName getLabel() {
+		return label;
+	}
+
+	public AstCompoundBase setLabel(TerminalName label) {
+		this.label = label;
+		return this;
+	}
+
+	public AstCompoundBase add(AstStructure stmt)
     {
     	code = new AstStructureLink(code, stmt);
+    	return this;
     }
 }

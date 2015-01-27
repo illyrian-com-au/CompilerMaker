@@ -29,10 +29,9 @@ package au.com.illyrian.jesub.ast;
 
 import au.com.illyrian.classmaker.ast.AstExpression;
 
-public class AstStatementWhile extends AstStructureBase
+public class AstStatementWhile extends AstCompoundBase
 {
     AstExpression condition = null;
-    AstStructure  loopCode = null;
     
     public AstStatementWhile()
     {
@@ -40,8 +39,8 @@ public class AstStatementWhile extends AstStructureBase
     
     public AstStatementWhile(AstExpression expression, AstStructure  loopCode)
     {
+        super(loopCode);
         this.condition = expression;
-        this.loopCode = loopCode;
     }
 
     public AstExpression getCondition()
@@ -54,16 +53,6 @@ public class AstStatementWhile extends AstStructureBase
         this.condition = condition;
     }
 
-    public AstStructure getLoopCode()
-    {
-        return loopCode;
-    }
-
-    public void setLoopCode(AstStructure loopCode)
-    {
-        this.loopCode = loopCode;
-    }
-
     public void resolveStatement(AstStructureVisitor visitor)
     {
         visitor.resolveStatement(this);
@@ -71,6 +60,7 @@ public class AstStatementWhile extends AstStructureBase
     
     public String toString()
     {
-    	return "while (" + condition + ") ... ";
+    	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
+		return label +  "while (" + condition + ")\n" + getCode();
     }
 }

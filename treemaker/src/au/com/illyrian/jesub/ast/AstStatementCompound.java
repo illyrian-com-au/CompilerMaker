@@ -45,6 +45,7 @@ public class AstStatementCompound extends AstCompoundBase
     
     public String toString()
     {
-    	return "{\n" + code + "\n}";
+    	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
+		return label + "{\n" + code + "\n}";
     }
 }
