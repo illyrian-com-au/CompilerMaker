@@ -42,6 +42,6 @@ public class AstStatementFinally extends AstCompoundBase
     
     public String toString()
     {
-    	return "finally {\n" + code + "\n}";
+    	return "finally {\n " + code + " }";
     }
 }

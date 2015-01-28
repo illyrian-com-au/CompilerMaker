@@ -43,6 +43,6 @@ public class AstStatementDefault extends AstStructureBase
     
     public String toString()
     {
-    	return "default";
+    	return "default :\n";
     }
 }

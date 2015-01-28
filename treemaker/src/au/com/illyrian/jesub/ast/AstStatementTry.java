@@ -74,6 +74,6 @@ public class AstStatementTry extends AstCompoundBase
     	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
     	String catchCode = (catchClause == null) ? "" : "" + catchClause;
     	String finallyCode = (finallyClause == null) ? "" : "" + finallyClause;
-		return label +  "Try {\n"+ code + "\n}" + catchCode + finallyCode;
+		return label +  "Try {\n "+ code + " } " + catchCode + finallyCode + ";";
     }
 }

@@ -85,6 +85,6 @@ public class AstStatementFor extends AstCompoundBase
     public String toString()
     {
     	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
-		return label +  "for (" + initialise + "; " + condition + "; " + increment + ")\n" + code;
+		return label +  "for (" + initialise + "; " + condition + "; " + increment + ")\n " + code;
     }
 }

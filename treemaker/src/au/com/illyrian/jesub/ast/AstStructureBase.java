@@ -60,4 +60,9 @@ public class AstStructureBase extends AstExpressionBase implements AstStructure
     {
         throw new IllegalStateException("Cannot resolve Implements: " + getClass().getSimpleName());
     }
+    
+    public int size()
+    {
+    	return 1;
+    }
 }

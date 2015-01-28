@@ -95,7 +95,7 @@ public class AstStatementIf extends AstStatementBase
 	public String toString()
 	{
     	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
-    	String alt = (elseCode == null) ? "" : " else\n" + elseCode;
-		return label +  "if (" + getCondition() + ")\n" + thenCode + alt;
+    	String alt = (elseCode == null) ? "" : " else\n " + elseCode;
+		return label +  "if (" + getCondition() + ")\n " + thenCode + alt;
 	}
 }

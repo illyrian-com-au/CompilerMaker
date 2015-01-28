@@ -40,4 +40,7 @@ public interface AstStructure
     public void resolveDeclaration(AstStructureVisitor visitor);
 
     public void resolveStatement(AstStructureVisitor visitor);
+    
+    public int size();
+
 }

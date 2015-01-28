@@ -73,6 +73,10 @@ public class AstStructureLink extends AstStructureBase
         visitor.resolveStatement(this);
     }
 
+    public int size()
+    {
+    	return (left == null ? 0 : left.size()) + (right == null ? 0 : right.size());
+    }
     
     public String toString()
     {
@@ -81,6 +85,6 @@ public class AstStructureLink extends AstStructureBase
     	else if (right == null)
     		return "" + left;
     	else 
-    		return left + ";\n" + right;
+    		return left + " " + right;
     }
 }

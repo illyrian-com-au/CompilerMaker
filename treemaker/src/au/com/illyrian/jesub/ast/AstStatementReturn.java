@@ -50,6 +50,6 @@ public class AstStatementReturn extends AstStructureBase
     
     public String toString()
     {
-    	return "return " + (expression == null ? "" : expression);
+    	return "return " + (expression == null ? "" : expression) + ";\n";
     }
 }

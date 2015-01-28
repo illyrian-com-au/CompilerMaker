@@ -55,6 +55,6 @@ public class AstStatementCatch extends AstCompoundBase implements AstStructure
     
     public String toString()
     {
-    	return "catch (" + exception + ") {\n" + getCode() + "\n}";
+    	return "catch (" + exception + ") {\n" + getCode() + "}";
     }
 }

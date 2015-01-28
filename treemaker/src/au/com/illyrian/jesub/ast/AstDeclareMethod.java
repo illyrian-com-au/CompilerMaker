@@ -88,6 +88,6 @@ public class AstDeclareMethod extends AstDeclareVariable
     
     public String toString()
     {
-    	return super.toString() + "(" + parameters + "){\n" + methodBody + "}\n /*end*/";
+    	return super.toString() + "(" + parameters + "){\n " + methodBody + "}\n ";
     }
 }

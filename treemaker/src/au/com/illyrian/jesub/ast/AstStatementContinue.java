@@ -50,6 +50,6 @@ public class AstStatementContinue extends AstStructureBase
     
     public String toString()
     {
-    	return "continue " + (label == null ? "" : label);
+    	return "continue " + (label == null ? "" : label) + ";\n";
     }
 }

@@ -597,12 +597,12 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         		.add(nest2);
 
         // Method Body
-        AstCompoundBase body = build.Compound() // FIXME - use Seq
-        	.add(build.Declare(null, intType, build.Name("n")))
-        	.add(build.Eval(build.Assign(build.Name("n"), build.Literal(0))))
-        	.add(build.Declare(null, intType, build.Name("j")))
-        	.add(nest1)
-        	.add(build.Return(build.Name("n")));
+        AstStructure body = build.Seq(build.Seq(build.Seq(build.Seq(
+        	build.Declare(null, intType, build.Name("n")),
+        	build.Eval(build.Assign(build.Name("n"), build.Literal(0)))),
+        	build.Declare(null, intType, build.Name("j"))),
+        	nest1),
+        	build.Return(build.Name("n")));
         
         // Declare Method
         AstDeclareMethod method = build.Method(astPublic, intType, build.Name("breakContinue"), 
@@ -617,7 +617,7 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         AstExpression packageName = build.Name("au.com.illyrian.jesub.ast");
         AstDeclareModule module = build.Module(packageName, null, declareClass);
         
-        System.out.println(module.getDeclareClass().getMembers().toString());
+        //System.out.println(module.getDeclareClass().getMembers().toString());
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);
         module.resolveDeclaration(visitor);

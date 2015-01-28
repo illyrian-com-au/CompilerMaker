@@ -47,6 +47,6 @@ public class AstStatementSwitch extends AstCompoundBase
     public String toString()
     {
     	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
-		return label +  "switch (" + expression + ") {\n" + code + "\n}";
+		return label +  "switch (" + expression + ") {\n " + code + " };\n";
     }
 }

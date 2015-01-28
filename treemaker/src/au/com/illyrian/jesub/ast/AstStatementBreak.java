@@ -27,7 +27,6 @@
 
 package au.com.illyrian.jesub.ast;
 
-import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.TerminalName;
 
 public class AstStatementBreak extends AstStructureBase
@@ -51,6 +50,6 @@ public class AstStatementBreak extends AstStructureBase
     
     public String toString()
     {
-    	return "break " + (label == null ? "" : label);
+    	return "break " + (label == null ? "" : label) + ";\n";
     }
 }

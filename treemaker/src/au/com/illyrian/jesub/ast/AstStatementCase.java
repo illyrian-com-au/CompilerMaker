@@ -27,8 +27,6 @@
 
 package au.com.illyrian.jesub.ast;
 
-import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.classmaker.ast.TerminalNumber;
 
 public class AstStatementCase extends AstStructureBase
@@ -47,6 +45,6 @@ public class AstStatementCase extends AstStructureBase
     
     public String toString()
     {
-    	return "case " + value;
+    	return "case " + value + ":\n";
     }
 }
