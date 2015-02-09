@@ -90,6 +90,9 @@ public abstract class AstExpressionBase implements AstExpression, SourceLine
         throw new IllegalStateException("Cannot resolveImplements: " + getClass().getSimpleName());
     }
 
+	public Type resolveDeclaredType(AstExpressionVisitor visitor) {
+        throw new IllegalStateException("Cannot resolve declared type: " + getClass().getSimpleName());
+	}
 
     public void setSourceLine(SourceLine sourceLine)
     {

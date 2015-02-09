@@ -53,7 +53,7 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc
 
 	@Override
 	public void setClassModifiers(int modifiers) {
-		println("setClassModifiers(" + modifiers + ");"); // FIXME
+		println("setClassModifiers(" + modifiers + ");");
 	}
 
 	@Override
@@ -569,51 +569,66 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc
 	}
 
 	@Override
-	public ArrayType NewArray(Type array, CallStack dimensions) {
-		// TODO Auto-generated method stub
-		return null;
+	public ArrayType NewArray(Type type, CallStack dimensions) {
+		String operand2 = stack.pop();
+		String operand1 = stack.pop();
+		stack.push("NewArray(" + operand1 + ", " + operand2 + ")");
+		return type.toArray();
 	}
 
 	@Override
 	public Type ArrayOf(Class javaClass) {
-		// TODO Auto-generated method stub
-		return null;
+		stack.push("ArrayOf(" + javaClass.getName() + ")");
+		return ClassMaker.OBJECT_TYPE.toArray();
 	}
 
 	@Override
 	public Type ArrayOf(String typeName) {
-		// TODO Auto-generated method stub
-		return null;
+		stack.push("ArrayOf(\"" + typeName + "\")");
+		return ClassMaker.OBJECT_TYPE.toArray();
 	}
 
 	@Override
 	public ArrayType ArrayOf(Type type) {
-		// TODO Auto-generated method stub
-		return null;
+        String typeName = type.getName();
+        String name = typeName + "[]";
+        String signature = "[" + type.getSignature();
+        ArrayType element = new ArrayType(name, signature, type);
+		stack.push("ArrayOf(" + typeName + ")");
+		return element;
 	}
 
 	@Override
 	public Type GetAt(Type reference, Type index) {
-		// TODO Auto-generated method stub
-		return null;
+		String operand2 = stack.pop();
+		String operand1 = stack.pop();
+		stack.push("GetAt(" + operand1 + ", " + operand2 + ")");
+		return index;
 	}
 
 	@Override
 	public Type AssignAt(Type array, Type index, Type value) {
-		// TODO Auto-generated method stub
-		return null;
+		String operand3 = stack.pop();
+		String operand2 = stack.pop();
+		String operand1 = stack.pop();
+		stack.push("AssignAt(" + operand1 + ", " + operand2 + ", " + operand3 + ")");
+		return index;
 	}
 
 	@Override
 	public Type SetAt(Type arrayRef, Type index, Type value) {
-		// TODO Auto-generated method stub
-		return null;
+		String operand3 = stack.pop();
+		String operand2 = stack.pop();
+		String operand1 = stack.pop();
+		stack.push("SetAt(" + operand1 + ", " + operand2 + ", " + operand3 + ")");
+		return index;
 	}
 
 	@Override
 	public PrimitiveType Length(Type arrayRef) {
-		// TODO Auto-generated method stub
-		return null;
+		String ref = stack.pop();
+		stack.push("Length(" + ref +  ")");
+		return ClassMaker.INT_TYPE;
 	}
 
 	@Override

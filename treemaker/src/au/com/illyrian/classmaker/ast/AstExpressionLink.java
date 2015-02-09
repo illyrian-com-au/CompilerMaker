@@ -36,8 +36,8 @@ public class AstExpressionLink extends AstExpressionBase
 	
     public AstExpressionLink(AstExpression left, AstExpression right)
     {
-    	if (left == null && right == null)
-    		throw new IllegalStateException("Left and right expressions are both null");
+    	if (left == null || right == null)
+    		throw new IllegalStateException("Left and right expressions must not be null");
 
     	this.left = left;
     	this.right = right;

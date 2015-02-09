@@ -27,6 +27,7 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.Type;
 
 public class ArrayIndex extends AstExpressionBase
@@ -45,6 +46,12 @@ public class ArrayIndex extends AstExpressionBase
         return visitor.resolveType(this);
     }
     
+//    @Override
+//	public MakerField resolveMakerField(AstExpressionVisitor visitor) 
+//    {
+//        return visitor.resolveMakerField(this);
+//	}
+//
     public AstExpression getArrayOperand() {
 		return arrayOperand;
 	}

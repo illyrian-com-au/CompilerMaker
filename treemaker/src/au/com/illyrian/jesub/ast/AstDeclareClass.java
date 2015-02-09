@@ -104,8 +104,10 @@ public class AstDeclareClass extends AstStructureBase
 
     public void addImplements(AstExpression className)
     {
-        AstExpressionLink link = new AstExpressionLink(implementsList, className);
-        implementsList = link;
+    	if (implementsList == null)
+    		implementsList = className;
+    	else
+    		implementsList = new AstExpressionLink(implementsList, className);
     }
 
     public AstStructure getMembers()
@@ -120,8 +122,10 @@ public class AstDeclareClass extends AstStructureBase
 
     public AstDeclareClass add(AstStructure member)
     {
-        AstStructureLink link = new AstStructureLink(membersList, member);
-        membersList = link;
+    	if (membersList == null)
+    		membersList = member;
+    	else
+    		membersList = new AstStructureLink(membersList, member);
         return this;
     }
 

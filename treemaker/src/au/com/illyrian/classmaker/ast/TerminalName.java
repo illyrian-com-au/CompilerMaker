@@ -56,6 +56,11 @@ public class TerminalName extends AstExpressionBase implements ResolvePath
         return visitor.resolveTypeOrNull(this);
     }
 
+    public Type resolveDeclaredType(AstExpressionVisitor visitor)
+    {
+        return visitor.resolveDeclaredType(this);
+    }
+
     public MakerField resolveMakerField(AstExpressionVisitor visitor)
     {
         return visitor.resolveMakerField(this);

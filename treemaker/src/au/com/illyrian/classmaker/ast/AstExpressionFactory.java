@@ -228,6 +228,16 @@ public class AstExpressionFactory
         return new ArrayIndex(left, right);
     }
 
+	public AstExpression ArrayOf(AstExpression type) 
+	{
+		return new ArrayOf(type, null);
+	}
+
+	public AstExpression ArrayOf(AstExpression type, AstExpression dimension) 
+	{
+		return new ArrayOf(type, dimension);
+	}
+
     public InstanceOfOperator InstanceOf(AstExpression left, AstExpression right)
     {
         return new InstanceOfOperator(left, right);

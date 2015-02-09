@@ -45,7 +45,7 @@ public class AssignmentOperator extends AstExpressionBase
         return visitor.resolveType(this);
     }
     
-    public String toString()
+	public String toString()
     {
         return "(" + leftOperand + " = " + rightOperand + ")";
     }

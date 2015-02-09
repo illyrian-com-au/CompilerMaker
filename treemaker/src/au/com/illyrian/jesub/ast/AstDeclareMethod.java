@@ -61,7 +61,10 @@ public class AstDeclareMethod extends AstDeclareVariable
     
     public AstDeclareMethod addParameter(AstDeclareVariable param)
     {
-        parameters = new AstStructureLink(parameters, param);
+    	if (parameters == null)
+    		parameters = param;
+    	else
+    		parameters = new AstStructureLink(parameters, param);
         return this;
     }
     
@@ -77,7 +80,10 @@ public class AstDeclareMethod extends AstDeclareVariable
 
     public AstDeclareMethod add(AstStructure statement)
     {
-        methodBody = new AstStructureLink(methodBody, statement);
+    	if (methodBody == null)
+    		methodBody = statement;
+    	else
+    		methodBody = new AstStructureLink(methodBody, statement);
         return this;
     }
 

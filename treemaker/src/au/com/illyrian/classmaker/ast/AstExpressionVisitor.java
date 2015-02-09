@@ -189,16 +189,34 @@ public class AstExpressionVisitor
         return maker.Cast(type, typeName);
     }
     
+    public Type resolveType(ArrayIndex tree)
+    {
+    	Type reference = tree.arrayOperand.resolveType(this);
+    	Type index = tree.indexOperand.resolveType(this);
+    	return maker.GetAt(reference, index);
+    }
+    
     public Type resolveType(AssignmentOperator tree)
     {
-        MakerField field = tree.leftOperand.resolveMakerField(this);
-        Type type = tree.rightOperand.resolveType(this);
-        if (field.isLocal())
-            return maker.Assign(field.getName(), type);
-        else if (field.isStatic())
-            return maker.Assign(field.getClassType().getName(), field.getName(), type);
-        else
-            return maker.Assign(field.getClassType(), field.getName(), type);
+    	if (tree.leftOperand instanceof ArrayIndex)
+    	{
+    		ArrayIndex array = (ArrayIndex)tree.leftOperand;
+    		Type arrayType = array.arrayOperand.resolveType(this);
+    		Type indexType = array.indexOperand.resolveType(this);
+    		Type valueType = tree.rightOperand.resolveType(this);
+    		return maker.AssignAt(arrayType, indexType, valueType);
+    	}
+    	else
+    	{
+	        MakerField field = tree.leftOperand.resolveMakerField(this);
+	        Type type = tree.rightOperand.resolveType(this);
+	        if (field.isLocal())
+	            return maker.Assign(field.getName(), type);
+	        else if (field.isStatic())
+	            return maker.Assign(field.getClassType().getName(), field.getName(), type);
+	        else
+	            return maker.Assign(field.getClassType(), field.getName(), type);
+    	}
     }
     
     public Type resolveType(DotOperator tree)
@@ -227,46 +245,86 @@ public class AstExpressionVisitor
     
     public Type resolveType(IncrementOperator tree)
     {
-        MakerField field = tree.operand.resolveMakerField(this);
-        if (field.getClassType() == null)
-            return maker.Inc(field.getName());
-        else if (field.isStatic())
-            return maker.Inc(field.getClassType().getName(), field.getName());
-        else
-            return maker.Inc(field.getClassType(), field.getName());
+    	if (tree.operand instanceof ArrayIndex)
+    	{
+    		ArrayIndex array = (ArrayIndex)tree.operand;
+    		Type arrayType = array.arrayOperand.resolveType(this);
+    		Type indexType = array.indexOperand.resolveType(this);
+    		return maker.IncAt(arrayType, indexType);
+    	}
+    	else
+    	{
+	        MakerField field = tree.operand.resolveMakerField(this);
+	        if (field.getClassType() == null)
+	            return maker.Inc(field.getName());
+	        else if (field.isStatic())
+	            return maker.Inc(field.getClassType().getName(), field.getName());
+	        else
+	            return maker.Inc(field.getClassType(), field.getName());
+	    	}
     }
     
     public Type resolveType(DecrementOperator tree)
     {
-        MakerField field = tree.operand.resolveMakerField(this);
-        if (field.getClassType() == null)
-            return maker.Dec(field.getName());
-        else if (field.isStatic())
-            return maker.Dec(field.getClassType().getName(), field.getName());
-        else
-            return maker.Dec(field.getClassType(), field.getName());
+    	if (tree.operand instanceof ArrayIndex)
+    	{
+    		ArrayIndex array = (ArrayIndex)tree.operand;
+    		Type arrayType = array.arrayOperand.resolveType(this);
+    		Type indexType = array.indexOperand.resolveType(this);
+    		return maker.DecAt(arrayType, indexType);
+    	}
+    	else
+    	{
+	        MakerField field = tree.operand.resolveMakerField(this);
+	        if (field.getClassType() == null)
+	            return maker.Dec(field.getName());
+	        else if (field.isStatic())
+	            return maker.Dec(field.getClassType().getName(), field.getName());
+	        else
+	            return maker.Dec(field.getClassType(), field.getName());
+    	}
     }
     
     public Type resolveType(PostIncrementOperator tree)
     {
-        MakerField field = tree.operand.resolveMakerField(this);
-        if (field.getClassType() == null)
-            return maker.PostInc(field.getName());
-        else if (field.isStatic())
-            return maker.PostInc(field.getClassType().getName(), field.getName());
-        else
-            return maker.PostInc(field.getClassType(), field.getName());
+    	if (tree.operand instanceof ArrayIndex)
+    	{
+    		ArrayIndex array = (ArrayIndex)tree.operand;
+    		Type arrayType = array.arrayOperand.resolveType(this);
+    		Type indexType = array.indexOperand.resolveType(this);
+    		return maker.PostIncAt(arrayType, indexType);
+    	}
+    	else
+    	{
+	        MakerField field = tree.operand.resolveMakerField(this);
+	        if (field.getClassType() == null)
+	            return maker.PostInc(field.getName());
+	        else if (field.isStatic())
+	            return maker.PostInc(field.getClassType().getName(), field.getName());
+	        else
+	            return maker.PostInc(field.getClassType(), field.getName());
+    	}
     }
     
     public Type resolveType(PostDecrementOperator tree)
     {
-        MakerField field = tree.operand.resolveMakerField(this);
-        if (field.getClassType() == null)
-            return maker.PostDec(field.getName());
-        else if (field.isStatic())
-            return maker.PostDec(field.getClassType().getName(), field.getName());
-        else
-            return maker.PostDec(field.getClassType(), field.getName());
+    	if (tree.operand instanceof ArrayIndex)
+    	{
+    		ArrayIndex array = (ArrayIndex)tree.operand;
+    		Type arrayType = array.arrayOperand.resolveType(this);
+    		Type indexType = array.indexOperand.resolveType(this);
+    		return maker.PostDecAt(arrayType, indexType);
+    	}
+    	else
+    	{
+	        MakerField field = tree.operand.resolveMakerField(this);
+	        if (field.getClassType() == null)
+	            return maker.PostDec(field.getName());
+	        else if (field.isStatic())
+	            return maker.PostDec(field.getClassType().getName(), field.getName());
+	        else
+	            return maker.PostDec(field.getClassType(), field.getName());
+    	}
     }
     
     public Type resolveType(AndThenOperator tree)
@@ -358,6 +416,12 @@ public class AstExpressionVisitor
         }
     }
     
+//    public MakerField resolveMakerField(ArrayIndex tree)
+//    {
+//    	// FIXME
+//    	return null;
+//    }
+//    
     // resolvePath(...)
     public String resolvePath(TerminalName term)
     {
@@ -370,8 +434,25 @@ public class AstExpressionVisitor
     	String right = term.rightOperand.resolvePath(this);
         return left + "." + right;
     }
+    
+    public Type resolveDeclaredType(TerminalName term)
+    {
+        return maker.FindDeclared(term.getName()).getType();
+    }
+    
+    public Type resolveDeclaredType(DotOperator term)
+    {
+    	String path = resolvePath(term);
+        return maker.FindDeclared(path).getType();
+    }
 
-    // resolveCallStack(...)
+	public Type resolveDeclaredType(ArrayOf arrayOf) 
+	{
+		Type type = arrayOf.getType().resolveDeclaredType(this);
+		return maker.ArrayOf(type);
+	}
+
+	// resolveCallStack(...)
     public CallStack resolveCallStack(MethodCall call)
     {
         String methodName = call.getMethodName().resolvePath(this);

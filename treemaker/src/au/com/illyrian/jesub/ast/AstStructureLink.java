@@ -36,8 +36,8 @@ public class AstStructureLink extends AstStructureBase
 	
     public AstStructureLink(AstStructure left, AstStructure right)
     {
-    	if (left == null && right == null)
-    		throw new IllegalStateException("Left and right structures are both null");
+    	if (left == null || right == null)
+    		throw new IllegalStateException("Left and right structures must not be null");
 
     	this.left = left;
     	this.right = right;

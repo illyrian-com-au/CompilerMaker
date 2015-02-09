@@ -126,6 +126,37 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
         }
     }
 
+    public void testIntSetAt() throws Exception
+    {
+        maker.Implements(Runnable.class);
+        maker.Declare("values", maker.ArrayOf(ClassMaker.INT_TYPE), ACC_PUBLIC);
+
+        maker.Method("run", void.class, ACC_PUBLIC);
+        maker.Begin();
+        {
+            maker.Declare("x", ClassMaker.INT_TYPE, 0);
+            // int x = this.values[0];
+            maker.Set("x", maker.GetAt(maker.Get(maker.This(), "values"), maker.Literal(0)));
+            // this.values[0] = ++x;
+            maker.SetAt(maker.Get(maker.This(), "values"), maker.Literal(0), maker.Inc("x"));
+
+            maker.Return();
+        }
+        maker.End();
+
+
+        Class myClass = maker.defineClass();
+        Runnable exec = (Runnable)myClass.newInstance();
+
+        assertNull("Wrong value", getField(exec.getClass(), exec, "values"));
+        int [] arr = {1, 2};
+        setField(exec.getClass(), exec, "values", arr);
+        assertEquals("Wrong value", arr, getField(exec.getClass(), exec, "values"));
+        assertEquals("Wrong value for exec.values[0]", 1, arr[0]);
+        exec.run();
+        assertEquals("Wrong value for exec.values[0]", 2, arr[0]);
+    }
+
     public void testLongSetAt() throws Exception
     {
         maker.Implements(Runnable.class);

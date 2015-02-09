@@ -28,6 +28,8 @@
 package au.com.illyrian.jesub.ast;
 
 import au.com.illyrian.classmaker.ast.AstExpressionBase;
+import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
+import au.com.illyrian.classmaker.types.Type;
 
 public class AstStructureBase extends AstExpressionBase implements AstStructure
 {
@@ -60,8 +62,8 @@ public class AstStructureBase extends AstExpressionBase implements AstStructure
     {
         throw new IllegalStateException("Cannot resolve Implements: " + getClass().getSimpleName());
     }
-    
-    public int size()
+
+	public int size()
     {
     	return 1;
     }

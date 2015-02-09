@@ -65,7 +65,10 @@ public abstract class AstCompoundBase extends AstStructureBase
 
 	public AstCompoundBase add(AstStructure stmt)
     {
-    	code = new AstStructureLink(code, stmt);
+		if (code == null)
+			code = stmt;
+		else
+			code = new AstStructureLink(code, stmt);
     	return this;
     }
 }

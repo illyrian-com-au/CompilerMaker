@@ -52,4 +52,6 @@ public interface AstExpression extends ResolvePath
     public void resolveImport(AstStructureVisitor visitor);
 
     public void resolveImplements(AstStructureVisitor visitor);
+
+	public Type resolveDeclaredType(AstExpressionVisitor visitor);
 }
