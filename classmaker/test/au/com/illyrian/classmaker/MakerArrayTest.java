@@ -30,7 +30,6 @@ package au.com.illyrian.classmaker;
 import java.lang.reflect.Field;
 
 import org.mozilla.classfile.ByteCode;
-import org.mozilla.classfile.ClassFilePrinter;
 
 import au.com.illyrian.classmaker.types.Type;
 
