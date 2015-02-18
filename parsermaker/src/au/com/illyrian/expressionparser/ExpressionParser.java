@@ -41,8 +41,7 @@ public class ExpressionParser extends PrecidenceParser
     private ClassMaker maker = null;
 
     /** The actions to be applied to the recognised input tokens. */
-    private ExpressionAction    expressionAction;
-//    private PrecidenceAction    expressionAction;
+    private ExpressionActionFactory    expressionAction;
     
     /**
      * Public constructor for the search query parser. When no actions are provided the parser only performs validation.
@@ -118,20 +117,20 @@ public class ExpressionParser extends PrecidenceParser
      * @param actions -
      *            the actions to be applied to the recognised input tokens.
      */
-    public void setExpressionAction(ExpressionAction actions)
+    public void setExpressionAction(ExpressionActionFactory actions)
     {
         this.expressionAction = actions;
         setPrecidenceActions(actions);
     }
     
-    public ExpressionAction getExpressionAction()
+    public ExpressionActionFactory getExpressionAction()
     {
         if (expressionAction == null)
             setExpressionAction(defaultExpressionAction());
         return expressionAction;
     }
 
-    public ExpressionAction defaultExpressionAction()
+    public ExpressionActionFactory defaultExpressionAction()
     {
     	ExpressionActionFactory action = new ExpressionActionFactory();
     	action.setClassMaker(getClassMaker());

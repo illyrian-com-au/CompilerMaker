@@ -37,7 +37,7 @@ import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.Operator;
 import au.com.illyrian.parser.impl.PrecidenceAction;
 
-public class PrecidenceActionFactory implements PrecidenceAction
+public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>
 {
     AstExpressionFactory build = new AstExpressionFactory();
     
@@ -56,19 +56,19 @@ public class PrecidenceActionFactory implements PrecidenceAction
         return build.Name(name);
     }
 
-    public Object callAction(Object name, Object callStack) throws ParserException
+    public AstExpression callAction(AstExpression name, AstExpression callStack) throws ParserException
     {
     	TerminalName name1 = (TerminalName)name;
     	ActualParameter params = (ActualParameter)callStack;
         return build.Call(name1, params);
     }
 
-    public Object beginParameters(Object name) throws ParserException
+    public AstExpression beginParameters(AstExpression name) throws ParserException
     {
         return null;
     }
 
-    public Object addParameter(Object callStack, Object param) throws ParserException
+    public AstExpression addParameter(AstExpression callStack, AstExpression param) throws ParserException
     {
     	ActualParameter left = (ActualParameter)callStack;
     	AstExpression right = (AstExpression)param;
@@ -98,12 +98,12 @@ public class PrecidenceActionFactory implements PrecidenceAction
         return result;
     }
 
-    public Object parenthesesAction(Object expr) throws ParserException
+    public AstExpression parenthesesAction(AstExpression expr) throws ParserException
     {
         return expr;
     }
 
-    public AstExpression infixAction(Operator operator, Object leftOperand, Object rightOperand)
+    public AstExpression infixAction(Operator operator, AstExpression leftOperand, AstExpression rightOperand)
             throws ParserException
     {
     	AstExpression result = null;
@@ -181,7 +181,7 @@ public class PrecidenceActionFactory implements PrecidenceAction
         return result;
     }
 
-    public AstExpression prefixAction(Operator operator, Object operand) throws ParserException
+    public AstExpression prefixAction(Operator operator, AstExpression operand) throws ParserException
     {
     	AstExpression result = null;
     	AstExpression expr = (AstExpression)operand;
@@ -208,7 +208,7 @@ public class PrecidenceActionFactory implements PrecidenceAction
         return result;
     }
 
-    public AstExpression postfixAction(Operator operator, Object operand) throws ParserException
+    public AstExpression postfixAction(Operator operator, AstExpression operand) throws ParserException
     {
     	AstExpression result = null;
     	AstExpression expr = (AstExpression)operand;
@@ -226,14 +226,14 @@ public class PrecidenceActionFactory implements PrecidenceAction
         return result;
     }
 
-    public AstExpression bracketAction(Operator operator, Object leftOperand, Object rightOperand) throws ParserException
+    public AstExpression bracketAction(Operator operator, AstExpression leftOperand, AstExpression rightOperand) throws ParserException
     {
     	AstExpression leftExpr = (AstExpression)leftOperand;
     	AstExpression rightExpr = (AstExpression)rightOperand;
         return build.ArrayIndex(leftExpr, rightExpr);
     }
 
-    public AstExpression castAction(Object type, Object value) throws ParserException
+    public AstExpression castAction(AstExpression type, AstExpression value) throws ParserException
     {
     	AstExpression typeExpr = (AstExpression)type;
     	AstExpression valueExpr = (AstExpression)value;

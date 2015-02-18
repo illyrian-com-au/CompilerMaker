@@ -116,7 +116,7 @@ public class DslParseAstVisitorTest extends TestCase
 //        assertEquals("", output);
     }
 
-/*
+
     public void testDSLSeqAlt() throws Exception
     {
         out.println("{");
@@ -155,6 +155,7 @@ public class DslParseAstVisitorTest extends TestCase
         assertEquals("test ::= the, \"quick\", \'brown\', fox\n", output);
     }
 
+    /*
     public void testDomainParserPackage() throws Exception
     {
         out.println("import au.com.illyrian.dsl.DSL;");

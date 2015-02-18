@@ -3,6 +3,7 @@ package au.com.illyrian.parser.impl;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
 
+// FIXME public class JavaOperatorPrecedenceParser<T> extends PrecidenceParser<T>
 public class JavaOperatorPrecedenceParser extends PrecidenceParser
 {
     public JavaOperatorPrecedenceParser()

@@ -19,7 +19,7 @@ public class ExpressionParserTest extends TestCase
 
     PrecidenceAction action = new PrecidenceActionFactory() {
     	
-        public AstExpression infixAction(Operator operator, Object leftOperand, Object rightOperand)
+        public AstExpression infixAction(Operator operator, AstExpression leftOperand, AstExpression rightOperand)
                 throws ParserException
         {
         	if (operator.getIndex() == ExpressionAction.POW)
@@ -38,7 +38,7 @@ public class ExpressionParserTest extends TestCase
         	return super.infixAction(operator, leftOperand, rightOperand);
         }
 
-        public AstExpression prefixAction(Operator operator, Object operand) throws ParserException
+        public AstExpression prefixAction(Operator operator, AstExpression operand) throws ParserException
         {
         	if (operator.getIndex() == ExpressionAction.NEW)
         	{

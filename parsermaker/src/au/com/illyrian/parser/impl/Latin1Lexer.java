@@ -257,7 +257,7 @@ public class Latin1Lexer implements Lexer
     }
 
     /**
-     * Step over the current character.
+     * Step over the current string.
      */
     int spanCharLiteral()
     {

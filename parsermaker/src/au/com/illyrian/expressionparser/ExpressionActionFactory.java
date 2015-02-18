@@ -35,7 +35,7 @@ import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class ExpressionActionFactory extends PrecidenceActionFactory 
-    implements ExpressionAction, ClassMakerLocation
+    implements ClassMakerLocation
 {
     private ClassMaker  maker = null;
 

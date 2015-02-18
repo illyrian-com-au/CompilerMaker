@@ -5,6 +5,7 @@ import java.util.Properties;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
 
+// FIXME public class PrecidenceParser<T> extends ParserBase
 public class PrecidenceParser extends ParserBase
 {
     /**
