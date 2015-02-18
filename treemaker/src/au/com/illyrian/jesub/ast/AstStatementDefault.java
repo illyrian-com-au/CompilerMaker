@@ -27,9 +27,6 @@
 
 package au.com.illyrian.jesub.ast;
 
-import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.classmaker.ast.TerminalName;
-
 public class AstStatementDefault extends AstStructureBase
 {
     public AstStatementDefault()
