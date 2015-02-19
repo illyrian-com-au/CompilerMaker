@@ -3,47 +3,47 @@ package au.com.illyrian.parser.impl;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
 
-// FIXME public class JavaOperatorPrecedenceParser<T> extends PrecidenceParser<T>
-public class JavaOperatorPrecedenceParser extends PrecidenceParser
+public class JavaOperatorPrecedenceParser<Expr> extends PrecidenceParser<Expr>
 {
     public JavaOperatorPrecedenceParser()
     {
         super();
     }
     
-    protected Object ledExpression(Object leftOperand, Operator operator, int minPrecedence) throws ParserException
+    protected Expr ledExpression(Expr leftOperand, Operator operator, int minPrecedence) throws ParserException
     {
+    	Expr result = null;
         if (operator.mode == Operator.BINARY)
         {
           int nextPrecidence = operator.leftAssociative ? 
                  operator.precedence + 1 : operator.precedence;
-          Object rightOperand = expression(nextPrecidence);
-          leftOperand = getPrecidenceActions().infixAction(operator, leftOperand, rightOperand);
+          Expr rightOperand = expression(nextPrecidence);
+          result = getPrecidenceActions().infixAction(operator, leftOperand, rightOperand);
         }
         else if (operator.mode == Operator.POSTFIX)
         {
-            leftOperand = getPrecidenceActions().postfixAction(operator, leftOperand);
+        	result = getPrecidenceActions().postfixAction(operator, leftOperand);
         }
         else if (operator.mode == Operator.BRACKET)
         {
-            Object rightOperand = expression(0);
+            Expr rightOperand = expression(0);
             expect(Lexer.CLOSE_P, operator.endName, null);
-            leftOperand = getPrecidenceActions().bracketAction(operator, leftOperand, rightOperand);
+            result = getPrecidenceActions().bracketAction(operator, leftOperand, rightOperand);
         }
         else if (operator.mode == Operator.PARAMS)
         {
-            Object params = actualParameters(leftOperand);
+        	Expr params = actualParameters(leftOperand);
             expect(Lexer.CLOSE_P, operator.endName, null);
-            leftOperand = getPrecidenceActions().callAction(leftOperand, params);
+            result = getPrecidenceActions().callAction(leftOperand, params);
         }
         else
           throw new IllegalStateException("Unknown operator arity: " + operator.mode);
-        return leftOperand;
+        return result;
     }
 
-    protected Object unaryExpression(int minPrecidence) throws ParserException
+    protected Expr unaryExpression(int minPrecidence) throws ParserException
     {
-        Object result = null;
+    	Expr result = null;
         Operator nudOperator = null; 
         if ((nudOperator = getNudOperator()) != null)
         {
@@ -57,14 +57,6 @@ public class JavaOperatorPrecedenceParser extends PrecidenceParser
             // Apply an action to the identifier
             result = getPrecidenceActions().identifierAction(identifier);
             nextToken();
-            // FIXME - check for actual parameters.
-//            if (accept(Lexer.OPEN_P, "("))
-//            {
-////                Object value = expression();
-//                Object value = null;
-//                expect(Lexer.CLOSE_P, ")", "\')\' expected.");
-//                result = getPrecidenceActions().callAction(identifier, value);
-//            }
         }
         else if (getToken() == Lexer.INTEGER)
         {
@@ -74,9 +66,9 @@ public class JavaOperatorPrecedenceParser extends PrecidenceParser
         }
         else if (accept(Lexer.OPEN_P, "("))
         {
-            Object value = expression(0);
+        	Expr subordinate = expression(0);
             expect(Lexer.CLOSE_P, ")", "\')\' expected.");
-            result = getPrecidenceActions().parenthesesAction(value);
+            result = getPrecidenceActions().parenthesesAction(subordinate);
         }
         else
         {
@@ -86,9 +78,9 @@ public class JavaOperatorPrecedenceParser extends PrecidenceParser
         return result;
     }
 
-    protected Object nudExpression(Operator nudOperator, int minPrecedence) throws ParserException
+    protected Expr nudExpression(Operator nudOperator, int minPrecedence) throws ParserException
     {
-        Object result = null;
+    	Expr result = null;
         if (nudOperator.mode == Operator.PREFIX )
         {
             result = expression(nudOperator.precedence);
@@ -96,12 +88,14 @@ public class JavaOperatorPrecedenceParser extends PrecidenceParser
         }
         else if (nudOperator.mode == Operator.BRACKET)
         {
-            Object firstOperand = expression(0);
+        	Expr firstOperand = expression(0);
             expect(Lexer.CLOSE_P, nudOperator.endName, null);
-//            if ("(".equals(nudOperator.name) && isNudExpression())
+            // If an expression immediately follows a parenthesized expression then 
+            // the previous expression must have been a cast. 
+            // Eg. (java.lang.Serializable)b   (long)(int)(short)d
             if (isNudExpression())
             {
-                Object secondOperand = expression(nudOperator.precedence);
+            	Expr secondOperand = expression(nudOperator.precedence);
                 result = getPrecidenceActions().castAction(firstOperand, secondOperand);
             }
             else
@@ -125,13 +119,13 @@ public class JavaOperatorPrecedenceParser extends PrecidenceParser
         }
     }
 
-    public Object actualParameters(Object leftOperand) throws ParserException
+    public Expr actualParameters(Expr leftOperand) throws ParserException
     {
     	//return expression(-1);
-        Object callStack = getPrecidenceActions().beginParameters(leftOperand);
+    	Expr callStack = getPrecidenceActions().beginParameters(leftOperand);
         while (!match(Lexer.CLOSE_P, ")"))
         {
-            Object param = expression(0);
+        	Expr param = expression(0);
             callStack = getPrecidenceActions().addParameter(callStack, param);
             if (!accept(Lexer.DELIMITER, ",") && !match(Lexer.CLOSE_P, ")"))
                 throw new ParserException("Actual parameter list expected: " + toString());

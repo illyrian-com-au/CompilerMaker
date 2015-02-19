@@ -1,35 +1,35 @@
 package au.com.illyrian.parser.impl;
 
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
 
-// FIXME public class PrecidenceParser<T> extends ParserBase
-public class PrecidenceParser extends ParserBase
+public class PrecidenceParser<Expr> extends ParserBase
 {
     /**
      * A map from operator to an object.
      */
-    protected final Properties nudOperators;
-    protected final Properties ledOperators;
-    protected PrecidenceAction precidenceActions = null;
+    protected final Map<String, Operator> nudOperators;
+    protected final Map<String, Operator> ledOperators;
+    protected PrecidenceAction<Expr> precidenceActions = null;
 
     public PrecidenceParser()
     {
         super();
-        nudOperators = new Properties();
-        ledOperators = new Properties();
+        nudOperators = new HashMap<String, Operator>();
+        ledOperators = new HashMap<String, Operator>();
     }
 
-    public PrecidenceAction getPrecidenceActions()
+    public PrecidenceAction<Expr> getPrecidenceActions()
     {
         if (precidenceActions == null)
         	throw new IllegalStateException("PrecidenceAction not provided.");
         return precidenceActions;
     }
 
-    public void setPrecidenceActions(PrecidenceAction actions)
+    public void setPrecidenceActions(PrecidenceAction<Expr> actions)
     {
         precidenceActions = actions;
     }
@@ -75,45 +75,45 @@ public class PrecidenceParser extends ParserBase
     
     protected Operator getNudOperator() throws ParserException
     {
-        Object operator = null;
+    	Operator operator = null;
         int token = getToken();
         // Operators may include reserved words and brackets.
         if (token == Lexer.OPERATOR || token == Lexer.RESERVED || token == Lexer.OPEN_P)
         {
-            Object lookup = getLexer().getTokenValue();
-            operator =  nudOperators.get(lookup);
+            String lookup = getLexer().getTokenValue();
+            operator = nudOperators.get(lookup);
             // Throw an exception if this is a pure operator that we know nothing about.
             if (operator == null && token == Lexer.OPERATOR && ledOperators.get(lookup) == null)
                 throw new ParserException("Operator not implemented: " + getLexer().getTokenValue());
         }
-        return (Operator)operator;
+        return operator;
     }
 
     protected Operator getLedOperator() throws ParserException
     {
-        Object operator = null;
+        Operator operator = null;
         int token = getToken();
         // Operators may include reserved words and brackets.
         if (token == Lexer.OPERATOR || token == Lexer.RESERVED || token == Lexer.OPEN_P)
         {
-            Object lookup = getLexer().getTokenValue();
+            String lookup = getLexer().getTokenValue();
             operator =  ledOperators.get(lookup);
             // Throw an exception if this is a pure operator that we know nothing about.
             if (operator == null && token == Lexer.OPERATOR && nudOperators.get(lookup) == null)
                 throw new ParserException("Operator not implemented: " + getLexer().getTokenValue());
         }
-        return (Operator)operator;
+        return operator;
     }
 
-    public Object expression() throws ParserException
+    public Expr expression() throws ParserException
     {
-        Object result = expression(0);
+        Expr result = expression(0);
         return result;
     }
 
-    protected Object expression(int minPrecedence) throws ParserException
+    protected Expr expression(int minPrecedence) throws ParserException
     {
-        Object leftOperand = unaryExpression(minPrecedence);
+        Expr leftOperand = unaryExpression(minPrecedence);
         Operator operator = null;
         while ((operator = getLedOperator()) != null && operator.precedence >= minPrecedence)
         {
@@ -123,13 +123,13 @@ public class PrecidenceParser extends ParserBase
         return leftOperand;
     }
     
-    protected Object ledExpression(Object leftOperand, Operator operator, int minPrecedence) throws ParserException
+    protected Expr ledExpression(Expr leftOperand, Operator operator, int minPrecedence) throws ParserException
     {
         if (operator.mode == Operator.BINARY)
         {
             int nextPrecedence = operator.leftAssociative ? 
                    operator.precedence + 1 : operator.precedence;
-            Object rightOperand = expression(nextPrecedence);
+            Expr rightOperand = expression(nextPrecedence);
             leftOperand = getPrecidenceActions().infixAction(operator, leftOperand, rightOperand);
         }
         else if (operator.mode == Operator.POSTFIX)
@@ -142,9 +142,9 @@ public class PrecidenceParser extends ParserBase
                 leftOperand = getPrecidenceActions().bracketAction(operator, leftOperand, null);
             else
             {
-                Object value = expression(0);
+                Expr subExpression = expression(0);
                 expect(Lexer.CLOSE_P, operator.endName, null);
-                leftOperand = getPrecidenceActions().bracketAction(operator, leftOperand, value);
+                leftOperand = getPrecidenceActions().bracketAction(operator, leftOperand, subExpression);
             }
         }
         else
@@ -153,9 +153,9 @@ public class PrecidenceParser extends ParserBase
     }
 
     
-    protected Object unaryExpression(int minPrecidence) throws ParserException
+    protected Expr unaryExpression(int minPrecidence) throws ParserException
     {
-        Object result = null;
+        Expr result = null;
         Operator nudOperator = null; 
         if ((nudOperator = getNudOperator()) != null)
         {
@@ -164,23 +164,20 @@ public class PrecidenceParser extends ParserBase
         }
         else if (getToken() == Lexer.IDENTIFIER)
         {
-            // Get the identifier value.
             String identifier = getLexer().getTokenValue();
-            // Apply an action to the identifier
             result = getPrecidenceActions().identifierAction(identifier);
             nextToken();
         }
         else if (getToken() == Lexer.INTEGER)
         {
-            // Apply an action to the literal
             result = getPrecidenceActions().literalAction(getLexer());
             nextToken();
         }
         else if (accept(Lexer.OPEN_P, "("))
         {
-            Object value = expression(0);
+            Expr subExpression = expression(0);
             expect(Lexer.CLOSE_P, ")", "\')\' expected.");
-            result = getPrecidenceActions().parenthesesAction(value);
+            result = getPrecidenceActions().parenthesesAction(subExpression);
         }
         else
         {
@@ -190,19 +187,19 @@ public class PrecidenceParser extends ParserBase
         return result;
     }
     
-    protected Object nudExpression(Operator nudOperator, int minPrecedence) throws ParserException
+    protected Expr nudExpression(Operator nudOperator, int minPrecedence) throws ParserException
     {
-        Object result = null;
+        Expr result = null;
         if (nudOperator.mode == Operator.PREFIX )
         {
-            result = expression(nudOperator.getPrecedence());
-            result = getPrecidenceActions().prefixAction(nudOperator, result);
+            Expr subExpression = expression(nudOperator.getPrecedence());
+            result = getPrecidenceActions().prefixAction(nudOperator, subExpression);
         }
         else if (nudOperator.mode == Operator.BRACKET)
         {
-            Object firstOperand = expression(0);
+            Expr subExpression = expression(0);
             expect(Lexer.CLOSE_P, nudOperator.endName, null);
-            result = getPrecidenceActions().parenthesesAction(firstOperand);
+            result = getPrecidenceActions().parenthesesAction(subExpression);
         }
         else
             throw new IllegalStateException("Unknown operator arity: " + nudOperator.mode);

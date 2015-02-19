@@ -19,7 +19,7 @@ import au.com.illyrian.parser.ParserException;
  *
  * @author strongd
  */
-public interface PrecidenceAction<T>
+public interface PrecidenceAction<Expr>
 {
     /* Unary operators */
     public static final int DOT = 9;
@@ -71,7 +71,7 @@ public interface PrecidenceAction<T>
      * @throws ParserException -
      *             if an error occurs.
      */
-    public T identifierAction(String name) throws ParserException;
+    public Expr identifierAction(String name) throws ParserException;
 
     /**
      * Perform an action to process an Integer.
@@ -80,7 +80,7 @@ public interface PrecidenceAction<T>
      * @return an object representing the literal.
      * @throws ParserException - if an error occurs.
      */
-    public T literalAction(Lexer lexer) throws ParserException;
+    public Expr literalAction(Lexer lexer) throws ParserException;
 
     /**
      * Perform an action to process parentheses.
@@ -91,7 +91,7 @@ public interface PrecidenceAction<T>
      * @throws ParserException -
      *             if an error occurs.
      */
-    public T parenthesesAction(T expr) throws ParserException;
+    public Expr parenthesesAction(Expr expr) throws ParserException;
 
     /**
      * Perform an action to process an infix operator.
@@ -102,7 +102,7 @@ public interface PrecidenceAction<T>
      * @return an object representing the operation
      * @throws ParserException - if an error occurs
      */
-    public T infixAction(Operator operator, T leftOperand, T rightOperand) throws ParserException;
+    public Expr infixAction(Operator operator, Expr leftOperand, Expr rightOperand) throws ParserException;
 
     /**
      * Perform an action to process an infix operator.
@@ -112,7 +112,7 @@ public interface PrecidenceAction<T>
      * @return an object representing the operation
      * @throws ParserException - if an error occurs
      */
-    public T prefixAction(Operator operator, T operand) throws ParserException;
+    public Expr prefixAction(Operator operator, Expr operand) throws ParserException;
 
     /**
      * Perform an action to process an infix operator.
@@ -122,15 +122,15 @@ public interface PrecidenceAction<T>
      * @return an object representing the operation
      * @throws ParserException - if an error occurs
      */
-    public T postfixAction(Operator operator, T operand) throws ParserException;
+    public Expr postfixAction(Operator operator, Expr operand) throws ParserException;
 
-    public T bracketAction(Operator operator, T leftOperand, T rightOperand) throws ParserException;
+    public Expr bracketAction(Operator operator, Expr leftOperand, Expr rightOperand) throws ParserException;
 
-    public T castAction(T type, T value) throws ParserException;
+    public Expr castAction(Expr type, Expr value) throws ParserException;
 
-    public T callAction(T name, T callStack) throws ParserException;
+    public Expr callAction(Expr name, Expr callStack) throws ParserException;
 
-    public T beginParameters(T name) throws ParserException;
+    public Expr beginParameters(Expr name) throws ParserException;
 
-    public T addParameter(T callStack, T param) throws ParserException;
+    public Expr addParameter(Expr callStack, Expr param) throws ParserException;
 }
