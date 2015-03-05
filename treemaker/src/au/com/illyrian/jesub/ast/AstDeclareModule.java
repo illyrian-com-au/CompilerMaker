@@ -35,14 +35,14 @@ import au.com.illyrian.classmaker.ast.ResolvePath;
 public class AstDeclareModule extends AstStructureBase
 {
     private AstExpression packageName;
-    private AstExpressionLink importsList = null;
+    private AstExpression importsList = null;
     private AstDeclareClass declaredClass;
     
     public AstDeclareModule()
     {
     }
     
-    public AstDeclareModule(AstExpression packageName, AstExpressionLink importsList, AstDeclareClass declaredClass)
+    public AstDeclareModule(AstExpression packageName, AstExpression importsList, AstDeclareClass declaredClass)
     {
     	this.packageName = packageName;
     	this.importsList = importsList;
@@ -59,7 +59,7 @@ public class AstDeclareModule extends AstStructureBase
         this.packageName = packageName;
     }
 
-    public AstExpressionLink getImportsList()
+    public AstExpression getImportsList()
     {
         return importsList;
     }

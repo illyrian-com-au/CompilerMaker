@@ -1,6 +1,13 @@
 package au.com.illyrian.domainparser;
 
 
+import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.ast.AstExpressionLink;
+import au.com.illyrian.classmaker.ast.DotOperator;
+import au.com.illyrian.classmaker.ast.TerminalName;
+import au.com.illyrian.jesub.ast.AstDeclareClass;
+import au.com.illyrian.jesub.ast.AstDeclareModule;
+import au.com.illyrian.jesub.ast.AstStructure;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseModule;
@@ -38,7 +45,7 @@ import au.com.illyrian.parser.maker.ModuleActionMaker;
 * 
 * @author Donald Strong
 */
-public class ModuleParser extends ParserBase implements ParseModule
+public class AstModuleParser extends ParserBase implements ParseModule<AstStructure>
 {
    /** The actions to be applied to the recognised input tokens. */
    private ModuleAction                 moduleAction = null;
@@ -46,7 +53,7 @@ public class ModuleParser extends ParserBase implements ParseModule
    /**
     * Public constructor for the search query parser. When no actions are provided the parser only performs validation.
     */
-   public ModuleParser()
+   public AstModuleParser()
    {
        setLexer(createLexer());
        getLexer().getReservedWords().setProperty("package", "package");
@@ -109,13 +116,13 @@ public class ModuleParser extends ParserBase implements ParseModule
     * @return the result of parsing the input and applying actions from ExpressionAction.
     * @throws ParserException - if an error occurs.
     */
-   public Object parseModule() throws ParserException
+   public AstStructure parseModule() throws ParserException
    {
        // Read the first token from input.
        nextToken();
 
        // Parse top level expression.
-       Object module = dec_module(); 
+       AstStructure module = dec_module(); 
        // Ensure all tokens have been processed.
        endModule();
 
@@ -141,117 +148,94 @@ public class ModuleParser extends ParserBase implements ParseModule
    }
    
    /** dec_module ::= dec_package more_imports dec_class */
-   public Object dec_module() throws ParserException
+   public AstStructure dec_module() throws ParserException
    {
-       Object decModule = packageStatement();
-       decModule = more_imports();
-       decModule = dec_class();
-       return getModuleAction().getModule();
+       AstExpression packageExpr = dec_package();
+       AstExpression importsExpr = more_imports();
+       AstDeclareClass classExpr = dec_class();
+       return new AstDeclareModule(packageExpr, importsExpr, classExpr);
    }
    
-   /** packageStatement   ::= [ 'package' classname ';' ] */
-   public Object packageStatement() throws ParserException
+   /** packageStatement   ::= 'package' class_name ';'
+    *                     |   EMPTY 
+    */
+   public AstExpression dec_package() throws ParserException
    {
        if (accept(Lexer.RESERVED, "package"))
        {
-           String packageName = classname();
+           AstExpression packageName = class_name();
            expect(Lexer.DELIMITER, ";", "';' expected at the end of the package name");
            
-           return getModuleAction().Package(packageName);
+           return packageName;
        }
        return null;
    }
 
    /** more_imports ::= { 'import' classname ';' } */
-   public Object more_imports() throws ParserException
+   public AstExpression more_imports() throws ParserException
    {
-	   Object result = null;
+	   AstExpression result = null;
        if (accept(Lexer.RESERVED, "import"))
        {
-           String className = classname();
+           AstExpression className = class_name();
            expect(Lexer.DELIMITER, ";", "';' expected at end of fully qualified class name");
-           more_imports();
-
-           result = getModuleAction().Import(className);
+           AstExpression more = more_imports();
+           
+           result = (more == null) ? className : new AstExpressionLink(className, more);
        }
        return result;
    }
 
-   /** classname ::= IDENTIFIER { '.' IDENTIFIER } */
-   public String classname() throws ParserException
+   /** simple_name ::= IDENTIFIER 
+    *              | error("Class name expected")
+    */
+   public AstExpression simple_name() throws ParserException
    {
-       String qualifiedClassName = null;
+	   AstExpression result = null;
        if (getToken() == Lexer.IDENTIFIER)
        {
            String simpleName = getLexer().getTokenValue();
            nextToken();
-           qualifiedClassName = getModuleAction().Dot(qualifiedClassName, simpleName);
-
-           while (accept(Lexer.OPERATOR, "."))
-           {
-               if (getToken() == Lexer.IDENTIFIER)
-               {
-                   simpleName = getLexer().getTokenValue();
-                   nextToken();
-                   qualifiedClassName = getModuleAction().Dot(qualifiedClassName, simpleName);
-               }
-               else
-                   throw error(getInput(), "More package name expected.");
-           }
+           result = new TerminalName(simpleName);
        }
        else
            throw error(getInput(), "Class name expected.");
-       return qualifiedClassName;
+       return result;
    }
 
-   /** more_classname :== { '.' IDENTIFIER } */
-//   public String more_classname() throws ParserException
-//   {
-//       String qualifiedClassName = null;
-//       if (accept(Lexer.OPERATOR, "."))
-//       {
-//           if (getToken() == Lexer.IDENTIFIER)
-//           {
-//               String simpleName = getLexer().getTokenValue();
-//               lastIdentifier = simpleName;
-//               nextToken();
-//               qualifiedClassName = more_classname();
-//
-//               qualifiedClassName = getModuleAction().addClassName(simpleName, qualifiedClassName);
-//           }
-//           else
-//               throw error(getInput(), "More package name expected.");
-//       }
-//       return qualifiedClassName;
-//   }
+   /** class_name :== simple_name '.' class_name
+    *             |   simple_name
+    */
+   public AstExpression class_name() throws ParserException
+   {
+	   AstExpression result = simple_name();
+       if (accept(Lexer.OPERATOR, "."))
+       {
+           AstExpression moreClassName = class_name();
+           
+           result = new DotOperator(result, moreClassName);
+       }
+       return result;
+   }
 
    /**
-    *     classname ::= IDENTIFIER { '.' IDENTIFIER } ';'
-    *     parser    ::= IDENTIFIER '::' code '::' IDENTIFIER ';'
-    *
-    * @return the result of ExpressionAction.actionIdentifier(IDENTIFIER) or
-    *         ExpressionAction.actionPerentheses(and_expr).
-    * @throws Exception -
-    *             if an error occurs.
+    *     parser    ::= class_name '::' code($1) '::' class_name ';'
+    *                   verifyParserName($1, $5)
     */
-   public Object dec_class() throws ParserException
+   public AstDeclareClass dec_class() throws ParserException
    {
-	   Object result = null;
+	   AstDeclareClass decClass = null;
        if (getToken() == Lexer.IDENTIFIER)
        {
-           Object parseName = classname();
+    	   AstExpression parseName = class_name();
            if (match(Lexer.OPERATOR, "::"))
            {
-               String qualifiedName = getModuleAction().getParserName(parseName.toString());
-               InvokeParser parser = getCompileUnit().getInvokeParser();
-               Input input = getInput();
-               result = parser.invokeParseClass(qualifiedName, input);
-               getModuleAction().handleModule(result);
-
+        	   decClass = code(parseName.toString());
                nextToken();
                if (accept(Lexer.OPERATOR, "::")) 
                {
-                   Object className = classname();
+            	   AstExpression className = class_name();
+                   verifyParserName(parseName, className);
                    if (!className.equals(parseName))
                        throw error(getInput(), "'" + parseName + "' expected at end of parser space");
                }
@@ -263,6 +247,26 @@ public class ModuleParser extends ParserBase implements ParseModule
        }
        else
            throw error(getInput(), "Parser name expected");
-       return result;
+       return decClass;
+   }
+   
+   public AstDeclareClass code(String parseName) throws ParserException
+   {
+	   AstDeclareClass decClass = null;
+       String qualifiedName = getModuleAction().getParserName(parseName);
+       InvokeParser parser = getCompileUnit().getInvokeParser();
+       Input input = getInput();
+       Object result = (AstDeclareClass)parser.invokeParseClass(qualifiedName, input);
+       if (result instanceof AstDeclareClass)
+    	   decClass = (AstDeclareClass)result;
+       return decClass;
+   }
+   
+   public void verifyParserName(AstExpression name1, AstExpression name2) throws ParserException
+   {
+	   String firstName = name1.toString();
+	   String secondName = name2.toString();
+	   if (!firstName.equals(secondName))
+           throw error(getInput(), "'" + firstName + "' expected at end of parser space");
    }
 }

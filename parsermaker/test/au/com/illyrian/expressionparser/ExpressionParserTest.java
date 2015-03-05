@@ -8,6 +8,7 @@ import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.CompileModule;
 import au.com.illyrian.parser.impl.LexerInputString;
 import au.com.illyrian.parser.impl.Operator;
+import au.com.illyrian.parser.impl.ParserConstants;
 import au.com.illyrian.parser.impl.PrecidenceAction;
 import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
@@ -17,22 +18,22 @@ public class ExpressionParserTest extends TestCase
     LexerInputString input;
     Object output;
 
-    PrecidenceAction action = new PrecidenceActionFactory() {
+    PrecidenceAction<AstExpression> action = new PrecidenceActionFactory() {
     	
         public AstExpression infixAction(Operator operator, AstExpression leftOperand, AstExpression rightOperand)
                 throws ParserException
         {
-        	if (operator.getIndex() == ExpressionAction.POW)
+        	if (operator.getIndex() == ParserConstants.POW)
         	{
 	        	AstExpression left = (AstExpression)leftOperand;
 	        	AstExpression right = (AstExpression)rightOperand;
 	        	AstExpression result = new BinaryOperator(BinaryOperator.POW, left, right);
 	        	return result;
-	        } else if (operator.getIndex() == ExpressionAction.INSTANCEOF)
+	        } else if (operator.getIndex() == ParserConstants.INSTANCEOF)
         	{
 	        	AstExpression left = (AstExpression)leftOperand;
 	        	AstExpression right = (AstExpression)rightOperand;
-	        	AstExpression result = new BinaryOperator(ExpressionAction.INSTANCEOF, left, right);
+	        	AstExpression result = new BinaryOperator(ParserConstants.INSTANCEOF, left, right);
 	        	return result;
 	        }
         	return super.infixAction(operator, leftOperand, rightOperand);
@@ -40,7 +41,7 @@ public class ExpressionParserTest extends TestCase
 
         public AstExpression prefixAction(Operator operator, AstExpression operand) throws ParserException
         {
-        	if (operator.getIndex() == ExpressionAction.NEW)
+        	if (operator.getIndex() == ParserConstants.NEW)
         	{
 	        	AstExpression expr = (AstExpression)operand;
 	        	AstExpression result = new UnaryOperator(operator.getIndex(), expr);

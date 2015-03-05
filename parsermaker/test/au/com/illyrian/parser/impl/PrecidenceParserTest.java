@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.parser.impl.PrecidenceParser;
 import au.com.illyrian.parser.maker.PrecidenceActionFactory;
@@ -30,15 +31,15 @@ public class PrecidenceParserTest extends TestCase
     
     PrecidenceParser createSimpleParser()
     {
-        PrecidenceParser parser = new PrecidenceParser();
-        parser.addInfixOperator("^", ExpressionAction.XOR, 5, Operator.BINARY, false);
-        parser.addPrefixOperator("-", ExpressionAction.NEG, 4, Operator.PREFIX);
-        parser.addInfixOperator("*", ExpressionAction.MULT, 2, Operator.BINARY, true);
-        parser.addInfixOperator("/", ExpressionAction.DIV, 2, Operator.BINARY, true);
-        parser.addInfixOperator("%", ExpressionAction.REM, 2, Operator.BINARY, true);
-        parser.addInfixOperator("+", ExpressionAction.ADD, 1, Operator.BINARY, true);
-        parser.addInfixOperator("-", ExpressionAction.SUBT, 1, Operator.BINARY, true);
-        PrecidenceAction actions = new PrecidenceActionFactory();
+        PrecidenceParser<AstExpression> parser = new PrecidenceParser<AstExpression>();
+        parser.addInfixOperator("^", ParserConstants.XOR, 5, Operator.BINARY, false);
+        parser.addPrefixOperator("-", ParserConstants.NEG, 4, Operator.PREFIX);
+        parser.addInfixOperator("*", ParserConstants.MULT, 2, Operator.BINARY, true);
+        parser.addInfixOperator("/", ParserConstants.DIV, 2, Operator.BINARY, true);
+        parser.addInfixOperator("%", ParserConstants.REM, 2, Operator.BINARY, true);
+        parser.addInfixOperator("+", ParserConstants.ADD, 1, Operator.BINARY, true);
+        parser.addInfixOperator("-", ParserConstants.SUBT, 1, Operator.BINARY, true);
+        PrecidenceAction<AstExpression> actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
         return parser;
     }
@@ -90,20 +91,20 @@ public class PrecidenceParserTest extends TestCase
 
     PrecidenceParser createIncrementParser()
     {
-        PrecidenceParser parser = new PrecidenceParser();
-        parser.addInfixOperator(".", ExpressionAction.DOT, 16, Operator.BINARY, true);
-        parser.addPostfixOperator("--", ExpressionAction.POSTDEC, 15, Operator.POSTFIX);
-        parser.addPostfixOperator("++", ExpressionAction.POSTINC, 15, Operator.POSTFIX);
-        parser.addPrefixOperator("-", ExpressionAction.NEG, 14, Operator.PREFIX);
-        parser.addPrefixOperator("--", ExpressionAction.DEC, 14, Operator.PREFIX);
-        parser.addPrefixOperator("++", ExpressionAction.INC, 14, Operator.PREFIX);
-        parser.addInfixOperator("*", ExpressionAction.MULT, 12, Operator.BINARY, true);
-        parser.addInfixOperator("/", ExpressionAction.DIV, 12, Operator.BINARY, true);
-        parser.addInfixOperator("%", ExpressionAction.REM, 12, Operator.BINARY, true);
-        parser.addInfixOperator("+", ExpressionAction.ADD, 11, Operator.BINARY, true);
-        parser.addInfixOperator("-", ExpressionAction.SUBT, 11, Operator.BINARY, true);
-        parser.addInfixOperator("=", ExpressionAction.ASSIGN, 1, Operator.BINARY, false);
-        PrecidenceAction actions = new PrecidenceActionFactory();
+        PrecidenceParser<AstExpression> parser = new PrecidenceParser<AstExpression>();
+        parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY, true);
+        parser.addPostfixOperator("--", ParserConstants.POSTDEC, 15, Operator.POSTFIX);
+        parser.addPostfixOperator("++", ParserConstants.POSTINC, 15, Operator.POSTFIX);
+        parser.addPrefixOperator("-", ParserConstants.NEG, 14, Operator.PREFIX);
+        parser.addPrefixOperator("--", ParserConstants.DEC, 14, Operator.PREFIX);
+        parser.addPrefixOperator("++", ParserConstants.INC, 14, Operator.PREFIX);
+        parser.addInfixOperator("*", ParserConstants.MULT, 12, Operator.BINARY, true);
+        parser.addInfixOperator("/", ParserConstants.DIV, 12, Operator.BINARY, true);
+        parser.addInfixOperator("%", ParserConstants.REM, 12, Operator.BINARY, true);
+        parser.addInfixOperator("+", ParserConstants.ADD, 11, Operator.BINARY, true);
+        parser.addInfixOperator("-", ParserConstants.SUBT, 11, Operator.BINARY, true);
+        parser.addInfixOperator("=", ParserConstants.ASSIGN, 1, Operator.BINARY, false);
+        PrecidenceAction<AstExpression> actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
         return parser;
     }

@@ -19,17 +19,15 @@ package au.com.illyrian.domainparser;
  */
 public interface ModuleAction
 {
-    public void setAlias(String simpleName, String className);
+    public Object Package(String packageName);
     
-    public String getAlias(String simpleName);
+    public Object Import(String fullyQualifiedClassname);
 
-    public String addClassName(String className, String simpleName);
-    
-    public Object declareImport(String fullyQualifiedClassname, String simpleClassname);
+    public String getParserName(String simpleName);
 
-    public Object declarePackage(String packageName);
-    
-    public void handleModule(Object module);
+    public String Dot(String className, String simpleName);
     
     public Object getModule();
+
+	public Object handleModule(Object result);
 }

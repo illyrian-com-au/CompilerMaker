@@ -39,13 +39,11 @@ import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.classmaker.ast.TerminalNumber;
 import au.com.illyrian.classmaker.types.Type;
 
-public class AstStructureFactoryMaker extends AstExpressionFactory implements ClassMakerLocation
+public class AstStructureFactoryMaker extends AstExpressionFactory implements ClassMakerLocation, AstClassAction
 {
     protected ClassMaker  maker = null;
     protected AstExpressionVisitor visitor = null; 
 
-    int modifiers = 0;
-    
     public AstStructureFactoryMaker(ClassMaker maker)
     {
     	setClassMaker(maker);
@@ -76,21 +74,16 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
         maker.Import(path);
     }
     
-    public void Modifier(String modifierName)
+    public int Modifier(String modifierName)
+    {
+    	int modifiers = maker.addModifier(0, modifierName);
+    	return modifiers;
+    }
+    
+    public int Modifier(int modifiers, String modifierName)
     {
     	modifiers = maker.addModifier(modifiers, modifierName);
-    }
-    
-    public int popModifiers()
-    {
-        int temp = modifiers;
-        modifiers = 0;
-        return temp;
-    }
-    
-    public void ClassName(TerminalName className)
-    {
-    	ClassName(popModifiers(), className);
+    	return modifiers;
     }
     
     public void ClassName(int modifiers, TerminalName className)
@@ -113,7 +106,7 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
     
     public void Declare(AstExpression type, TerminalName name)
     {
-        Declare(popModifiers(), type, name);
+        Declare(0, type, name);
     }
     
     public void Declare(int modifiers, AstExpression type, TerminalName name)
@@ -123,10 +116,10 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
     	maker.Declare(varName, typeName, modifiers);
     }
     
-    public void Method(AstExpression type, TerminalName name)
-    {
-        Method(popModifiers(), type, name);
-    }
+//    public void Method(AstExpression type, TerminalName name)
+//    {
+//        Method(popModifiers(), type, name);
+//    }
     
     public void Method(int modifiers, AstExpression type, TerminalName name)
     {

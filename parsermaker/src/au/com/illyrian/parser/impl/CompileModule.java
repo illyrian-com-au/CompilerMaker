@@ -64,7 +64,7 @@ public class CompileModule implements CompileUnit
     public InvokeParser getInvokeParser()
     {
         if (invokerParser == null)
-            invokerParser = new ParserInvoker(this);
+            invokerParser = new InvokeParserImpl(this);
         return invokerParser;
     }
 

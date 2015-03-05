@@ -4,15 +4,15 @@ import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParserException;
 
 
-public interface InvokeParser
+public interface InvokeParser<T>
 {
-    public Object invokeParseModule(String parseName, Input input) throws ParserException;
+    public T invokeParseModule(String parseName, Input input) throws ParserException;
 
-    public Object invokeParseClass(String parseName, Input input) throws ParserException;
+    public T invokeParseClass(String parseName, Input input) throws ParserException;
 
-    public Object invokeParseMember(String parseName, Input input) throws ParserException;
+    public T invokeParseMember(String parseName, Input input) throws ParserException;
 
-    public Object invokeParseStatement(String parseName, Input input) throws ParserException;
+    public T invokeParseStatement(String parseName, Input input) throws ParserException;
 
-    public Object invokeParseExpression(String parseName, Input input) throws ParserException;
+    public T invokeParseExpression(String parseName, Input input) throws ParserException;
 }

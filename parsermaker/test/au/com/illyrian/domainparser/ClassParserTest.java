@@ -34,7 +34,7 @@ public class ClassParserTest  extends TestCase
 	    out.println("TestTokenParser::{");
 	    out.println("   a * b + c;");
 	    out.println("}::TestTokenParser");
-	    String expected = "(import au.com.illyrian.domainparser.TestTokenParser TestTokenParser) "
+	    String expected = "(import au.com.illyrian.domainparser.TestTokenParser) "
 	                    + "(class test) ";
 	    Input input = new LexerInputStream(getReader(), null);
 	    ClassParser parser = new ClassParser();
@@ -44,6 +44,7 @@ public class ClassParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("parser output is null", output);
         assertEquals("Output text", expected, output.toString());
 	}
 
@@ -54,7 +55,7 @@ public class ClassParserTest  extends TestCase
         out.println("TestTokenParser::{");
         out.println("   a * b + c;");
         out.println("}::TestTokenParser");
-        String expected = "(import au.com.illyrian.domainparser.TestTokenParser TestTokenParser) "
+        String expected = "(import au.com.illyrian.domainparser.TestTokenParser) "
                         + "(modifiers public ) (class test) ";
         Input input = new LexerInputStream(getReader(), null);
         ClassParser parser = new ClassParser();
@@ -64,6 +65,7 @@ public class ClassParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("parser output is null", output);
         assertEquals("Output text", expected, output.toString());
     }
 
@@ -74,7 +76,7 @@ public class ClassParserTest  extends TestCase
         out.println("TestTokenParser::{");
         out.println("   a * b + c;");
         out.println("}::TestTokenParser");
-        String expected = "(import au.com.illyrian.domainparser.TestTokenParser TestTokenParser) "
+        String expected = "(import au.com.illyrian.domainparser.TestTokenParser) "
                         + "(modifiers public protected abstract final strictfp ) (class test) ";
         Input input = new LexerInputStream(getReader(), null);
         ClassParser parser = new ClassParser();
@@ -84,6 +86,7 @@ public class ClassParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("parser output is null", output);
         assertEquals("Output text", expected, output.toString());
     }
 
@@ -104,6 +107,7 @@ public class ClassParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("parser output is null", output);
         assertEquals("Output text", expected, output.toString());
     }
 
@@ -124,6 +128,7 @@ public class ClassParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("parser output is null", output);
         assertEquals("Output text", expected, output.toString());
     }
 
@@ -144,6 +149,7 @@ public class ClassParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("parser output is null", output);
         assertEquals("Output text", expected, output.toString());
     }
 
@@ -164,6 +170,7 @@ public class ClassParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("parser output is null", output);
         assertEquals("Output text", expected, output.toString());
     }
 

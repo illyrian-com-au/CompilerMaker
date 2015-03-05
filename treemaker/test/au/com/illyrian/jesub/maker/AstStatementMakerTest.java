@@ -78,12 +78,10 @@ public class AstStatementMakerTest extends ClassMakerTestCase
     {
         AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
-        build.Modifier("public");
-        build.ClassName(build.Name("Test"));
+        build.ClassName(build.Modifier("public"), build.Name("Test"));
         build.Implements(build.Name(Binary.class.getName()));
         TerminalName type = build.Name("int");
-        build.Modifier("public");
-        build.Method(type, build.Name("binary"));
+        build.Method(build.Modifier("public"), type, build.Name("binary"));
         
         build.Declare(type, build.Name("x"));
         build.Declare(type, build.Name("y"));
@@ -106,16 +104,14 @@ public class AstStatementMakerTest extends ClassMakerTestCase
     {
         AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
-        build.Modifier("public");
-        build.ClassName(build.Name("Test"));
+        build.ClassName(build.Modifier("public"), build.Name("Test"));
         build.Implements(build.Name(Binary.class.getName()));
         
         TerminalName type = build.Name("int");
         build.Modifier("public");
         build.Declare(type, build.Name("id"));
 
-        build.Modifier("public");
-        build.Method(type, build.Name("binary"));
+        build.Method(build.Modifier("public"), type, build.Name("binary"));
         build.Declare(type, build.Name("x"));
         build.Declare(type, build.Name("y"));
 
@@ -142,16 +138,13 @@ public class AstStatementMakerTest extends ClassMakerTestCase
     {
         AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
-        build.Modifier("public");
-        build.ClassName(build.Name("Test"));
+        build.ClassName(build.Modifier("public"), build.Name("Test"));
         build.Implements(build.Name(Binary.class.getName()));
         
         TerminalName type = build.Name("int");
-        build.Modifier("public");
-        build.Declare(type, build.Name("id"));
+        build.Declare(build.Modifier("public"), type, build.Name("id"));
 
-        build.Modifier("public");
-        build.Method(type, build.Name("binary"));
+        build.Method(build.Modifier("public"), type, build.Name("binary"));
         build.Declare(type, build.Name("x"));
         build.Declare(type, build.Name("y"));
 
@@ -189,16 +182,14 @@ public class AstStatementMakerTest extends ClassMakerTestCase
     {
         AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
-        build.Modifier("public");
-        build.ClassName(build.Name("Test"));
+        build.ClassName(build.Modifier("public"), build.Name("Test"));
         build.Implements(build.Name(Unary.class.getName()));
         
         TerminalName type = build.Name("int");
         build.Modifier("public");
         build.Declare(type, build.Name("id"));
 
-        build.Modifier("public");
-        build.Method(type, build.Name("unary"));
+        build.Method(build.Modifier("public"), type, build.Name("unary"));
         build.Declare(type, build.Name("n"));
 
         // Method body
@@ -243,8 +234,7 @@ public class AstStatementMakerTest extends ClassMakerTestCase
         AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
         build.Implements(build.Name(Unary.class.getName()));
 
-        build.Modifier("public");
-        build.Method(build.Name("int"), build.Name("unary"));
+        build.Method(build.Modifier("public"), build.Name("int"), build.Name("unary"));
         build.Declare(build.Name("int"), build.Name("n"));
         build.Begin();
         {
@@ -287,16 +277,14 @@ public class AstStatementMakerTest extends ClassMakerTestCase
     {
         AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
-        build.Modifier("public");
-        build.ClassName(build.Name("Test"));
+        build.ClassName(build.Modifier("public"), build.Name("Test"));
         build.Implements(build.Name(Unary.class.getName()));
         
         TerminalName intType = build.Name("int");
         build.Modifier("public");
         build.Declare(intType, build.Name("id"));
 
-        build.Modifier("public");
-        build.Method(intType, build.Name("unary"));
+        build.Method(build.Modifier("public"), intType, build.Name("unary"));
         build.Declare(intType, build.Name("x"));
 
         // Method body
@@ -354,16 +342,14 @@ public class AstStatementMakerTest extends ClassMakerTestCase
     {
         AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
-        build.Modifier("public");
-        build.ClassName(build.Name("Test"));
+        build.ClassName(build.Modifier("public"), build.Name("Test"));
         build.Extends(build.Name(Unreliable.class.getName()));
         build.Implements(build.Name(Unary.class.getName()));
         
         build.Modifier("public");
         build.Declare(build.Name("int"), build.Name("id"));
 
-        build.Modifier("public");
-        build.Method(build.Name("int"), build.Name("unary"));
+        build.Method(build.Modifier("public"), build.Name("int"), build.Name("unary"));
         build.Declare(build.Name("int"), build.Name("x"));
 
         // Method body
@@ -404,13 +390,11 @@ public class AstStatementMakerTest extends ClassMakerTestCase
     {
         AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
-        build.Modifier("public");
-        build.ClassName(build.Name("Test"));
+        build.ClassName(build.Modifier("public"), build.Name("Test"));
         build.Implements(build.Name(BreakContinueIface.class.getName()));
         
         TerminalName intType = build.Name("int");
-        build.Modifier("public");
-        build.Method(intType, build.Name("breakContinue"));
+        build.Method(build.Modifier("public"), intType, build.Name("breakContinue"));
         build.Declare(intType, build.Name("i"));
 
         // Method body

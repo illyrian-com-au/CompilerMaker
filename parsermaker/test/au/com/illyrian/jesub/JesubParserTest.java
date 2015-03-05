@@ -44,6 +44,7 @@ public class JesubParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("Null output from parseModule", output);
         assertEquals("Output text", expected.toString(), output.toString());
 	    expected.close();
 	}
@@ -66,6 +67,7 @@ public class JesubParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("Null output from parseModule", output);
         assertEquals("Output text", expected.toString(), output.toString());
 	    expected.close();
     }
@@ -88,6 +90,7 @@ public class JesubParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("Null output from parseModule", output);
         assertEquals("Output text", expected.toString(), output.toString());
 	    expected.close();
     }
@@ -111,6 +114,7 @@ public class JesubParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("Null output from parseModule", output);
         assertEquals("Output text", expected.toString(), output.toString());
 	    expected.close();
     }
@@ -134,6 +138,7 @@ public class JesubParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("Null output from parseModule", output);
         assertEquals("Output text", expected.toString(), output.toString());
 	    expected.close();
     }
@@ -159,6 +164,7 @@ public class JesubParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("Null output from parseModule", output);
         assertEquals("Output text", expected.toString(), output.toString());
 	    expected.close();
     }
@@ -185,6 +191,7 @@ public class JesubParserTest  extends TestCase
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
+        assertNotNull("Null output from parseModule", output);
         assertEquals("Output text", expected.toString(), output.toString());
 	    expected.close();
     }

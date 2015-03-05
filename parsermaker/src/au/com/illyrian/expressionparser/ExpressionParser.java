@@ -18,6 +18,7 @@ import au.com.illyrian.parser.ParseExpression;
 import au.com.illyrian.parser.ParseMember;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.Operator;
+import au.com.illyrian.parser.impl.ParserConstants;
 import au.com.illyrian.parser.impl.PrecidenceParser;
 
 /**
@@ -65,35 +66,35 @@ public class ExpressionParser extends PrecidenceParser
     
     protected void populateOperators()
     {
-        addInfixOperator("**", ExpressionAction.POW, 16, Operator.BINARY, false);
-        addPostfixOperator("--", ExpressionAction.POSTDEC, 15, Operator.POSTFIX);
-        addPostfixOperator("++", ExpressionAction.POSTINC, 15, Operator.POSTFIX);
-        addPrefixOperator("-", ExpressionAction.NEG, 14, Operator.PREFIX);
-        addPrefixOperator("--", ExpressionAction.DEC, 14, Operator.PREFIX);
-        addPrefixOperator("++", ExpressionAction.INC, 14, Operator.PREFIX);
-        addPrefixOperator("+", ExpressionAction.NOP, 14, Operator.PREFIX);
-        addPrefixOperator("~", ExpressionAction.INV, 14, Operator.PREFIX);
-        addPrefixOperator("!", ExpressionAction.NOT, 14, Operator.PREFIX);
-        addPrefixOperator("new", ExpressionAction.NEW, 13, Operator.PREFIX);
-        addInfixOperator("*", ExpressionAction.MULT, 12, Operator.BINARY, true);
-        addInfixOperator("/", ExpressionAction.DIV, 12, Operator.BINARY, true);
-        addInfixOperator("%", ExpressionAction.REM, 12, Operator.BINARY, true);
-        addInfixOperator("+", ExpressionAction.ADD, 11, Operator.BINARY, true);
-        addInfixOperator("-", ExpressionAction.SUBT, 11, Operator.BINARY, true);
-        addInfixOperator("<<", ExpressionAction.SHL, 10, Operator.BINARY, true);
-        addInfixOperator(">>", ExpressionAction.SHR, 10, Operator.BINARY, true);
-        addInfixOperator(">>>", ExpressionAction.USHR, 10, Operator.BINARY, true);
-        addInfixOperator("<", ExpressionAction.LT, 9, Operator.BINARY, true);
-        addInfixOperator(">", ExpressionAction.GT, 9, Operator.BINARY, true);
-        addInfixOperator("<=", ExpressionAction.LE, 9, Operator.BINARY, true);
-        addInfixOperator(">=", ExpressionAction.GE, 9, Operator.BINARY, true);
-        addInfixOperator("==", ExpressionAction.EQ, 8, Operator.BINARY, true);
-        addInfixOperator("!=", ExpressionAction.NE, 8, Operator.BINARY, true);
-        addInfixOperator("instanceof", ExpressionAction.INSTANCEOF, 8, Operator.BINARY, true);
-        addInfixOperator("&", ExpressionAction.AND, 7, Operator.BINARY, true);
-        addInfixOperator("^", ExpressionAction.XOR, 6, Operator.BINARY, true);
-        addInfixOperator("|", ExpressionAction.OR, 5, Operator.BINARY, true);
-        addInfixOperator("=", ExpressionAction.ASSIGN, 1, Operator.BINARY, false);
+        addInfixOperator("**", ParserConstants.POW, 16, Operator.BINARY, false);
+        addPostfixOperator("--", ParserConstants.POSTDEC, 15, Operator.POSTFIX);
+        addPostfixOperator("++", ParserConstants.POSTINC, 15, Operator.POSTFIX);
+        addPrefixOperator("-", ParserConstants.NEG, 14, Operator.PREFIX);
+        addPrefixOperator("--", ParserConstants.DEC, 14, Operator.PREFIX);
+        addPrefixOperator("++", ParserConstants.INC, 14, Operator.PREFIX);
+        addPrefixOperator("+", ParserConstants.NOP, 14, Operator.PREFIX);
+        addPrefixOperator("~", ParserConstants.INV, 14, Operator.PREFIX);
+        addPrefixOperator("!", ParserConstants.NOT, 14, Operator.PREFIX);
+        addPrefixOperator("new", ParserConstants.NEW, 13, Operator.PREFIX);
+        addInfixOperator("*", ParserConstants.MULT, 12, Operator.BINARY, true);
+        addInfixOperator("/", ParserConstants.DIV, 12, Operator.BINARY, true);
+        addInfixOperator("%", ParserConstants.REM, 12, Operator.BINARY, true);
+        addInfixOperator("+", ParserConstants.ADD, 11, Operator.BINARY, true);
+        addInfixOperator("-", ParserConstants.SUBT, 11, Operator.BINARY, true);
+        addInfixOperator("<<", ParserConstants.SHL, 10, Operator.BINARY, true);
+        addInfixOperator(">>", ParserConstants.SHR, 10, Operator.BINARY, true);
+        addInfixOperator(">>>", ParserConstants.USHR, 10, Operator.BINARY, true);
+        addInfixOperator("<", ParserConstants.LT, 9, Operator.BINARY, true);
+        addInfixOperator(">", ParserConstants.GT, 9, Operator.BINARY, true);
+        addInfixOperator("<=", ParserConstants.LE, 9, Operator.BINARY, true);
+        addInfixOperator(">=", ParserConstants.GE, 9, Operator.BINARY, true);
+        addInfixOperator("==", ParserConstants.EQ, 8, Operator.BINARY, true);
+        addInfixOperator("!=", ParserConstants.NE, 8, Operator.BINARY, true);
+        addInfixOperator("instanceof", ParserConstants.INSTANCEOF, 8, Operator.BINARY, true);
+        addInfixOperator("&", ParserConstants.AND, 7, Operator.BINARY, true);
+        addInfixOperator("^", ParserConstants.XOR, 6, Operator.BINARY, true);
+        addInfixOperator("|", ParserConstants.OR, 5, Operator.BINARY, true);
+        addInfixOperator("=", ParserConstants.ASSIGN, 1, Operator.BINARY, false);
     }
 
     public void addOperator(String name, Object value)
@@ -271,7 +272,7 @@ public class ExpressionParser extends PrecidenceParser
      *     parameters ::= IDENTIFIER { ',' IDENTIFIER }
      * </code>
      *
-     * @return the result of parsing the input and applying actions from ExpressionAction.
+     * @return the result of parsing the input and applying actions from ParserConstants.
      * @throws Exception -
      *             if an error occurs.
      */
@@ -363,7 +364,7 @@ public class ExpressionParser extends PrecidenceParser
      * Converting the rule into an implementation is quite straight forward, <br>
      * as is error detection and reporting.
      *
-     * @return the result of parsing the input and applying actions from ExpressionAction.
+     * @return the result of parsing the input and applying actions from ParserConstants.
      * @throws Exception -
      *             if an error occurs.
      */

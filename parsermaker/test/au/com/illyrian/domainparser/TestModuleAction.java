@@ -23,7 +23,7 @@ public class TestModuleAction implements ModuleAction
      * @param simpleName the simple class name
      * @return the fully qualified class name if available; otherwise the simple class name
      */
-    public String getAlias(String simpleName)
+    public String getParserName(String simpleName)
     {
         String className = map.getProperty(simpleName);
         if (className == null)
@@ -31,7 +31,7 @@ public class TestModuleAction implements ModuleAction
         return className;
     }
 
-    public String addClassName(String className, String simpleName)
+    public String Dot(String className, String simpleName)
     {
         if (className == null)
             return simpleName;
@@ -41,14 +41,17 @@ public class TestModuleAction implements ModuleAction
             return className + "." + simpleName;
     }
 
-    public Object declareImport(String fullyQualifiedClassname, String simpleClassname)
+    public Object Import(String fullyQualifiedClassname)
     {
-        String str = "(import " + fullyQualifiedClassname + " " + simpleClassname + ") ";
+    	int offset = fullyQualifiedClassname.lastIndexOf('.');
+    	String simpleClassName = (offset == -1) ? fullyQualifiedClassname : fullyQualifiedClassname.substring(offset+1);
+    	this.setAlias(simpleClassName, fullyQualifiedClassname);
+        String str = "(import " + fullyQualifiedClassname + ") ";
         buffer.append(str);
         return str;
     }
 
-    public Object declarePackage(String packageName)
+    public Object Package(String packageName)
     {
         String str = "(package " + packageName + ") ";
         buffer.append(str);
@@ -60,8 +63,9 @@ public class TestModuleAction implements ModuleAction
         return buffer.toString();
     }
 
-    public void handleModule(Object module)
+    public Object handleModule(Object module)
     {
         buffer.append(module);
+        return buffer.toString();
     }
 }

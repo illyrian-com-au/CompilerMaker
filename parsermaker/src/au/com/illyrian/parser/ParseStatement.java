@@ -1,12 +1,12 @@
 package au.com.illyrian.parser;
 
 
-public interface ParseStatement
+public interface ParseStatement<T>
 {
     /**
      * Parse a code fragment for a Domain Specific Language.
      * @return the result of parsing the input.
      * @throws Exception - if an error occurs.
      */
-    public Object parseStatement() throws ParserException;
+    public T parseStatement() throws ParserException;
 }

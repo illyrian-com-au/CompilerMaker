@@ -11,7 +11,7 @@ import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.CompileModule;
 import au.com.illyrian.parser.impl.LexerInputStream;
 
-public class ModuleParserTest  extends TestCase
+public class AstModuleParserTest  extends TestCase
 {
     StringReader reader;
     StringWriter writer;
@@ -32,26 +32,7 @@ public class ModuleParserTest  extends TestCase
 
     public void testTokenParser() throws Exception
     {
-        out.println("{");
-        out.println("   a * b + c;");
-        out.println("}");
-        Input input = new LexerInputStream(getReader(), null);
-        
-        TestTokenParser parser = new TestTokenParser();
-        parser.setInput(input);
-        parser.parseClass();
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
-    }
-
-    public void testNestedTokenParser() throws Exception
-    {
-        out.println("{");
-        out.println("   able");
-        out.println("   {");
-        out.println("       baker");
-        out.println("   }");
-        out.println("   charlie");
-        out.println("}");
+        out.println("{1}");
         Input input = new LexerInputStream(getReader(), null);
         
         TestTokenParser parser = new TestTokenParser();
@@ -62,11 +43,11 @@ public class ModuleParserTest  extends TestCase
 
 	public void testDomainParser() throws Exception
 	{
-	    out.println("import au.com.illyrian.domainparser.TestTokenParser;");
-	    out.println("TestTokenParser::{");
-	    out.println("   a * b + c;");
-	    out.println("}::TestTokenParser");
-	    String expected = "(import au.com.illyrian.domainparser.TestTokenParser) null";
+	    out.println("import au.com.illyrian.domainparser.AstTokenParser;");
+	    out.println("AstTokenParser::{");
+	    out.println("   1 * 2 + 3");
+	    out.println("}::AstTokenParser");
+	    String expected = "(import au.com.illyrian.domainparser.AstTokenParser) ((1 * 2) + 3)";
 	    Input input = new LexerInputStream(getReader(), null);
 
 	    CompileModule compile = new CompileModule();
@@ -79,11 +60,11 @@ public class ModuleParserTest  extends TestCase
 
     public void testFullyQualifiedDomainParser() throws Exception
     {
-        out.println("au.com.illyrian.domainparser.TestTokenParser::{");
-        out.println("   a * b + c;");
-        out.println("}::au.com.illyrian.domainparser.TestTokenParser");
+        out.println("au.com.illyrian.domainparser.AstTokenParser::{");
+	    out.println("   1 * 2 + 3");
+        out.println("}::au.com.illyrian.domainparser.AstTokenParser");
         // No import in module level code.
-        String expected = "null";
+        String expected = "((1 * 2) + 3)";
         Input input = new LexerInputStream(getReader(), null);
         
         CompileModule compile = new CompileModule();
@@ -97,11 +78,11 @@ public class ModuleParserTest  extends TestCase
     public void testDomainParserPackage() throws Exception
     {
         out.println("package au.com.illyrian.domainparser;");
-        out.println("au.com.illyrian.domainparser.TestTokenParser::{");
-        out.println("   a * b + c;");
-        out.println("}::au.com.illyrian.domainparser.TestTokenParser");
+        out.println("au.com.illyrian.domainparser.AstTokenParser::{");
+	    out.println("   1 * 2 + 3");
+        out.println("}::au.com.illyrian.domainparser.AstTokenParser");
         Input input = new LexerInputStream(getReader(), null);
-        String expected = "(package au.com.illyrian.domainparser) null";
+        String expected = "(package au.com.illyrian.domainparser) ((1 * 2) + 3)";
         CompileModule compile = new CompileModule();
         compile.setInput(input);
         compile.getModuleParser().setModuleAction(action);
@@ -111,7 +92,7 @@ public class ModuleParserTest  extends TestCase
     
     public void testNoClassCalledException() throws Exception
     {
-        out.println("TestTokenParser::{");
+        out.println("AstTokenParser::{");
         Input input = new LexerInputStream(getReader(), "Test.dat");
         CompileModule compile = new CompileModule();
         compile.setInput(input);
@@ -121,7 +102,7 @@ public class ModuleParserTest  extends TestCase
             compile.parseModule();
             fail("ParserExceptoion expected.");
         } catch (ParserException pex) {
-            assertEquals("ParserException ", "Could not load parser: TestTokenParser", pex.getMessage());
+            assertEquals("ParserException ", "Could not load parser: AstTokenParser", pex.getMessage());
             assertEquals("ParserException ", "Test.dat", pex.getSourceFilename());
             assertEquals("ParserException ", 1, pex.getLineNumber());
         }
@@ -129,8 +110,8 @@ public class ModuleParserTest  extends TestCase
 
     public void testUnexpectedEndOfInputException() throws Exception
     {
-        out.println("import au.com.illyrian.domainparser.TestTokenParser;");
-        out.println("TestTokenParser::{");
+        out.println("import au.com.illyrian.domainparser.AstTokenParser;");
+        out.println("AstTokenParser::{");
         
         Input input = new LexerInputStream(getReader(), "Test.dat");
         CompileModule compile = new CompileModule();
@@ -140,10 +121,10 @@ public class ModuleParserTest  extends TestCase
             compile.parseModule();
             fail("ParserException expected.");
         } catch (ParserException pex) {
-            assertEquals("ParserException ", "Unexpected end of input", pex.getMessage());
+            assertEquals("ParserException ", "A numeric value is expected", pex.getMessage());
             assertEquals("ParserException ", "Test.dat", pex.getSourceFilename());
             assertEquals("ParserException ", 2, pex.getLineNumber());
-            String expected = "Test.dat;2\nUnexpected end of input";
+            String expected = "Test.dat;2\nA numeric value is expected";
             assertEquals("ParserException", expected, pex.toString());
         }
     }

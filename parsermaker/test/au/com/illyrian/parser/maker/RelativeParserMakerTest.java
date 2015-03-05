@@ -6,13 +6,13 @@ import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.types.Type;
-import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.JavaOperatorPrecedenceParser;
 import au.com.illyrian.parser.impl.LexerInputString;
 import au.com.illyrian.parser.impl.Operator;
+import au.com.illyrian.parser.impl.ParserConstants;
 import au.com.illyrian.parser.impl.PrecidenceParser;
 
 public class RelativeParserMakerTest extends ClassMakerTestCase
@@ -38,15 +38,15 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     
     PrecidenceParser createParser()
     {
-        PrecidenceParser parser = new JavaOperatorPrecedenceParser();
-        parser.addInfixOperator("<", ExpressionAction.LT, 9, Operator.BINARY, true);
-        parser.addInfixOperator(">", ExpressionAction.GT, 9, Operator.BINARY, true);
-        parser.addInfixOperator("<=", ExpressionAction.LE, 9, Operator.BINARY, true);
-        parser.addInfixOperator(">=", ExpressionAction.GE, 9, Operator.BINARY, true);
-        parser.addInfixOperator("==", ExpressionAction.EQ, 8, Operator.BINARY, true);
-        parser.addInfixOperator("!=", ExpressionAction.NE, 8, Operator.BINARY, true);
-        parser.addInfixOperator("&&", ExpressionAction.ANDTHEN, 4, Operator.BINARY, true);
-        parser.addInfixOperator("||", ExpressionAction.ORELSE, 3, Operator.BINARY, true);
+        PrecidenceParser<AstExpression> parser = new JavaOperatorPrecedenceParser<AstExpression>();
+        parser.addInfixOperator("<", ParserConstants.LT, 9, Operator.BINARY, true);
+        parser.addInfixOperator(">", ParserConstants.GT, 9, Operator.BINARY, true);
+        parser.addInfixOperator("<=", ParserConstants.LE, 9, Operator.BINARY, true);
+        parser.addInfixOperator(">=", ParserConstants.GE, 9, Operator.BINARY, true);
+        parser.addInfixOperator("==", ParserConstants.EQ, 8, Operator.BINARY, true);
+        parser.addInfixOperator("!=", ParserConstants.NE, 8, Operator.BINARY, true);
+        parser.addInfixOperator("&&", ParserConstants.ANDTHEN, 4, Operator.BINARY, true);
+        parser.addInfixOperator("||", ParserConstants.ORELSE, 3, Operator.BINARY, true);
         PrecidenceActionFactory actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
        return parser;

@@ -5,7 +5,6 @@ import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.types.Type;
-import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.expressionparser.FuncA;
 import au.com.illyrian.expressionparser.FuncABC;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
@@ -13,8 +12,8 @@ import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.LexerInputString;
 import au.com.illyrian.parser.impl.Operator;
+import au.com.illyrian.parser.impl.ParserConstants;
 import au.com.illyrian.parser.impl.PrecidenceParser;
-import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class AssignParserMakerTest extends ClassMakerTestCase
 {
@@ -23,19 +22,19 @@ public class AssignParserMakerTest extends ClassMakerTestCase
 
     PrecidenceParser createIncrementParser()
     {
-        PrecidenceParser parser = new PrecidenceParser();
-        parser.addInfixOperator(".", ExpressionAction.DOT, 16, Operator.BINARY, true);
-        parser.addPostfixOperator("--", ExpressionAction.POSTDEC, 15, Operator.POSTFIX);
-        parser.addPostfixOperator("++", ExpressionAction.POSTINC, 15, Operator.POSTFIX);
-        parser.addPrefixOperator("-", ExpressionAction.NEG, 14, Operator.PREFIX);
-        parser.addPrefixOperator("--", ExpressionAction.DEC, 14, Operator.PREFIX);
-        parser.addPrefixOperator("++", ExpressionAction.INC, 14, Operator.PREFIX);
-        parser.addInfixOperator("*", ExpressionAction.MULT, 12, Operator.BINARY, true);
-        parser.addInfixOperator("/", ExpressionAction.DIV, 12, Operator.BINARY, true);
-        parser.addInfixOperator("%", ExpressionAction.REM, 12, Operator.BINARY, true);
-        parser.addInfixOperator("+", ExpressionAction.ADD, 11, Operator.BINARY, true);
-        parser.addInfixOperator("-", ExpressionAction.SUBT, 11, Operator.BINARY, true);
-        parser.addInfixOperator("=", ExpressionAction.ASSIGN, 1, Operator.BINARY, false);
+        PrecidenceParser<AstExpression> parser = new PrecidenceParser<AstExpression>();
+        parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY, true);
+        parser.addPostfixOperator("--", ParserConstants.POSTDEC, 15, Operator.POSTFIX);
+        parser.addPostfixOperator("++", ParserConstants.POSTINC, 15, Operator.POSTFIX);
+        parser.addPrefixOperator("-", ParserConstants.NEG, 14, Operator.PREFIX);
+        parser.addPrefixOperator("--", ParserConstants.DEC, 14, Operator.PREFIX);
+        parser.addPrefixOperator("++", ParserConstants.INC, 14, Operator.PREFIX);
+        parser.addInfixOperator("*", ParserConstants.MULT, 12, Operator.BINARY, true);
+        parser.addInfixOperator("/", ParserConstants.DIV, 12, Operator.BINARY, true);
+        parser.addInfixOperator("%", ParserConstants.REM, 12, Operator.BINARY, true);
+        parser.addInfixOperator("+", ParserConstants.ADD, 11, Operator.BINARY, true);
+        parser.addInfixOperator("-", ParserConstants.SUBT, 11, Operator.BINARY, true);
+        parser.addInfixOperator("=", ParserConstants.ASSIGN, 1, Operator.BINARY, false);
         PrecidenceActionFactory actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
         return parser;

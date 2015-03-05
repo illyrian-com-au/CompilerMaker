@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import junit.framework.TestCase;
+import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
@@ -29,12 +30,12 @@ public class RelativePrecidenceParserTest extends TestCase
     
     PrecidenceParser createParser()
     {
-        PrecidenceParser parser = new JavaOperatorPrecedenceParser();
-        parser.addInfixOperator("==", ExpressionAction.EQ, 8, Operator.BINARY, true);
-        parser.addInfixOperator("!=", ExpressionAction.NE, 8, Operator.BINARY, true);
-        parser.addInfixOperator("&&", ExpressionAction.ANDTHEN, 4, Operator.BINARY, true);
-        parser.addInfixOperator("||", ExpressionAction.ORELSE, 3, Operator.BINARY, true);
-        PrecidenceAction actions = new PrecidenceActionFactory();
+        PrecidenceParser<AstExpression> parser = new JavaOperatorPrecedenceParser<AstExpression>();
+        parser.addInfixOperator("==", ParserConstants.EQ, 8, Operator.BINARY, true);
+        parser.addInfixOperator("!=", ParserConstants.NE, 8, Operator.BINARY, true);
+        parser.addInfixOperator("&&", ParserConstants.ANDTHEN, 4, Operator.BINARY, true);
+        parser.addInfixOperator("||", ParserConstants.ORELSE, 3, Operator.BINARY, true);
+        PrecidenceAction<AstExpression> actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
        return parser;
     }

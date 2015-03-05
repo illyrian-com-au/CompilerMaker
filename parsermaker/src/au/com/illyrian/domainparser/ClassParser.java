@@ -147,13 +147,14 @@ public class ClassParser extends ModuleParser
    
     public Object dec_body() throws ParserException
     {
+    	Object result = null;
        if (getToken() == Lexer.IDENTIFIER)
        {
            Object parseName = classname();
            if (match(Lexer.OPERATOR, "::"))
            {
-               String qualifiedName = getClassAction().getAlias(parseName.toString());
-               getCompileUnit().getInvokeParser().invokeParseMember(qualifiedName, getInput());
+               String qualifiedName = getClassAction().getParserName(parseName.toString());
+               result = getCompileUnit().getInvokeParser().invokeParseMember(qualifiedName, getInput());
 
                nextToken();
                if (accept(Lexer.OPERATOR, "::")) 
@@ -170,6 +171,6 @@ public class ClassParser extends ModuleParser
        }
        else
            throw error(getInput(), "Parser name expected");
-       return getClassAction().getModule();
+       return result;
    }
 }

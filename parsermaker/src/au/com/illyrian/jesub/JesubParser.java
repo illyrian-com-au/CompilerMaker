@@ -132,7 +132,7 @@ public class JesubParser extends PrecidenceParser
         beginFragment();
         Object result = dec_class();
         endFragment();
-        return jesubAction.getModule();
+        return getJesubAction().getModule();
     }
 
     protected void beginFragment() throws ParserException
@@ -242,7 +242,7 @@ public class JesubParser extends PrecidenceParser
         {
             String simpleName = getLexer().getTokenValue();
             nextToken();
-            qualifiedClassName = jesubAction.addClassName(qualifiedClassName, simpleName);
+            qualifiedClassName = jesubAction.Dot(qualifiedClassName, simpleName);
 
             while (accept(Lexer.OPERATOR, "."))
             {
@@ -250,7 +250,7 @@ public class JesubParser extends PrecidenceParser
                 {
                     simpleName = getLexer().getTokenValue();
                     nextToken();
-                    qualifiedClassName = jesubAction.addClassName(qualifiedClassName, simpleName);
+                    qualifiedClassName = jesubAction.Dot(qualifiedClassName, simpleName);
                 }
                 else
                     throw error(getInput(), "More package name expected.");

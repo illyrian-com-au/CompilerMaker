@@ -29,38 +29,39 @@ package au.com.illyrian.parser.maker;
 
 import au.com.illyrian.classmaker.ast.ActualParameter;
 import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.ast.TerminalName;
-import au.com.illyrian.expressionparser.ExpressionAction;
+import au.com.illyrian.jesub.ast.AstStructureFactory;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.Operator;
+import au.com.illyrian.parser.impl.ParserConstants;
 import au.com.illyrian.parser.impl.PrecidenceAction;
 
-public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>
+public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>, ParserConstants
 {
-    AstExpressionFactory build = new AstExpressionFactory();
+	AstStructureFactory factory = new AstStructureFactory();
     
     public PrecidenceActionFactory()
     {
     	super();
     }
 
-    public AstExpressionFactory ast()
+    public AstStructureFactory factory()
     {
-        return build;
+        return factory;
     }
 
     public AstExpression identifierAction(String name) throws ParserException
     {
-        return build.Name(name);
+        return factory.Name(name);
     }
 
     public AstExpression callAction(AstExpression name, AstExpression callStack) throws ParserException
     {
+    	// FIXME
     	TerminalName name1 = (TerminalName)name;
     	ActualParameter params = (ActualParameter)callStack;
-        return build.Call(name1, params);
+        return factory.Call(name1, params);
     }
 
     public AstExpression beginParameters(AstExpression name) throws ParserException
@@ -70,9 +71,10 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>
 
     public AstExpression addParameter(AstExpression callStack, AstExpression param) throws ParserException
     {
+    	// FIXME
     	ActualParameter left = (ActualParameter)callStack;
     	AstExpression right = (AstExpression)param;
-        return build.Push(left, right);
+        return factory.Push(left, right);
     }
 
     public AstExpression literalAction(Lexer lexer) throws ParserException
@@ -81,16 +83,16 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>
         switch (lexer.getToken())
         {
         case Lexer.INTEGER:
-        	result = build.Literal(lexer.getTokenInteger());
+        	result = factory.Literal(lexer.getTokenInteger());
             break;
         case Lexer.DECIMAL:
-        	result = build.Literal(lexer.getTokenFloat());
+        	result = factory.Literal(lexer.getTokenFloat());
             break;
         case Lexer.CHARACTER:
-        	result = build.Literal(lexer.getTokenInteger());
+        	result = factory.Literal(lexer.getTokenInteger());
             break;
         case Lexer.STRING:
-        	result = build.Literal(lexer.getTokenValue());
+        	result = factory.Literal(lexer.getTokenValue());
             break;
         default:
             throw new ParserException("Cannot handle: " + lexer);
@@ -107,72 +109,70 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>
             throws ParserException
     {
     	AstExpression result = null;
-    	AstExpression left = (AstExpression)leftOperand;
-    	AstExpression right = (AstExpression)rightOperand;
         switch (operator.getIndex())
         {
-        case ExpressionAction.ADD:
-            result = build.Add(left, right);
+        case ADD:
+            result = factory.Add(leftOperand, rightOperand);
             break;
-        case ExpressionAction.SUBT:
-            result = build.Subt(left, right);
+        case SUBT:
+            result = factory.Subt(leftOperand, rightOperand);
             break;
-        case ExpressionAction.MULT:
-        	result = build.Mult(left, right);
+        case MULT:
+        	result = factory.Mult(leftOperand, rightOperand);
             break;
-        case ExpressionAction.DIV:
-        	result = build.Div(left, right);
+        case DIV:
+        	result = factory.Div(leftOperand, rightOperand);
             break;
-        case ExpressionAction.REM:
-        	result = build.Rem(left, right);
+        case REM:
+        	result = factory.Rem(leftOperand, rightOperand);
             break;
-        case ExpressionAction.DOT:
-        	result = build.Dot(left, right);
+        case DOT:
+        	result = factory.Dot(leftOperand, rightOperand);
             break;
-        case ExpressionAction.ASSIGN:
-        	result = build.Assign(left, right);
+        case ASSIGN:
+        	result = factory.Assign(leftOperand, rightOperand);
             break;
-        case ExpressionAction.EQ:
-        	result = build.EQ(left, right);
+        case EQ:
+        	result = factory.EQ(leftOperand, rightOperand);
             break;
-        case ExpressionAction.NE:
-        	result = build.NE(left, right);
+        case NE:
+        	result = factory.NE(leftOperand, rightOperand);
             break;
-        case ExpressionAction.LE:
-        	result = build.LE(left, right);
+        case LE:
+        	result = factory.LE(leftOperand, rightOperand);
             break;
-        case ExpressionAction.GE:
-        	result = build.GE(left, right);
+        case GE:
+        	result = factory.GE(leftOperand, rightOperand);
             break;
-        case ExpressionAction.GT:
-        	result = build.GT(left, right);
+        case GT:
+        	result = factory.GT(leftOperand, rightOperand);
             break;
-        case ExpressionAction.LT:
-        	result = build.LT(left, right);
+        case LT:
+        	result = factory.LT(leftOperand, rightOperand);
             break;
-        case ExpressionAction.ANDTHEN:
-        	result = build.AndThen(left, right);
+        case ANDTHEN:
+        	result = factory.AndThen(leftOperand, rightOperand);
             break;
-        case ExpressionAction.ORELSE:
-        	result = build.OrElse(left, right);
+        case ORELSE:
+        	result = factory.OrElse(leftOperand, rightOperand);
             break;
-        case ExpressionAction.XOR:
-        	result = build.Xor(left, right);
+        case XOR:
+        	result = factory.Xor(leftOperand, rightOperand);
             break;
-        case ExpressionAction.SHL:
-        	result = build.SHL(left, right);
+        case SHL:
+        	result = factory.SHL(leftOperand, rightOperand);
             break;
-        case ExpressionAction.SHR:
-        	result = build.SHR(left, right);
+        case SHR:
+        	result = factory.SHR(leftOperand, rightOperand);
             break;
-        case ExpressionAction.USHR:
-        	result = build.USHR(left, right);
+        case USHR:
+        	result = factory.USHR(leftOperand, rightOperand);
             break;
-        case ExpressionAction.AND:
-        	result = build.And(left, right);
+        case AND:
+        	result = factory.And(leftOperand, rightOperand);
             break;
-        case ExpressionAction.OR:
-        	result = build.Or(left, right);
+        case OR:
+        	result = factory.Or(leftOperand, rightOperand);
             break;
             // FIXME add other binary operators
         default:
@@ -184,23 +184,22 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>
     public AstExpression prefixAction(Operator operator, AstExpression operand) throws ParserException
     {
     	AstExpression result = null;
-    	AstExpression expr = (AstExpression)operand;
         switch (operator.getIndex())
         {
-        case ExpressionAction.NEG:
-        	result = build.Neg(expr);
+        case NEG:
+        	result = factory.Neg(operand);
             break;
-        case ExpressionAction.NOT:
-        	result = build.Not(expr);
+        case NOT:
+        	result = factory.Not(operand);
             break;
-        case ExpressionAction.INV:
-        	result = build.Inv(expr);
+        case INV:
+        	result = factory.Inv(operand);
             break;
-        case ExpressionAction.INC:
-        	result = build.Inc(expr);
+        case INC:
+        	result = factory.Inc(operand);
             break;
-        case ExpressionAction.DEC:
-        	result = build.Dec(expr);
+        case DEC:
+        	result = factory.Dec(operand);
             break;
         default:
             throw new IllegalStateException("Don't know how to process prefix operator: " + operator);
@@ -211,14 +210,13 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>
     public AstExpression postfixAction(Operator operator, AstExpression operand) throws ParserException
     {
     	AstExpression result = null;
-    	AstExpression expr = (AstExpression)operand;
         switch (operator.getIndex())
         {
-        case ExpressionAction.POSTINC:
-        	result =build.PostInc(expr);
+        case POSTINC:
+        	result =factory.PostInc(operand);
             break;
-        case ExpressionAction.POSTDEC:
-        	result =build.PostDec(expr);
+        case POSTDEC:
+        	result =factory.PostDec(operand);
             break;
         default:
             throw new IllegalStateException("Don't know how to process postfix operator: " + operator);
@@ -228,16 +226,12 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>
 
     public AstExpression bracketAction(Operator operator, AstExpression leftOperand, AstExpression rightOperand) throws ParserException
     {
-    	AstExpression leftExpr = (AstExpression)leftOperand;
-    	AstExpression rightExpr = (AstExpression)rightOperand;
-        return build.ArrayIndex(leftExpr, rightExpr);
+        return factory.ArrayIndex(leftOperand, rightOperand);
     }
 
     public AstExpression castAction(AstExpression type, AstExpression value) throws ParserException
     {
-    	AstExpression typeExpr = (AstExpression)type;
-    	AstExpression valueExpr = (AstExpression)value;
-        return build.Cast(typeExpr, valueExpr);
+        return factory.Cast(type, value);
     }
 
 }

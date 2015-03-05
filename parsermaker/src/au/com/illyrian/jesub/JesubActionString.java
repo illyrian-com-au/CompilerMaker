@@ -25,7 +25,7 @@ public class JesubActionString implements JesubAction
      * @param simpleName the simple class name
      * @return the fully qualified class name if available; otherwise the simple class name
      */
-    public String getAlias(String simpleName)
+    public String getParserName(String simpleName)
     {
         String className = map.getProperty(simpleName);
         if (className == null)
@@ -33,7 +33,7 @@ public class JesubActionString implements JesubAction
         return className;
     }
 
-    public String addClassName(String className, String simpleName)
+    public String Dot(String className, String simpleName)
     {
         if (className == null)
             return simpleName;
@@ -43,14 +43,17 @@ public class JesubActionString implements JesubAction
             return className + "." + simpleName;
     }
 
-    public Object declareImport(String fullyQualifiedClassname, String simpleClassname)
+    public Object Import(String fullyQualifiedClassname)
     {
+    	int offset = fullyQualifiedClassname.lastIndexOf('.');
+    	String simpleClassName = (offset == -1) ? fullyQualifiedClassname : fullyQualifiedClassname.substring(offset+1);
+    	this.setAlias(simpleClassName, fullyQualifiedClassname);
         String str = "Import(\"" + fullyQualifiedClassname + "\");";
         out.println(str);
         return str;
     }
 
-    public Object declarePackage(String packageName)
+    public Object Package(String packageName)
     {
         String str = "setPackage(\"" + packageName + "\");";
         out.println(str);
@@ -62,9 +65,10 @@ public class JesubActionString implements JesubAction
         return out.toString();
     }
 
-    public void handleModule(Object module)
+    public Object handleModule(Object module)
     {
         out.print(module);
+        return toString();
     }
 
     public Object addModifier(String modifier)

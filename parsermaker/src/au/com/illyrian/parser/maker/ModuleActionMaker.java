@@ -58,7 +58,7 @@ public class ModuleActionMaker implements ModuleAction, ClassMakerLocation
      * @param simpleName the simple class name
      * @return the fully qualified class name if available; otherwise the simple class name
      */
-    public String getAlias(String simpleName)
+    public String getParserName(String simpleName)
     {
         String className = simpleName;
         if (simpleName.indexOf('.') == -1)
@@ -80,7 +80,7 @@ public class ModuleActionMaker implements ModuleAction, ClassMakerLocation
             return packageName + "." + simpleName;
     }
 
-    public String addClassName(String className, String simpleName)
+    public String Dot(String className, String simpleName)
     {
         if (className == null)
             return simpleName;
@@ -88,22 +88,24 @@ public class ModuleActionMaker implements ModuleAction, ClassMakerLocation
             return className + "." + simpleName;
     }
 
-    public Object declareImport(String fullyQualifiedClassname,
-            String simpleClassName)
+    public Object Import(String fullyQualifiedClassname)
     {
-        maker.Import(fullyQualifiedClassname.toString());
+    	int offset = fullyQualifiedClassname.lastIndexOf('.');
+    	String simpleClassName = (offset == -1) ? fullyQualifiedClassname : fullyQualifiedClassname.substring(offset+1);
+    	this.setAlias(simpleClassName, fullyQualifiedClassname);
+        maker.Import(fullyQualifiedClassname);
         return simpleClassName;
     }
 
-    public Object declarePackage(String packageName)
+    public Object Package(String packageName)
     {
         maker.setPackageName(packageName.toString());
         return packageName;
     }
 
-    public void handleModule(Object module)
+    public Object handleModule(Object module)
     {
-        // Do nothing
+        return null;
     }
 
     public Object getModule()

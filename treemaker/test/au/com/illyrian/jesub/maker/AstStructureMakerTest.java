@@ -31,7 +31,7 @@ public class AstStructureMakerTest extends ClassMakerTestCase
         build.Package(auComIllyrian);
         build.Import(AstStructure);
         build.Import(build.Name("java.io.File"));
-        build.ClassName(build.Name("Test"));
+        build.ClassName(build.Modifier("public"), build.Name("Test"));
         
 //        AstStructureVisitor visitor = new AstStructureVisitor(maker);
 //        build.getModule().resolveDeclaration(visitor);
@@ -56,7 +56,7 @@ public class AstStructureMakerTest extends ClassMakerTestCase
     {
         AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
         build.Package(build.Name("au.com.illyrian.jesub.ast"));
-        build.ClassName(build.Name("Test"));
+        build.ClassName(build.Modifier("public"), build.Name("Test"));
         build.Extends(build.Name("AstStructureBase"));
         build.Implements(build.Name("AstStructure"));
         build.Implements(build.Name("Runnable"));
@@ -105,19 +105,15 @@ public class AstStructureMakerTest extends ClassMakerTestCase
     {
         AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
         build.Package(build.Name("au.com.illyrian.jesub.maker"));
-        build.Modifier("public");
-        build.ClassName(build.Name("Test"));
+        build.ClassName(build.Modifier("public"), build.Name("Test"));
         build.Extends(build.Name(FuncABC.class.getName()));
 
         AstExpression type = build.Name("int");
-        build.Modifier("public");
-        build.Declare(type, build.Name("w"));
-        build.Modifier("protected");
-        build.Declare(type, build.Name("x"));
+        build.Declare(build.Modifier("public"), type, build.Name("w"));
+        build.Declare(build.Modifier("protected"), type, build.Name("x"));
         // package
-        build.Declare(type, build.Name("y"));
-        build.Modifier("private");
-        build.Declare(type, build.Name("z"));
+        build.Declare(0, type, build.Name("y"));
+        build.Declare(build.Modifier("private"), type, build.Name("z"));
         
         //AstStructureVisitor visitor = new AstStructureVisitor(maker);
         //build.getModule().resolveDeclaration(visitor);
@@ -143,13 +139,11 @@ public class AstStructureMakerTest extends ClassMakerTestCase
     {
         AstStructureFactoryMaker build = new AstStructureFactoryMaker(maker);
         build.Package(build.Name("au.com.illyrian.jesub.maker"));
-        build.Modifier("public");
-        build.ClassName(build.Name("Test"));
+        build.ClassName(build.Modifier("public"), build.Name("Test"));
         build.Extends(build.Name(FuncABC.class.getName()));
 
         TerminalName type = build.Name("int");
-        build.Modifier("public");
-        build.Method(type, build.Name("f"));
+        build.Method(build.Modifier("public"), type, build.Name("f"));
         
         build.Declare(type, build.Name("a"));
         build.Declare(type, build.Name("b"));

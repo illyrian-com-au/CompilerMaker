@@ -32,4 +32,7 @@ public interface JesubAction extends ModuleAction
     public Object declareImplements(String className);
     
     public Object primitiveType(String name);
+    
+    public Object getModule();
+
 }

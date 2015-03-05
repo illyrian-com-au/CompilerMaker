@@ -9,16 +9,16 @@ import au.com.illyrian.parser.ParseModule;
 import au.com.illyrian.parser.ParseStatement;
 import au.com.illyrian.parser.ParserException;
 
-public class ParserInvoker extends ParserBase implements InvokeParser
+public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
 {
     private CompileUnit compileUnit = null;
     
-    public ParserInvoker()
+    public InvokeParserImpl()
     {
         super();
     }
     
-    public ParserInvoker(CompileUnit compileUnit)
+    public InvokeParserImpl(CompileUnit compileUnit)
     {
         super();
         setCompileUnit(compileUnit);
@@ -60,7 +60,7 @@ public class ParserInvoker extends ParserBase implements InvokeParser
     /* (non-Javadoc)
      * @see au.com.illyrian.parser.impl.InvokeParser#invokeParseModule(java.lang.String, au.com.illyrian.parser.Input)
      */
-    public Object invokeParseModule(String parseName, Input input) throws ParserException
+    public T invokeParseModule(String parseName, Input input) throws ParserException
     {
        ParseModule parserInstance = null;
        try {
@@ -75,14 +75,14 @@ public class ParserInvoker extends ParserBase implements InvokeParser
            pex.setParserStatus(input);
            throw pex;
        }
-       Object result = parserInstance.parseModule();
+       T result = (T)parserInstance.parseModule();
        return result;
    }
 
     /* (non-Javadoc)
      * @see au.com.illyrian.parser.impl.InvokeParser#invokeParseClass(java.lang.String, au.com.illyrian.parser.Input)
      */
-    public Object invokeParseClass(String parseName, Input input) throws ParserException
+    public T invokeParseClass(String parseName, Input input) throws ParserException
     {
     	ParseClass parserInstance = null;
         try {
@@ -98,14 +98,14 @@ public class ParserInvoker extends ParserBase implements InvokeParser
            throw pex;
         }
         getCompileUnit().visitParser(parserInstance);
-        Object result = parserInstance.parseClass();
+        T result = (T)parserInstance.parseClass();
         return result;
    }
     
     /* (non-Javadoc)
      * @see au.com.illyrian.parser.impl.InvokeParser#invokeParseMember(java.lang.String, au.com.illyrian.parser.Input)
      */
-    public Object invokeParseMember(String parseName, Input input) throws ParserException
+    public T invokeParseMember(String parseName, Input input) throws ParserException
     {
         ParseMember parserInstance = null;
         try {
@@ -121,14 +121,14 @@ public class ParserInvoker extends ParserBase implements InvokeParser
             throw pex;
         }
         getCompileUnit().visitParser(parserInstance);
-        Object result = parserInstance.parseMember();
+        T result = (T)parserInstance.parseMember();
         return result;
     }
 
     /* (non-Javadoc)
      * @see au.com.illyrian.parser.impl.InvokeParser#invokeParseStatement(java.lang.String, au.com.illyrian.parser.Input)
      */
-    public Object invokeParseStatement(String parseName, Input input) throws ParserException
+    public T invokeParseStatement(String parseName, Input input) throws ParserException
     {
         ParseStatement parserInstance = null;
        try {
@@ -144,14 +144,14 @@ public class ParserInvoker extends ParserBase implements InvokeParser
            throw pex;
        }
        getCompileUnit().visitParser(parserInstance);
-       Object result = parserInstance.parseStatement();
+       T result = (T)parserInstance.parseStatement();
        return result;
    }
     
     /* (non-Javadoc)
      * @see au.com.illyrian.parser.impl.InvokeParser#invokeParseExpression(java.lang.String, au.com.illyrian.parser.Input)
      */
-    public Object invokeParseExpression(String parseName, Input input) throws ParserException
+    public T invokeParseExpression(String parseName, Input input) throws ParserException
     {
         ParseExpression parserInstance = null;
        try {
@@ -167,7 +167,7 @@ public class ParserInvoker extends ParserBase implements InvokeParser
            throw pex;
        }
        getCompileUnit().visitParser(parserInstance);
-       Object result = parserInstance.parseExpression();
+       T result = (T)parserInstance.parseExpression();
        return result;
    }
 }

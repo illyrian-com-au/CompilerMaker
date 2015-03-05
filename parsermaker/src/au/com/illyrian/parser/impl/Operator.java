@@ -36,9 +36,7 @@ public class Operator
         this.mode = arity;
         this.leftAssociative = leftAssociative;
     }
-    /* (non-Javadoc)
-     * @see au.com.illyrian.expressionparser.OperatorIface#getName()
-     */
+
     public String getName()
     {
         return name;
@@ -49,33 +47,21 @@ public class Operator
         return endName;
     }
 
-    /* (non-Javadoc)
-     * @see au.com.illyrian.expressionparser.OperatorIface#getIndex()
-     */
     public int getIndex()
     {
         return index;
     }
 
-    /* (non-Javadoc)
-     * @see au.com.illyrian.expressionparser.OperatorIface#getPrecedence()
-     */
     public int getPrecedence()
     {
         return precedence;
     }
 
-    /* (non-Javadoc)
-     * @see au.com.illyrian.expressionparser.OperatorIface#getArity()
-     */
     public int getMode()
     {
         return mode;
     }
 
-    /* (non-Javadoc)
-     * @see au.com.illyrian.expressionparser.OperatorIface#isLeftAssociative()
-     */
     public boolean isLeftAssociative()
     {
         return leftAssociative;
@@ -92,24 +78,24 @@ public class Operator
         switch (mode)
         {
         case Operator.PREFIX:
-            buf.append("prefix, ");
+            buf.append("prefix");
             break;
         case Operator.POSTFIX:
-            buf.append("postfix, ");
+            buf.append("postfix");
             break;
         case Operator.BINARY:
             buf.append("binary, ");
+            buf.append(leftAssociative ? "leftAssociative" : "rightAssociative");
             break;
         case Operator.TERNARY:
-            buf.append("ternary, ");
+            buf.append("ternary");
             break;
         case Operator.BRACKET:
-            buf.append("bracket, ");
+            buf.append("bracket");
             break;
         default:
-            buf.append("<error!>, ");
+            buf.append("<error!>");
         }
-        buf.append(leftAssociative ? "leftAssociative" : "rightAssociative");
         buf.append(")");
         return buf.toString();
     }
