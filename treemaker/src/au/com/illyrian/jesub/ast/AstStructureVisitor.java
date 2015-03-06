@@ -49,9 +49,13 @@ public class AstStructureVisitor extends AstExpressionVisitor
     
     public void resolveDeclaration(AstDeclareModule unit)
     {
-        String packageName = unit.getPackageName().resolvePath(this);
-        maker.setPackageName(packageName);
-        resolveImport(unit.getImportsList());
+    	if (unit.getPackageName() != null)
+    	{
+    	    String packageName = unit.getPackageName().resolvePath(this);
+    	    maker.setPackageName(packageName);
+    	}
+        if (unit.getImportsList() != null)
+        	unit.getImportsList().resolveImport(this);
         if (unit.getDeclareClass() != null)
         	unit.getDeclareClass().resolveDeclaration(this);
     }
