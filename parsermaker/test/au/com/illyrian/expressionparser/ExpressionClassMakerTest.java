@@ -62,7 +62,7 @@ public class ExpressionClassMakerTest extends TestCase
         func = (FuncVoid)instance;
         assertEquals("Generated class does not override f()", 1, func.f());
     }
-/*
+
     public void testExtendsFuncVoid() throws Exception
     {
         out.println("package au.com.illyrian.expressionparser;");
@@ -357,5 +357,4 @@ public class ExpressionClassMakerTest extends TestCase
         assertEquals("f(-4,6, 2)", 12, func.f(-4, 6, 2));
         assertEquals("f(3,4,2)", 8, func.f(3,4,2));
     }
-   */
 }
