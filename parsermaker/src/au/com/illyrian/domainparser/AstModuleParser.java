@@ -147,7 +147,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
        }
    }
    
-   /** dec_module ::= dec_package more_imports dec_class */
+   /** dec_module ::= dec_package more_imports dec_class ;*/
    public AstStructure dec_module() throws ParserException
    {
        AstExpression packageExpr = dec_package();
@@ -157,7 +157,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
    }
    
    /** packageStatement   ::= 'package' class_name ';'
-    *                     |   EMPTY 
+    *                     |   EMPTY ;
     */
    public AstExpression dec_package() throws ParserException
    {
@@ -171,10 +171,13 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
        return null;
    }
 
-   /** more_imports ::= { 'import' classname ';' } */
+   /** more_imports ::= 'import' class_name ';' more_imports
+    *               |   'import' class_name error("';' expected at end of fully qualified class name")
+    *               |   EMPTY ;
+    */
    public AstExpression more_imports() throws ParserException
    {
-	   AstExpression result = null;
+       AstExpression result = null;
        if (accept(Lexer.RESERVED, "import"))
        {
            AstExpression className = class_name();
@@ -187,11 +190,11 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
    }
 
    /** simple_name ::= IDENTIFIER 
-    *              | error("Class name expected")
+    *              | error("Class name expected") ;
     */
    public AstExpression simple_name() throws ParserException
    {
-	   AstExpression result = null;
+       AstExpression result = null;
        if (getToken() == Lexer.IDENTIFIER)
        {
            String simpleName = getLexer().getTokenValue();
@@ -204,11 +207,11 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
    }
 
    /** class_name :== simple_name '.' class_name
-    *             |   simple_name
+    *             |   simple_name ;
     */
    public AstExpression class_name() throws ParserException
    {
-	   AstExpression result = simple_name();
+       AstExpression result = simple_name();
        if (accept(Lexer.OPERATOR, "."))
        {
            AstExpression moreClassName = class_name();
@@ -219,12 +222,13 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
    }
 
    /**
-    *     parser    ::= class_name '::' code($1) '::' class_name ';'
-    *                   verifyParserName($1, $5)
+    *     parser    ::= class_name '::' code($1) '::' class_name ';' verifyParserName($1, $5)
+    *               |   class_name '::' code($1) '::' error("'$1' expected at end of parser space")
+    *               |   error("Parser class name expected") ;
     */
    public AstDeclareClass dec_class() throws ParserException
    {
-	   AstDeclareClass decClass = null;
+       AstDeclareClass decClass = null;
        if (getToken() == Lexer.IDENTIFIER)
        {
     	   AstExpression parseName = class_name();
@@ -246,7 +250,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
                throw error(getInput(), ":: expected");
        }
        else
-           throw error(getInput(), "Parser name expected");
+           throw error(getInput(), "Parser class name expected");
        return decClass;
    }
    
@@ -267,6 +271,6 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
 	   String firstName = name1.toString();
 	   String secondName = name2.toString();
 	   if (!firstName.equals(secondName))
-           throw error(getInput(), "'" + firstName + "' expected at end of parser space");
+	       throw error(getInput(), "'" + firstName + "' expected at end of parser space");
    }
 }
