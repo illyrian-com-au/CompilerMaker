@@ -35,9 +35,9 @@ import au.com.illyrian.classmaker.ast.TerminalName;
 
 public class AstDeclareClass extends AstStructureBase
 {
-    private AstModifiers modifiers;
-    private TerminalName className;
-    private AstExpression baseClass;
+    private AstModifiers modifiers = null;
+    private TerminalName className = null;
+    private AstExpression baseClass = null;
     private AstExpression implementsList = null;
     private AstStructure  membersList = null;
     
