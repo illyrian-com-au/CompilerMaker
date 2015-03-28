@@ -85,7 +85,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
     }
     
 /*
-     dec_module:AstDeclareModule   ::= dec_package dec_imports dec_class
+     dec_module:AstDeclareModule   ::= dec_package dec_imports dec_class ;
      dec_package:AstExpression     ::= 'package' class_name ';'
                                    | EMPTY ;
      dec_imports:AstExpression     ::= 'import' class_name ';' dec_imports
@@ -94,7 +94,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
                                    | '.' IDENTIFIER
                                    | '.' error("More of the class name expected) 
                                    | error("Class name expected") ;
-     dec_class:AstDeclareClass     ::= class_name '::' code '::' class_name ';'
+     dec_class:AstDeclareClass     ::= class_name '::' code '::' class_name ';' ;
      code:AstDeclareClass          ::= <code for the invoked parser> 
  */
     
@@ -147,7 +147,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
        }
    }
    
-   /** dec_module ::= dec_package more_imports dec_class ;*/
+   /** dec_module:AstStructure ::= dec_package more_imports dec_class { return new AstDeclareModule($1, $2, $3); };*/
    public AstStructure dec_module() throws ParserException
    {
        AstExpression packageExpr = dec_package();
@@ -156,7 +156,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
        return new AstDeclareModule(packageExpr, importsExpr, classExpr);
    }
    
-   /** packageStatement   ::= 'package' class_name ';'
+   /** packageStatement   ::= 'package' class_name ';' { return $2; }
     *                     |   EMPTY ;
     */
    public AstExpression dec_package() throws ParserException
@@ -171,26 +171,33 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
        return null;
    }
 
-   /** more_imports ::= 'import' class_name ';' more_imports
-    *               |   'import' class_name error("';' expected at end of fully qualified class name")
-    *               |   EMPTY ;
+   /** more_imports:AstExpression ::= declare_import more_imports 
+    *                                 { return ($2==null) ? S1 : new AstExpressionLink($1, $2); }
+    *                             |   EMPTY 
     */
    public AstExpression more_imports() throws ParserException
    {
-       AstExpression result = null;
-       if (accept(Lexer.RESERVED, "import"))
+       if (match(Lexer.RESERVED, "import"))
        {
-           AstExpression className = class_name();
-           expect(Lexer.DELIMITER, ";", "';' expected at end of fully qualified class name");
+           AstExpression className = declare_import();
            AstExpression more = more_imports();
-           
-           result = (more == null) ? className : new AstExpressionLink(className, more);
+           return (more == null) ? className : new AstExpressionLink(className, more);
        }
-       return result;
+       return null;
+   }
+   
+   /** declare_import:AstExpression ::= 'import' class_name ';' { return $2; } ;
+    */
+   public AstExpression declare_import() throws ParserException
+   {
+       expect(Lexer.RESERVED, "import");
+       AstExpression className = class_name();
+       semi();
+       return className;
    }
 
-   /** simple_name ::= IDENTIFIER 
-    *              | error("Class name expected") ;
+   /** simple_name:AstExpression ::= IDENTIFIER { return new TerminalName(value); }
+    *                            | error("Class name expected") ;
     */
    public AstExpression simple_name() throws ParserException
    {
@@ -206,8 +213,8 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
        return result;
    }
 
-   /** class_name :== simple_name '.' class_name
-    *             |   simple_name ;
+   /** class_name:AstExpression :== simple_name '.' class_name { return new DotOperator($1, $2); }
+    *                           |   simple_name ;
     */
    public AstExpression class_name() throws ParserException
    {
@@ -220,10 +227,15 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
        }
        return result;
    }
+   
+   public String semi() throws ParserException
+   {
+       return expect(Lexer.DELIMITER, ";", "';' expected at end of statement");
+   }
+
 
    /**
-    *     parser    ::= class_name '::' code($1) '::' class_name ';' verifyParserName($1, $5)
-    *               |   class_name '::' code($1) '::' error("'$1' expected at end of parser space")
+    *     parser    ::= class_name '::' code($1) '::' class_name ';' { verifyParserName($1, $5); return $3; }
     *               |   error("Parser class name expected") ;
     */
    public AstDeclareClass dec_class() throws ParserException
