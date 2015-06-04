@@ -11,7 +11,7 @@ public class DeclaredType
     }
     
     /**
-     * Convert this <code>Stackable</code> to a <code>DeclaredType</code>.
+     * Convert this <code>Type</code> to a <code>DeclaredType</code>.
      * @return a <code>DeclaredType</code> if appropriate; otherwise null
      */
     public DeclaredType toTypeDec()

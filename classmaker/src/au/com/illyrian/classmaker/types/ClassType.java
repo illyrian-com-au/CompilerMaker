@@ -76,11 +76,11 @@ public class ClassType extends Type {
      */
     public MakerField findField(String name)
     {
-        for (int i = 0; i < fields.length; i++)
-        {
-            if (name.equals(fields[i].getName()))
-            {
-                return fields[i];
+        if (fields != null) {
+            for (int i = 0; i < fields.length; i++) {
+                if (name.equals(fields[i].getName())) {
+                    return fields[i];
+                }
             }
         }
         return null;

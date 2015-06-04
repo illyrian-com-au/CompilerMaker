@@ -550,7 +550,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
     {
         maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
 
-        maker.setPass(ClassMaker.FIRST_PASS);
+        factory.setPass(ClassMaker.FIRST_PASS);
         assertNull("Should return null: maker.getClassFileWriter()", maker.getClassFileWriter());
 
         code(maker);
@@ -562,7 +562,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
         assertEquals("Number of methods", 14, maker.getClassType().getAllMethods().length);
         assertEquals("Number of constructors", 1, maker.getClassType().getConstructors().length);
 
-        maker.setPass(ClassMaker.SECOND_PASS);
+        factory.setPass(ClassMaker.SECOND_PASS);
         assertNotNull("Should not be null : maker.getClassFileWriter()", maker.getClassFileWriter());
         code(maker);
         maker.EndClass();

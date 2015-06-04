@@ -37,9 +37,9 @@ public class ClassMakerException extends RuntimeException implements SourceLine
     static public final long serialVersionUID = 8974194912519382598L;
 
     /* The source filename */
-    private final String filename;
+    private String filename;
     /* The source line number */
-    private final int lineNumber;
+    private int lineNumber;
 
     /**
      * Create a ClassMakerException.
@@ -71,6 +71,12 @@ public class ClassMakerException extends RuntimeException implements SourceLine
         lineNumber = sourceFile.getLineNumber();
         filename   = sourceFile.getFilename();
     }
+    
+    public void setSourceLine(SourceLine source)
+    {
+        lineNumber = source.getLineNumber();
+        filename   = source.getFilename();
+    }
 
     /** The source filename. */
     public String getFilename()
@@ -82,5 +88,10 @@ public class ClassMakerException extends RuntimeException implements SourceLine
     public int getLineNumber()
     {
         return lineNumber;
+    }
+    
+    public String toString()
+    {
+        return filename + ":" + lineNumber + ": error: " + getMessage();
     }
 }

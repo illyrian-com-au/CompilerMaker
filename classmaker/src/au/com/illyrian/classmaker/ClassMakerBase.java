@@ -188,10 +188,10 @@ public abstract class ClassMakerBase extends ClassMaker
         {
             if (isTwoPass())
             {
-                setPass(ClassMaker.FIRST_PASS);
+                getFactory().setPass(ClassMaker.FIRST_PASS);
                 code();
                 super.EndClass();
-                setPass(ClassMaker.SECOND_PASS);
+                getFactory().setPass(ClassMaker.SECOND_PASS);
             }
             code();
             super.EndClass();

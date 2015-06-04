@@ -1,6 +1,7 @@
 package au.com.illyrian.classmaker;
 
 import au.com.illyrian.classmaker.ClassMaker.ForWhile;
+import au.com.illyrian.classmaker.ClassMaker.Initialiser;
 import au.com.illyrian.classmaker.ClassMaker.Labelled;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.ArrayType;
@@ -56,39 +57,39 @@ public interface ExpressionIfc
     public void Implements(String className) throws ClassMakerException;
 
     //
-//    //################ Class Instantiation #########################
-//    /**
-//     * Creates a new instance of the given <code>Class</code>.
-//     * @param javaClass the <code>Class</code> to be instantiated
-//     * @return an <code>Initialiser</code> for the instance
-//     */
-//    public Initialiser New(Class javaClass) throws ClassMakerException;
-//
-//    /**
-//     * Creates a new instance of the named class.
-//     * @param className the name of the class to intantiate
-//     * @return an <code>Initialiser</code> for the instance
-//     */
-//    public Initialiser New(String className) throws ClassMakerException;
-//
-//    /**
-//     * Creates a new instance of the class.
-//     * @param declared a declared type represents the type of class
-//     * @return an <code>Initialiser</code> for the instance
-//     */
-////    public Initialiser New(DeclaredType declared) throws ClassMakerException;
-//
-//    /**
-//     * Calls a constructor from the base class that is appropriate for the actual parameters.
-//     * </br>
-//     * Uses <code>MethodResolver</code> to determine the appropriate constructor for the
-//     * actual parameters and invokes that constructor using the reference to <code>super</code>
-//     * on top of the stack. The first parameter to this call must be <code>Super()</code>.
-//     * @param classType the type of the base class
-//     * @param actualParameters the types of the actual parameters in the call stack
-//     */
-//    public void Init(ClassType classType, Pushable actualParameters) throws ClassMakerException;
-//
+    //################ Class Instantiation #########################
+    /**
+     * Creates a new instance of the given <code>Class</code>.
+     * @param javaClass the <code>Class</code> to be instantiated
+     * @return an <code>Initialiser</code> for the instance
+     */
+    public Initialiser New(Class javaClass) throws ClassMakerException;
+
+    /**
+     * Creates a new instance of the named class.
+     * @param className the name of the class to intantiate
+     * @return an <code>Initialiser</code> for the instance
+     */
+    public Initialiser New(String className) throws ClassMakerException;
+
+    /**
+     * Creates a new instance of the class.
+     * @param declared a declared type represents the type of class
+     * @return an <code>Initialiser</code> for the instance
+     */
+    public Initialiser New(DeclaredType declared) throws ClassMakerException;
+
+    /**
+     * Calls a constructor from the base class that is appropriate for the actual parameters.
+     * </br>
+     * Uses <code>MethodResolver</code> to determine the appropriate constructor for the
+     * actual parameters and invokes that constructor using the reference to <code>super</code>
+     * on top of the stack. The first parameter to this call must be <code>Super()</code>.
+     * @param classType the type of the base class
+     * @param actualParameters the types of the actual parameters in the call stack
+     */
+    public void Init(ClassType classType, CallStack actualParameters) throws ClassMakerException;
+
     //################## Method calls ##########################
     /**
      * Calls a static method in the given class that is appropriate for the actual parameters.
@@ -988,7 +989,7 @@ public interface ExpressionIfc
      * @param sizeType the type of the dimension
      * @return the type of the new array instance
      */
-    public ArrayType NewArray(Type arrayType, Type size);
+    public ArrayType NewArray(DeclaredType arrayType, Type size);
 
     /**
      * Creates an multi-dimensional array using the dimensions on the stack.
@@ -1003,7 +1004,7 @@ public interface ExpressionIfc
      * @param dimensions the call stack
      * @return an new instance of a multi-dimensional array
      */
-    public ArrayType NewArray(Type array, CallStack dimensions);
+    public ArrayType NewArray(DeclaredType array, CallStack dimensions);
 
     /**
      * Finds a type representing an array of the given java class.
@@ -1013,7 +1014,7 @@ public interface ExpressionIfc
      * @param javaClass the class of element in the array
      * @return an <code>ArrayType</code> whose elements are of the given class
      */
-    public Type ArrayOf(Class javaClass);
+    public DeclaredType ArrayOf(Class javaClass);
 
     /**
      * Finds a type representing an array of the given java class.
@@ -1023,7 +1024,7 @@ public interface ExpressionIfc
      * @param typeName the class name of the element in the array
      * @return an <code>ArrayType</code> whose elements are of the given class
      */
-    public Type ArrayOf(String typeName);
+    public DeclaredType ArrayOf(String typeName);
 
     /**
      * Finds a type representing an array of the given type.
@@ -1037,7 +1038,21 @@ public interface ExpressionIfc
      * @param type the type of element in the array
      * @return an <code>ArrayType</code> whose elements are of the given type
      */
-    public ArrayType ArrayOf(Type type);
+    public DeclaredType ArrayOf(DeclaredType type);
+
+    /**
+     * Finds a type representing an array of the given type.
+      <pre>
+         Declare("intArray", ArrayOf(ClassMaker.INT_TYPE), 0);
+         Declare("processArray", ArrayOf(getClassType()), 0);
+      </pre>
+     * This method must be used when there is no concrete <code>Class</code>
+     * for the array element, for example when declaring an array of
+     * the class currently being generated.
+     * @param type the type of element in the array
+     * @return an <code>ArrayType</code> whose elements are of the given type
+     */
+    public Type ArrayOf(Type type);
 
     /**
      * Gets a value from an array element.
@@ -1605,10 +1620,23 @@ public interface ExpressionIfc
     public void Finally() throws ClassMakerException;
 
     /**
-     * Ends a <code>Try Catch Finally</code> block.     */
+     * Ends a <code>Try Catch Finally</code> block.     
+     */
     public void EndTry() throws ClassMakerException;
 
     // Exception handling
     public ClassMakerException createException(String msg);
 
+    /**
+     * Get the current pass for the class generator.
+     * </br>
+     * The default is <code>ClassMaker.ONE_PASS</code>.
+     */
+    public int getPass();
+    
+    /**
+     * Completes processing of the class.
+     * This method is automatically called when the class is defined.
+     */
+    public void EndClass() throws ClassMakerException;
 }

@@ -4,7 +4,7 @@ import au.com.illyrian.classmaker.types.Type;
 
 public interface CallStack {
 	
-	public CallStack Push(Type reference);
+    public CallStack Push(Type reference);
 	
     public Type[] toArray();
 

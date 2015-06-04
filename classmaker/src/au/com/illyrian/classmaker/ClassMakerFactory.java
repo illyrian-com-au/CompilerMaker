@@ -83,6 +83,9 @@ public class ClassMakerFactory
     /** Discriminator for anonymous classes */
     private int anonomousClass = 0;
 
+    /** The current phase of a two pass class generation */
+    private int generationPass = ClassMaker.ONE_PASS;
+
     private ExceptionFactory exceptionFactory = null;
 
     private MethodInvocationConversion methodInvocationConversion;
@@ -133,6 +136,39 @@ public class ClassMakerFactory
     public ClassMaker createClassMaker(String className, Class extendsClass, String sourceFile)
     {
         return new ClassMaker(this, className, extendsClass, sourceFile);
+    }
+
+    /**
+     * Set the current pass for the class generator.
+     * </br>
+     * The following are valid options.
+     * <ul>
+     * <li><code>ClassMaker.ONE_PASS</code></li>
+     * <li><code>ClassMaker.FIRST_PASS</code></li>
+     * <li><code>ClassMaker.SECOND_PASS</code></li>
+     * </ul>
+     * The default is <code>ClassMaker.ONE_PASS</code>.
+     * @param pass the pass for the class generator
+     */
+    public void setPass(int pass)
+    {
+        generationPass = pass;
+    }
+
+    /**
+     * Get the current pass for the class generator.
+     * </br>
+     * The following are valid options.
+     * <ul>
+     * <li><code>ClassMaker.ONE_PASS</code></li>
+     * <li><code>ClassMaker.FIRST_PASS</code></li>
+     * <li><code>ClassMaker.SECOND_PASS</code></li>
+     * </ul>
+     * The default is <code>ClassMaker.ONE_PASS</code>.
+     */
+    public int getPass()
+    {
+        return generationPass;
     }
 
     /**
@@ -569,15 +605,18 @@ public class ClassMakerFactory
      */
     public void populateJavaClassConstructors(ClassType classType)
     {
-	  	Class javaClass = classType.getJavaClass();
-	  	java.lang.reflect.Constructor [] construct = javaClass.getDeclaredConstructors();
-    	MakerMethod [] constructors = new MakerMethod[construct.length];
-        for (int i = 0; i < construct.length; i++)
+        Class javaClass = classType.getJavaClass();
+        if (javaClass != null)
         {
-            java.lang.reflect.Constructor javaMethod = construct[i];
-            constructors[i] = toMethod(classType, javaMethod);
+            java.lang.reflect.Constructor [] construct = javaClass.getDeclaredConstructors();
+        	MakerMethod [] constructors = new MakerMethod[construct.length];
+            for (int i = 0; i < construct.length; i++)
+            {
+                java.lang.reflect.Constructor javaMethod = construct[i];
+                constructors[i] = toMethod(classType, javaMethod);
+            }
+            classType.setConstructors(constructors);
         }
-        classType.setConstructors(constructors);
     }
 
     /**
@@ -667,14 +706,13 @@ public class ClassMakerFactory
     protected MakerField findMemberField(ClassType classType, String name)
     {
         MakerField field = null;
-    	if (classType != null)
-    	{
-            if (classType.getFields() == null)
+        if (classType != null) {
+            if (classType.getFields() == null && classType.getJavaClass() != null)
                 classType.setFields(populateJavaClassFields(classType));
             field = classType.findField(name);
-	        if (field == null)
-	            field = findMemberField(classType.getExtendsType(), name);
-    	}
+            if (field == null)
+                field = findMemberField(classType.getExtendsType(), name);
+        }
         return field;
     }
 

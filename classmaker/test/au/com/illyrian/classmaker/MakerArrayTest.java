@@ -31,6 +31,7 @@ import java.lang.reflect.Field;
 
 import org.mozilla.classfile.ByteCode;
 
+import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Type;
 
 public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
@@ -104,7 +105,7 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-        	// return this.values[x];
+                // return this.values[x];
             maker.Return(maker.GetAt(maker.Get(maker.This(), "values"), maker.Get("x")));
         maker.End();
 
@@ -2204,6 +2205,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
         int eval();
     }
 
+    public void testArrayOf() throws Exception
+    {
+        Class arrayClass = int[].class;
+        maker.ArrayOf(int.class);
+    }
+
     public void testArrayLength() throws Exception
     {
         maker.Implements(Eval.class);
@@ -2244,7 +2251,7 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
         // Generate Class
         maker.Implements(MultiArray.class);
 
-        Type mint_array = maker.ArrayOf(maker.ArrayOf(maker.ArrayOf(int.class)));
+        DeclaredType mint_array = maker.ArrayOf(maker.ArrayOf(maker.ArrayOf(int.class)));
         maker.Declare("values", mint_array, ACC_PUBLIC);
 
         // Generate public int [][][] create()
