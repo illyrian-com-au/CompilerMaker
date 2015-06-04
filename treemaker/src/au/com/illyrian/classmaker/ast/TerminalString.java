@@ -27,6 +27,7 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class TerminalString extends AstExpressionBase
@@ -35,6 +36,12 @@ public class TerminalString extends AstExpressionBase
     
     public TerminalString(String stringValue)
     {
+        value = stringValue;
+    }
+    
+    public TerminalString(String stringValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
         value = stringValue;
     }
     

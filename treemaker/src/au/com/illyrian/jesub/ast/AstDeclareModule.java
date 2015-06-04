@@ -36,7 +36,7 @@ public class AstDeclareModule extends AstStructureBase
 {
     private AstExpression packageName;
     private AstExpression importsList = null;
-    private AstDeclareClass declaredClass;
+    private AstStructure classList;
     
     public AstDeclareModule()
     {
@@ -46,7 +46,7 @@ public class AstDeclareModule extends AstStructureBase
     {
     	this.packageName = packageName;
     	this.importsList = importsList;
-    	this.declaredClass = declaredClass;
+    	add(declaredClass);
     }
     
     public ResolvePath getPackageName()
@@ -70,14 +70,18 @@ public class AstDeclareModule extends AstStructureBase
         importsList = link;
     }
 
-    public AstDeclareClass getDeclareClass()
+    public AstStructure getClassList()
     {
-        return declaredClass;
+        return classList;
     }
 
-    public void setDeclareClass(AstDeclareClass declareClass)
+    public AstDeclareModule add(AstDeclareClass declareClass)
     {
-        this.declaredClass = declareClass;
+        if (classList == null)
+            classList = declareClass;
+        else
+            classList = new AstStructureLink(classList, declareClass);
+        return this;
     }
 
     public void resolveDeclaration(AstStructureVisitor visitor)
@@ -93,9 +97,8 @@ public class AstDeclareModule extends AstStructureBase
     	if (importsList != null)
     		buf.append("import " + importsList + ";\n");
     	
-    	if (declaredClass.getModifiers() != null)
-    		buf.append(declaredClass.getModifiers() + " ");
-    	buf.append("class " + declaredClass.getClassName() + " ...");
+    	if (classList != null)
+    	    buf.append(classList.toSignature());
     	
     	return buf.toString();
     }

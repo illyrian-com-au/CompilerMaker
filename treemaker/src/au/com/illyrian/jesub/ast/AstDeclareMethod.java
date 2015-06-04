@@ -92,8 +92,13 @@ public class AstDeclareMethod extends AstDeclareVariable
         visitor.resolveDeclaration(this);
     }
     
+    public String toSignature()
+    {
+    	return super.toSignature() + "(" + parameters + ")";
+    }
+
     public String toString()
     {
-    	return super.toString() + "(" + parameters + "){\n " + methodBody + "}\n ";
+        return toSignature() + "{\n " + methodBody + "}\n";
     }
 }

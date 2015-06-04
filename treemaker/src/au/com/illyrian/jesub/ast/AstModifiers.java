@@ -56,6 +56,6 @@ public class AstModifiers extends AstStructureBase
         if (next == null)
             return "" + modifier;
         else
-            return next + " " + modifier;
+            return modifier + " " + next;
     }
 }

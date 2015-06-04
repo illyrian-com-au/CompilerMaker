@@ -378,7 +378,7 @@ public class ExpresssionBasicTest extends TestCase
     public void testLocalCall()
     {
         AstExpression call = ast.Call(ast.Name("Foo"), null);
-        assertEquals("Wrong toString()", "Foo(null)", call.toString());
+        assertEquals("Wrong toString()", "Foo()", call.toString());
         Type type = call.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Call(This(), \"Foo\", Push())]", buf.toString());
@@ -386,7 +386,7 @@ public class ExpresssionBasicTest extends TestCase
 
     public void testLocalCallParam1()
     {
-        AstExpression call = ast.Call(ast.Name("Foo"), ast.Push(ast.Name("x")));
+        AstExpression call = ast.Call(ast.Name("Foo"), ast.Comma(ast.Name("x")));
         assertEquals("Wrong toString()", "Foo(x)", call.toString());
         Type type = call.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
@@ -395,7 +395,7 @@ public class ExpresssionBasicTest extends TestCase
 
     public void testLocalCallParam2()
     {
-        AstExpression call = ast.Call(ast.Name("Foo"), ast.Push(ast.Push(ast.Name("x")), ast.Literal("Hi")));
+        AstExpression call = ast.Call(ast.Name("Foo"), ast.Comma(ast.Comma(ast.Name("x")), ast.Literal("Hi")));
         assertEquals("Wrong toString()", "Foo(x, \"Hi\")", call.toString());
         Type type = call.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
@@ -405,7 +405,7 @@ public class ExpresssionBasicTest extends TestCase
     public void testCallOtherMethod()
     {
         AstExpression expr = ast.Dot(ast.Name("x"), ast.Call(ast.Name("Foo"), null));
-        assertEquals("Wrong toString()", "x.Foo(null)", expr.toString());
+        assertEquals("Wrong toString()", "x.Foo()", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Call(Get(\"x\"), \"Foo\", Push())]", buf.toString());
@@ -414,7 +414,7 @@ public class ExpresssionBasicTest extends TestCase
     public void testCallStatic()
     {
         AstExpression expr = ast.Dot(ast.Name("Object"), ast.Call(ast.Name("Foo"), null));
-        assertEquals("Wrong toString()", "Object.Foo(null)", expr.toString());
+        assertEquals("Wrong toString()", "Object.Foo()", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Call(\"Object\", \"Foo\", Push())]", buf.toString());
@@ -449,10 +449,6 @@ public class ExpresssionBasicTest extends TestCase
 
     public static class DummyOperator extends AstExpressionBase
     {
-        public Type resolveType(AstExpressionVisitor visitor)
-        {
-            return null;
-        }
     }
 
     public void testAstExpressionBase()

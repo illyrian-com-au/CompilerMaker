@@ -27,38 +27,46 @@
 
 package au.com.illyrian.classmaker.ast;
 
-import au.com.illyrian.classmaker.CallStack;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
-public class ActualParameter extends AstExpressionBase
+
+public class AstStatementReserved extends AstExpressionBase
 {
-    AstExpression leftExpression;
-    AstExpression rightExpression;
-    
-    public ActualParameter(AstExpression left, AstExpression right)
+	public static final AstStatementReserved THIS = new AstStatementReserved("this");
+	public static final AstStatementReserved SUPER = new AstStatementReserved("super");
+	public static final AstStatementReserved NULL = new AstStatementReserved("null");
+	public final String reservedWord;
+	
+	public static AstStatementReserved lookup(String name)
+	{
+    	if (THIS.reservedWord.equals(name))
+    		return THIS;
+    	else if (SUPER.reservedWord.equals(name))
+    		return SUPER;
+    	else if (NULL.reservedWord.equals(name))
+    		return NULL;
+    	else
+    		throw new IllegalStateException("Unknown reserved word: " + name);
+	}
+	
+    private AstStatementReserved(String reservedWord)
     {
-        leftExpression = left;
-        rightExpression = right;
+    	this.reservedWord = reservedWord;
     }
+    
+//    public void resolveStatement(AstStructureVisitor visitor)
+//    {
+//        visitor.resolveStatement(this);
+//    }
     
     public Type resolveType(AstExpressionVisitor visitor)
     {
-        return null;
-    }
-    
-    public CallStack resolveCallStack(AstExpressionVisitor visitor)
-    {
-        return visitor.resolveCallStack(this);
+        return visitor.resolveType(this);
     }
     
     public String toString()
     {
-        if (leftExpression == null)
-            return "" + rightExpression;
-        else if (rightExpression == null)
-            return leftExpression + "";
-        else
-            return leftExpression + ", " + rightExpression;
+    	return reservedWord;
     }
-
 }

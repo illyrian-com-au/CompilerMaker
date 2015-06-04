@@ -27,318 +27,394 @@
 
 package au.com.illyrian.jesub.ast;
 
+import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMaker.ForStep;
 import au.com.illyrian.classmaker.ClassMaker.ForWhile;
 import au.com.illyrian.classmaker.ClassMaker.Labelled;
+import au.com.illyrian.classmaker.ClassMakerException;
 import au.com.illyrian.classmaker.ExpressionIfc;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
+import au.com.illyrian.classmaker.ast.AstStatementReserved;
 import au.com.illyrian.classmaker.ast.ResolvePath;
+import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Type;
 
 public class AstStructureVisitor extends AstExpressionVisitor
 {
-    ExpressionIfc maker;
-    
+    public AstStructureVisitor()
+    {
+    }
+
     public AstStructureVisitor(ExpressionIfc classMaker)
     {
         super(classMaker);
-        maker = classMaker;
     }
-    
+
     public void resolveDeclaration(AstDeclareModule unit)
     {
-    	if (unit.getPackageName() != null)
-    	{
-    	    String packageName = unit.getPackageName().resolvePath(this);
-    	    maker.setPackageName(packageName);
-    	}
+        try {
+            if (unit.getPackageName() != null) {
+                String packageName = unit.getPackageName().resolvePath(this);
+                getMaker().setPackageName(packageName);
+            }
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
         if (unit.getImportsList() != null)
-        	unit.getImportsList().resolveImport(this);
-        if (unit.getDeclareClass() != null)
-        	unit.getDeclareClass().resolveDeclaration(this);
+            unit.getImportsList().resolveImport(this);
+        if (unit.getClassList() != null)
+            unit.getClassList().resolveDeclaration(this);
     }
 
     public void resolveDeclaration(AstDeclareClass unit)
     {
-        int modifiers = resolveModifiers(unit.getModifiers());
-        maker.setClassModifiers(modifiers);
-        String className = unit.getClassName().resolvePath(this);
-        maker.setSimpleClassName(className);
-        resolveExtends(unit.getExtends());
+        try {
+            int modifiers = resolveModifiers(unit.getModifiers());
+            getMaker().setClassModifiers(modifiers);
+            String className = unit.getClassName().resolvePath(this);
+            getMaker().setSimpleClassName(className);
+            resolveExtends(unit.getExtends());
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
         if (unit.getImplementsList() != null)
-        	unit.getImplementsList().resolveImplements(this);
+            unit.getImplementsList().resolveImplements(this);
         if (unit.getMembers() != null)
-        	unit.getMembers().resolveDeclaration(this);
+            unit.getMembers().resolveDeclaration(this);
     }
 
     public void resolveExtends(ResolvePath className)
     {
-        if (className != null)
-        {
-            String baseClass = className.resolvePath(this);
-            maker.Extends(baseClass);
+        try {
+            if (className != null) {
+                String baseClass = className.resolvePath(this);
+                getMaker().Extends(baseClass);
+            }
+        } catch (ClassMakerException ex) {
+            addError(ex);
         }
     }
-    
+
     public void resolveImport(AstExpressionLink link)
     {
-    	if (link != null)
-    	{
-    		if (link.left != null)	
-    			link.left.resolveImport(this);
-    		if (link.right != null)	
-    			link.right.resolveImport(this);
-    	}
+        if (link != null)
+        {
+            if (link.left != null)
+                link.left.resolveImport(this);
+            if (link.right != null)
+                link.right.resolveImport(this);
+        }
     }
-    
+
     public void resolveImport(AstExpression className)
     {
-    	if (className != null)
-    	{
-    		String name = className.resolvePath(this);
-    		maker.Import(name);
-    	}
+        try {
+            if (className != null) {
+                String name = className.resolvePath(this);
+                getMaker().Import(name);
+            }
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
     }
 
     public void resolveImplements(AstExpressionLink link)
     {
-    	if (link != null)
-    	{
-    		if (link.left != null)	
-    			link.left.resolveImplements(this);
-    		if (link.right != null)	
-    			link.right.resolveImplements(this);
-    	}
+        if (link != null)
+        {
+            if (link.left != null)
+                link.left.resolveImplements(this);
+            if (link.right != null)
+                link.right.resolveImplements(this);
+        }
     }
-    
+
     public void resolveImplements(AstExpression className)
     {
-    	if (className != null)
-    	{
-	        String name = className.resolvePath(this);
-	        maker.Implements(name);
-    	}
+        try {
+            if (className != null) {
+                String name = className.resolvePath(this);
+                getMaker().Implements(name);
+            }
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
     }
-    
+
     public int resolveModifiers(AstModifiers modifiers)
     {
-        int modifierBits = 0; 
-        if (modifiers != null)
-        {
-            String modifierName = modifiers.modifier.getName();
-            modifierBits = resolveModifiers(modifiers.next);
-            modifierBits = maker.addModifier(modifierBits, modifierName);
+        int modifierBits = 0;
+        try {
+            if (modifiers != null) {
+                String modifierName = modifiers.modifier.getName();
+                modifierBits = resolveModifiers(modifiers.next);
+                modifierBits = getMaker().addModifier(modifierBits, modifierName);
+            }
+        } catch (ClassMakerException ex) {
+            addError(ex);
         }
         return modifierBits;
     }
 
-    public void resolveDeclaration(AstStructureList list)
-    {
-        for (AstStructure item : list.toArray())
-        {
-            item.resolveDeclaration(this);
-        }
-    }
-
     public void resolveDeclaration(AstStructureLink link)
     {
-    	if (link != null)
-    	{
-	    	if (link.left != null)
-	    		link.left.resolveDeclaration(this);
-	    	if (link.right != null)
-	    		link.right.resolveDeclaration(this);
-    	}
+        if (link != null)
+        {
+            if (link.left != null)
+                link.left.resolveDeclaration(this);
+            if (link.right != null)
+                link.right.resolveDeclaration(this);
+        }
     }
 
     public void resolveDeclaration(AstDeclareVariable member)
     {
-        int modifiers = resolveModifiers(member.modifiers);
-        String type   = member.type.resolvePath(this);
-        String name   = member.name.resolvePath(this);
-        maker.Declare(name, type, modifiers);
+        try {
+            int modifiers = resolveModifiers(member.modifiers);
+            DeclaredType type = member.type.resolveDeclaredType(this);
+            // FIXME - use empty DeclaredType ******* No revert this
+            String typeName; 
+            if (type!=null) 
+                typeName = type.getName();
+            else
+                typeName = member.type.resolvePath(this);
+            String name = member.name.resolvePath(this);
+            getMaker().Declare(name, typeName, modifiers);
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
     }
-    
+
     public void resolveDeclaration(AstDeclareMethod method)
     {
-        int modifiers = method.modifiers.resolveModifiers(this);
-        String type   = method.type.resolvePath(this);
-        String name   = method.name.resolvePath(this);
-        maker.Method(name, type, modifiers);
-        if (method.parameters != null)
-        	method.parameters.resolveDeclaration(this);
-        if (method.methodBody != null)
-        {
-            maker.Begin();
-            method.methodBody.resolveStatement(this);
-            maker.End();
+        try {
+            int modifiers = method.modifiers.resolveModifiers(this);
+            String type = method.type.resolvePath(this);
+            String name = method.name.resolvePath(this);
+            getMaker().Method(name, type, modifiers);
+            if (method.parameters != null)
+                method.parameters.resolveDeclaration(this);
+            if (method.methodBody != null) {
+                getMaker().Begin();
+                // Do not process the body of the method if this is the first of two passes.
+                if (getMaker().getPass() != ClassMaker.FIRST_PASS)
+                    method.methodBody.resolveStatement(this);
+                getMaker().End();
+            } else
+                getMaker().Forward();
+        } catch (ClassMakerException ex) {
+            addError(ex);
         }
-        else
-            maker.Forward();
     }
-    
+
     public void resolveStatement(AstStructureLink link)
     {
-    	if (link != null)
-    	{
-	    	if (link.left != null)
-	    		link.left.resolveStatement(this);
-	    	if (link.right != null)
-	    		link.right.resolveStatement(this);
-    	}
-    }
-    
-    public void resolveStatement(AstStructureList list)
-    {
-        for (AstStructure item : list.toArray())
+        if (link != null)
         {
-            item.resolveStatement(this);
+            if (link.left != null)
+                link.left.resolveStatement(this);
+            if (link.right != null)
+                link.right.resolveStatement(this);
         }
     }
-    
+
     public void resolveStatement(AstStatementReserved statement)
     {
-    	if (statement == AstStatementReserved.THIS)
-    		maker.This();
-    	else if (statement == AstStatementReserved.SUPER)
-    		maker.Super();
-    	else if (statement == AstStatementReserved.NULL)
-    		maker.Null();
-    	else
-    		throw new IllegalStateException("Unknown reserved word: " + statement);
+        try {
+            if (statement == AstStatementReserved.THIS)
+                getMaker().This();
+            else if (statement == AstStatementReserved.SUPER)
+                getMaker().Super();
+            else if (statement == AstStatementReserved.NULL)
+                getMaker().Null();
+            else
+                throw new IllegalStateException("Unknown reserved word: " + statement);
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
     }
 
     public void resolveStatement(AstStatementEval statement)
     {
-        Type type = statement.expression.resolveType(this);
-        maker.Eval(type);
+        try {
+            Type type = statement.expression.resolveType(this);
+            getMaker().Eval(type);
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
     }
 
     public void resolveStatement(AstStatementReturn statement)
     {
-        if (statement.expression != null)
-        {
-            Type type = statement.expression.resolveType(this);
-            maker.Return(type);
-        }
-        else
-        {
-            maker.Return();
+        try {
+            if (statement.expression != null) {
+                Type type = statement.expression.resolveType(this);
+                getMaker().Return(type);
+            } else {
+                getMaker().Return();
+            }
+        } catch (ClassMakerException ex) {
+            addError(ex);
         }
     }
 
     public void resolveStatement(AstStatementIf statement)
     {
-        String label = (statement.getLabel() == null) ? null : statement.getLabel().getName(); 
-        Type type = statement.condition.resolveType(this);
-        maker.If(type).setLabel(label);;
-        statement.thenCode.resolveStatement(this);
-        if (statement.elseCode != null)
-        {
-            maker.Else();
-            statement.elseCode.resolveStatement(this);
+        try {
+            String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
+            Type type = statement.condition.resolveType(this);
+            getMaker().If(type).setLabel(label);
+            statement.thenCode.resolveStatement(this);
+            if (statement.elseCode != null) {
+                getMaker().Else();
+                statement.elseCode.resolveStatement(this);
+            }
+            getMaker().EndIf();
+        } catch (ClassMakerException ex) {
+            addError(ex);
         }
-        maker.EndIf();
     }
 
     public void resolveStatement(AstStatementWhile statement)
     {
-        String label = (statement.getLabel() == null) ? null : statement.getLabel().getName(); 
-        maker.Loop().setLabel(label);
-        Type cond = statement.condition.resolveType(this);
-        maker.While(cond);
-        statement.getCode().resolveStatement(this);
-        maker.EndLoop();
-        
+        try {
+            String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
+            getMaker().Loop().setLabel(label);
+            Type cond = statement.condition.resolveType(this);
+            getMaker().While(cond);
+            statement.getCode().resolveStatement(this);
+            getMaker().EndLoop();
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
     }
 
     public void resolveStatement(AstStatementFor statement)
     {
-    	Type init = (statement.getInitialise() == null) ? null : statement.getInitialise().resolveType(this);
-        ForWhile step1 = maker.For(init);
-        Type cond = (statement.getCondition() == null) ? null : statement.getCondition().resolveType(this);
-        ForStep step2 = step1.While(cond);
-    	Type dec = (statement.getIncrement() == null) ? null : statement.getIncrement().resolveType(this);
-        Labelled step3 = step2.Step(dec);
-        String label = (statement.getLabel() == null) ? null : statement.getLabel().getName(); 
-        step3.setLabel(label);
+        try {
+            Type init = (statement.getInitialise() == null) ? null : statement.getInitialise().resolveType(this);
+            ForWhile step1 = getMaker().For(init);
+            Type cond = (statement.getCondition() == null) ? null : statement.getCondition().resolveType(this);
+            ForStep step2 = step1.While(cond);
+            Type dec = (statement.getIncrement() == null) ? null : statement.getIncrement().resolveType(this);
+            Labelled step3 = step2.Step(dec);
+            String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
+            step3.setLabel(label);
 
-        statement.getCode().resolveStatement(this);
-        maker.EndLoop();
-        
+            statement.getCode().resolveStatement(this);
+            getMaker().EndLoop();
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
     }
 
-	public void resolveStatement(AstStatementBreak statement) 
-	{
-		if (statement.label == null)
-			maker.Break();
-		else
-			maker.Break(statement.label.getName());
-	}
+    public void resolveStatement(AstStatementBreak statement)
+    {
+        try {
+            if (statement.label == null)
+                getMaker().Break();
+            else
+                getMaker().Break(statement.label.getName());
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
+    }
 
-	public void resolveStatement(AstStatementContinue statement) 
-	{
-		if (statement.label == null)
-			maker.Continue();
-		else
-			maker.Continue(statement.label.getName());
-	}
+    public void resolveStatement(AstStatementContinue statement)
+    {
+        try {
+            if (statement.label == null)
+                getMaker().Continue();
+            else
+                getMaker().Continue(statement.label.getName());
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
+    }
 
-	public void resolveStatement(AstStatementSwitch statement) 
-	{
-        String label = (statement.getLabel() == null) ? null : statement.getLabel().getName(); 
-        Type cond = statement.expression.resolveType(this);
-		maker.Switch(cond).setLabel(label);
-		statement.getCode().resolveStatement(this);
-		maker.EndSwitch();
-	}
+    public void resolveStatement(AstStatementSwitch statement)
+    {
+        try {
+            String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
+            Type cond = statement.expression.resolveType(this);
+            getMaker().Switch(cond).setLabel(label);
+            statement.getCode().resolveStatement(this);
+            getMaker().EndSwitch();
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
+    }
 
-	public void resolveStatement(AstStatementCase statement) 
-	{
-		maker.Case(statement.value.intValue());
-	}
+    public void resolveStatement(AstStatementCase statement)
+    {
+        try {
+            getMaker().Case(statement.value.intValue());
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
+    }
 
-	public void resolveStatement(AstStatementDefault statement) 
-	{
-		maker.Default();
-	}
+    public void resolveStatement(AstStatementDefault statement)
+    {
+        try {
+            getMaker().Default();
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
+    }
 
-	public void resolveStatement(AstStatementCompound statement) 
-	{
-        String label = (statement.getLabel() == null) ? null : statement.getLabel().getName(); 
-		maker.Begin().setLabel(label);
-		statement.code.resolveStatement(this);
-		maker.End();
-	}
+    public void resolveStatement(AstStatementCompound statement)
+    {
+        try {
+            String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
+            getMaker().Begin().setLabel(label);
+            statement.code.resolveStatement(this);
+            getMaker().End();
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
+    }
 
-	public void resolveStatement(AstStatementTry statement) 
-	{
-        String label = (statement.getLabel() == null) ? null : statement.getLabel().getName(); 
-		maker.Try().setLabel(label);
-		statement.getCode().resolveStatement(this);
-		if (statement.catchClause != null)
-			statement.catchClause.resolveStatement(this);
-		if (statement.finallyClause != null)
-			statement.finallyClause.resolveStatement(this);
-		maker.EndTry();
-		
-	}
+    public void resolveStatement(AstStatementTry statement)
+    {
+        try {
+            String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
+            getMaker().Try().setLabel(label);
+            statement.getCode().resolveStatement(this);
+            if (statement.catchClause != null)
+                statement.catchClause.resolveStatement(this);
+            if (statement.finallyClause != null)
+                statement.finallyClause.resolveStatement(this);
+            getMaker().EndTry();
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
+    }
 
-	public void resolveStatement(AstStatementCatch catchClause) 
-	{
-		AstDeclareVariable exception = catchClause.getException();
-		String exceptionName = exception.type.resolvePath(this);
-		String name = exception.name.getName();
-		maker.Catch(exceptionName, name);
+    public void resolveStatement(AstStatementCatch catchClause)
+    {
+        try {
+            AstDeclareVariable exception = catchClause.getException();
+            String exceptionName = exception.type.resolvePath(this);
+            String name = exception.name.getName();
+            getMaker().Catch(exceptionName, name);
 
-		catchClause.getCode().resolveStatement(this);
-	}
+            catchClause.getCode().resolveStatement(this);
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
+    }
 
-	public void resolveStatement(AstStatementFinally finallyClause) {
-		maker.Finally();
-		finallyClause.getCode().resolveStatement(this);
-	}
+    public void resolveStatement(AstStatementFinally finallyClause)
+    {
+        try {
+            getMaker().Finally();
+            finallyClause.getCode().resolveStatement(this);
+        } catch (ClassMakerException ex) {
+            addError(ex);
+        }
+    }
 
 }

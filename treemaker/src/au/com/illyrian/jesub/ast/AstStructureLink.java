@@ -31,13 +31,13 @@ package au.com.illyrian.jesub.ast;
 
 public class AstStructureLink extends AstStructureBase
 {
-	public final AstStructure left;
-	public final AstStructure right;
+    public final AstStructure left;
+    public final AstStructure right;
 	
     public AstStructureLink(AstStructure left, AstStructure right)
     {
-    	if (left == null || right == null)
-    		throw new IllegalStateException("Left and right structures must not be null");
+    	if (left == null && right == null)
+    		throw new IllegalArgumentException("Both left and right structures must not be null");
 
     	this.left = left;
     	this.right = right;
@@ -78,6 +78,16 @@ public class AstStructureLink extends AstStructureBase
     	return (left == null ? 0 : left.size()) + (right == null ? 0 : right.size());
     }
     
+    public String toSignature()
+    {
+        if (left == null)
+                return right.toSignature();
+        else if (right == null)
+                return left.toSignature();
+        else 
+                return left.toSignature() + "\n" + right.toSignature();
+    }
+
     public String toString()
     {
     	if (left == null)

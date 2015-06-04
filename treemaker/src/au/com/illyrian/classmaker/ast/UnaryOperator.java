@@ -27,6 +27,7 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class UnaryOperator extends AstExpressionBase
@@ -48,6 +49,13 @@ public class UnaryOperator extends AstExpressionBase
     
     public UnaryOperator(int operator, AstExpression operand)
     {
+        operatorType = operator;
+        this.operand = operand;
+    }
+    
+    public UnaryOperator(int operator, AstExpression operand, SourceLine sourceLine)
+    {
+        super(sourceLine);
         operatorType = operator;
         this.operand = operand;
     }

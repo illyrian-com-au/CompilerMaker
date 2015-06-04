@@ -27,6 +27,8 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.CallStack;
+import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public class AstExpressionLink extends AstExpressionBase

@@ -27,6 +27,7 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 
@@ -36,6 +37,12 @@ public class TerminalBoolean extends AstExpressionBase
     
     public TerminalBoolean(boolean booleanValue)
     {
+        value = booleanValue;
+    }
+    
+    public TerminalBoolean(boolean booleanValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
         value = booleanValue;
     }
     

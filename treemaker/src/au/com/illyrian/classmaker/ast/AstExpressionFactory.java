@@ -27,200 +27,215 @@
 
 package au.com.illyrian.classmaker.ast;
 
-public class AstExpressionFactory
+import au.com.illyrian.classmaker.SourceLine;
+
+public class AstExpressionFactory 
 {
+    final SourceLine sourceLine;
+    
     public AstExpressionFactory()
     {
+        sourceLine = null;
+    }
+
+    public AstExpressionFactory(SourceLine sourceLine)
+    {
+        this.sourceLine = sourceLine;
     }
 
     public TerminalName Name(String name)
     {
-        return new TerminalName(name);
+        return new TerminalName(name, sourceLine);
     }
     
     public TerminalString Literal(String string)
     {
-        return new TerminalString(string);
+        return new TerminalString(string, sourceLine);
     }
     
     public TerminalNumber Literal(long value)
     {
-        return new TerminalNumber(value);
+        return new TerminalNumber(value, sourceLine);
     }
     
     public TerminalNumber Literal(int value)
     {
-        return new TerminalNumber(value);
+        return new TerminalNumber(value, sourceLine);
     }
     
     public TerminalNumber Literal(short value)
     {
-        return new TerminalNumber(value);
+        return new TerminalNumber(value, sourceLine);
     }
     
     public TerminalNumber Literal(byte value)
     {
-        return new TerminalNumber(value);
+        return new TerminalNumber(value, sourceLine);
     }
     
     public TerminalNumber Literal(char ch)
     {
-        return new TerminalNumber(ch);
+        return new TerminalNumber(ch, sourceLine);
     }
     
     public TerminalDecimal Literal(double value)
     {
-        return new TerminalDecimal(value);
+        return new TerminalDecimal(value, sourceLine);
     }
     
     public TerminalDecimal Literal(float value)
     {
-        return new TerminalDecimal(value);
+        return new TerminalDecimal(value, sourceLine);
+    }
+    
+    public TerminalBoolean Literal(boolean value)
+    {
+        return new TerminalBoolean(value, sourceLine);
     }
     
     public DotOperator Dot(AstExpression left, AstExpression right)
     {
-        return new DotOperator(left, right);
+        return new DotOperator(left, right, sourceLine);
     }
     
     public AssignmentOperator Assign(AstExpression left, AstExpression right)
     {
-        return new AssignmentOperator(left, right);
+        return new AssignmentOperator(left, right, sourceLine);
     }
     
     public BinaryOperator Add(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.ADD, left, right);
+        return new BinaryOperator(BinaryOperator.ADD, left, right, sourceLine);
     }
     
     public BinaryOperator Subt(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.SUBT, left, right);
+        return new BinaryOperator(BinaryOperator.SUBT, left, right, sourceLine);
     }
     
     public BinaryOperator Mult(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.MULT, left, right);
+        return new BinaryOperator(BinaryOperator.MULT, left, right, sourceLine);
     }
     
     public BinaryOperator Div(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.DIV, left, right);
+        return new BinaryOperator(BinaryOperator.DIV, left, right, sourceLine);
     }
 
     public BinaryOperator Rem(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.REM, left, right);
+        return new BinaryOperator(BinaryOperator.REM, left, right, sourceLine);
     }
 
     public BinaryOperator SHL(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.SHL, left, right);
+        return new BinaryOperator(BinaryOperator.SHL, left, right, sourceLine);
     }
 
     public BinaryOperator SHR(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.SHR, left, right);
+        return new BinaryOperator(BinaryOperator.SHR, left, right, sourceLine);
     }
 
     public BinaryOperator USHR(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.USHR, left, right);
+        return new BinaryOperator(BinaryOperator.USHR, left, right, sourceLine);
     }
 
     public BinaryOperator And(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.AND, left, right);
+        return new BinaryOperator(BinaryOperator.AND, left, right, sourceLine);
     }
 
     public BinaryOperator Or(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.OR, left, right);
+        return new BinaryOperator(BinaryOperator.OR, left, right, sourceLine);
     }
 
     public BinaryOperator Xor(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.XOR, left, right);
+        return new BinaryOperator(BinaryOperator.XOR, left, right, sourceLine);
     }
 
     public UnaryOperator Neg(AstExpression expr)
     {
-        return new UnaryOperator(UnaryOperator.NEG, expr);
+        return new UnaryOperator(UnaryOperator.NEG, expr, sourceLine);
     }
     
     public BinaryOperator GT(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.GT, left, right);
+        return new BinaryOperator(BinaryOperator.GT, left, right, sourceLine);
     }
 
     public BinaryOperator LT(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.LT, left, right);
+        return new BinaryOperator(BinaryOperator.LT, left, right, sourceLine);
     }
 
     public BinaryOperator GE(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.GE, left, right);
+        return new BinaryOperator(BinaryOperator.GE, left, right, sourceLine);
     }
 
     public BinaryOperator LE(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.LE, left, right);
+        return new BinaryOperator(BinaryOperator.LE, left, right, sourceLine);
     }
 
     public BinaryOperator EQ(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.EQ, left, right);
+        return new BinaryOperator(BinaryOperator.EQ, left, right, sourceLine);
     }
 
     public BinaryOperator NE(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.NE, left, right);
+        return new BinaryOperator(BinaryOperator.NE, left, right, sourceLine);
     }
 
     public UnaryOperator Not(AstExpression expr)
     {
-        return new UnaryOperator(UnaryOperator.NOT, expr);
+        return new UnaryOperator(UnaryOperator.NOT, expr, sourceLine);
     }
     
     public UnaryOperator Inv(AstExpression expr)
     {
-        return new UnaryOperator(UnaryOperator.INV, expr);
+        return new UnaryOperator(UnaryOperator.INV, expr, sourceLine);
     }
     
     public IncrementOperator Inc(AstExpression expr)
     {
-        return new IncrementOperator(expr);
+        return new IncrementOperator(expr, sourceLine);
     }
     
     public DecrementOperator Dec(AstExpression expr)
     {
-        return new DecrementOperator(expr);
+        return new DecrementOperator(expr, sourceLine);
     }
 
     public PostIncrementOperator PostInc(AstExpression expr)
     {
-        return new PostIncrementOperator(expr);
+        return new PostIncrementOperator(expr, sourceLine);
     }
 
     public PostDecrementOperator PostDec(AstExpression expr)
     {
-        return new PostDecrementOperator(expr);
+        return new PostDecrementOperator(expr, sourceLine);
     }
     
     public AndThenOperator AndThen(AstExpression left, AstExpression right)
     {
-        return new AndThenOperator(left, right);
+        return new AndThenOperator(left, right, sourceLine);
     }
 
     public OrElseOperator OrElse(AstExpression left, AstExpression right)
     {
-        return new OrElseOperator(left, right);
+        return new OrElseOperator(left, right, sourceLine);
     }
 
     public CastOperator Cast(AstExpression left, AstExpression right)
     {
-        return new CastOperator(left, right);
+        return new CastOperator(left, right, sourceLine);
     }
 
     public ArrayIndex ArrayIndex(AstExpression left, AstExpression right)
@@ -228,34 +243,44 @@ public class AstExpressionFactory
         return new ArrayIndex(left, right);
     }
 
-	public AstExpression ArrayOf(AstExpression type) 
-	{
-		return new ArrayOf(type, null);
-	}
+    public AstExpression ArrayOf(AstExpression type) 
+    {
+        return new ArrayOf(type, null);
+    }
 
-	public AstExpression ArrayOf(AstExpression type, AstExpression dimension) 
-	{
-		return new ArrayOf(type, dimension);
-	}
+    public AstExpression ArrayOf(AstExpression type, AstExpression dimension) 
+    {
+        return new ArrayOf(type, dimension);
+    }
 
     public InstanceOfOperator InstanceOf(AstExpression left, AstExpression right)
     {
-        return new InstanceOfOperator(left, right);
+        return new InstanceOfOperator(left, right, sourceLine);
     }
 
-    public ActualParameter Push(ActualParameter left, AstExpression right)
+    public CommaOperator Comma(AstExpression left, AstExpression right)
     {
-        return new ActualParameter(left, right);
+        return new CommaOperator(left, right);
     }
     
-    public ActualParameter Push(AstExpression expr)
+    public CommaOperator Comma(AstExpression expr)
     {
-        return new ActualParameter(null, expr);
+        return new CommaOperator(null, expr);
     }
     
-    public MethodCall Call(TerminalName left, ActualParameter right)
+    public MethodCall Call(TerminalName left, AstExpression right)
     {
-        return new MethodCall(left, right);
+        return new MethodCall(left, right, sourceLine);
+    }
+
+    public NewOperator New(AstExpression left, CommaOperator right)
+    {
+        return new NewOperator(left, right, sourceLine);
+    }
+
+    public NewArrayOperator NewArray(AstExpression left, AstExpression right)
+    {
+        return new NewArrayOperator(left, right, sourceLine);
     }
 
     public AstExpressionLink Link(AstExpression left, AstExpression right)
@@ -263,6 +288,11 @@ public class AstExpressionFactory
         return new AstExpressionLink(left, right);
     }
    
+    public AstExpression Reserved(String name) {
+        AstStatementReserved stmt = AstStatementReserved.lookup(name);
+        return stmt;
+    }
+
     public String toString()
     {
         return "AstExpresssionFactory()";

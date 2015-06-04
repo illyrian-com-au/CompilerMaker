@@ -27,6 +27,7 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class BinaryOperator extends AstExpressionBase
@@ -56,6 +57,14 @@ public class BinaryOperator extends AstExpressionBase
     
     public BinaryOperator(int operator, AstExpression left, AstExpression right)
     {
+        operatorType = operator;
+        leftOperand = left;
+        rightOperand = right;
+    }
+    
+    public BinaryOperator(int operator, AstExpression left, AstExpression right, SourceLine sourceLine)
+    {
+        super(sourceLine);
         operatorType = operator;
         leftOperand = left;
         rightOperand = right;

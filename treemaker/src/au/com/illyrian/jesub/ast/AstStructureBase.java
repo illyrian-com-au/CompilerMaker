@@ -29,7 +29,7 @@ package au.com.illyrian.jesub.ast;
 
 import au.com.illyrian.classmaker.ast.AstExpressionBase;
 
-public class AstStructureBase extends AstExpressionBase implements AstStructure
+public class AstStructureBase /*extends AstExpressionBase*/ implements AstStructure
 {
     public void resolveMember(AstStructureVisitor visitor)
     {
@@ -61,7 +61,12 @@ public class AstStructureBase extends AstExpressionBase implements AstStructure
         throw new IllegalStateException("Cannot resolve Implements: " + getClass().getSimpleName());
     }
 
-	public int size()
+    public String toSignature()
+    {
+        return toString();
+    }
+
+    public int size()
     {
     	return 1;
     }

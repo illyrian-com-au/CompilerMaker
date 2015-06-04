@@ -27,55 +27,50 @@
 
 package au.com.illyrian.classmaker.ast;
 
-import au.com.illyrian.classmaker.CallStack;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
-public class MethodCall extends AstExpressionBase
+public class NewArrayOperator extends AstExpressionBase
 {
-    private final TerminalName methodName;
-    private final AstExpression params;
-    
-    public MethodCall(TerminalName name, AstExpression actualParameters)
+    private final AstExpression typeName;
+    private final AstExpression dimensions;
+
+    public NewArrayOperator(AstExpression type, AstExpression dimensions)
     {
-        params = actualParameters;
-        methodName  = name;
+        this.dimensions = dimensions;
+        typeName = type;
     }
-    
-    public MethodCall(TerminalName name, AstExpression actualParameters, SourceLine sourceLine)
+
+    public NewArrayOperator(AstExpression type, AstExpression dimensions, SourceLine sourceLine)
     {
         super(sourceLine);
-        params = actualParameters;
-        methodName  = name;
+        this.dimensions = dimensions;
+        typeName = type;
     }
-    
+
     public Type resolveType(AstExpressionVisitor visitor)
     {
         return visitor.resolveType(this);
     }
 
-    public CallStack resolveCallStack(AstExpressionVisitor visitor)
+    public AstExpression getDimensions()
     {
-        return visitor.resolveCallStack(this);
-    }
-    
-    public String resolvePath(AstExpressionVisitor visitor)
-    {
-        return null;
+        return dimensions;
     }
 
-    public AstExpression getParams()
+    public AstExpression getTypeName()
     {
-        return params;
+        return typeName;
     }
 
-    public TerminalName getMethodName()
-    {
-        return methodName;
-    }
-    
     public String toString()
     {
-        return methodName + "(" + (params == null ? "" : params) + ")";
+        String typeStr = "" + typeName;
+        if (typeStr.endsWith("[]"))
+        {
+            int len = typeStr.length();
+            typeStr = typeStr.substring(0, len-2);
+        }
+        return "new " + typeStr + "[" + dimensions + "]";
     }
 }

@@ -42,7 +42,7 @@ public class AstStructureTreeTest extends ClassMakerTestCase
         
         String expected = "package au.com.illyrian;\n"
       		+ "import au.com.illyrian.jesub.ast.AstStructure, java.io.File;\n"
-      		+ "public class Test ...";
+      		+ "public class Test";
         assertEquals("Wrong AstModule.toString", expected, module.toString());
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);
@@ -83,9 +83,9 @@ public class AstStructureTreeTest extends ClassMakerTestCase
         
         AstDeclareModule module = build.Module(packageName, imports, declareClass);
 
-        String expected = "public class Test extends AstStructureBase\n"
-    		  + "    implements AstStructure, Runnable\n"
-    		  + "{...}";
+        String expected = "public class Test extends AstStructureBase"
+    		  + " implements AstStructure, Runnable {\n"
+    		  + "\n}\n";
         assertEquals("Wrong AstDeclaredClass.toString", expected, declareClass.toString());
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);

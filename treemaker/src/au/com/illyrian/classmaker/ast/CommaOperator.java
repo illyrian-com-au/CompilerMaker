@@ -25,40 +25,40 @@
 // of the authors and should not be interpreted as representing official policies,
 // either expressed or implied, of the FreeBSD Project.
 
-package au.com.illyrian.jesub.ast;
+package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.CallStack;
+import au.com.illyrian.classmaker.types.Type;
 
-public class AstStatementReserved extends AstStructureBase
+public class CommaOperator extends AstExpressionBase
 {
-	public static final AstStatementReserved THIS = new AstStatementReserved("this");
-	public static final AstStatementReserved SUPER = new AstStatementReserved("super");
-	public static final AstStatementReserved NULL = new AstStatementReserved("null");
-	public final String reservedWord;
-	
-	public static AstStatementReserved lookup(String name)
-	{
-    	if (THIS.reservedWord.equals(name))
-    		return THIS;
-    	else if (SUPER.reservedWord.equals(name))
-    		return SUPER;
-    	else if (NULL.reservedWord.equals(name))
-    		return NULL;
-    	else
-    		throw new IllegalStateException("Unknown reserved word: " + name);
-	}
-	
-    private AstStatementReserved(String reservedWord)
+    AstExpression leftExpression;
+    AstExpression rightExpression;
+
+    public CommaOperator(AstExpression left, AstExpression right)
     {
-    	this.reservedWord = reservedWord;
+        leftExpression = left;
+        rightExpression = right;
     }
-    
-    public void resolveStatement(AstStructureVisitor visitor)
+
+    public Type resolveType(AstExpressionVisitor visitor)
     {
-        visitor.resolveStatement(this);
+        return null;
     }
-    
+
+    public CallStack resolveCallStack(AstExpressionVisitor visitor)
+    {
+        return visitor.resolveCallStack(this);
+    }
+
     public String toString()
     {
-    	return reservedWord;
+        if (leftExpression == null)
+            return "" + rightExpression;
+        else if (rightExpression == null)
+            return leftExpression + "";
+        else
+            return leftExpression + ", " + rightExpression;
     }
+
 }

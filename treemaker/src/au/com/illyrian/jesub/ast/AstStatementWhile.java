@@ -61,6 +61,6 @@ public class AstStatementWhile extends AstCompoundBase
     public String toString()
     {
     	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
-		return label +  "while (" + condition + ")\n " + getCode();
+		return label +  "while (" + condition + ")\n" + getCode();
     }
 }

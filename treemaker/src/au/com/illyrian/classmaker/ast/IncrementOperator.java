@@ -27,6 +27,7 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class IncrementOperator extends AstExpressionBase
@@ -38,11 +39,22 @@ public class IncrementOperator extends AstExpressionBase
         this.operand = operand;
     }
 
+    public IncrementOperator(AstExpression operand, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        this.operand = operand;
+    }
+
     public Type resolveType(AstExpressionVisitor visitor)
     {
         return visitor.resolveType(this);
     }
     
+    public AstExpression getOperand()
+    {
+        return operand;
+    }
+
     public String toString()
     {
         return "++(" + operand + ")";

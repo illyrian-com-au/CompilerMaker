@@ -31,6 +31,7 @@ import au.com.illyrian.classmaker.CallStack;
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.members.MakerField;
+import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
@@ -39,15 +40,24 @@ public abstract class AstExpressionBase implements AstExpression, SourceLine
     String filename = null;
     int    lineNumber = 0;
     
+    public AstExpressionBase()
+    {
+    }
+    
+    public AstExpressionBase(SourceLine sourceLine)
+    {
+        if (sourceLine != null)
+            setSourceLine(sourceLine);
+    }
+    
     public Type resolveType(AstExpressionVisitor visitor)
     {
-        throw new IllegalStateException("Cannot resolve Type: " + getClass().getSimpleName());
+        throw new IllegalStateException(getClass().getSimpleName() + "does not define resolveType(visitor)");
     }
     
     public String resolvePath(AstExpressionVisitor visitor)
     {
-        //return null;
-        throw new IllegalStateException("Cannot resolve Path: " + getClass().getSimpleName());
+        throw new IllegalStateException(getClass().getSimpleName() + "does not define resolvePath(visitor)");
     }
 
     /**
@@ -62,12 +72,12 @@ public abstract class AstExpressionBase implements AstExpression, SourceLine
     
     public MakerField resolveMakerField(AstExpressionVisitor visitor)
     {
-        throw new IllegalStateException("Cannot resolve MakerField: " + getClass().getSimpleName());
+        throw new IllegalStateException(getClass().getSimpleName() + "does not define resolveMakerField(visitor)");
     }
     
     public CallStack resolveCallStack(AstExpressionVisitor visitor)
     {
-        throw new IllegalStateException("Cannot resolve CallStack: " + getClass().getSimpleName());
+        return visitor.resolveCallStack(this);
     }
 
     public AndOrExpression resolveOrElse(AstExpressionVisitor visitor)
@@ -82,17 +92,18 @@ public abstract class AstExpressionBase implements AstExpression, SourceLine
     
     public void resolveImport(AstStructureVisitor visitor)
     {
-        throw new IllegalStateException("Cannot resolveImports: " + getClass().getSimpleName());
+        throw new IllegalStateException(getClass().getSimpleName() + "does not define resolveImport(visitor)");
     }
 
     public void resolveImplements(AstStructureVisitor visitor)
     {
-        throw new IllegalStateException("Cannot resolveImplements: " + getClass().getSimpleName());
+        throw new IllegalStateException(getClass().getSimpleName() + "does not define resolveImplements(visitor)");
     }
 
-	public Type resolveDeclaredType(AstExpressionVisitor visitor) {
-        throw new IllegalStateException("Cannot resolve declared type: " + getClass().getSimpleName());
-	}
+    public DeclaredType resolveDeclaredType(AstExpressionVisitor visitor) 
+    {
+        throw new IllegalStateException(getClass().getSimpleName() + "does not define resolveDeclaredType(visitor)");
+    }
 
     public void setSourceLine(SourceLine sourceLine)
     {

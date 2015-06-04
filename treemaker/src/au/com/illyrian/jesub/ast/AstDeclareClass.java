@@ -134,7 +134,7 @@ public class AstDeclareClass extends AstStructureBase
         visitor.resolveDeclaration(this);
     }
     
-    public String toString()
+    public String toSignature()
     {
     	StringBuffer buf = new StringBuffer();
     	if (modifiers != null)
@@ -143,10 +143,17 @@ public class AstDeclareClass extends AstStructureBase
     	if (baseClass != null)
     		buf.append(" extends " + baseClass);
     	if (implementsList != null)
-    		buf.append("\n    implements " + implementsList );
-    	buf.append("\n{...}");
-    	
+    		buf.append(" implements " + implementsList );
     	return buf.toString();
     }
 
+    public String toString()
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append(toSignature());
+        buf.append(" {\n");
+        buf.append(membersList == null ? "" : membersList.toSignature());
+        buf.append("\n}\n");
+        return buf.toString();
+    }
 }

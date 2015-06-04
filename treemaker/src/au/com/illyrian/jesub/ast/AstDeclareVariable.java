@@ -54,9 +54,14 @@ public class AstDeclareVariable extends AstStructureBase
         visitor.resolveDeclaration(this);
     }
     
+    public String toSignature()
+    {
+        String modString = modifiers == null ? "" : modifiers + " ";
+        return modString + type + " " + name;
+    }
+
     public String toString()
     {
-    	String modString = modifiers == null ? "" : modifiers + " ";
-    	return modString + type + " " + name;
+    	return toSignature();
     }
 }

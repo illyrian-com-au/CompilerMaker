@@ -27,171 +27,162 @@
 
 package au.com.illyrian.jesub.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.ast.AstExpressionLink;
+import au.com.illyrian.classmaker.ast.AstStatementReserved;
 import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.classmaker.ast.TerminalNumber;
 
-public class AstStructureFactory extends AstExpressionFactory
-{
-    public AstStructureFactory()
-    {
+public class AstStructureFactory extends AstExpressionFactory {
+    public AstStructureFactory() {
     }
-    
-    AstDeclareModule Module(AstExpression packageName, AstExpressionLink importsList, AstDeclareClass declaredClass)
-    {
-    	return new AstDeclareModule(packageName, importsList, declaredClass);
+
+    public AstStructureFactory(SourceLine sourceLine) {
+        super(sourceLine);
     }
-    
-    public AstStructureLink Seq(AstStructure left, AstStructure right)
-    {
+
+    AstDeclareModule Module(AstExpression packageName,
+            AstExpressionLink importsList, AstDeclareClass declaredClass) {
+        return new AstDeclareModule(packageName, importsList, declaredClass);
+    }
+
+    public AstStructureLink Seq(AstStructure left, AstStructure right) {
         return new AstStructureLink(left, right);
     }
-    
-    public AstModifiers Modifier(String modifier, AstModifiers next)
-    {
+
+    public AstModifiers Modifier(String modifier, AstModifiers next) {
         return new AstModifiers(modifier, next);
     }
-    
-    public AstModifiers Modifier(String modifier)
-    {
+
+    public AstModifiers Modifier(String modifier) {
         return new AstModifiers(modifier, null);
     }
-    
-    public AstDeclareClass DeclareClass(AstModifiers modifiers, TerminalName name, AstExpression baseClass, 
-    		AstExpression implementsList, AstStructure membersList)
-    {
-    	AstDeclareClass declareClass = new AstDeclareClass(modifiers, name, baseClass, implementsList, membersList);
+
+    public AstDeclareClass DeclareClass(AstModifiers modifiers,
+            TerminalName name, AstExpression baseClass,
+            AstExpression implementsList, AstStructure membersList) {
+        AstDeclareClass declareClass = new AstDeclareClass(modifiers, name,
+                baseClass, implementsList, membersList);
         return declareClass;
     }
-    
-    public AstDeclareClass DeclareClass(AstModifiers modifiers, TerminalName name, AstExpression baseClass, 
-    		AstExpression implementsList)
-    {
-    	AstDeclareClass declareClass = new AstDeclareClass(modifiers, name, baseClass, implementsList, null);
+
+    public AstDeclareClass DeclareClass(AstModifiers modifiers,
+            TerminalName name, AstExpression baseClass,
+            AstExpression implementsList) {
+        AstDeclareClass declareClass = new AstDeclareClass(modifiers, name,
+                baseClass, implementsList, null);
         return declareClass;
     }
-    
-    public AstDeclareVariable Declare(AstModifiers modifiers, AstExpression type, TerminalName name)
-    {
+
+    public AstDeclareVariable Declare(AstModifiers modifiers,
+            AstExpression type, TerminalName name) {
         return new AstDeclareVariable(modifiers, type, name);
     }
-    
-    public AstDeclareMethod Method(AstModifiers modifiers, AstExpression type, TerminalName name, 
-    		AstStructure params, AstStructure code)
-    {
-    	AstDeclareMethod declareMethod = new AstDeclareMethod(modifiers, type, name, params, code);
-    	return declareMethod;
+
+    public AstDeclareMethod Method(AstModifiers modifiers, AstExpression type,
+            TerminalName name, AstStructure params, AstStructure code) {
+        AstDeclareMethod declareMethod = new AstDeclareMethod(modifiers, type,
+                name, params, code);
+        return declareMethod;
     }
-    
-    public AstStatementReturn Return(AstExpression value)
-    {
+
+    public AstStatementReturn Return(AstExpression value) {
         AstStatementReturn stmt = new AstStatementReturn(value);
         return stmt;
     }
-    
-    public AstStatementEval Eval(AstExpression value)
-    {
+
+    public AstStatementEval Eval(AstExpression value) {
         AstStatementEval stmt = new AstStatementEval(value);
         return stmt;
     }
-    
-    public AstStatementCompound Compound()
-    {
-    	AstStatementCompound stmt = new AstStatementCompound();
-    	return stmt;
-    }
-    
-    public AstStatementIf If(AstExpression condition, AstStructure thenStatement, AstStructure elseStatement)
-    {
-    	AstStatementIf stmt = new AstStatementIf(condition, thenStatement, elseStatement);
-    	return stmt;
-    }
-    
-    public AstStatementWhile While(AstExpression condition, AstStructure bodyStatement)
-    {
-    	AstStatementWhile stmt = new AstStatementWhile(condition, bodyStatement);
-    	return stmt;
-    }
-    
-    public AstStatementFor For(AstExpression init, AstExpression cond, AstExpression step, AstStructure code)
-    {
-    	AstStatementFor stmt = new AstStatementFor(init, cond, step, code);
-    	return stmt;
-    }
-    
-    public AstStatementBreak Break()
-    {
-    	AstStatementBreak stmt = new AstStatementBreak();
-    	return stmt;
-    }
-    
-	public AstStructure Break(TerminalName name) 
-	{
-    	AstStatementBreak stmt = new AstStatementBreak(name);
-    	return stmt;
-	}
 
-	public AstStatementContinue Continue()
-    {
-    	AstStatementContinue stmt = new AstStatementContinue();
-    	return stmt;
-    }
-    
-	public AstStructure Continue(TerminalName name) 
-	{
-    	AstStatementContinue stmt = new AstStatementContinue(name);
-    	return stmt;
-	}
-
-	public AstCompoundBase setLabel(TerminalName label,	AstCompoundBase compound) 
-	{
-		compound.setLabel(label);
-		return compound;
-	}
-	
-	public AstStructure setLabel(TerminalName label, AstStatementIf statement) 
-	{
-		statement.setLabel(label);
-		return statement;
-	}
-
-   public AstStatementSwitch Switch(AstExpression expression, AstStructure code)
-    {
-    	AstStatementSwitch stmt = new AstStatementSwitch(expression, code);
-    	return stmt;
-    }
-    
-    public AstStatementCase Case(TerminalNumber value)
-    {
-    	AstStatementCase stmt = new AstStatementCase(value);
-    	return stmt;
-    }
-    
-    public AstStatementDefault Default()
-    {
-    	AstStatementDefault stmt = new AstStatementDefault();
-    	return stmt;
-    }
-    
-    public AstStatementTry Try(AstStructure  tryCode, AstStructure catchCode, AstStatementFinally finallyCode)
-    {
-    	AstStatementTry stmt = new AstStatementTry(tryCode, catchCode, finallyCode);
-    	return stmt;
+    public AstStatementCompound Compound() {
+        AstStatementCompound stmt = new AstStatementCompound();
+        return stmt;
     }
 
-    public AstStatementCatch Catch(AstDeclareVariable exception, AstStructure catchCode)
-    {
-    	AstStatementCatch stmt = new AstStatementCatch(exception, catchCode);
-    	return stmt;
+    public AstStatementIf If(AstExpression condition,
+            AstStructure thenStatement, AstStructure elseStatement) {
+        AstStatementIf stmt = new AstStatementIf(condition, thenStatement,
+                elseStatement);
+        return stmt;
     }
 
-    public AstStatementFinally Finally(AstStructure code)
-    {
-    	AstStatementFinally stmt = new AstStatementFinally(code);
-    	return stmt;
+    public AstStatementWhile While(AstExpression condition,
+            AstStructure bodyStatement) {
+        AstStatementWhile stmt = new AstStatementWhile(condition, bodyStatement);
+        return stmt;
     }
 
+    public AstStatementFor For(AstExpression init, AstExpression cond,
+            AstExpression step, AstStructure code) {
+        AstStatementFor stmt = new AstStatementFor(init, cond, step, code);
+        return stmt;
+    }
+
+    public AstStatementBreak Break() {
+        AstStatementBreak stmt = new AstStatementBreak();
+        return stmt;
+    }
+
+    public AstStructure Break(TerminalName name) {
+        AstStatementBreak stmt = new AstStatementBreak(name);
+        return stmt;
+    }
+
+    public AstStatementContinue Continue() {
+        AstStatementContinue stmt = new AstStatementContinue();
+        return stmt;
+    }
+
+    public AstStructure Continue(TerminalName name) {
+        AstStatementContinue stmt = new AstStatementContinue(name);
+        return stmt;
+    }
+
+    public AstCompoundBase setLabel(TerminalName label, AstCompoundBase compound) {
+        compound.setLabel(label);
+        return compound;
+    }
+
+    public AstStructure setLabel(TerminalName label, AstStatementIf statement) {
+        statement.setLabel(label);
+        return statement;
+    }
+
+    public AstStatementSwitch Switch(AstExpression expression, AstStructure code) {
+        AstStatementSwitch stmt = new AstStatementSwitch(expression, code);
+        return stmt;
+    }
+
+    public AstStatementCase Case(TerminalNumber value) {
+        AstStatementCase stmt = new AstStatementCase(value);
+        return stmt;
+    }
+
+    public AstStatementDefault Default() {
+        AstStatementDefault stmt = new AstStatementDefault();
+        return stmt;
+    }
+
+    public AstStatementTry Try(AstStructure tryCode, AstStructure catchCode,
+            AstStatementFinally finallyCode) {
+        AstStatementTry stmt = new AstStatementTry(tryCode, catchCode,
+                finallyCode);
+        return stmt;
+    }
+
+    public AstStatementCatch Catch(AstDeclareVariable exception,
+            AstStructure catchCode) {
+        AstStatementCatch stmt = new AstStatementCatch(exception, catchCode);
+        return stmt;
+    }
+
+    public AstStatementFinally Finally(AstStructure code) {
+        AstStatementFinally stmt = new AstStatementFinally(code);
+        return stmt;
+    }
 
 }

@@ -41,6 +41,8 @@ public interface AstStructure
 
     public void resolveStatement(AstStructureVisitor visitor);
     
+    public String toSignature();
+    
     public int size();
 
 }

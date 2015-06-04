@@ -27,6 +27,7 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class TerminalDecimal extends AstExpressionBase
@@ -49,14 +50,42 @@ public class TerminalDecimal extends AstExpressionBase
         size = DOUBLE;
     }
     
+    public TerminalDecimal(double doubleValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        value = doubleValue;
+        size = DOUBLE;
+    }
+    
+    public TerminalDecimal(Double doubleValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        value = doubleValue.doubleValue();
+        size = DOUBLE;
+    }
+    
     public TerminalDecimal(float floatValue)
     {
         value = floatValue;
         size = FLOAT;
     }
     
+    public TerminalDecimal(float floatValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        value = floatValue;
+        size = FLOAT;
+    }
+    
     public TerminalDecimal(Float floatValue)
     {
+        value = floatValue.floatValue();
+        size = FLOAT;
+    }
+    
+    public TerminalDecimal(Float floatValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
         value = floatValue.floatValue();
         size = FLOAT;
     }

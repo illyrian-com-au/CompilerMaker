@@ -27,15 +27,23 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class AssignmentOperator extends AstExpressionBase
 {
-    AstExpression leftOperand;
-    AstExpression rightOperand;
+    final AstExpression leftOperand;
+    final AstExpression rightOperand;
 
     public AssignmentOperator(AstExpression left, AstExpression right)
     {
+        leftOperand = left;
+        rightOperand = right;
+    }
+    
+    public AssignmentOperator(AstExpression left, AstExpression right, SourceLine sourceLine)
+    {
+        super(sourceLine);
         leftOperand = left;
         rightOperand = right;
     }
@@ -45,7 +53,18 @@ public class AssignmentOperator extends AstExpressionBase
         return visitor.resolveType(this);
     }
     
-	public String toString()
+    
+    public AstExpression getLeftOperand()
+    {
+        return leftOperand;
+    }
+
+    public AstExpression getRightOperand()
+    {
+        return rightOperand;
+    }
+
+    public String toString()
     {
         return "(" + leftOperand + " = " + rightOperand + ")";
     }

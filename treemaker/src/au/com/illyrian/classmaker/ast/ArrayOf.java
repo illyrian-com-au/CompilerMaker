@@ -1,5 +1,6 @@
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Type;
 
 
@@ -14,20 +15,20 @@ public class ArrayOf extends AstExpressionBase
         this.dimension = dimension;
     }
     
-	public Type resolveDeclaredType(AstExpressionVisitor visitor) 
-	{
-		return visitor.resolveDeclaredType(this);
-	}
+    public DeclaredType resolveDeclaredType(AstExpressionVisitor visitor) 
+    {
+        return visitor.resolveDeclaredType(this);
+    }
     
-	public AstExpression getType() {
-		return type;
-	}
+    public AstExpression getType() {
+        return type;
+    }
 
-	public AstExpression getDimension() {
-		return dimension;
-	}
+    public AstExpression getDimension() {
+        return dimension;
+    }
 
-	public String toString()
+    public String toString()
     {
         return type + " [" + (dimension == null ? "" : dimension) + "]";
     }

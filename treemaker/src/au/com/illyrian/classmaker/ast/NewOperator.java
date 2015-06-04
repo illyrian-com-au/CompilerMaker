@@ -25,61 +25,46 @@
 // of the authors and should not be interpreted as representing official policies,
 // either expressed or implied, of the FreeBSD Project.
 
-package au.com.illyrian.jesub.ast;
+package au.com.illyrian.classmaker.ast;
 
-import java.util.Vector;
+import au.com.illyrian.classmaker.SourceLine;
+import au.com.illyrian.classmaker.types.Type;
 
-public class AstStructureList extends AstStatementBase
+public class NewOperator extends AstExpressionBase
 {
-    final Vector<AstStructure> list = new Vector<AstStructure>();
-    private static final AstStructure [] PROTO = new AstStructure [0]; 
-    
-    public AstStructureList()
+    private final AstExpression typeName;
+    private final AstExpression params;
+
+    public NewOperator(AstExpression type, AstExpression actualParameters)
     {
+        params = actualParameters;
+        typeName = type;
     }
 
-    public void add(AstStructure structure)
+    public NewOperator(AstExpression type, AstExpression actualParameters, SourceLine sourceLine)
     {
-        list.add(structure);
-    }
-    
-    public AstStructure pop()
-    {
-    	return list.remove(list.size()-1);
-    }
-    
-    public AstStructure peek()
-    {
-    	return list.lastElement();
-    }
-    
-    public AstStructure [] toArray()
-    {
-        return list.toArray(PROTO);
-    }
-    
-    public AstStructureList toList()
-    {
-    	return this;
-    }
-    
-    public void resolveDeclaration(AstStructureVisitor visitor)
-    {
-        visitor.resolveDeclaration(this);
+        super(sourceLine);
+        params = actualParameters;
+        typeName = type;
     }
 
-    public void resolveStatement(AstStructureVisitor visitor)
+    public Type resolveType(AstExpressionVisitor visitor)
     {
-        visitor.resolveStatement(this);
+        return visitor.resolveType(this);
     }
-    
+
+    public AstExpression getParams()
+    {
+        return params;
+    }
+
+    public AstExpression getTypeName()
+    {
+        return typeName;
+    }
+
     public String toString()
     {
-    	StringBuffer buf = new StringBuffer();
-    	for (AstStructure item: list)
-    	{
-    		buf.append(item.toString());
-    	}
-    	return buf.toString();
+        return "new " + typeName + "(" + params + ")";
     }
 }

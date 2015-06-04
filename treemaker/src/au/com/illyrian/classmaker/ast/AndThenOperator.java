@@ -27,16 +27,24 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.types.Type;
 
 public class AndThenOperator extends AstExpressionBase
 {
-    AstExpression leftOperand;
-    AstExpression rightOperand;
+    final AstExpression leftOperand;
+    final AstExpression rightOperand;
 
     public AndThenOperator(AstExpression left, AstExpression right)
     {
+        leftOperand = left;
+        rightOperand = right;
+    }
+    
+    public AndThenOperator(AstExpression left, AstExpression right, SourceLine sourceLine)
+    {
+        super(sourceLine);
         leftOperand = left;
         rightOperand = right;
     }
@@ -56,6 +64,16 @@ public class AndThenOperator extends AstExpressionBase
         return visitor.resolveOrElse(this);
     }
     
+    public AstExpression getLeftOperand()
+    {
+        return leftOperand;
+    }
+
+    public AstExpression getRightOperand()
+    {
+        return rightOperand;
+    }
+
     public String toString()
     {
         if (leftOperand == null)

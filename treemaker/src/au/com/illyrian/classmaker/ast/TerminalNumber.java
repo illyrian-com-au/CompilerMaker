@@ -27,6 +27,7 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public final class TerminalNumber extends AstExpressionBase
@@ -96,6 +97,76 @@ public final class TerminalNumber extends AstExpressionBase
     
     public TerminalNumber(Character charValue)
     {
+        value = charValue.charValue();
+        size = CHAR;
+    }
+    
+    public TerminalNumber(long longValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        value = longValue;
+        size = LONG;
+    }
+    
+    public TerminalNumber(Long longValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        value = longValue.longValue();
+        size = INT;
+    }
+    
+    public TerminalNumber(int intValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        value = intValue;
+        size = INT;
+    }
+    
+    public TerminalNumber(Integer intValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        value = intValue.intValue();
+        size = INT;
+    }
+    
+    public TerminalNumber(short shortValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        value = shortValue;
+        size = SHORT;
+    }
+    
+    public TerminalNumber(Short shortValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        value = shortValue.shortValue();
+        size = SHORT;
+    }
+    
+    public TerminalNumber(byte byteValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        value = byteValue;
+        size = BYTE;
+    }
+    
+    public TerminalNumber(Byte byteValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        value = byteValue.byteValue();
+        size = BYTE;
+    }
+    
+    public TerminalNumber(char charValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        value = charValue;
+        size = CHAR;
+    }
+    
+    public TerminalNumber(Character charValue, SourceLine sourceLine)
+    {
+        super(sourceLine);
         value = charValue.charValue();
         size = CHAR;
     }

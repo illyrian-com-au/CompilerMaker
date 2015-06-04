@@ -27,15 +27,23 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class InstanceOfOperator extends AstExpressionBase
 {
-    AstExpression leftOperand;
-    AstExpression rightOperand;
+    final AstExpression leftOperand;
+    final AstExpression rightOperand;
 
     public InstanceOfOperator(AstExpression left, AstExpression right)
     {
+        leftOperand = left;
+        rightOperand = right;
+    }
+    
+    public InstanceOfOperator(AstExpression left, AstExpression right, SourceLine sourceLine)
+    {
+        super(sourceLine);
         leftOperand = left;
         rightOperand = right;
     }

@@ -30,18 +30,19 @@ package au.com.illyrian.jesub.ast;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.TerminalName;
 
-public class AstStatementIf extends AstStatementBase
+public class AstStatementIf extends AstStructureBase
 {
     AstExpression condition = null;
-    AstStructure  thenCode = null;
-    AstStructure  elseCode = null;
+    AstStructure thenCode = null;
+    AstStructure elseCode = null;
     protected TerminalName label;
-    
+
     public AstStatementIf()
     {
     }
-    
-    public AstStatementIf(AstExpression expression, AstStructure  thenCode, AstStructure  elseCode)
+
+    public AstStatementIf(AstExpression expression, AstStructure thenCode,
+            AstStructure elseCode)
     {
         this.condition = expression;
         this.thenCode = thenCode;
@@ -78,24 +79,26 @@ public class AstStatementIf extends AstStatementBase
         this.elseCode = elseCode;
     }
 
-    public TerminalName getLabel() {
-		return label;
-	}
+    public TerminalName getLabel()
+    {
+        return label;
+    }
 
-	public AstStatementIf setLabel(TerminalName label) {
-		this.label = label;
-		return this;
-	}
+    public AstStatementIf setLabel(TerminalName label)
+    {
+        this.label = label;
+        return this;
+    }
 
-	public void resolveStatement(AstStructureVisitor visitor)
+    public void resolveStatement(AstStructureVisitor visitor)
     {
         visitor.resolveStatement(this);
     }
 
-	public String toString()
-	{
-    	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
-    	String alt = (elseCode == null) ? "" : " else\n " + elseCode;
-		return label +  "if (" + getCondition() + ")\n " + thenCode + alt;
-	}
+    public String toString()
+    {
+        String label = (getLabel() == null) ? "" : getLabel() + ": ";
+        String alt = (elseCode == null) ? "" : " else " + elseCode;
+        return label + "if (" + getCondition() + ") " + thenCode + alt;
+    }
 }

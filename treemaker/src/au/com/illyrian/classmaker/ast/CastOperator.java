@@ -27,6 +27,7 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class CastOperator extends AstExpressionBase
@@ -36,6 +37,13 @@ public class CastOperator extends AstExpressionBase
 
     public CastOperator(AstExpression typeOperand, AstExpression valueOperand)
     {
+        leftOperand = typeOperand;
+        rightOperand = valueOperand;
+    }
+    
+    public CastOperator(AstExpression typeOperand, AstExpression valueOperand, SourceLine sourceLine)
+    {
+        super(sourceLine);
         leftOperand = typeOperand;
         rightOperand = valueOperand;
     }
