@@ -27,7 +27,7 @@
 
 package au.com.illyrian.parser.maker;
 
-import au.com.illyrian.classmaker.ast.ActualParameter;
+import au.com.illyrian.classmaker.ast.CommaOperator;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.jesub.ast.AstStructureFactory;
@@ -60,7 +60,7 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>,
     {
     	// FIXME
     	TerminalName name1 = (TerminalName)name;
-    	ActualParameter params = (ActualParameter)callStack;
+    	CommaOperator params = (CommaOperator)callStack;
         return factory.Call(name1, params);
     }
 
@@ -72,9 +72,9 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>,
     public AstExpression addParameter(AstExpression callStack, AstExpression param) throws ParserException
     {
     	// FIXME
-    	ActualParameter left = (ActualParameter)callStack;
+    	CommaOperator left = (CommaOperator)callStack;
     	AstExpression right = (AstExpression)param;
-        return factory.Push(left, right);
+        return factory.Comma(left, right);
     }
 
     public AstExpression literalAction(Lexer lexer) throws ParserException

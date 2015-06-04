@@ -89,7 +89,7 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "cast(short, b(null))", result.toString());
+        assertEquals("Wrong expression", "cast(short, b())", result.toString());
     }
 
     public void testCastingParser4() throws Exception
@@ -133,7 +133,7 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "(cast(byte, -(2)) + b(null))", result.toString());
+        assertEquals("Wrong expression", "(cast(byte, -(2)) + b())", result.toString());
     }
 
     public void testCastingParser8() throws Exception
@@ -144,7 +144,7 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "cast(byte, cast(short, cast(int, b(null))))", result.toString());
+        assertEquals("Wrong expression", "cast(byte, cast(short, cast(int, b())))", result.toString());
     }
 
     public void testCastingParser9() throws Exception
@@ -166,7 +166,7 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "cast(int, b(null)[1][2])", result.toString());
+        assertEquals("Wrong expression", "cast(int, b()[1][2])", result.toString());
     }
 
     public void testSimpleCastParser1() throws Exception
@@ -188,7 +188,7 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "a(null)", result.toString());
+        assertEquals("Wrong expression", "a()", result.toString());
     }
 
     public void testSimpleMethodCall2() throws Exception
@@ -199,7 +199,7 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "z.a(null)", result.toString());
+        assertEquals("Wrong expression", "z.a()", result.toString());
     }
 
     public void testSimpleCastParser4() throws Exception
@@ -210,7 +210,7 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "z(null).a", result.toString());
+        assertEquals("Wrong expression", "z().a", result.toString());
     }
 
     public void testSimpleCastParser5() throws Exception
@@ -221,7 +221,7 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "z(null).a", result.toString());
+        assertEquals("Wrong expression", "z().a", result.toString());
     }
 
     public void testSimpleCastParser6() throws Exception
@@ -232,7 +232,7 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "z(null).a", result.toString());
+        assertEquals("Wrong expression", "z().a", result.toString());
     }
 
     public void testSimpleCastParser7() throws Exception
@@ -243,7 +243,7 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "z(null).a(null)", result.toString());
+        assertEquals("Wrong expression", "z().a()", result.toString());
     }
 
     public void testSimpleCastParser8() throws Exception
@@ -254,7 +254,7 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "z(null).a(null)", result.toString());
+        assertEquals("Wrong expression", "z().a()", result.toString());
     }
 
     public void testSimpleCastParser9() throws Exception
@@ -265,7 +265,7 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.nextToken();
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
-        assertEquals("Wrong expression", "z.a(null)", result.toString());
+        assertEquals("Wrong expression", "z.a()", result.toString());
     }
 
     public void testSimpleCastParser10() throws Exception
