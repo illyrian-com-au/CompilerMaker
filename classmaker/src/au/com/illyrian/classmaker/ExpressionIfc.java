@@ -514,7 +514,7 @@ public interface ExpressionIfc
      */
     public MakerField Find(String name) throws ClassMakerException;
 
-    public DeclaredType FindDeclared(String typeName) throws ClassMakerException;
+    public DeclaredType findDeclaredType(String typeName) throws ClassMakerException;
 
     public MakerField findField(String name) throws ClassMakerException;
     

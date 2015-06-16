@@ -271,7 +271,7 @@ public class ClassMaker implements ExpressionIfc
     /** The current phase of a two pass class generation */
     //private int generationPass = ONE_PASS;
     /** The fully qualified name of the package */
-    private String packageName;
+    private String packageName = null;
     /** The simple name of the class */
     private String simpleClassName;
     /** The fully qualified name of the class */
@@ -298,19 +298,25 @@ public class ClassMaker implements ExpressionIfc
     {
         StringBuffer buf = new StringBuffer();
         buf.append("ClassMaker(");
-        if (packageName != null)
-            buf.append(packageName).append('.');
-        if (fullyQualifiedClassName != null)
-            buf.append(fullyQualifiedClassName).append(' ');
-        else
-            buf.append(simpleClassName != null ? simpleClassName : "?").append(" ");
+        if (this.fullyQualifiedClassName != null) {
+            buf.append(simpleClassName).append(' ');
+        } else {
+            if (packageName != null)
+                buf.append(packageName).append('.');
+            if (simpleClassName != null)
+                buf.append(simpleClassName).append(' ');
+            else
+                buf.append("? ");
+        }
         if (superClass != null)
             buf.append("extends ").append(superClass.getName());
-        switch (getPass()) {
-        case ONE_PASS: buf.append(", ONE_PASS"); break;
-        case FIRST_PASS: buf.append(", FIRST_PASS"); break;
-        case SECOND_PASS: buf.append(", SECOND_PASS"); break;
-        case COMPLETED_PASS: buf.append(", COMPLETED_PASS"); break;
+        if (factory != null) {
+            switch (getPass()) {
+            case ONE_PASS: buf.append(", ONE_PASS"); break;
+            case FIRST_PASS: buf.append(", FIRST_PASS"); break;
+            case SECOND_PASS: buf.append(", SECOND_PASS"); break;
+            case COMPLETED_PASS: buf.append(", COMPLETED_PASS"); break;
+            }
         }
         if (sourceLine != null)
             buf.append(", ").append(sourceLine.getFilename()).append(":").append(sourceLine.getLineNumber());
@@ -464,6 +470,7 @@ public class ClassMaker implements ExpressionIfc
         if (cfw != null)
             throw createException("ClassMaker.ToLateToNameTheFullyQualifiedClass");
         this.fullyQualifiedClassName = className;
+        getFactory().addMakerMap(className, this);
     }
 
     /**
@@ -813,7 +820,7 @@ public class ClassMaker implements ExpressionIfc
     /** The class modifiers for the generated class. */
     public int getModifiers()
     {
-        return (thisClass == null) ? thisClass.getModifiers() : getClassType().getModifiers();
+        return getClassType().getModifiers();
     }
 
     /**
@@ -1142,7 +1149,7 @@ public class ClassMaker implements ExpressionIfc
      */
     public static boolean isClass(Type type)
     {
-        return type.toClass() != null;
+        return type != null && type.toClass() != null;
     }
 
     /**
@@ -1152,7 +1159,7 @@ public class ClassMaker implements ExpressionIfc
      */
     public static boolean isArray(Type type)
     {
-        return type.toArray() != null;
+        return type != null && type.toArray() != null;
     }
 
     /**
@@ -1162,7 +1169,7 @@ public class ClassMaker implements ExpressionIfc
      */
     public static boolean isInterface(Type type)
     {
-        if (type.toClass() != null)
+        if (type != null && type.toClass() != null)
             return type.toClass().isInterface();
         return false;
     }
@@ -1174,7 +1181,7 @@ public class ClassMaker implements ExpressionIfc
      */
     public static boolean isPrimitive(Type type)
     {
-        return type.toPrimitive() != null;
+        return type != null && type.toPrimitive() != null;
     }
 
     //###################  ################
@@ -1282,7 +1289,10 @@ public class ClassMaker implements ExpressionIfc
             {
                 if (i > 0)
                     buf.append(", ");
-                buf.append(toDotName(params[i].getName()));
+                Type type = params[i];
+                if (type == null)
+                    throw new IllegalArgumentException("method \"" + name + "\": type of parameter " + i + " cannot be null");
+                buf.append(toDotName(type.getName()));
             }
         buf.append(')');
         return buf.toString();
@@ -1310,7 +1320,7 @@ public class ClassMaker implements ExpressionIfc
     {
         // FIXME - add BeginClass();
         if (getPass() != COMPLETED_PASS) {
-            getClassType();
+            getClassType(); // Loads generated class into types visible from the factory
             if (!hasConstructor() && !isInterface()) {
                 defaultConstructor();
                 // Reset the hasConstructor flag if we are doing two passes.
@@ -1603,10 +1613,7 @@ public class ClassMaker implements ExpressionIfc
         DeclaredType declared = findDeclaredType(typeName);
         if (declared == null)
         {
-            if (this.getPass() == ClassMaker.FIRST_PASS)
-                declared = new DeclaredType(null);
-            else
-                throw createException("ClassMaker.NoTypeCalled_1", typeName);
+            throw createException("ClassMaker.NoTypeCalled_1", typeName);
         }
         return declared;
     }
@@ -1659,7 +1666,7 @@ public class ClassMaker implements ExpressionIfc
     DeclaredType getPackageDeclared(String className) throws ClassMakerException
     {
         DeclaredType declaredType = null;
-        if (packageName != null)
+        if (packageName != null && !"".equals(packageName))
         {
             String classNameFQ = packageName + "." + className;
             declaredType = getFactory().stringToDeclaredType(classNameFQ);
@@ -1667,15 +1674,15 @@ public class ClassMaker implements ExpressionIfc
         return declaredType;
     }
 
-    DeclaredType getDeclared(String className) throws ClassMakerException
+    DeclaredType getAliasMapDeclared(String className) throws ClassMakerException
     {
         DeclaredType declaredType = aliasMap.get(toDotName(className));
-        if (declaredType == null)
-            return getPackageDeclared(className);
-        ClassType classType = declaredType.getType().toClass();
-        // The alias map uses NULL_TYPE if more than one class with the same simple class name has been imported.
-        if (ClassMaker.NULL_TYPE.equals(classType))
-            throw createException("ClassMaker.MustUseFullyQualifiedClassName_1", className);
+        if (declaredType != null)
+        {
+            // The alias map uses NULL_TYPE if more than one class with the same simple class name has been imported.
+            if (ClassMaker.NULL_TYPE.equals(declaredType.getType()))
+                throw createException("ClassMaker.MustUseFullyQualifiedClassName_1", className);
+        }
         return declaredType;
     }
     
@@ -3117,19 +3124,19 @@ public class ClassMaker implements ExpressionIfc
     	if (isDebugCode())
     		cfw.setDebugComment("Set(" + reference + ", " + fieldName + ", " + valueType + ")");
         MakerField field = Find(reference, fieldName);
-        Type declaredType = field.getType();
-        if (!getFactory().getAssignmentConversion().isConvertable(valueType, declaredType))
+        Type fieldType = field.getType();
+        if (!getFactory().getAssignmentConversion().isConvertable(valueType, fieldType))
         {
             String classField = field.getClassType().getName() + '.' + field.getName();
             throw createException("ClassMaker.FieldOfTypeCannotBeAssignedType_3",
-                            classField, declaredType.getName(), valueType.getName());
+                            classField, fieldType.getName(), valueType.getName());
         }
 
         markLineNumber(); // possibly add a new line number entry.
-        getFactory().getAssignmentConversion().convertTo(this, valueType, declaredType);
+        getFactory().getAssignmentConversion().convertTo(this, valueType, fieldType);
 
         String className = field.getClassType().getName();
-        String signature = declaredType.getSignature();
+        String signature = fieldType.getSignature();
         cfw.add(ByteCode.PUTFIELD, className, field.getName(), signature);
         return VOID_TYPE;
     }
@@ -3288,18 +3295,12 @@ public class ClassMaker implements ExpressionIfc
     {
         assertNotNull(name, "name");
         // The alias table maps simple class names to ClassTypes.
-        DeclaredType declared = getDeclared(name);
+        DeclaredType declared = getAliasMapDeclared(name);
         if (declared == null)
-        {
+            declared = getPackageDeclared(name);
+        if (declared == null)
             declared = getFactory().stringToDeclaredType(name);
-        }
         return declared;
-    }
-    
-    private void assertNotNull(Object obj, String name)
-    {
-        if (obj == null)
-            throw new IllegalArgumentException(name + " cannot be null");
     }
     
     /**
@@ -3360,13 +3361,9 @@ public class ClassMaker implements ExpressionIfc
         for (int i = 0; i < fieldTable.size(); i++)
         {
             MakerField field = fieldTable.get(i);
-            try {
             if (name.equals(field.getName()))
             {
                 return fieldTable.get(i);
-            }
-            } catch (NullPointerException ex) {
-                int j = 0;// here
             }
         }
         return null;
@@ -3797,7 +3794,7 @@ public class ClassMaker implements ExpressionIfc
             if (getPass() != SECOND_PASS)
             {
             	if (findMemberField(name)!= null)
-            		throw createException("ClassMaker.DuplicateMemberFieldDeclaration_1", name);
+            	    throw createException("ClassMaker.DuplicateMemberFieldDeclaration_1", name);
                 addMemberField(name, type, modifiers);
             }
             if (getClassFileWriter() != null)
@@ -7121,7 +7118,7 @@ public class ClassMaker implements ExpressionIfc
 
         protected int getStatementEnd()
         {
-        	return 0;
+            return 0;
         }
 
         public void Begin()
@@ -7185,7 +7182,8 @@ public class ClassMaker implements ExpressionIfc
 
         public void Begin()
         {
-        	blockEnd = cfw.acquireLabel();
+            if (getClassFileWriter() != null) 
+                blockEnd = cfw.acquireLabel();
         }
 
         /**
@@ -7195,7 +7193,8 @@ public class ClassMaker implements ExpressionIfc
          */
         public void End() throws ClassMakerException
         {
-            cfw.markLabel(blockEnd);
+            if (getClassFileWriter() != null) 
+                cfw.markLabel(blockEnd);
             // Save local variable descriptors to be used by the debugger.
             exitScope(getScopeLevel());
             // Pop ScopeStatement off statement stack.
@@ -7219,10 +7218,11 @@ public class ClassMaker implements ExpressionIfc
          */
         protected Statement jumpToTarget(String jumpTarget, String label)
         {
-        	// FIXME - remove
+            // FIXME - remove
             if (BREAK.equals(jumpTarget) && label != null && label.equals(getLabel()))
             {   // Break jumps to the end of the loop
-                cfw.add(ByteCode.GOTO, blockEnd);
+                if (getClassFileWriter() != null) 
+                    cfw.add(ByteCode.GOTO, blockEnd);
             }
             else
             {   // Pass the request down the statement stack
@@ -7233,7 +7233,7 @@ public class ClassMaker implements ExpressionIfc
         
         protected int getStatementEnd()
         {
-        	return blockEnd;
+            return blockEnd;
         }
     }
 
@@ -8839,6 +8839,12 @@ public class ClassMaker implements ExpressionIfc
         return factory.createException(getSourceLine(), key, exceptionParams);
     }
 
+    private void assertNotNull(Object obj, String name)
+    {
+        if (obj == null)
+            throw new IllegalArgumentException(name + " cannot be null");
+    }
+    
     static class LocalSourceLine implements SourceLine
     {
         /** The name of the source file relative to the source path */
@@ -9002,14 +9008,6 @@ public class ClassMaker implements ExpressionIfc
             if (!classFile.delete())
                 throw new IOException("Could not delete: " + classFile.getAbsolutePath());
         }
-    }
-
-    //################# Not implemented ##################
-    
-
-    public DeclaredType FindDeclared(String typeName) throws ClassMakerException
-    {
-        return findDeclaredType(typeName);
     }
 
 }

@@ -248,10 +248,10 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
     {
         maker.setPackageName("au.com.illyrian.classmaker");
         maker.setSimpleClassName("Test");
-        DeclaredType declared1 = maker.FindDeclared("CallStack");
+        DeclaredType declared1 = maker.findDeclaredType("CallStack");
         assertNotNull("Cannot find CallStack", declared1);
         assertEquals("Wrong class name", "au.com.illyrian.classmaker.CallStack", declared1.getName());
-        DeclaredType declared2 = maker.FindDeclared("ExpressionIfc");
+        DeclaredType declared2 = maker.findDeclaredType("ExpressionIfc");
         assertNotNull("Cannot find ExpressionIfc", declared2);
         assertEquals("Wrong class name", "au.com.illyrian.classmaker.ExpressionIfc", declared2.getName());
     }
@@ -284,7 +284,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
             assertEquals("'Date' is ambiguous; must use the fully qualified class name", ex.getMessage());
         }
         try {
-            maker.getDeclared("Date");
+            maker.getAliasMapDeclared("Date");
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("'Date' is ambiguous; must use the fully qualified class name", ex.getMessage());

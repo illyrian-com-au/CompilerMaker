@@ -239,7 +239,7 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc {
     @Override
     public Type Get(String className, String fieldName)
             throws ClassMakerException {
-        DeclaredType declared = FindDeclared(className);
+        DeclaredType declared = findDeclaredType(className);
         if (declared == null)
             throw createException("Unknown Class path: " + className);
         String qualifiedName = declared.getName();
@@ -264,7 +264,7 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc {
     public MakerField Find(String className, String name)
             throws ClassMakerException {
         Type type = findType(name);
-        DeclaredType declared = FindDeclared(className);
+        DeclaredType declared = findDeclaredType(className);
         if (declared == null)
             throw createException("Unknown path: " + className);
         if (type != null)
@@ -300,7 +300,7 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc {
             return ClassMaker.INT_TYPE;
     }
 
-    public DeclaredType FindDeclared(String typeName)
+    public DeclaredType findDeclaredType(String typeName)
             throws ClassMakerException {
         if (typeName.endsWith("Object"))
             return new DeclaredType(ClassMaker.OBJECT_TYPE);
@@ -370,7 +370,7 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc {
     @Override
     public Type Cast(Type source, String target) throws ClassMakerException {
         String ref = stack.pop();
-        DeclaredType result = FindDeclared(target);
+        DeclaredType result = findDeclaredType(target);
         stack.push("Cast(" + ref + ", \"" + target + "\")");
         return result.getType();
     }
@@ -378,7 +378,7 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc {
     @Override
     public Type Cast(Type source, Class target) throws ClassMakerException {
         String ref = stack.pop();
-        DeclaredType result = this.FindDeclared(target.getCanonicalName());
+        DeclaredType result = this.findDeclaredType(target.getCanonicalName());
         stack.push("Cast(" + ref + ", " + target.getCanonicalName() + ")");
         return result.getType();
     }
@@ -386,7 +386,7 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc {
     @Override
     public Type InstanceOf(Type reference, String target) {
         String ref = stack.pop();
-        DeclaredType result = FindDeclared(target);
+        DeclaredType result = findDeclaredType(target);
         stack.push("InstanceOf(" + ref + ", \"" + target + "\")");
         return ClassMaker.BOOLEAN_TYPE;
     }
@@ -588,7 +588,7 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc {
 
     @Override
     public Initialiser New(String className) throws ClassMakerException {
-        DeclaredType declared = FindDeclared(className);
+        DeclaredType declared = findDeclaredType(className);
         return New(declared);
     }
 
@@ -631,7 +631,7 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc {
 
     @Override
     public DeclaredType ArrayOf(String typeName) {
-        DeclaredType declared = this.FindDeclared(typeName);
+        DeclaredType declared = this.findDeclaredType(typeName);
         return ArrayOf(declared);
     }
 

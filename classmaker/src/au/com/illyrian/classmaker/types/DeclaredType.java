@@ -3,7 +3,7 @@ package au.com.illyrian.classmaker.types;
 
 public class DeclaredType
 {
-    private final Type type;
+    protected Type type;
     
     public DeclaredType(Type type)
     {
@@ -26,21 +26,21 @@ public class DeclaredType
 
     public ClassType getClassType()
     {
-        return type.toClass();
+        return (type != null) ? type.toClass() : null;
     }
 
     public ArrayType getArrayType()
     {
-        return type.toArray();
+        return (type != null) ? type.toArray() : null;
     }
 
     public String getName()
     {
-        return getType().getName();
+        return (type != null) ? type.getName() : "null";
     }
 
     public String toString()
     {
-        return "DeclaredType(" + getType().getName() + ")";
+        return "DeclaredType(" + getName() + ")";
     }
 }

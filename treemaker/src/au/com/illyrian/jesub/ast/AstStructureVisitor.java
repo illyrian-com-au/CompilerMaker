@@ -174,14 +174,10 @@ public class AstStructureVisitor extends AstExpressionVisitor
         try {
             int modifiers = resolveModifiers(member.modifiers);
             DeclaredType type = member.type.resolveDeclaredType(this);
-            // FIXME - use empty DeclaredType ******* No revert this
-            String typeName; 
-            if (type!=null) 
-                typeName = type.getName();
-            else
-                typeName = member.type.resolvePath(this);
+            if (type==null) 
+                throw new IllegalArgumentException("Cannot find declared type:" + member.type);
             String name = member.name.resolvePath(this);
-            getMaker().Declare(name, typeName, modifiers);
+            getMaker().Declare(name, type.getName(), modifiers);
         } catch (ClassMakerException ex) {
             addError(ex);
         }

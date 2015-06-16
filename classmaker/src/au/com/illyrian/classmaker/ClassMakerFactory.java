@@ -43,6 +43,7 @@ import au.com.illyrian.classmaker.members.MethodResolver;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.DeclaredType;
+import au.com.illyrian.classmaker.types.DeclaredTypeForward;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 
@@ -68,8 +69,9 @@ import au.com.illyrian.classmaker.types.Type;
 public class ClassMakerFactory
 {
     private SimpleClassLoader loader = null;
-    private HashMap<String, Type> typeMap = new HashMap<String, Type>();
+    private HashMap<String, Type>         typeMap = new HashMap<String, Type>();
     private HashMap<String, DeclaredType> declaredMap = new HashMap<String, DeclaredType>();
+    private HashMap<String, ClassMaker>   makerMap = new HashMap<String, ClassMaker>();
 
     /** An empty prototype array of <code>Type</code> that may be provided to <code>Collection.toArray(Object[])</code>. */
     public static final Type[] TYPE_ARRAY = new Type[0];
@@ -137,7 +139,7 @@ public class ClassMakerFactory
     {
         return new ClassMaker(this, className, extendsClass, sourceFile);
     }
-
+    
     /**
      * Set the current pass for the class generator.
      * </br>
@@ -240,6 +242,16 @@ public class ClassMakerFactory
         if (type == null)
             throw new IllegalArgumentException("DeclaredType is unknown as Type: " + declared.getName());
         return declaredMap.put(name, declared);
+    }
+
+    public void addMakerMap(String name, ClassMaker maker)
+    {
+        makerMap.put(name, maker);
+    }
+    
+    public ClassMaker getMakerMap(String name)
+    {
+        return makerMap.get(name);
     }
 
     public int incAnonomousClass()
@@ -453,12 +465,21 @@ public class ClassMakerFactory
     	// is simple class name?
     	if (className.indexOf('.') == -1)
     	{
-    		type = loadClass("java.lang." + className);
-    		if (type != null)
-    		    // Add another alias using the short name for the class.
-    		    putDeclaredType(className, new DeclaredType(type));
+    	    type = loadClass("java.lang." + className);
+    	    if (type != null)
+    	        // Add another alias using the short name for the class.
+    	        putDeclaredType(className, new DeclaredType(type));
     	}
     	return type;
+    }
+    
+    private DeclaredType lookupMakerMap(String name)
+    {
+        DeclaredType declared = null;
+        ClassMaker maker = makerMap.get(name); 
+        if (maker != null)
+            declared = new DeclaredTypeForward(maker.getFullyQualifiedClassName());
+        return declared;
     }
     
     /**
@@ -483,8 +504,10 @@ public class ClassMakerFactory
         DeclaredType declared = getDeclaredType(typeName);
         if (declared == null)
         {
-            stringToType(typeName);
-            declared = getDeclaredType(typeName);
+            if (stringToType(typeName) == null)
+                declared = lookupMakerMap(typeName);
+            else
+                declared = getDeclaredType(typeName);
         }
         return declared;
     }

@@ -183,11 +183,11 @@ public class MakerNewTest extends ClassMakerTestCase implements ByteCode
     {
         ClassMakerFactory factory = new ClassMakerFactory();
         // new Fac().ComputeFac(10)
-        factory.setPass(ClassMaker.FIRST_PASS);
         ClassMaker maker = factory.createClassMaker("MainClass4", Object.class, null);
-        mainCodeForward(maker, "GenFactorial4");
-
         ClassMaker factMaker = factory.createClassMaker("GenFactorial4", Object.class, null);
+
+        factory.setPass(ClassMaker.FIRST_PASS);
+        mainCodeForward(maker, "GenFactorial4");
         factorialCode(factMaker);
         
         factory.setPass(ClassMaker.SECOND_PASS);

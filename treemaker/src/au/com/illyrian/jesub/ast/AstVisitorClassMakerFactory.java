@@ -11,7 +11,7 @@ public class AstVisitorClassMakerFactory extends AstStructureVisitor
 {
     static final ClassMaker [] CLASSES_PROTO = new ClassMaker[0]; 
     final ClassMakerFactory factory;
-    ResolvePath packageName;
+    String        packageName;
     AstExpression importsList;
     Vector <ClassMaker>      classMakers = new Vector<ClassMaker>(); 
     Vector <AstDeclareClass> declareClasses = new Vector<AstDeclareClass>(); 
@@ -26,7 +26,7 @@ public class AstVisitorClassMakerFactory extends AstStructureVisitor
         return factory;
     }
 
-    public ResolvePath getPackageName()
+    public String getPackageName()
     {
         return packageName;
     }
@@ -65,7 +65,8 @@ public class AstVisitorClassMakerFactory extends AstStructureVisitor
     public void resolveDeclaration(AstDeclareModule unit)
     {
         // Store the package and imports to be added to each generated class.
-        packageName = unit.getPackageName();
+        if (unit.getPackageName() != null)
+            packageName = unit.getPackageName().resolvePath(this);
         importsList = unit.getImportsList();
         
         if (unit.getClassList() != null)
@@ -86,10 +87,14 @@ public class AstVisitorClassMakerFactory extends AstStructureVisitor
     {
         // Add to list of AstDeclareClass instances
         declareClasses.add(unit);
+        String className = unit.getClassName().getName();
         
         // Add to list of ClassMaker instances
         ClassMaker maker = factory.createClassMaker(this);
         addClassMaker(maker);
+        maker.setPackageName(packageName);
+        maker.setSimpleClassName(className);
+        maker.getFullyQualifiedClassName();
     }
 
     public void firstPass(AstDeclareClass unit, ClassMaker maker)
@@ -98,8 +103,7 @@ public class AstVisitorClassMakerFactory extends AstStructureVisitor
 
         if (getPackageName() != null)
         {
-            String name = getPackageName().resolvePath(this);
-            getMaker().setPackageName(name);
+            getMaker().setPackageName(packageName);
         }
         if (getImportsList() != null)
             getImportsList().resolveImport(this);

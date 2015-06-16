@@ -74,7 +74,7 @@ public class AstExpressionVisitor implements SourceLine
 
     public int getLineNumber()
     {
-        return (sourceLine != null) ? sourceLine.getLineNumber() : null;
+        return (sourceLine != null) ? sourceLine.getLineNumber() : 0;
     }
     
     public boolean hasErrors()
@@ -486,7 +486,7 @@ public class AstExpressionVisitor implements SourceLine
             }
         } else {
             String path = tree.leftOperand.resolvePath(this);
-            DeclaredType declared = maker.FindDeclared(path);
+            DeclaredType declared = maker.findDeclaredType(path);
             if (declared != null)
             {
                 String name = tree.rightOperand.resolvePath(this);
@@ -576,14 +576,14 @@ public class AstExpressionVisitor implements SourceLine
     public DeclaredType resolveDeclaredType(TerminalName term)
     {
         sourceLine = term;
-        return maker.FindDeclared(term.getName());
+        return maker.findDeclaredType(term.getName());
     }
     
     public DeclaredType resolveDeclaredType(DotOperator term)
     {
     	String path = resolvePath(term);
         sourceLine = term;
-        return maker.FindDeclared(path);
+        return maker.findDeclaredType(path);
     }
 
     public DeclaredType resolveDeclaredType(ArrayOf arrayOf) 

@@ -40,7 +40,7 @@ public class MakerField
 {
     private final ClassType classType;
     private final String name;
-    private final Type   type;
+    private final Type   type; // FIXME change to DeclaredType
     private final int    modifiers;
     private int    slot;
     private int    scopeLevel;
@@ -234,6 +234,6 @@ public class MakerField
      */
     public String toString()
     {
-        return "MakerField(" + name + ", " + type.getName() + ")";
+        return "MakerField(" + name + ", " + type + ")";
     }
 }
