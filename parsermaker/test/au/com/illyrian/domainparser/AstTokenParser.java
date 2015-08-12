@@ -6,7 +6,6 @@ import au.com.illyrian.classmaker.ast.BinaryOperator;
 import au.com.illyrian.classmaker.ast.TerminalNumber;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseClass;
-import au.com.illyrian.parser.ParseMember;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.ParserBase;

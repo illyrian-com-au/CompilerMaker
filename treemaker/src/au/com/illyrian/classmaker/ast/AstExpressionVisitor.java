@@ -31,12 +31,11 @@ import java.util.Vector;
 
 import au.com.illyrian.classmaker.CallStack;
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.ClassMakerException;
 import au.com.illyrian.classmaker.ExpressionIfc;
-import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.members.MakerField;
-import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Type;
 

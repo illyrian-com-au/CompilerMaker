@@ -32,7 +32,6 @@ import java.lang.reflect.Field;
 import org.mozilla.classfile.ByteCode;
 
 import au.com.illyrian.classmaker.types.DeclaredType;
-import au.com.illyrian.classmaker.types.Type;
 
 public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
 {

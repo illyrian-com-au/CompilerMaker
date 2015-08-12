@@ -28,7 +28,6 @@
 package au.com.illyrian.classmaker.ast;
 
 import au.com.illyrian.classmaker.types.Type;
-import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 
 public class AstStatementReserved extends AstExpressionBase

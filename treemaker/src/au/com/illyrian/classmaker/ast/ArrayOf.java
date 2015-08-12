@@ -1,7 +1,6 @@
 package au.com.illyrian.classmaker.ast;
 
 import au.com.illyrian.classmaker.types.DeclaredType;
-import au.com.illyrian.classmaker.types.Type;
 
 
 public class ArrayOf extends AstExpressionBase 

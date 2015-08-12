@@ -38,26 +38,52 @@ import au.com.illyrian.classmaker.members.MakerMethod;
  * and the interfaces that the class implements.
  */
 public class ClassType extends Type {
-    private ClassType      extendsType;
-    private String         packageName;
-    private ClassType   [] interfaces;
+    private DeclaredType   extendsDeclaredType = null;
+    private ClassType      extendsType = null;
+    private String         packageName = null;
+    private ClassType   [] interfaces = null;
     private MakerMethod [] constructors = null;
     private MakerMethod [] methods = null;
     private MakerMethod [] allMethods = null;
     private MakerField  [] fields = null;
     private int            modifiers = 0;
 
+    public ClassType(Class javaClass)
+    {
+        this(ClassMaker.classToName(javaClass), ClassMaker.OBJECT_TYPE);
+        setJavaClass(javaClass);
+        setModifiers(javaClass.getModifiers());
+    }
+    
     /**
      * Constructor for a <code>ClassType</code>.
-     * @param name the name of the class
+     * @param className the name of the class
      * @param signature the signature of the class
      * @param extendsType the <code>ClassType</code> of the base class
      */
-    public ClassType(String name, String signature, ClassType extendsType)
+    public ClassType(String className, DeclaredType extendsType)
     {
-        super(name, signature);
+        super(className, toSignature(className));
+        this.extendsDeclaredType  = extendsType;
+        extractPackageName(className);
+    }
+    
+    public ClassType(String className, ClassType extendsType)
+    {
+        this(className, toSignature(className), extendsType);
+    }
+    
+    protected ClassType(String className, String signature, ClassType extendsType)
+    {
+        super(className, signature);
         this.extendsType  = extendsType;
-        extractPackageName(name);
+        extractPackageName(className);
+    }
+
+    
+    private static String toSignature(String className)
+    {
+        return "L" + ClassMaker.toSlashName(className) + ";";
     }
 
     /**
@@ -177,9 +203,20 @@ public class ClassType extends Type {
      * The base class for this class.
      * @return the <code>ClassType</code> for the base class
      */
+    public DeclaredType getExtendsDeclaredType()
+    {
+    	return extendsDeclaredType;
+    }
+
+    /**
+     * The base class for this class.
+     * @return the <code>ClassType</code> for the base class
+     */
     public ClassType getExtendsType()
     {
-    	return extendsType;
+        if (extendsType == null && extendsDeclaredType != null)
+            extendsType = extendsDeclaredType.getClassType();
+        return extendsType;
     }
 
     /**

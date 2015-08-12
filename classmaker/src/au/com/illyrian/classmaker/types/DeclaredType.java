@@ -1,5 +1,7 @@
 package au.com.illyrian.classmaker.types;
 
+import au.com.illyrian.classmaker.ClassMaker;
+
 
 public class DeclaredType
 {
@@ -21,6 +23,8 @@ public class DeclaredType
 
     public Type getType()
     {
+        if (type == null)
+            throw new NullPointerException("Type has not been set.");
         return type;
     }
 
@@ -37,6 +41,16 @@ public class DeclaredType
     public String getName()
     {
         return (type != null) ? type.getName() : "null";
+    }
+
+    public String getSignature()
+    {
+        return (type != null) ? type.getSignature() : "null";
+    }
+    
+    public short getSlotSize()
+    {
+        return (short)(ClassMaker.DOUBLE_TYPE.equals(type) || ClassMaker.LONG_TYPE.equals(type) ? 2 : 1);
     }
 
     public String toString()

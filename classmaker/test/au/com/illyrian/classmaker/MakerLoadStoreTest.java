@@ -30,6 +30,7 @@ package au.com.illyrian.classmaker;
 import org.mozilla.classfile.ByteCode;
 
 import au.com.illyrian.classmaker.members.MakerField;
+import au.com.illyrian.classmaker.types.DeclaredType;
 
 public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
 {
@@ -1627,8 +1628,9 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Wrong message", "Cannot find member field 'a' in class MyClass", ex.getMessage());
         }
 
+        DeclaredType declaredVoid = maker.getDeclaredType(ClassMaker.VOID_TYPE);
         try {
-            MakerField field = new MakerField("a", ClassMaker.VOID_TYPE, 0);
+            MakerField field = new MakerField("a", declaredVoid, 0);
             field.setSlot(1);
             maker.loadLocal(field);
             fail("Should throw ClassMakerException");
@@ -1636,7 +1638,7 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Wrong message", "Don't know how to load type: void", ex.getMessage());
         }
         try {
-            MakerField field = new MakerField("a", ClassMaker.VOID_TYPE, 0);
+            MakerField field = new MakerField("a", declaredVoid, 0);
             field.setSlot(1);
             maker.storeLocal(field, ClassMaker.VOID_TYPE);
 //            maker.storeLocal(1, ClassMaker.VOID_TYPE);

@@ -44,12 +44,11 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
     ClassMakerFactory factory;
     ClassMaker maker;
     MethodResolver resolver;
-    ClassType DESSERT;
-    ClassType CAKE;
-    ClassType SCONE;
-    ClassType CHOCOLATE_CAKE;
-    ClassType BUTTERED_SCONE;
-
+    final ClassType DESSERT = new ClassType("test.Dessert", ClassMaker.OBJECT_TYPE);;
+    final ClassType CAKE = new ClassType("test.Cake", DESSERT);
+    final ClassType SCONE = new ClassType("test.Scone", DESSERT);
+    final ClassType CHOCOLATE_CAKE = new ClassType("test.ChocolateCake", CAKE);
+    final ClassType BUTTERED_SCONE = new ClassType("test.ButteredScone", SCONE);
 
     public void setUp() throws Exception
     {
@@ -71,11 +70,11 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
         }
         protected void addLocalClasses()
         {
-            DESSERT = addClassType("test.Dessert", ClassMaker.OBJECT_TYPE);
-            CAKE    = addClassType("test.Cake", DESSERT);
-            SCONE   = addClassType("test.Scone", DESSERT);
-            CHOCOLATE_CAKE = addClassType("test.ChocolateCake", CAKE);
-            BUTTERED_SCONE = addClassType("test.ButteredScone", SCONE);
+            addTypeAndDeclaredType(DESSERT); 
+            addTypeAndDeclaredType(CAKE);
+            addTypeAndDeclaredType(SCONE);
+            addTypeAndDeclaredType(CHOCOLATE_CAKE);
+            addTypeAndDeclaredType(BUTTERED_SCONE);
         }
     }
 
@@ -115,24 +114,24 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
 
         MakerMethod method;
         method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push());
-        assertEquals("Did not find eval()", 0, method.getFormalParams().length);
+        assertEquals("Did not find eval()", 0, method.getFormalDeclaredTypes().length);
 
         // Check assignment of primitives
         method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(ClassMaker.INT_TYPE));
-        assertEquals("Did not find eval(int)", 1, method.getFormalParams().length);
+        assertEquals("Did not find eval(int)", 1, method.getFormalDeclaredTypes().length);
         method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(ClassMaker.BYTE_TYPE));
-        assertEquals("Did not find eval(int)", 1, method.getFormalParams().length);
+        assertEquals("Did not find eval(int)", 1, method.getFormalDeclaredTypes().length);
         method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(ClassMaker.SHORT_TYPE));
-        assertEquals("Did not find eval(int)", 1, method.getFormalParams().length);
+        assertEquals("Did not find eval(int)", 1, method.getFormalDeclaredTypes().length);
         method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(ClassMaker.CHAR_TYPE));
-        assertEquals("Did not find eval(int)", 1, method.getFormalParams().length);
+        assertEquals("Did not find eval(int)", 1, method.getFormalDeclaredTypes().length);
 
         failToResolveMethod("eval", maker.Push(ClassMaker.FLOAT_TYPE));
         failToResolveMethod("eval", maker.Push(ClassMaker.DOUBLE_TYPE));
         failToResolveMethod("eval", maker.Push(ClassMaker.LONG_TYPE));
 
         method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(ClassMaker.INT_TYPE).Push(ClassMaker.INT_TYPE));
-        assertEquals("Did not find eval(int,int)", 2, method.getFormalParams().length);
+        assertEquals("Did not find eval(int,int)", 2, method.getFormalDeclaredTypes().length);
     }
 
     public void testResolveReferenceMethods() throws Exception
@@ -277,7 +276,7 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
     {
         int i = 0;
         MethodResolver resolver = factory.getMethodResolver();
-        ClassType classType = new ClassType("Test", "LTest;", null);
+        ClassType classType = new ClassType("Test", ClassMaker.OBJECT_TYPE);
         classType.setJavaClass(MoorgeInterface.class);
         MakerMethod [] methods = factory.getMethods(classType);
         String name = "moorge";

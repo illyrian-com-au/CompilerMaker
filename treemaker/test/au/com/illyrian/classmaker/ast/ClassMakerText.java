@@ -255,9 +255,9 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc {
 
     public MakerField Find(Type reference, String name)
             throws ClassMakerException {
-        Type type = findType(name);
-        if (type != null && reference.toClass() != null)
-            return new MakerField(reference.toClass(), name, type, 0);
+        DeclaredType declared = findDeclaredType(name);
+        if (declared != null && reference.toClass() != null)
+            return new MakerField(reference.toClass(), name, declared, 0);
         return null;
     }
 
@@ -268,7 +268,7 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc {
         if (declared == null)
             throw createException("Unknown path: " + className);
         if (type != null)
-            return new MakerField(declared.getClassType(), name, type,
+            return new MakerField(declared.getClassType(), name, declared,
                     ClassMaker.ACC_STATIC);
         return null;
     }
@@ -276,7 +276,8 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc {
     public MakerField Find(String name) throws ClassMakerException {
         Type type = findType(name);
         if (type != null) {
-            MakerField field = new MakerField(name, type, 0);
+            DeclaredType declared = new DeclaredType(type);
+            MakerField field = new MakerField(name, declared, 0);
             // ScopeLevel > 0 means variable is declared in a method.
             field.setScopeLevel(1);
             return field;
@@ -308,8 +309,12 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc {
             return new DeclaredType(ClassMaker.STRING_TYPE);
         else if (typeName.equals("int"))
             return new DeclaredType(ClassMaker.INT_TYPE);
-        else
-            return null;
+        else {
+            Type type = findType(typeName);
+            if (type != null)
+                return new DeclaredType(type);
+        }
+        return null;
     }
 
     @Override
@@ -646,7 +651,6 @@ public class ClassMakerText extends PrintWriter implements ExpressionIfc {
         String name = typeName + "[]";
         String signature = "[" + type.getSignature();
         ArrayType element = new ArrayType(name, signature, type);
-//        stack.push("ArrayOf(" + typeName + ")");
         return element;
     }
 

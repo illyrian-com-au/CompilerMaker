@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.expressionparser.ExpressionAction;
-import au.com.illyrian.parser.impl.PrecidenceParser;
-import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 import junit.framework.TestCase;
+import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class PrecidenceParserTest extends TestCase
 {

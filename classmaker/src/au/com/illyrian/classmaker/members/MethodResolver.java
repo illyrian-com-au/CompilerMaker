@@ -141,7 +141,7 @@ public class MethodResolver
         while (iter.hasNext())
         {
             MakerMethod method = iter.next();
-            Type[] formalParameters = method.getFormalParams();
+            Type[] formalParameters = method.getFormalTypes();
             Type [] actualParameters = parameters.toArray();
 
             // Remove candidates with the wrong number of parameters
@@ -185,7 +185,7 @@ public class MethodResolver
         // Remove candidates with less specific parameters
         MakerMethod[] method = candidates.toArray(METHOD_ARRAY);
         int len = method.length;
-        int paramSize = method[0].getFormalParams().length;
+        int paramSize = method[0].getFormalDeclaredTypes().length;
         for (int i = 0; i < len; i++)
         {
 //            System.out.println("Compare i=" + method[i].toString());
@@ -195,8 +195,8 @@ public class MethodResolver
                 // Compare each pair of candidates
                 for (int k = 0; k < paramSize; k++)
                 {
-                    Type param_i = method[i].getFormalParams()[k];
-                    Type param_j = method[j].getFormalParams()[k];
+                    Type param_i = method[i].getFormalTypes()[k];
+                    Type param_j = method[j].getFormalTypes()[k];
                     if (!param_i.equals(param_j))
                     {
                         // Remove the candidate with a less specific parameter
@@ -240,8 +240,8 @@ public class MethodResolver
             for (int j = i + 1; j < len; j++)
             {
 //                System.out.println("against j=" + method[j].toString());
-                Type param_i = method[i].getReturnType();
-                Type param_j = method[j].getReturnType();
+                Type param_i = method[i].getReturnType().getType();
+                Type param_j = method[j].getReturnType().getType();
                 if (!param_i.equals(param_j))
                 {
                     // Remove the candidate with the less specific return type

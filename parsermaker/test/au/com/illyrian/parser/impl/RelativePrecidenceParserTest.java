@@ -6,7 +6,6 @@ import java.io.StringWriter;
 
 import junit.framework.TestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.expressionparser.ExpressionAction;
 import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class RelativePrecidenceParserTest extends TestCase

@@ -53,18 +53,6 @@ public class ArrayType extends ClassType
     }
 
     /**
-     * Constructor for an <code>ArrayType</code> given a java reflection class.
-     * @param name the name of the array
-     * @param signature the signature of the class
-     * @param javaClass the java reflection class of the array elements
-     */
-    public ArrayType(String name, String signature, Class javaClass)
-    {
-        super(name, signature, ClassMaker.OBJECT_TYPE);
-        this.arrayOfType = null;
-    }
-    
-    /**
      * Get the <code>Type</code> of the array element.
      * @return the type of the array element
      */

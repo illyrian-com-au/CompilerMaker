@@ -27,7 +27,6 @@
 
 package au.com.illyrian.jesub.ast;
 
-import au.com.illyrian.classmaker.ast.AstExpressionBase;
 
 public class AstStructureBase /*extends AstExpressionBase*/ implements AstStructure
 {

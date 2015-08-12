@@ -4,381 +4,354 @@ import org.mozilla.classfile.ByteCode;
 
 public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
 {
-    public interface Value {
+    public interface Getter {
         public int getValue();
     }
-    public interface List {
-        public void insert(int key);
-        public Value find(int key);
+    public interface Setter {
+        public void setValue(int i);
     }
     
-    public static class JavaList implements List
-    {
-        JavaLink stack;
-        
-        public JavaList()
-        {
-            stack = null;
-        }
-        
-        public void insert(int key)
-        {
-            stack = insert(key, stack);
-        }
-        
-        private JavaLink insert(int key, JavaLink list)
-        {
-            if (list != null && list.key <= key)
-                list.next = insert(key, list.next);
-            else
-                list = new JavaLink(key, list);
-            return list;
-        }
-        
-        public Value find(int key)
-        {
-            JavaLink list;
-            for (list = stack; list != null; list = list.next)
-            {
-                if (list.key == key)
-                    return list;
-                else if (list.key > key)
-                    break;
-            }
-            return null;
-        }
-        
-        public String toString()
-        {
-            return "List: " + stack;
-        }
-    }
-    
-    public static class JavaLink implements Value
-    {
-        int key;
-        JavaLink next;
-        
-        public JavaLink(int key, JavaLink next)
-        {
-            this.key = key;
-            this.next = next;
-        }
-        
-        public int getValue() { return key; }
-        
-        public String toString()
-        {
-            if (next == null)
-                return "" + key;
-            else
-                return key + ", " + next;
-        }
-    }
-    
-    public void testJavaLinkList()
-    {
-        JavaList list = new JavaList();
-        assertNull("Should not find 1", list.find(1));
-        list.insert(1);
-        assertNotNull("Should find 1", list.find(1));
-        list.insert(3);
-        assertNotNull("Should find 3", list.find(3));
-        list.insert(9);
-        assertNotNull("Should find 9", list.find(9));
-        list.insert(7);
-        list.insert(5);
-        assertNotNull("Should find 1", list.find(1));
-        assertNull("Should not find 2", list.find(2));
-        assertNotNull("Should find 3", list.find(3));
-        assertNull("Should not find 4", list.find(4));
-        assertNotNull("Should find 5", list.find(5));
-        assertNull("Should not find 6", list.find(6));
-        assertNotNull("Should find 7", list.find(7));
-        assertNull("Should not find 8", list.find(8));
-        assertNotNull("Should find 9", list.find(9));
-        assertNull("Should not find 10", list.find(10));
-    }
     /*
+     * The base class is the same for all test routines.
+     * class Base {
+     *     int val;
+     *     public Base()
+     *     {
+     *         super();
+     *         val = 9;
+     *     }
+     * }
+     */
+    private void codeBase(ClassMaker maker)
+    {
+        maker.Declare("val", int.class, ClassMaker.ACC_PUBLIC);
+        
+        maker.Method(ClassMaker.INIT, ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Begin();
+            maker.Init(maker.Super(), null);
+            maker.Eval(maker.Assign(maker.This(), "val", maker.Literal(9)));
+            maker.Return();
+        maker.End();
+        
+        maker.EndClass();
+    }
+
+    public void testInitClass() throws Exception
+    {
+        ClassMakerFactory factory = new ClassMakerFactory();
+        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
+
+        factory.setPass(ClassMaker.FIRST_PASS);
+        codeBase(initMaker);
+
+        // NOTE: Code must be identical to first pass.
+        factory.setPass(ClassMaker.SECOND_PASS);
+        codeBase(initMaker);
+        
+        Class initClass = initMaker.defineClass();
+        Object initObj = initClass.newInstance();
+        
+        assertEquals("initClass.val", 9, getIntField(initClass, initObj, "val"));
+    }
+    
     public void testForwardDeclaredLocal() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
         ClassMaker maker = factory.createClassMaker("MakerValue", Object.class, null);
-        ClassMaker entryMaker = factory.createClassMaker("Init", Object.class, null);
+        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
-        
+        maker.Implements(Getter.class);
         maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-        maker.Declare("init", "Init", 0);
-        maker.Return(maker.Literal(1));
+        {
+            maker.Declare("init", "Init", 0);
+            maker.Eval(maker.Assign("init", maker.New("Init").Init(null)));
+            maker.Return(maker.Get(maker.Get("init"), "val"));
+        }
         maker.End();
         maker.EndClass();
+        codeBase(initMaker);
+
+        factory.setPass(ClassMaker.SECOND_PASS);
+        maker.Implements(Getter.class);
+        maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Begin();
+        {
+            maker.Declare("init", "Init", 0);
+            maker.Eval(maker.Assign("init", maker.New("Init").Init(null)));
+            maker.Return(maker.Get(maker.Get("init"), "val"));
+        }
+        maker.End();
+        maker.EndClass();
+        codeBase(initMaker);
+        
+        Class myClass = maker.defineClass();
+        initMaker.defineClass();
+        Getter value =  (Getter)myClass.newInstance();
+        
+        assertEquals("value.getValue()", 9, value.getValue());
     }
     
     public void testForwardDeclaredParameter() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
         ClassMaker maker = factory.createClassMaker("MakerValue", Object.class, null);
-        ClassMaker entryMaker = factory.createClassMaker("Init", Object.class, null);
+        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
-        
-        maker.Declare("value", int.class, ClassMaker.ACC_PUBLIC);
-        maker.Method("setValue", void.class, ClassMaker.ACC_PUBLIC);
+        maker.Implements(Getter.class);
+        maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Begin();
+        {
+            maker.Declare("obj", "Init", 0);
+            maker.Eval(maker.Assign("obj", maker.New("Init").Init(null)));
+            maker.Return(maker.Call(maker.This(), "getValue", maker.Push(maker.Get("obj"))));
+        }
+        maker.End();
+        maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
         maker.Declare("init", "Init", 0);
         maker.Begin();
-        maker.Eval(maker.Assign(maker.This(), "value", maker.Call(maker.Get("init"), null)));
-        maker.Return();
+        {
+            maker.Return(maker.Get(maker.Get("init"), "val"));
+        }
         maker.End();
         maker.EndClass();
+        codeBase(initMaker);
+
+        factory.setPass(ClassMaker.SECOND_PASS);
+        maker.Implements(Getter.class);
+        maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Begin();
+        {
+            maker.Declare("obj", "Init", 0);
+            maker.Eval(maker.Assign("obj", maker.New("Init").Init(null)));
+            maker.Return(maker.Call(maker.This(), "getValue", maker.Push(maker.Get("obj"))));
+        }
+        maker.End();
+        maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Declare("init", "Init", 0);
+        maker.Begin();
+        {
+            maker.Return(maker.Get(maker.Get("init"), "val"));
+        }
+        maker.End();
+        maker.EndClass();
+        codeBase(initMaker);
+        
+        Class myClass = maker.defineClass();
+        initMaker.defineClass();
+        Getter value =  (Getter)myClass.newInstance();
+        
+        assertEquals("value.getValue()", 9, value.getValue());
     }
     
     public void testForwardDeclaredResult() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
         ClassMaker maker = factory.createClassMaker("MakerValue", Object.class, null);
-        ClassMaker entryMaker = factory.createClassMaker("Init", Object.class, null);
+        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
-        
-        maker.Method("getValue", "Init", ClassMaker.ACC_PUBLIC);
+        maker.Implements(Getter.class);
+        // Method to create an instance of class Init
+        maker.Method("getInit", "Init", ClassMaker.ACC_PUBLIC);
         maker.Begin();
-        maker.Return(maker.New("Init").Init(null));
+            maker.Return(maker.New("Init").Init(null));
+        maker.End();
+        // Method to get the value from an instance of class Init
+        maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Begin();
+            maker.Return(maker.Get(maker.Call(maker.This(), "getInit", null), "val"));
         maker.End();
         maker.EndClass();
+        // Declare class Init
+        codeBase(initMaker);
+
+        // NOTE: Code must be identical to first pass.
+        factory.setPass(ClassMaker.SECOND_PASS);
+        maker.Implements(Getter.class);
+        maker.Method("getInit", "Init", ClassMaker.ACC_PUBLIC);
+        maker.Begin();
+            maker.Return(maker.New("Init").Init(null));
+        maker.End();
+        maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Begin();
+            maker.Return(maker.Get(maker.Call(maker.This(), "getInit", null), "val"));
+        maker.End();
+        maker.EndClass();
+        codeBase(initMaker);
+        
+        Class myClass = maker.defineClass();
+        initMaker.defineClass();
+
+        Getter value =  (Getter)myClass.newInstance();
+        assertEquals("value.getValue()", 9, value.getValue());
     }
     
     public void testForwardDeclaredField() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
         ClassMaker maker = factory.createClassMaker("MakerValue", Object.class, null);
-        ClassMaker entryMaker = factory.createClassMaker("Init", Object.class, null);
+        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
-        
-        maker.Declare("init", "Init", ACC_PUBLIC);
+        maker.Implements(Getter.class);
+        // Constructor initialises the init field with an instance of class Init.
+        maker.Method(ClassMaker.INIT, ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Begin(); 
+        {
+            maker.Init(maker.Super(), null);
+            maker.Eval(maker.Assign(maker.This(), "init", maker.New("Init").Init(null)));
+            maker.Return();
+        } 
+        maker.End();
+        // Gets the value from the init instance.
         maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-        maker.Return(maker.Call(maker.This(), "getValue", null));
+        {
+            maker.Return(maker.Get(maker.Get(maker.This(), "init"), "val"));
+        }
         maker.End();
+        maker.Declare("init", "Init", ACC_PUBLIC);
         maker.EndClass();
+        // Declare class Init
+        codeBase(initMaker);
+
+        // NOTE: Code must be identical to first pass.
+        factory.setPass(ClassMaker.SECOND_PASS);
+        maker.Implements(Getter.class);
+        maker.Method(ClassMaker.INIT, ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Begin(); 
+        {
+            maker.Init(maker.Super(), null);
+            maker.Eval(maker.Assign(maker.This(), "init", maker.New("Init").Init(null)));
+            maker.Return();
+        } 
+        maker.End();
+        maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Begin();
+        {
+            maker.Return(maker.Get(maker.Get(maker.This(), "init"), "val"));
+        }
+        maker.End();
+        maker.Declare("init", "Init", ACC_PUBLIC);
+        maker.EndClass();
+        codeBase(initMaker);
+        
+        Class myClass = maker.defineClass();
+        initMaker.defineClass();
+
+        Getter value =  (Getter)myClass.newInstance();
+        assertEquals("value.getValue()", 9, value.getValue());
     }
     
     public void testForwardDeclaredExtends() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("MakerValue", Object.class, null);
-        ClassMaker entryMaker = factory.createClassMaker("Init", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("MakerValue", null, null);
+        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
-        
         maker.Extends("Init");
+        maker.Implements(Getter.class);
         maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-        maker.Return(maker.Literal(100));
+            maker.Return(maker.Get(maker.This(), "val"));
         maker.End();
         maker.EndClass();
-    }
-    
-    private void codeClass(ClassMaker maker, String entryName)
-    {
-        maker.Method("init", void.class, ClassMaker.ACC_PUBLIC);
-        maker.Begin();
-        maker.End();
-    }
-    
-    private void codeList(ClassMaker maker, String entryName)
-    {
-        maker.Implements(List.class);
-        
-        maker.Declare("stack", entryName, 0);
-        
-        maker.Method(ClassMaker.INIT, ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Begin();
-        {
-            maker.Init(maker.Super(), null);
-            maker.Assign(maker.This(), "stack", maker.Null());
-            maker.Return();
-        }
-        maker.End();
+        codeBase(initMaker);
 
-        maker.Method("insert", void.class, ClassMaker.ACC_PUBLIC);
-        maker.Declare("key", int.class, 0);
+        factory.setPass(ClassMaker.SECOND_PASS);
+        maker.Extends("Init");
+        maker.Implements(Getter.class);
+        maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-        {
-            //  this.stack = insert(key, this.stack);
-            maker.Assign(maker.This(), "stack", maker.Call(maker.This(), "insert", 
-                    maker.Push(maker.Get("key")).Push(maker.Get(maker.This(), "stack"))));
-            maker.Return();
-        }
+            maker.Return(maker.Get(maker.This(), "val"));
         maker.End();
-
-        maker.Method("insert", entryName, ClassMaker.ACC_PRIVATE);
-        maker.Declare("key", int.class, 0);
-        maker.Declare("list", entryName, 0);
-        maker.Begin();
-        {
-//            if (list != null && list.key <= key)
-//                list.next = insert(key, list.next);
-//            else
-//                list = new JavaLink(key, list);
-//            return list;
-            maker.If(maker.Logic(maker.AndThen(maker.NE(maker.Get("list"), maker.Null())), 
-                    maker.LE(maker.Get(maker.Get("list"), "key"), maker.Get("key"))));
-            {
-                maker.Eval(maker.Assign(maker.Get("list"), "next", maker.Call(maker.This(), "insert", 
-                        maker.Push(maker.Get("key")).Push(maker.Get(maker.Get("list"), "next")))));
-            }
-            maker.Else();
-            {
-                maker.Eval(maker.Assign("list", maker.New(entryName)
-                        .Init(maker.Push(maker.Get("key")).Push(maker.Get("list")))));
-            }
-            maker.EndIf();
-            maker.Return(maker.Get("list"));
-        }
-        maker.End();
-
-        maker.Method("find", Value.class, ClassMaker.ACC_PUBLIC);
-        maker.Declare("key", int.class, 0);
-        maker.Begin();
-        {
-//            JavaLink list;
-//            for (list = stack; list != null; list = list.next)
-//            {
-//                if (list.key == key)
-//                    return list;
-//                else if (list.key > key)
-//                    break;
-//            }
-//            return null;
-            maker.Declare("list", entryName, 0);
-            maker.For(maker.Assign("list", maker.Get(maker.This(), "stack")))
-                .While(maker.NE(maker.Get("list"), maker.Null()))
-                .Step(maker.Assign("list", maker.Get(maker.Get("list"), "next"))); 
-            {
-                maker.If(maker.EQ(maker.Get(maker.Get("list"), "key"), maker.Get("key"))); {
-                    maker.Return(maker.Get("list"));
-                } maker.Else(); {
-                    maker.If(maker.GT(maker.Get(maker.Get("list"), "key"), maker.Get("key"))); {
-                        maker.Break();
-                    } maker.EndIf();
-                } maker.EndIf();
-            } maker.EndFor();
-            maker.Return(maker.Null());
-        }
-        maker.End();
-
         maker.EndClass();
-    }
+        codeBase(initMaker);
 
-    public void codeEntry(ClassMaker maker, String entryName)
-    {
-        maker.Implements(Value.class);
+        // FIXME - does not work when order is reversed
+        initMaker.defineClass();
+        Class myClass = maker.defineClass();
         
-        maker.Declare("key", int.class, 0);
-        maker.Declare("next", entryName, 0);
+        Getter value =  (Getter)myClass.newInstance();
+        assertEquals("value.getValue()", 9, value.getValue());
+    }
+    
+    public void testForwardDeclaredImplements() throws Exception
+    {
+        ClassMakerFactory factory = new ClassMakerFactory();
+        ClassMaker maker = factory.createClassMaker("MakerValue", null, null);
+        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
+        ClassMaker ifaceMaker = factory.createClassMaker("Initialiser", null, null);
 
-        maker.Method(ClassMaker.INIT, ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("key", int.class, 0);
-        maker.Declare("next", entryName, 0);
-        maker.Begin();
-        {
-            maker.Init(maker.Super(), null);
-            maker.Assign(maker.This(), "key",  maker.Get("key"));
-            maker.Assign(maker.This(), "next",  maker.Get("next"));
-            maker.Return();
-        }
-        maker.End();
-
+        factory.setPass(ClassMaker.FIRST_PASS);
+        // class MakerValue
+        maker.Implements(Getter.class);
         maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
         maker.Begin();
         {
-            maker.Return(maker.Get(maker.This(), "key"));
+            maker.Return(maker.Call(maker.New("Init").Init(null), "setValue", maker.Push(maker.Literal(5))));
         }
         maker.End();
         maker.EndClass();
+        
+        // class Init
+        initMaker.Implements("Initialiser");
+        initMaker.Method("setValue", int.class, ACC_PUBLIC);
+        initMaker.Declare("value", int.class, 0);
+        initMaker.Begin();
+        {
+            initMaker.Return(initMaker.Assign(initMaker.This(), "val", initMaker.Get("value")));
+        }
+        initMaker.End();
+        codeBase(initMaker);
+        
+        // interface Initialiser
+        ifaceMaker.setClassModifiers(ClassMaker.ACC_INTERFACE);
+        ifaceMaker.Method("setValue", void.class, ACC_PUBLIC | ACC_ABSTRACT);
+        ifaceMaker.Declare("value", int.class, 0);
+        ifaceMaker.Forward();
+        ifaceMaker.EndClass();
+
+        factory.setPass(ClassMaker.SECOND_PASS);
+        // class MakerValue
+        maker.Implements(Getter.class);
+        maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Begin();
+        {
+            maker.Return(maker.Call(maker.New("Init").Init(null), "setValue", maker.Push(maker.Literal(5))));
+        }
+        maker.End();
+        maker.EndClass();
+        
+        // class Init
+        initMaker.Implements("Initialiser");
+        initMaker.Method("setValue", int.class, ACC_PUBLIC );
+        initMaker.Declare("value", int.class, 0);
+        initMaker.Begin();
+        {
+            initMaker.Return(initMaker.Assign(initMaker.This(), "val", initMaker.Get("value")));
+        }
+        initMaker.End();
+        codeBase(initMaker);
+        
+        // interface Initialiser
+        ifaceMaker.setClassModifiers(ClassMaker.ACC_INTERFACE);
+        ifaceMaker.Method("setValue", void.class, ACC_PUBLIC| ACC_ABSTRACT);
+        ifaceMaker.Declare("value", int.class, 0);
+        ifaceMaker.Forward();
+        ifaceMaker.EndClass();
+
+        // FIXME - does not work when order is reversed
+        ifaceMaker.defineClass();
+        initMaker.defineClass();
+        Class myClass = maker.defineClass();
+        
+        Getter value =  (Getter)myClass.newInstance();
+        assertEquals("value.getValue()", 5, value.getValue());
     }
     
-    public void testListMakerOrdered() throws Exception
-    {
-        ClassMakerFactory factory = new ClassMakerFactory();
-        // new Fac().ComputeFac(10)
-        ClassMaker listMaker = factory.createClassMaker("MakerList", Object.class, null);
-        ClassMaker entryMaker = factory.createClassMaker("MakerEntry", Object.class, null);
-
-        factory.setPass(ClassMaker.FIRST_PASS);
-        codeEntry(entryMaker, "MakerEntry");
-        codeList(listMaker, "MakerEntry");
-        
-        factory.setPass(ClassMaker.SECOND_PASS);
-        codeEntry(entryMaker, "MakerEntry");
-        codeList(listMaker, "MakerEntry");
-        
-        entryMaker.defineClass();
-        Class myClass = listMaker.defineClass();
-        List list =  (List)myClass.newInstance();
-
-        assertNull("Should not find 1", list.find(1));
-        list.insert(1);
-        assertNotNull("Should find 1", list.find(1));
-        list.insert(3);
-        assertNotNull("Should find 3", list.find(3));
-        list.insert(9);
-        assertNotNull("Should find 9", list.find(9));
-        list.insert(7);
-        list.insert(5);
-        assertNotNull("Should find 1", list.find(1));
-        assertNull("Should not find 2", list.find(2));
-        assertNotNull("Should find 3", list.find(3));
-        assertNull("Should not find 4", list.find(4));
-        assertNotNull("Should find 5", list.find(5));
-        assertNull("Should not find 6", list.find(6));
-        assertNotNull("Should find 7", list.find(7));
-        assertNull("Should not find 8", list.find(8));
-        assertNotNull("Should find 9", list.find(9));
-        assertNull("Should not find 10", list.find(10));
-   }
-
-    public void testListMakerReversed() throws Exception
-    {
-        ClassMakerFactory factory = new ClassMakerFactory();
-        // new Fac().ComputeFac(10)
-        ClassMaker listMaker = factory.createClassMaker("MakerList", Object.class, null);
-        ClassMaker entryMaker = factory.createClassMaker("MakerEntry", Object.class, null);
-
-        factory.setPass(ClassMaker.FIRST_PASS);
-        codeList(listMaker, "MakerEntry");
-        codeEntry(entryMaker, "MakerEntry");
-        
-        factory.setPass(ClassMaker.SECOND_PASS);
-        codeList(listMaker, "MakerEntry");
-        codeEntry(entryMaker, "MakerEntry");
-        
-        entryMaker.defineClass();
-        Class myClass = listMaker.defineClass();
-        List list =  (List)myClass.newInstance();
-
-        assertNull("Should not find 1", list.find(1));
-        list.insert(1);
-        assertNotNull("Should find 1", list.find(1));
-        list.insert(3);
-        assertNotNull("Should find 3", list.find(3));
-        list.insert(9);
-        assertNotNull("Should find 9", list.find(9));
-        list.insert(7);
-        list.insert(5);
-        assertNotNull("Should find 1", list.find(1));
-        assertNull("Should not find 2", list.find(2));
-        assertNotNull("Should find 3", list.find(3));
-        assertNull("Should not find 4", list.find(4));
-        assertNotNull("Should find 5", list.find(5));
-        assertNull("Should not find 6", list.find(6));
-        assertNotNull("Should find 7", list.find(7));
-        assertNull("Should not find 8", list.find(8));
-        assertNotNull("Should find 9", list.find(9));
-        assertNull("Should not find 10", list.find(10));
-   }
-*/
 }

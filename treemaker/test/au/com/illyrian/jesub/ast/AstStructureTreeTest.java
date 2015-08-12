@@ -8,7 +8,6 @@ import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.TerminalName;
-import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.DeclaredType;
 
 public class AstStructureTreeTest extends ClassMakerTestCase
@@ -94,7 +93,7 @@ public class AstStructureTreeTest extends ClassMakerTestCase
         assertEquals("Package name:", "au.com.illyrian.jesub.ast", maker.getPackageName());
         assertEquals("Class name:", "Test", maker.getSimpleClassName());
         assertEquals("Fully Qualified Class name:", "au.com.illyrian.jesub.ast.Test", maker.getFullyQualifiedClassName());
-        ClassType superClass = maker.getSuperClass();
+        DeclaredType superClass = maker.getSuperClass();
         assertEquals("Super class:", "au.com.illyrian.jesub.ast.AstStructureBase", superClass.getName());
     }
 
@@ -157,7 +156,7 @@ public class AstStructureTreeTest extends ClassMakerTestCase
         assertEquals("Package name:", getClass().getPackage().getName(), maker.getPackageName());
         assertEquals("Class name:", "Test", maker.getSimpleClassName());
         assertEquals("Fully Qualified Class name:", "au.com.illyrian.jesub.ast.Test", maker.getFullyQualifiedClassName());
-        ClassType superClass = maker.getSuperClass();
+        DeclaredType superClass = maker.getSuperClass();
         assertEquals("Super class:", "au.com.illyrian.jesub.ast.FuncABC", superClass.getName());
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
@@ -204,7 +203,7 @@ public class AstStructureTreeTest extends ClassMakerTestCase
         assertEquals("Package name:", getClass().getPackage().getName(), maker.getPackageName());
         assertEquals("Class name:", "Test", maker.getSimpleClassName());
         assertEquals("Fully Qualified Class name:", "au.com.illyrian.jesub.ast.Test", maker.getFullyQualifiedClassName());
-        ClassType superClass = maker.getSuperClass();
+        DeclaredType superClass = maker.getSuperClass();
         assertEquals("Super class:", "au.com.illyrian.jesub.ast.FuncABC", superClass.getName());
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();

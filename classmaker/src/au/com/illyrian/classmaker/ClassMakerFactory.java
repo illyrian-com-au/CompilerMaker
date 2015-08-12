@@ -262,32 +262,29 @@ public class ClassMakerFactory
     /** Adds all the standard PrimitiveTypes */
     protected void addPrimitives()
     {
-        ClassMaker.VOID_TYPE    = addPrimitiveType(PrimitiveType.VOID_INDEX, "void", "V", void.class);
-        ClassMaker.BYTE_TYPE    = addPrimitiveType(PrimitiveType.BYTE_INDEX, "byte", "B", byte.class);
-        ClassMaker.CHAR_TYPE    = addPrimitiveType(PrimitiveType.CHAR_INDEX, "char", "C", char.class);
-        ClassMaker.DOUBLE_TYPE  = addPrimitiveType(PrimitiveType.DOUBLE_INDEX, "double", "D", double.class);
-        ClassMaker.FLOAT_TYPE   = addPrimitiveType(PrimitiveType.FLOAT_INDEX, "float", "F", float.class);
-        ClassMaker.INT_TYPE     = addPrimitiveType(PrimitiveType.INT_INDEX, "int", "I", int.class);
-        ClassMaker.LONG_TYPE    = addPrimitiveType(PrimitiveType.LONG_INDEX, "long", "J", long.class);
-        ClassMaker.SHORT_TYPE   = addPrimitiveType(PrimitiveType.SHORT_INDEX, "short", "S", short.class);
-        ClassMaker.BOOLEAN_TYPE = addPrimitiveType(PrimitiveType.BOOLEAN_INDEX, "boolean", "Z", boolean.class);
+        addTypeAndDeclaredType(ClassMaker.VOID_TYPE);
+        addTypeAndDeclaredType(ClassMaker.BYTE_TYPE);
+        addTypeAndDeclaredType(ClassMaker.CHAR_TYPE);
+        addTypeAndDeclaredType(ClassMaker.DOUBLE_TYPE);
+        addTypeAndDeclaredType(ClassMaker.FLOAT_TYPE);
+        addTypeAndDeclaredType(ClassMaker.INT_TYPE);
+        addTypeAndDeclaredType(ClassMaker.LONG_TYPE);
+        addTypeAndDeclaredType(ClassMaker.SHORT_TYPE);
+        addTypeAndDeclaredType(ClassMaker.BOOLEAN_TYPE);
     }
 
     /** Adds important Types representing standard java classes */
     protected void addStandardClasses()
     {
         // Prime the first objects in classTypeToString
-        ClassMaker.NULL_TYPE = addClassType("null", (ClassType) null);
-        ClassMaker.OBJECT_TYPE = addClassType(Object.class);
-        ClassMaker.STRING_TYPE = addClassType(String.class);
-        // An automatically created StringBuffer resulting from concatenating
-        // a String with any value or object.
-        ClassMaker.AUTO_STRING_TYPE = addClassType(StringBuffer.class);
-        // This hides AUTO_STRING_TYPE from normal use.
-        ClassMaker.STRING_BUFFER_TYPE = addClassType(StringBuffer.class);
-        ClassMaker.CLONEABLE_TYPE = addClassType(Cloneable.class);
-        ClassMaker.THROWABLE_TYPE = addClassType(Throwable.class);
-        ClassMaker.CLASS_TYPE = addClassType(Class.class);
+        addTypeAndDeclaredType(ClassMaker.NULL_TYPE);
+        addTypeAndDeclaredType(ClassMaker.OBJECT_TYPE);
+        addTypeAndDeclaredType(ClassMaker.STRING_TYPE);
+        addTypeAndDeclaredType(ClassMaker.AUTO_STRING_TYPE);
+        addTypeAndDeclaredType(ClassMaker.STRING_BUFFER_TYPE);
+        addTypeAndDeclaredType(ClassMaker.CLONEABLE_TYPE);
+        addTypeAndDeclaredType(ClassMaker.THROWABLE_TYPE);
+        addTypeAndDeclaredType(ClassMaker.CLASS_TYPE);
     }
 
     /**
@@ -301,31 +298,21 @@ public class ClassMakerFactory
     protected PrimitiveType addPrimitiveType(int index, String name, String signature, Class javaClass)
     {
         PrimitiveType prim = new PrimitiveType(index, name, signature, javaClass);
-        DeclaredType declared = new DeclaredType(prim);
-        putType(name, prim);
-        putDeclaredType(name, declared);
+        addTypeAndDeclaredType(prim);
         return prim;
     }
 
     /**
-     * Adds the ClassType being generated to the type map.
+     * Adds the Type to the type map and maps an equivalent DeclaredType.
      * <br/>
-     * The ClassType being generated is added with minimal information so
-     * that recursive declarations can be resolved. The details about
-     * fields and methods that the class implements are added later.
-     * @param className the fully qualified class name
-     * @param extendsClass the ClassType that the given class extends
-     * @return a ClassType that has been added to the Type map
+     * @param type the Type to be mapped for future lookups 
      */
-    protected ClassType addClassType(String className, ClassType extendsClass)
+    protected void addTypeAndDeclaredType(Type type)
     {
-        String name = className;
-        String signature = "L" + ClassMaker.toSlashName(className) + ";";
-        ClassType type = new ClassType(name, signature, extendsClass);
+        String name = type.getName();
         putType(name, type);
         DeclaredType declared = new DeclaredType(type);
-        putDeclaredType(className, declared);
-        return type;
+        putDeclaredType(name, declared);
     }
 
     /**
@@ -341,15 +328,17 @@ public class ClassMakerFactory
     {
         if (javaClass.isPrimitive()) // Should not get here
             throw new IllegalArgumentException(javaClass.getName() + " is not a class");
-        String name = ClassMaker.classToName(javaClass);
-        String signature = "L" + ClassMaker.toSlashName(name) + ";";
-        ClassType type = new ClassType(name, signature, null);
-        type.setJavaClass(javaClass);
-        type.setModifiers(javaClass.getModifiers());
-        putType(name, type);
-        DeclaredType declared = new DeclaredType(type);
-        putDeclaredType(name, declared);
+        ClassType type = new ClassType(javaClass);
+        addTypeAndDeclaredType(type);
         return type;
+    }
+    
+    protected DeclaredTypeForward createDeclaredTypeForward(String className)
+    {
+        DeclaredTypeForward declared = new DeclaredTypeForward(className);
+        // Bypass check that Type exists.
+        declaredMap.put(className, declared);
+        return declared;
     }
 
     /**
@@ -397,12 +386,12 @@ public class ClassMakerFactory
     {
         String name = ClassMaker.classToName(javaClass);
         String signature = ClassMaker.classToSignature(javaClass);
-        ArrayType element = new ArrayType(name, signature, javaClass);
-        element.setArrayOfType(classToType(javaClass.getComponentType()));
-        putType(name, element);
-        DeclaredType declared = new DeclaredType(element);
+        Type element = classToType(javaClass.getComponentType());
+        ArrayType array = new ArrayType(name, signature, element);
+        putType(name, array);
+        DeclaredType declared = new DeclaredType(array);
         putDeclaredType(name, declared);
-        return element;
+        return array;
     }
 
     /**
@@ -502,6 +491,7 @@ public class ClassMakerFactory
     public DeclaredType stringToDeclaredType(String typeName)
     {
         DeclaredType declared = getDeclaredType(typeName);
+        // FIXME - remove the following.
         if (declared == null)
         {
             if (stringToType(typeName) == null)
@@ -523,10 +513,10 @@ public class ClassMakerFactory
      */
     public ClassType populateJavaClassMethods(ClassType classType, Class javaClass)
     {
-    	if (classType == null)
+    	if (classType == null && javaClass != null)
     		classType = classToType(javaClass).toClass();
 
-    	if (classType.getMethods() == null)
+    	if (classType.getMethods() == null && javaClass != null)
     	{
 	    	java.lang.reflect.Method [] javaMethods = javaClass.getDeclaredMethods();
 	    	MakerMethod [] methods = new MakerMethod[javaMethods.length];
@@ -610,13 +600,13 @@ public class ClassMakerFactory
         populateJavaInterfaces(classType, classType.getJavaClass());
     	if (classType.getInterfaces() != null)
     	{    	
-			for (ClassType interfaceType : classType.getInterfaces())
-			{
-	            populateJavaClassMethods(interfaceType, interfaceType.getJavaClass());
-	            ClassMakerFactory.addMethods(candidates, interfaceType.getMethods());
+    	    for (ClassType interfaceType : classType.getInterfaces())
+    	    {
+    	        populateJavaClassMethods(interfaceType, interfaceType.getJavaClass());
+    	        ClassMakerFactory.addMethods(candidates, interfaceType.getMethods());
 
-	            findJavaInterfaceMethods(candidates, interfaceType);
-			}
+    	        findJavaInterfaceMethods(candidates, interfaceType);
+    	    }
     	}
     }
 
@@ -661,9 +651,12 @@ public class ClassMakerFactory
      */
     static void addMethods(Map<String, MakerMethod> allMethods, MakerMethod [] methods)
     {
-        for (MakerMethod method : methods)
+        if (methods != null)
         {
-        	addMethod(allMethods, method);
+            for (MakerMethod method : methods)
+            {
+                addMethod(allMethods, method);
+            }
         }
     }
 
@@ -687,13 +680,13 @@ public class ClassMakerFactory
     {
         String name = javaMethod.getName();
         short modifiers = (short)javaMethod.getModifiers();
-        Type returnType = classToType(javaMethod.getReturnType());
+        DeclaredType returnType = classToDeclaredType(javaMethod.getReturnType());
         MakerMethod method = new MakerMethod(classType, name, returnType, modifiers);
         Class[] params = javaMethod.getParameterTypes();
-        Type [] formalParams = new Type[params.length];
+        DeclaredType [] formalParams = new DeclaredType[params.length];
         for (int i=0; i<params.length; i++)
         {
-            Type param = classToType(params[i]);
+            DeclaredType param = classToDeclaredType(params[i]);
             formalParams[i] = param;
         }
         method.setFormalParams(formalParams);
@@ -708,12 +701,13 @@ public class ClassMakerFactory
     protected MakerMethod toMethod(ClassType classType, java.lang.reflect.Constructor javaMethod)
     {
         short modifiers = (short)javaMethod.getModifiers();
-        MakerMethod method = new MakerMethod(classType, ClassMaker.INIT, ClassMaker.VOID_TYPE, modifiers);
+        DeclaredType declaredVoid = typeToDeclaredType(ClassMaker.VOID_TYPE);
+        MakerMethod method = new MakerMethod(classType, ClassMaker.INIT, declaredVoid, modifiers);
         Class[] params = javaMethod.getParameterTypes();
-        Type [] formalParams = new Type[params.length];
+        DeclaredType [] formalParams = new DeclaredType[params.length];
         for (int i=0; i<params.length; i++)
         {
-            Type param = classToType(params[i]);
+            DeclaredType param = classToDeclaredType(params[i]);
             formalParams[i] = param;
         }
         method.setFormalParams(formalParams);
@@ -754,8 +748,9 @@ public class ClassMakerFactory
             String name = javaFields[i].getName();
             Class fieldType = javaFields[i].getType();
             Type type = classToType(fieldType);
+            DeclaredType declared = classToDeclaredType(fieldType);
             int modifiers = javaFields[i].getModifiers();
-            makerFields[i] = new MakerField(classType, name, type, modifiers);
+            makerFields[i] = new MakerField(classType, name, declared, modifiers);
         }
         return makerFields;
     }

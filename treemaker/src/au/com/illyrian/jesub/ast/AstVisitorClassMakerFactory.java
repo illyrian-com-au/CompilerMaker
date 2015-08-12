@@ -5,7 +5,6 @@ import java.util.Vector;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.classmaker.ast.ResolvePath;
 
 public class AstVisitorClassMakerFactory extends AstStructureVisitor
 {

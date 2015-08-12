@@ -186,11 +186,11 @@ public class MakerMethodConversionTest extends ClassMakerTestCase
         assertTrue("double -> double", converter.isConvertable(ClassMaker.DOUBLE_TYPE, ClassMaker.DOUBLE_TYPE));
     }
 
-    ClassType DESSERT;
-    ClassType CAKE;
-    ClassType SCONE;
-    ClassType CHOCOLATE_CAKE;
-    ClassType BUTTERED_SCONE;
+    final ClassType DESSERT = new ClassType("test.Dessert", ClassMaker.OBJECT_TYPE);;
+    final ClassType CAKE = new ClassType("test.Cake", DESSERT);
+    final ClassType SCONE = new ClassType("test.Scone", DESSERT);
+    final ClassType CHOCOLATE_CAKE = new ClassType("test.ChocolateCake", CAKE);
+    final ClassType BUTTERED_SCONE = new ClassType("test.ButteredScone", SCONE);
     ArrayType OBJECT_ARRAY;
     ArrayType DESSERT_ARRAY;
     ArrayType CAKE_ARRAY;
@@ -208,11 +208,11 @@ public class MakerMethodConversionTest extends ClassMakerTestCase
 
         protected void addLocalClasses()
         {
-            DESSERT = addClassType("test/Dessert", ClassMaker.OBJECT_TYPE);
-            CAKE    = addClassType("test/Cake", DESSERT);
-            SCONE   = addClassType("test/Scone", DESSERT);
-            CHOCOLATE_CAKE = addClassType("test/ChocolateCake", CAKE);
-            BUTTERED_SCONE = addClassType("test/ButteredScone", SCONE);
+            addTypeAndDeclaredType(DESSERT); 
+            addTypeAndDeclaredType(CAKE);
+            addTypeAndDeclaredType(SCONE);
+            addTypeAndDeclaredType(CHOCOLATE_CAKE);
+            addTypeAndDeclaredType(BUTTERED_SCONE);
 
             OBJECT_ARRAY  = addArrayOfType(ClassMaker.OBJECT_TYPE);
             DESSERT_ARRAY = addArrayOfType(DESSERT);

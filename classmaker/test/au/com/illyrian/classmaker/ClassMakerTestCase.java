@@ -33,10 +33,6 @@ import junit.framework.TestCase;
 
 public abstract class ClassMakerTestCase extends TestCase
 {
-    public void setUp() throws Exception
-    {
-    }
-    
     public static char getCharField(Class myClass, Object myObj, String name) throws IllegalAccessException, NoSuchFieldException
     {
         Field sidField = myClass.getField(name);

@@ -2,15 +2,9 @@ package au.com.illyrian.domainparser;
 
 import junit.framework.TestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.classmaker.ast.BinaryOperator;
-import au.com.illyrian.classmaker.ast.UnaryOperator;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.CompileModule;
 import au.com.illyrian.parser.impl.LexerInputString;
-import au.com.illyrian.parser.impl.Operator;
-import au.com.illyrian.parser.impl.ParserConstants;
-import au.com.illyrian.parser.impl.PrecidenceAction;
-import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
 public class AstTokenParserTest extends TestCase
 {

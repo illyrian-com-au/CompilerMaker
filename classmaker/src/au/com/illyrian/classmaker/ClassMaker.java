@@ -44,6 +44,7 @@ import au.com.illyrian.classmaker.members.MakerMethod;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.DeclaredType;
+import au.com.illyrian.classmaker.types.DeclaredTypeForward;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 
@@ -190,40 +191,43 @@ public class ClassMaker implements ExpressionIfc
     public static final int MASK_INCOMPATABLE_WITH_ABSTRACT_METHOD = ACC_STATIC | ACC_FINAL | ACC_SYNCHRONIZED| ACC_NATIVE | ACC_STRICTFP;
 
     /** Reference to <code>null</code> type */
-    public static ClassType NULL_TYPE;
-    /** Reference to a special auto generated string */
-    public static ClassType AUTO_STRING_TYPE;
+    public static ClassType NULL_TYPE = new ClassType("null", (ClassType)null);
     /** Reference to <code>Object</code> type */
-    public static ClassType OBJECT_TYPE;
+    public static final ClassType OBJECT_TYPE = new ClassType(Object.class);
+    /** Reference to a special automatically created StringBuffer.
+     *  An automatically created StringBuffer results from concatenating
+     *  a String with any value or object.
+     */
+    public static final ClassType AUTO_STRING_TYPE = new ClassType(StringBuffer.class);
     /** Reference to <code>String</code> type */
-    public static ClassType STRING_TYPE;
+    public static final ClassType STRING_TYPE = new ClassType(String.class);
     /** Reference to <code>StringBuffer</code> type */
-    public static ClassType STRING_BUFFER_TYPE;
+    public static final ClassType STRING_BUFFER_TYPE = new ClassType(StringBuffer.class);
     /** Reference to <code>Cloneable</code> type */
-    public static ClassType CLONEABLE_TYPE;
+    public static final ClassType CLONEABLE_TYPE = new ClassType(Cloneable.class);
     /** Reference to <code>Throwable</code> type */
-    public static ClassType THROWABLE_TYPE;
+    public static final ClassType THROWABLE_TYPE = new ClassType(Throwable.class);
     /** Reference to <code>Class</code> type */
-    public static ClassType CLASS_TYPE;
+    public static final ClassType CLASS_TYPE = new ClassType(Class.class);
     /** Reference to <code>void</code> type */
-    public static PrimitiveType VOID_TYPE;
+    public static final PrimitiveType VOID_TYPE = new PrimitiveType(PrimitiveType.VOID_INDEX, "void", "V", void.class);
     /** Reference to <code>byte</code> type */
-    public static PrimitiveType BYTE_TYPE;
+    public static final PrimitiveType BYTE_TYPE = new PrimitiveType(PrimitiveType.BYTE_INDEX, "byte", "B", byte.class);
     /** Reference to <code>char</code> type */
-    public static PrimitiveType CHAR_TYPE;
+    public static final PrimitiveType CHAR_TYPE = new PrimitiveType(PrimitiveType.CHAR_INDEX, "char", "C", char.class);
     /** Reference to <code>double</code> type */
-    public static PrimitiveType DOUBLE_TYPE;
+    public static final PrimitiveType DOUBLE_TYPE = new PrimitiveType(PrimitiveType.DOUBLE_INDEX, "double", "D", double.class);
     /** Reference to <code>float</code> type */
-    public static PrimitiveType FLOAT_TYPE;
+    public static final PrimitiveType FLOAT_TYPE = new PrimitiveType(PrimitiveType.FLOAT_INDEX, "float", "F", float.class);
     /** Reference to <code>int</code> type */
-    public static PrimitiveType INT_TYPE;
+    public static final PrimitiveType INT_TYPE = new PrimitiveType(PrimitiveType.INT_INDEX, "int", "I", int.class);
     /** Reference to <code>long</code> type */
-    public static PrimitiveType LONG_TYPE;
+    public static final PrimitiveType LONG_TYPE = new PrimitiveType(PrimitiveType.LONG_INDEX, "long", "J", long.class);
     /** Reference to <code>short</code> type */
-    public static PrimitiveType SHORT_TYPE;
+    public static final PrimitiveType SHORT_TYPE = new PrimitiveType(PrimitiveType.SHORT_INDEX, "short", "S", short.class);
     /** Reference to <code>boolean</code> type */
-    public static PrimitiveType BOOLEAN_TYPE;
-
+    public static final PrimitiveType BOOLEAN_TYPE = new PrimitiveType(PrimitiveType.BOOLEAN_INDEX, "boolean", "Z", boolean.class);
+    
     /** Enumeration to indicate that byte-code will be generated in one pass (default). */
     public static final int ONE_PASS = 0;
     /** Enumeration to indicate that this is the first pass of two pass byte-code generation. */
@@ -278,8 +282,9 @@ public class ClassMaker implements ExpressionIfc
     private String fullyQualifiedClassName;
     /** A reference to the type information for the class being generated. */
     private ClassType thisClass;
+    private DeclaredTypeForward thisDeclaredType;
     /** A reference to the type information for the super class of the class being generated. */
-    private ClassType superClass;
+    private DeclaredType superClass;
     /** The modifiers for the class being generated. */
     private int classModifiers = ACC_PUBLIC;
 
@@ -298,8 +303,8 @@ public class ClassMaker implements ExpressionIfc
     {
         StringBuffer buf = new StringBuffer();
         buf.append("ClassMaker(");
-        if (this.fullyQualifiedClassName != null) {
-            buf.append(simpleClassName).append(' ');
+        if (fullyQualifiedClassName != null) {
+            buf.append(fullyQualifiedClassName).append(' ');
         } else {
             if (packageName != null)
                 buf.append(packageName).append('.');
@@ -339,9 +344,12 @@ public class ClassMaker implements ExpressionIfc
     {
         factory = globalFactory;
         setFullyQualifiedClassName(toDotName(className));
+        // FIXME - remove extendsClass from parameters
         if (extendsClass != null)
-            setSuperClass(classToClassType(extendsClass));
+            setSuperClass(classToDeclaredType(extendsClass));
         setSourceFilename(sourceFile);
+        // Moved to setFullyQualifiedClassName()
+        //thisDeclaredType = globalFactory.createDeclaredTypeForward(className);
     }
 
     /**
@@ -470,6 +478,7 @@ public class ClassMaker implements ExpressionIfc
         if (cfw != null)
             throw createException("ClassMaker.ToLateToNameTheFullyQualifiedClass");
         this.fullyQualifiedClassName = className;
+        thisDeclaredType = getFactory().createDeclaredTypeForward(className);
         getFactory().addMakerMap(className, this);
     }
 
@@ -524,7 +533,8 @@ public class ClassMaker implements ExpressionIfc
      */
     protected ClassType defaultThisClass()
     {
-        ClassType classType = getFactory().addClassType(getFullyQualifiedClassName(), getSuperClass());
+        ClassType classType = new ClassType(getFullyQualifiedClassName(), getSuperClass());
+        getFactory().addTypeAndDeclaredType(classType);
         classType.setModifiers(classModifiers);
         return classType;
     }
@@ -607,17 +617,18 @@ public class ClassMaker implements ExpressionIfc
      * The default super class is <code>java.lang.Object</code>.
      * @return the ClassType of the super class
      */
-    protected ClassType defaultSuperClass()
+    protected DeclaredType defaultSuperClass()
     {
-        return OBJECT_TYPE;
+        return getDeclaredType(OBJECT_TYPE);
     }
 
     /**
      * Sets the ClassType for the super class of the generated class.
      * @param classType the ClassType of the super class
      */
-    protected void setSuperClass(ClassType classType)
+    protected void setSuperClass(DeclaredType classType)
     {
+        // FIXME Update classtype information on first pass ...
         superClass = classType;
     }
 
@@ -628,7 +639,7 @@ public class ClassMaker implements ExpressionIfc
      * @see #defaultSuperClass()
      * @return classType the ClassType of the super class
      */
-    public ClassType getSuperClass()
+    public DeclaredType getSuperClass()
     {
         if (superClass == null)
             setSuperClass(defaultSuperClass());
@@ -658,13 +669,20 @@ public class ClassMaker implements ExpressionIfc
     {
         if (cfw != null)
             throw createException("ClassMaker.ToLateToExtendTheClass");
-        DeclaredType declared = stringToDeclaredClass(className);
-        ClassType type = declared.getClassType();
-        int mod = type.getModifiers();
-        if (Modifier.isInterface(mod))
-            throw createException("ClassMaker.CannotExtendInterface", type.getName());
+        DeclaredType declared = stringToDeclaredType(className);
+        if (getPass() != ClassMaker.FIRST_PASS)
+        {
+            ClassType type = declared.getClassType();
+            if (declared.getClassType() == null)
+            {
+                throw createException("ClassMaker.NoClassTypeCalled_1", className);
+            }
+            int mod = type.getModifiers();
+            if (Modifier.isInterface(mod))
+                throw createException("ClassMaker.CannotExtendInterface", type.getName());
+        }
 
-        setSuperClass(type);
+        setSuperClass(declared);
     }
 
     /**
@@ -684,7 +702,7 @@ public class ClassMaker implements ExpressionIfc
         if (Modifier.isInterface(mod))
             throw createException("ClassMaker.CannotExtendInterface", javaClass.getName());
             
-        setSuperClass(classToClassType(javaClass));
+        setSuperClass(classToDeclaredType(javaClass));
     }
 
     /** 
@@ -758,7 +776,7 @@ public class ClassMaker implements ExpressionIfc
         HashMap<String, MakerMethod> allMethods = new HashMap<String, MakerMethod>();
         ClassMakerFactory.addMethods(allMethods, getDeclaredMethods());
         
-    	getFactory().findJavaClassMethods(allMethods, getSuperClass());
+    	getFactory().findJavaClassMethods(allMethods, getSuperClass().getClassType());
         if (isInterface())
             getFactory().findJavaInterfaceMethods(allMethods, getClassType());
         return allMethods.values().toArray(ClassMakerFactory.METHOD_ARRAY);
@@ -1291,8 +1309,9 @@ public class ClassMaker implements ExpressionIfc
                     buf.append(", ");
                 Type type = params[i];
                 if (type == null)
-                    throw new IllegalArgumentException("method \"" + name + "\": type of parameter " + i + " cannot be null");
-                buf.append(toDotName(type.getName()));
+                    buf.append("null");
+                else
+                    buf.append(toDotName(type.getName()));
             }
         buf.append(')');
         return buf.toString();
@@ -1319,6 +1338,8 @@ public class ClassMaker implements ExpressionIfc
     public void EndClass() throws ClassMakerException
     {
         // FIXME - add BeginClass();
+        if (method != null)
+            throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toString());
         if (getPass() != COMPLETED_PASS) {
             getClassType(); // Loads generated class into types visible from the factory
             if (!hasConstructor() && !isInterface()) {
@@ -1329,13 +1350,19 @@ public class ClassMaker implements ExpressionIfc
             }
             thisClass.setConstructors(getDeclaredConstructors());
             thisClass.setMethods(getDeclaredMethods());
-            thisClass.setAllMethods(getAllClassMethods());
+            //thisClass.setAllMethods(getAllClassMethods()); // FIXME - lazy evaluation
             thisClass.setInterfaces(getDeclaredInterfaces());
             thisClass.setFields(getDeclaredFields());
+            
+            if (thisDeclaredType != null)
+                thisDeclaredType.setType(thisClass);
 
-            checkClassMethodsAreConcrete();
-            checkInterfaceMethodsAreAbstract();
-            checkInterfaceMethodsAreImplemented();
+            if (getPass() != FIRST_PASS)
+            {
+                checkClassMethodsAreConcrete();
+                checkInterfaceMethodsAreAbstract();
+                checkInterfaceMethodsAreImplemented();
+            }
         }
     }
 
@@ -1636,6 +1663,14 @@ public class ClassMaker implements ExpressionIfc
         throw createException("ClassMaker.NotAClass_1", javaClass.getSimpleName());
     }
 
+    public DeclaredType classToDeclaredType(Class javaClass) throws ClassMakerException
+    {
+        DeclaredType declared = getFactory().classToDeclaredType(javaClass);
+        if (declared == null)
+            throw createException("ClassMaker.NotAType_1", javaClass.getSimpleName());
+        return declared;
+    }
+
     /**
      * Finds a <code>ClassType</code> given a simple or fully qualified class name.
      * </br>
@@ -1811,11 +1846,12 @@ public class ClassMaker implements ExpressionIfc
      * @return an array of method descriptors
      */
     MakerMethod [] getMethods(ClassType classType)
-    {
+    {   // FIXME - only if allMethods is null
         if (classType == thisClass)
-            return getAllClassMethods();
-        if (classType.getAllMethods() == null)
+            thisClass.setAllMethods(getAllClassMethods());
+        else if (classType.getAllMethods() == null)
         	classType.setAllMethods(getFactory().getMethods(classType));
+        
         return classType.getAllMethods();
     }
 
@@ -1829,8 +1865,8 @@ public class ClassMaker implements ExpressionIfc
      */
     public void Method(String methodName, Class returnType, int methodModifiers) throws ClassMakerException
     {
-        Type type = getFactory().classToType(returnType);
-        Method(methodName, type, methodModifiers);
+        DeclaredType declared = getFactory().classToDeclaredType(returnType);
+        Method(methodName, declared, methodModifiers);
     }
 
     /**
@@ -1843,13 +1879,13 @@ public class ClassMaker implements ExpressionIfc
     public void Method(String methodName, String returnType, int methodModifiers) throws ClassMakerException
     {
         DeclaredType type = stringToDeclaredType(returnType);
-        // FIXME - change to use DeclaredType
-        Method(methodName, type.getType(), methodModifiers);
+        Method(methodName, type, methodModifiers);
     }
 
-    public void Method(String methodName, DeclaredType returnType, int methodModifiers) throws ClassMakerException
+    public void Method(String methodName, Type returnType, int methodModifiers) throws ClassMakerException
     {
-        Method(methodName, returnType.getType(), methodModifiers);
+        DeclaredType declared = getDeclaredType(returnType);
+        Method(methodName, declared, methodModifiers);
     }
 
     /**
@@ -1859,13 +1895,15 @@ public class ClassMaker implements ExpressionIfc
      * @param methodModifiers appropriate modifiers include:
      * <code>ACC_PUBLIC, ACC_PROTECTED, ACC_PRIVATE, ACC_STATIC, ACC_FINAL</code>
      */
-    public void Method(String methodName, Type returnType, int methodModifiers) throws ClassMakerException
+    public void Method(String methodName, DeclaredType returnType, int methodModifiers) throws ClassMakerException
     {
         checkMethodModifiers(methodModifiers);
+        if (method != null)
+            throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toString());
         method = new MakerMethod(getClassType(), methodName, returnType, (short)methodModifiers);
         // Adjust the slots used to account for the this pointer, if present.
-        maxLocalSlots = 0;
-        incMaxLocalSlots(getClassType());
+        // FIXME account for static methods
+        maxLocalSlots = getDeclaredType().getSlotSize();
         // Determine whether the class declares a constructor.
         if (INIT.equals(methodName))
             hasConstructor = true;
@@ -2030,23 +2068,30 @@ public class ClassMaker implements ExpressionIfc
      * Ends a method that does not have a body.
      * </br>
      * This may be because the method is abstract or because it is being forward declared
-     * so that only one pass is neccessary to parse the source file.
+     * so that only one pass is necessary to parse the source file.
      */
     public void Forward() throws ClassMakerException
     {
         method.setFormalParams(createFormalParameters());
-        if (methods.indexOf(method) >= 0 || constructors.indexOf(method) >= 0)
-            throw createException("ClassMaker.MethodDeclaredMoreThanOnce_1", method.toString());
+        if (getPass() == FIRST_PASS)
+        {
+            if (methods.indexOf(method) >= 0 || constructors.indexOf(method) >= 0)
+                throw createException("ClassMaker.MethodDeclaredMoreThanOnce_1", method.toString());
+        } else if (isForwardDeclared(method))
+            removeMethod(method);
         method.setHasBody(false);
         addMethod(method);
-        if (method.isAbstract() && this.getClassFileWriter() != null)
+        if (getClassFileWriter() != null)
         {
-            addAbstractMethod();
+            if (method.isAbstract() || ClassMaker.isInterface(getClassType()))
+            {
+                addAbstractMethod();
+            }
         }
         method = null;
         localTable.clear();
     }
-
+    
     /**
      * Adds an abstract method to the generated class.
      * </br>
@@ -2133,12 +2178,12 @@ public class ClassMaker implements ExpressionIfc
      * Creates a list of formal parameters for the method currently being generated.
      * @return an array of formal parameter <code>Type</code>s
      */
-    Type[] createFormalParameters()
+    DeclaredType[] createFormalParameters()
     {
         int size = localTable.size();
-        Type[] params = new Type[size];
+        DeclaredType[] params = new DeclaredType[size];
         for (int index = 0; index < size; index++)
-            params[index] = lookupLocal(index).getType();
+            params[index] = lookupLocal(index).getDeclaredType();
         return params;
     }
 
@@ -2366,7 +2411,7 @@ public class ClassMaker implements ExpressionIfc
             invokeSpecial(classType, method);
         else
             invokeVirtual(classType, method);
-        return method.getReturnType();
+        return method.getReturnType().getType();
     }
 
     /**
@@ -2376,7 +2421,7 @@ public class ClassMaker implements ExpressionIfc
      */
     void invokeVirtual(ClassType classType, MakerMethod method)
     {
-        String signature = createSignature(method.getFormalParams(), method.getReturnType());
+        String signature = method.getSignature();
         cfw.addInvoke(ByteCode.INVOKEVIRTUAL, toSlashName(classType.getName()), method.getName(), signature);
     }
 
@@ -2387,7 +2432,7 @@ public class ClassMaker implements ExpressionIfc
      */
     void invokeInterface(ClassType classType, MakerMethod method)
     {
-        String signature = createSignature(method.getFormalParams(), method.getReturnType());
+        String signature = method.getSignature();
         cfw.addInvoke(ByteCode.INVOKEINTERFACE, toSlashName(classType.getName()), method.getName(), signature);
     }
 
@@ -2398,7 +2443,7 @@ public class ClassMaker implements ExpressionIfc
      */
     void invokeStatic(String className, MakerMethod method)
     {
-        String signature = createSignature(method.getFormalParams(), method.getReturnType());
+        String signature = method.getSignature();
         cfw.addInvoke(ByteCode.INVOKESTATIC, toSlashName(className), method.getName(), signature);
     }
 
@@ -2409,7 +2454,7 @@ public class ClassMaker implements ExpressionIfc
      */
     void invokeSpecial(ClassType classType, MakerMethod method)
     {
-        String signature = createSignature(method.getFormalParams(), method.getReturnType());
+        String signature = method.getSignature();
         cfw.addInvoke(ByteCode.INVOKESPECIAL, toSlashName(classType.getName()), method.getName(), signature);
     }
 
@@ -2433,13 +2478,36 @@ public class ClassMaker implements ExpressionIfc
      */
     public void Implements(String className) throws ClassMakerException
     {
-        DeclaredType declared = stringToDeclaredClass(className);
-        ClassType classType = declared.getClassType();
-        int mod = classType.getModifiers();
-        if (!Modifier.isInterface(mod))
-            throw createException("ClassMaker.CannotImplementClass", classType.getName());
-        implementsClassType(classType);
+        DeclaredType declared = stringToDeclaredType(className);
+        if (getPass() != ClassMaker.FIRST_PASS)
+        {
+            ClassType classType = declared.getClassType();
+            if (declared.getClassType() == null)
+            {
+                throw createException("ClassMaker.NoClassTypeCalled_1", className);
+            }
+            int mod = classType.getModifiers();
+            if (!Modifier.isInterface(mod))
+                throw createException("ClassMaker.CannotImplementClass", classType.getName());
+            implementsClassType(classType);
+        }
     }
+    /*
+        if (cfw != null)
+            throw createException("ClassMaker.ToLateToExtendTheClass");
+        DeclaredType declared = stringToDeclaredType(className);
+        if (getPass() != ClassMaker.FIRST_PASS)
+        {
+            ClassType type = declared.getClassType();
+            if (declared.getClassType() == null)
+            {
+                throw createException("ClassMaker.NoClassTypeCalled_1", className);
+            }
+            int mod = type.getModifiers();
+            if (Modifier.isInterface(mod))
+                throw createException("ClassMaker.CannotExtendInterface", type.getName());
+        }
+     */
 
     /**
      * Indicates that the class implements the named interface.
@@ -2539,8 +2607,9 @@ public class ClassMaker implements ExpressionIfc
 
         // possibly add a new line number entry.
         markLineNumber();
-        if (getFactory().getAssignmentConversion().isConvertable(type, method.getReturnType()))
-            type = getFactory().getAssignmentConversion().convertTo(this, type, method.getReturnType());
+        Type returnType = method.getReturnType().getType();
+        if (getFactory().getAssignmentConversion().isConvertable(type, returnType))
+            type = getFactory().getAssignmentConversion().convertTo(this, type, returnType);
         else
             throw createException("ClassMaker.MethodReturnsTypeSoCannotReturnType_3",
                             method.getName(), method.getReturnType().getName(), type.getName());
@@ -2620,7 +2689,7 @@ public class ClassMaker implements ExpressionIfc
      * The following code is equivalent.
      * <table border="1" width="100%">
      * <tr><td>Java code</td><td>ClassMaker code</td></tr>
-     * <tr><td><code>process();<code></td>
+     * <tr><td><code>this.process();<code></td>
      * <td><code>Call(This(), "process", null);</code></td></tr>
      * </table>
      * @return the type for this class
@@ -2661,7 +2730,7 @@ public class ClassMaker implements ExpressionIfc
             	cfw.setDebugComment("Super();");
             cfw.addLoadThis();
         }
-        return superClass;
+        return superClass.getClassType();
     }
 
     /**
@@ -3125,6 +3194,8 @@ public class ClassMaker implements ExpressionIfc
     		cfw.setDebugComment("Set(" + reference + ", " + fieldName + ", " + valueType + ")");
         MakerField field = Find(reference, fieldName);
         Type fieldType = field.getType();
+        if (fieldType == null)
+            throw new NullPointerException("Type for field " + fieldName + " cannot be determined.");
         if (!getFactory().getAssignmentConversion().isConvertable(valueType, fieldType))
         {
             String classField = field.getClassType().getName() + '.' + field.getName();
@@ -3376,11 +3447,12 @@ public class ClassMaker implements ExpressionIfc
      * @param modifiers access modifiers
      * @return index of the field in <code>fieldTable</code>
      */
-    int addMemberField(String name, Type type, int modifiers)
+    int addMemberField(String name, DeclaredType declared, int modifiers)
     {
         checkFieldModifiers(modifiers);
 
-        MakerField field = new MakerField(getClassType(), name, type, modifiers);
+       // DeclaredType declared = getDeclaredType(type);
+        MakerField field = new MakerField(getClassType(), name, declared, modifiers);
         int index = fieldTable.size();
         fieldTable.add(field);
         return index;
@@ -3421,23 +3493,8 @@ public class ClassMaker implements ExpressionIfc
             if (field == null)
             {    
                 // Search fields declared in base classes
-                field = getFactory().findMemberField(this.getSuperClass(), name);
-//                if (field != null)
-//                {    // Check access to private or package fields in base classes
-//                    checkAccessDenied(getClassType(), field);
-//                } else {
-//                    throw createException("ClassMaker.NoLocalCalled_1", name);
-//                }
-//                else
-//                {
-//                    DeclaredType declared = findDeclaredType(name);
-//                    if (declared != null)
-//                        return declared;
-//                    else
-//                        return new MakerPath(name);
-//                }
+                field = getFactory().findMemberField(getSuperClass().getClassType(), name);
             }
-//            This(); // Push implicit reference to this onto the stack.
         }
         return field;
     }
@@ -3534,13 +3591,13 @@ public class ClassMaker implements ExpressionIfc
      * @param modifiers access modifiers for the variable
      * @return index into <code>localTable</code>
      */
-    int addLocal(String name, Type type, int modifiers)
+    int addLocal(String name, DeclaredType declared, int modifiers)
     {
-        MakerField field = new MakerField(name, type, modifiers);
+        MakerField field = new MakerField(name, declared, modifiers);
         field.setSlot(getMaxLocalSlots());
         field.setScopeLevel(getScopeLevel());
         // Adjust the number of slots used.
-        incMaxLocalSlots(type);
+        maxLocalSlots += declared.getSlotSize();
         if (getClassFileWriter() != null)
             field.setStartPC(cfw.getCurrentCodeOffset());
         int index = localTable.size();
@@ -3555,6 +3612,7 @@ public class ClassMaker implements ExpressionIfc
      */
     MakerField findLocalField(String name)
     {
+        // FIXME use findLocalIndex()
         for (int i=localTable.size()-1; i>=0; i--)
         {
             MakerField local = localTable.get(i);
@@ -3568,14 +3626,28 @@ public class ClassMaker implements ExpressionIfc
         return null;
     }
 
-    private void initLocal(int index)
+    int findLocalIndex(String name)
     {
-    	MakerField field = localTable.get(index);
+        for (int i=localTable.size()-1; i>=0; i--)
+        {
+            MakerField local = localTable.get(i);
+            if (!local.isInScope())
+                continue; // Skip locals that are out of scope
+            if (name.equals(local.getName()))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void initLocal(MakerField field) 
+    {
     	Type type = field.getType();
         int slot = field.getSlot();
         if (isClass(type))
         {
-        	cfw.add(ByteCode.ACONST_NULL);
+            cfw.add(ByteCode.ACONST_NULL);
             cfw.addAStore(slot);
             return;
         }
@@ -3618,20 +3690,6 @@ public class ClassMaker implements ExpressionIfc
     private short getMaxLocalSlots()
     {
     	return maxLocalSlots;
-    }
-    
-    /**
-     * Increment the maximum local slots used by the method by storage for the given type.
-     * <br/>
-     * The maximum local slots are incremented by the number of words (4 bytes) 
-     * the local variable requires for storage. Most variables require 1 word but
-     * wide variables require 2 words. Wide variables are the primitive types long and double.
-     * 
-     * @param type the type of the local variable or formal parameter
-     */
-    private void incMaxLocalSlots(Type type)
-    {
-    	maxLocalSlots += (ClassMaker.DOUBLE_TYPE.equals(type) || ClassMaker.LONG_TYPE.equals(type) ? 2 : 1);
     }
     
     //############# Variable declarations ################
@@ -3758,7 +3816,7 @@ public class ClassMaker implements ExpressionIfc
      */
     public void Declare(String name, DeclaredType type, int modifiers) throws ClassMakerException
     {
-        Declare(name, type.getType(), modifiers);
+        declareVariable(name, type, modifiers);
     }
 
     /**
@@ -3787,35 +3845,46 @@ public class ClassMaker implements ExpressionIfc
      */
     public void Declare(String name, Type type, int modifiers) throws ClassMakerException
     {
-        if (VOID_TYPE.equals(type) || NULL_TYPE.equals(type))
-            throw createException("ClassMaker.CannotDeclareType_1", type.getName());
+        DeclaredType declared = getDeclaredType(type);
+        declareVariable(name, declared, modifiers);
+    }
+    
+    private  void declareVariable(String name, DeclaredType declared, int modifiers) throws ClassMakerException
+    {
+        if (getPass() != FIRST_PASS)
+        {
+            Type type = declared.getType();
+            if (VOID_TYPE.equals(type) || NULL_TYPE.equals(type))
+                throw createException("ClassMaker.CannotDeclareType_1", declared.getName());
+        }
         if (!isInMethod())
         {   // Class Member Field
+            MakerField field = findMemberField(name);
             if (getPass() != SECOND_PASS)
             {
-            	if (findMemberField(name)!= null)
+            	if (field != null)
             	    throw createException("ClassMaker.DuplicateMemberFieldDeclaration_1", name);
-                addMemberField(name, type, modifiers);
+                addMemberField(name, declared, modifiers);
             }
             if (getClassFileWriter() != null)
             {
-                cfw.addField(name, type.getSignature(), (short) modifiers);
+                cfw.addField(name, declared.getSignature(), (short) modifiers);
             }
         }
         else
         {   // Local variable or parameter
-            if (findLocalField(name)!= null)
+            if (getPass() != SECOND_PASS && findLocalField(name)!= null)
                 throw createException("ClassMaker.DuplicateLocalVariableDeclaration_1", name);
-            int index = addLocal(name, type, modifiers);
+            addLocal(name, declared, modifiers);
             if (getClassFileWriter() != null)
             {
-                MakerField local = lookupLocal(index);
+                MakerField local = findLocalField(name);
                 addToScope(local, getScopeLevel());
                 if (isInBody())
                 {
                     if (isDebugCode())
                         cfw.setDebugComment("initialise local " + name);
-                    initLocal(index);
+                    initLocal(local);
                 }
             }
         }
@@ -8538,7 +8607,8 @@ public class ClassMaker implements ExpressionIfc
      */
     protected int storeAnonymousValue(Type type) throws ClassMakerException
     {
-        int index = addLocal(null, type, 0);
+        DeclaredType declared = getDeclaredType(type);
+        int index = addLocal(null, declared, 0);
         MakerField local = lookupLocal(index);
         storeLocal(local, type);
         return index;
