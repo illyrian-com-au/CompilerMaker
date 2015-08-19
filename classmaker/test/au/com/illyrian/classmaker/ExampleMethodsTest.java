@@ -316,7 +316,7 @@ public class ExampleMethodsTest extends TestCase
     {
 		ClassMakerBase.setSharedFactory(null);
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("test.Unary", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "Unary", null);
         maker.Implements(Evaluate.class);
 
         // BEGIN - Forward Declarations

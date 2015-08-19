@@ -476,7 +476,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
     public void testAbstractMethodExceptions()
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         maker.Method("test", void.class, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_ABSTRACT);
         try {
             maker.Begin();
@@ -497,7 +497,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
     public void testExtendsImplementsExceptions()
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("test.MyClass", Object.class, "MyClass.java");
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         try {
             maker.Extends(Runnable.class);
             fail("Should throw ClassMakerException");
@@ -531,7 +531,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
     public void testClassExceptions()
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         maker.getClassFileWriter();
         try {
             maker.Extends(Object.class);
@@ -582,7 +582,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("ClassMakerException",
-                "Cannot set source filename because it is provided by the LineNumber interface", ex.getMessage());
+                "Cannot set source filename because it is provided by the SourceLine interface", ex.getMessage());
         }
         assertEquals("Source File Name:", getFilename(), maker2.getSourceLine().getFilename());
         assertEquals("Source Line Number:", getLineNumber(), maker2.getSourceLine().getLineNumber());

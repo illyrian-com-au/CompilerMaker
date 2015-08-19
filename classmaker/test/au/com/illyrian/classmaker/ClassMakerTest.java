@@ -41,7 +41,7 @@ public class ClassMakerTest extends TestCase
     public void setUp() throws Exception
     {
         factory = new ClassMakerFactory();
-        maker = factory.createClassMaker("test/MyClass", Object.class, "MyClass.java");
+        maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
     }
 
     public void testConstructorHelloWorld() throws Exception

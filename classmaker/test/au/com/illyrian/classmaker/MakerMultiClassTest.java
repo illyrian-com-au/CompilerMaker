@@ -39,7 +39,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
     public void testInitClass() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
+        ClassMaker initMaker = factory.createClassMaker("test", "Init", null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
         codeBase(initMaker);
@@ -57,8 +57,8 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
     public void testForwardDeclaredLocal() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("MakerValue", Object.class, null);
-        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MakerValue", null);
+        ClassMaker initMaker = factory.createClassMaker("test", "Init", null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
         maker.Implements(Getter.class);
@@ -96,8 +96,8 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
     public void testForwardDeclaredParameter() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("MakerValue", Object.class, null);
-        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MakerValue", null);
+        ClassMaker initMaker = factory.createClassMaker("test", "Init", null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
         maker.Implements(Getter.class);
@@ -149,8 +149,8 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
     public void testForwardDeclaredResult() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("MakerValue", Object.class, null);
-        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MakerValue", null);
+        ClassMaker initMaker = factory.createClassMaker("test", "Init", null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
         maker.Implements(Getter.class);
@@ -192,8 +192,8 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
     public void testForwardDeclaredField() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("MakerValue", Object.class, null);
-        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MakerValue", null);
+        ClassMaker initMaker = factory.createClassMaker("test", "Init", null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
         maker.Implements(Getter.class);
@@ -249,8 +249,8 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
     public void testForwardDeclaredExtends() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("MakerValue", null, null);
-        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MakerValue", null);
+        ClassMaker initMaker = factory.createClassMaker("test", "Init", null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
         maker.Extends("Init");
@@ -273,7 +273,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
         codeBase(initMaker);
 
         // FIXME - does not work when order is reversed
-        initMaker.defineClass();
+       // initMaker.defineClass();
         Class myClass = maker.defineClass();
         
         Getter value =  (Getter)myClass.newInstance();
@@ -283,9 +283,9 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
     public void testForwardDeclaredImplements() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("MakerValue", null, null);
-        ClassMaker initMaker = factory.createClassMaker("Init", Object.class, null);
-        ClassMaker ifaceMaker = factory.createClassMaker("Initialiser", null, null);
+        ClassMaker maker = factory.createClassMaker("", "MakerValue", null);
+        ClassMaker initMaker = factory.createClassMaker("", "Init", null);
+        ClassMaker ifaceMaker = factory.createClassMaker("", "Initialiser", null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
         // class MakerValue
@@ -346,8 +346,8 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
         ifaceMaker.EndClass();
 
         // FIXME - does not work when order is reversed
-        ifaceMaker.defineClass();
-        initMaker.defineClass();
+      //  ifaceMaker.defineClass();
+      //  initMaker.defineClass();
         Class myClass = maker.defineClass();
         
         Getter value =  (Getter)myClass.newInstance();

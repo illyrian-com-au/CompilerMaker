@@ -81,7 +81,7 @@ public class MakerNewTest extends ClassMakerTestCase implements ByteCode
     public void testNewInstance() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         maker.Implements(Construct.class);
 
         maker.Method("create", Object.class, ACC_PUBLIC);
@@ -101,7 +101,7 @@ public class MakerNewTest extends ClassMakerTestCase implements ByteCode
     public void testMainCode() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         mainCode(maker, "au.com.illyrian.classmaker.MakerNewTest$JavaFactorial");
 
         Class myClass = maker.defineClass();
@@ -117,7 +117,7 @@ public class MakerNewTest extends ClassMakerTestCase implements ByteCode
     public void testFactorialCode() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("GenFactorial1", Object.class, "GenFactorial1.java");
+        ClassMaker maker = factory.createClassMaker("test", "GenFactorial1", "GenFactorial1.java");
         maker.Implements(Unary.class);
         factorialCode(maker);
 
@@ -135,8 +135,8 @@ public class MakerNewTest extends ClassMakerTestCase implements ByteCode
     {
         ClassMakerFactory factory = new ClassMakerFactory();
         // new Fac().ComputeFac(10)
-        ClassMaker maker = factory.createClassMaker("MainClass2", Object.class, null);
-        ClassMaker factMaker = factory.createClassMaker("GenFactorial2", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MainClass2", null);
+        ClassMaker factMaker = factory.createClassMaker("test", "GenFactorial2", null);
         maker.toString();
 
         factorialCode(factMaker);
@@ -157,8 +157,8 @@ public class MakerNewTest extends ClassMakerTestCase implements ByteCode
     {
         ClassMakerFactory factory = new ClassMakerFactory();
         // new Fac().ComputeFac(10)
-        ClassMaker maker = factory.createClassMaker("MainClass3", Object.class, null);
-        ClassMaker factMaker = factory.createClassMaker("GenFactorial3", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MainClass3", null);
+        ClassMaker factMaker = factory.createClassMaker("test", "GenFactorial3", null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
         mainCode(maker, "GenFactorial3");
@@ -183,8 +183,8 @@ public class MakerNewTest extends ClassMakerTestCase implements ByteCode
     {
         ClassMakerFactory factory = new ClassMakerFactory();
         // new Fac().ComputeFac(10)
-        ClassMaker maker = factory.createClassMaker("MainClass4", Object.class, null);
-        ClassMaker factMaker = factory.createClassMaker("GenFactorial4", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MainClass4", null);
+        ClassMaker factMaker = factory.createClassMaker("test", "GenFactorial4", null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
         mainCodeForward(maker, "GenFactorial4");

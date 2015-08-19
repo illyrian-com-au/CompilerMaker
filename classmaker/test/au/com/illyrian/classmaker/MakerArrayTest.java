@@ -41,7 +41,7 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void setUp() throws Exception
     {
         factory = new ClassMakerFactory();
-        maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         defaultConstructor(maker);
         //maker.getClassFileWriter().setDebugCodeOutput(System.out);
     }

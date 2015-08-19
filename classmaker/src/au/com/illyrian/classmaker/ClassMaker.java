@@ -44,7 +44,7 @@ import au.com.illyrian.classmaker.members.MakerMethod;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.DeclaredType;
-import au.com.illyrian.classmaker.types.DeclaredTypeForward;
+import au.com.illyrian.classmaker.types.DeclaredTypeMaker;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 
@@ -255,7 +255,7 @@ public class ClassMaker implements ExpressionIfc
     /** A list of methods in the class being generated. */
     private Vector<MakerMethod>     methods    = new Vector<MakerMethod>();
     /** A list of interfaces implemented by the class being generated. */
-    private Vector<ClassType>       interfaces = new Vector<ClassType>();
+    private Vector<ClassType>       interfaces = new Vector<ClassType>();  // FIXME change to DeclaredType
     /** A list of member fields in the class being generated. */
     private Vector<MakerField>      fieldTable = new Vector<MakerField>();
     /** A list of local variables in the class being generated. */
@@ -281,9 +281,10 @@ public class ClassMaker implements ExpressionIfc
     /** The fully qualified name of the class */
     private String fullyQualifiedClassName;
     /** A reference to the type information for the class being generated. */
-    private ClassType thisClass;
-    private DeclaredTypeForward thisDeclaredType;
-    /** A reference to the type information for the super class of the class being generated. */
+    private ClassType thisClassType;
+    /** A reference to the type declaration for the class being generated. */
+    private DeclaredTypeMaker thisDeclaredType;
+    /** A reference to the type declaration for the super class of the class being generated. */
     private DeclaredType superClass;
     /** The modifiers for the class being generated. */
     private int classModifiers = ACC_PUBLIC;
@@ -340,16 +341,12 @@ public class ClassMaker implements ExpressionIfc
      * @param extendsClass the class that the generated class will extend
      * @param sourceFile an optional source file name
      */
-    protected ClassMaker(ClassMakerFactory globalFactory, String className, Class extendsClass, String sourceFile)
+    protected ClassMaker(ClassMakerFactory globalFactory, String packageName, String simpleName, String sourceFile)
     {
         factory = globalFactory;
-        setFullyQualifiedClassName(toDotName(className));
-        // FIXME - remove extendsClass from parameters
-        if (extendsClass != null)
-            setSuperClass(classToDeclaredType(extendsClass));
+        setPackageName(packageName);
+        setSimpleClassName(simpleName);
         setSourceFilename(sourceFile);
-        // Moved to setFullyQualifiedClassName()
-        //thisDeclaredType = globalFactory.createDeclaredTypeForward(className);
     }
 
     /**
@@ -478,8 +475,8 @@ public class ClassMaker implements ExpressionIfc
         if (cfw != null)
             throw createException("ClassMaker.ToLateToNameTheFullyQualifiedClass");
         this.fullyQualifiedClassName = className;
-        thisDeclaredType = getFactory().createDeclaredTypeForward(className);
-        getFactory().addMakerMap(className, this);
+        //thisDeclaredType = getFactory().createDeclaredTypeForward(className);
+        thisDeclaredType = getFactory().createDeclaredTypeMaker(this);
     }
 
     /**
@@ -534,8 +531,8 @@ public class ClassMaker implements ExpressionIfc
     protected ClassType defaultThisClass()
     {
         ClassType classType = new ClassType(getFullyQualifiedClassName(), getSuperClass());
-        getFactory().addTypeAndDeclaredType(classType);
         classType.setModifiers(classModifiers);
+        getFactory().putType(getFullyQualifiedClassName(), classType);
         return classType;
     }
 
@@ -548,7 +545,7 @@ public class ClassMaker implements ExpressionIfc
     {
         if (cfw != null)
             throw createException("ClassMaker.ToLateToSetClassType");
-        thisClass = classType;
+        thisClassType = classType;
         addClassTypeAlias(classType);
     }
 
@@ -567,9 +564,9 @@ public class ClassMaker implements ExpressionIfc
      */
     public ClassType getClassType()
     {
-        if (thisClass == null)
+        if (thisClassType == null)
             setClassType(defaultThisClass());
-        return thisClass;
+        return thisClassType;
     }
     
     /**
@@ -860,8 +857,8 @@ public class ClassMaker implements ExpressionIfc
             checkClassModifiers(modifiers);
             classModifiers = modifiers;
         }
-        if (thisClass != null)
-            thisClass.setModifiers(classModifiers);
+        if (thisClassType != null)
+            thisClassType.setModifiers(classModifiers);
 
     }
     
@@ -1325,19 +1322,24 @@ public class ClassMaker implements ExpressionIfc
      */
     public Class defineClass()
     {
+        if (thisClassType != null && thisClassType.getJavaClass() != null)
+            return thisClassType.getJavaClass();
+        
         EndClass();
         if (getPass() == FIRST_PASS)
             throw createException("ClassMaker.CannotDefineClassAfterFirstPhase");
-        return getFactory().getClassLoader().defineClass(cfw.getClassName(), cfw.toByteArray());
+        getSuperClass().defineClass();
+        Class thisClass = getFactory().getClassLoader().defineClass(cfw.getClassName(), cfw.toByteArray());
+        thisClassType.setJavaClass(thisClass);
+        return thisClass;
     }
-
+    
     /**
      * Completes processing of the class.
      * This method is automatically called when the class is defined.
      */
     public void EndClass() throws ClassMakerException
     {
-        // FIXME - add BeginClass();
         if (method != null)
             throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toString());
         if (getPass() != COMPLETED_PASS) {
@@ -1348,15 +1350,11 @@ public class ClassMaker implements ExpressionIfc
                 if (getPass() == FIRST_PASS)
                     hasConstructor = false;
             }
-            thisClass.setConstructors(getDeclaredConstructors());
-            thisClass.setMethods(getDeclaredMethods());
-            //thisClass.setAllMethods(getAllClassMethods()); // FIXME - lazy evaluation
-            thisClass.setInterfaces(getDeclaredInterfaces());
-            thisClass.setFields(getDeclaredFields());
+            thisClassType.setConstructors(getDeclaredConstructors());
+            thisClassType.setMethods(getDeclaredMethods());
+            thisClassType.setInterfaces(getDeclaredInterfaces());
+            thisClassType.setFields(getDeclaredFields());
             
-            if (thisDeclaredType != null)
-                thisDeclaredType.setType(thisClass);
-
             if (getPass() != FIRST_PASS)
             {
                 checkClassMethodsAreConcrete();
@@ -1813,7 +1811,7 @@ public class ClassMaker implements ExpressionIfc
      */
     MakerMethod [] getConstructors(ClassType classType)
     {
-        if (classType == thisClass)
+        if (classType == thisClassType)
             return getDeclaredConstructors();
         if (classType.getConstructors() == null)
             getFactory().populateJavaClassConstructors(classType);
@@ -1847,8 +1845,8 @@ public class ClassMaker implements ExpressionIfc
      */
     MakerMethod [] getMethods(ClassType classType)
     {   // FIXME - only if allMethods is null
-        if (classType == thisClass)
-            thisClass.setAllMethods(getAllClassMethods());
+        if (classType == thisClassType)
+            thisClassType.setAllMethods(getAllClassMethods());
         else if (classType.getAllMethods() == null)
         	classType.setAllMethods(getFactory().getMethods(classType));
         
@@ -2705,7 +2703,7 @@ public class ClassMaker implements ExpressionIfc
             	cfw.setDebugComment("This();");
             cfw.addLoadThis();
         }
-        return thisClass;
+        return thisClassType;
     }
 
     /**
@@ -6177,7 +6175,7 @@ public class ClassMaker implements ExpressionIfc
 
         if (!increment(fieldType, 1))
             throw createException("ClassMaker.CannotIncrementFieldOfType_2", name, fieldType.getName());
-        dupunder(thisClass, fieldType);
+        dupunder(thisClassType, fieldType);
 
         cfw.add(ByteCode.PUTFIELD, toSlashName(className), name, fieldType.getSignature());
 

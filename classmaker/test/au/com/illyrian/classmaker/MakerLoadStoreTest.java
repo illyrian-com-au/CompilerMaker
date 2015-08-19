@@ -80,7 +80,7 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void setUp() throws Exception
     {
         factory = new ClassMakerFactory();
-        maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         defaultConstructor();
     }
 
@@ -1619,13 +1619,13 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             maker.Get(maker.This(), "a");
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("Wrong message", "Cannot find member field 'a' in class MyClass", ex.getMessage());
+            assertEquals("Wrong message", "Cannot find member field 'a' in class test.MyClass", ex.getMessage());
         }
         try {
             maker.Set(maker.This(), "a", ClassMaker.INT_TYPE);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("Wrong message", "Cannot find member field 'a' in class MyClass", ex.getMessage());
+            assertEquals("Wrong message", "Cannot find member field 'a' in class test.MyClass", ex.getMessage());
         }
 
         DeclaredType declaredVoid = maker.getDeclaredType(ClassMaker.VOID_TYPE);

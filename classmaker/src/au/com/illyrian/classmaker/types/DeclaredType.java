@@ -12,15 +12,6 @@ public class DeclaredType
         this.type = type;
     }
     
-    /**
-     * Convert this <code>Type</code> to a <code>DeclaredType</code>.
-     * @return a <code>DeclaredType</code> if appropriate; otherwise null
-     */
-    public DeclaredType toTypeDec()
-    {
-        return this;
-    }
-
     public Type getType()
     {
         if (type == null)
@@ -50,7 +41,12 @@ public class DeclaredType
     
     public short getSlotSize()
     {
-        return (short)(ClassMaker.DOUBLE_TYPE.equals(type) || ClassMaker.LONG_TYPE.equals(type) ? 2 : 1);
+        return (short)(ClassMaker.DOUBLE_TYPE.equals(getType()) || ClassMaker.LONG_TYPE.equals(getType()) ? 2 : 1);
+    }
+    
+    public Class defineClass()
+    {
+        return null;
     }
 
     public String toString()

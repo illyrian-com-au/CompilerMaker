@@ -38,7 +38,7 @@ public class MakerCastingConversionTest extends ClassMakerTestCase implements By
     public void setUp() throws Exception
     {
         factory = new ClassMakerFactory();
-        maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         defaultConstructor(maker);
     }
 
@@ -218,13 +218,13 @@ public class MakerCastingConversionTest extends ClassMakerTestCase implements By
             maker.Cast(maker.This(), Runnable.class);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("Cannot cast from type MyClass to type java.lang.Runnable", ex.getMessage());
+            assertEquals("Cannot cast from type test.MyClass to type java.lang.Runnable", ex.getMessage());
         }
         try {
             maker.Cast(maker.This(), String.class);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("Cannot cast from type MyClass to type java.lang.String", ex.getMessage());
+            assertEquals("Cannot cast from type test.MyClass to type java.lang.String", ex.getMessage());
         }
         try {
             maker.Cast(maker.This(), "does/not/Exist");

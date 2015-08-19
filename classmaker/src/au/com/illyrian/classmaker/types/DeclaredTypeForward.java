@@ -19,4 +19,9 @@ public class DeclaredTypeForward extends DeclaredType
     {
         this.type = type;
     }
+    
+    public String toString()
+    {
+        return "DeclaredTypeForward(" + getName() + ")";
+    }
 }

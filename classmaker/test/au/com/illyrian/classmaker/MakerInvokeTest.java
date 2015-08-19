@@ -42,7 +42,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
     public void setUp() throws Exception
     {
         factory = new ClassMakerFactory();
-        maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
     }
 
     // Generate default constructor
@@ -318,10 +318,9 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
     public Class binaryOperatorClass() throws Exception
     {
         String className = BINARY_CLASS;
-        ClassMaker submaker = factory.createClassMaker(className, Object.class, className + ".java");
+        ClassMaker submaker = factory.createClassMaker("au/com/illyrian/classmaker", "BinaryClass", className + ".java");
         submaker.setClassModifiers(ClassMaker.ACC_PUBLIC);
         submaker.Implements(Binary.class);
-//        defaultConstructor(submaker);
 
         submaker.Method("binary", int.class, ACC_PUBLIC);
         submaker.Declare("a", int.class, 0);
@@ -549,7 +548,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
 
     public void testTwoPassGeneration() throws Exception
     {
-        maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
 
         factory.setPass(ClassMaker.FIRST_PASS);
         assertNull("Should return null: maker.getClassFileWriter()", maker.getClassFileWriter());

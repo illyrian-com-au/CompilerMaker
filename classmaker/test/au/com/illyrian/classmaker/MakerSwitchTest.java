@@ -55,7 +55,7 @@ public class MakerSwitchTest extends ClassMakerTestCase
     public void setUp() throws Exception
     {
         factory = new ClassMakerFactory();
-        maker = factory.createClassMaker("MyClass", Object.class, "au/com/illyrian/classmaker/MakerSwitchTest.java");
+        maker = factory.createClassMaker("au.com.illyrian.classmaker", "MakerSwitchTest", "au/com/illyrian/classmaker/MakerSwitchTest.java");
         defaultConstructor();
     }
 

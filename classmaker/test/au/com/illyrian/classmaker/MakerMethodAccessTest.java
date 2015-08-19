@@ -127,7 +127,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         Class otherClass = baseMaker.defineClass();
         ClassType classType = baseMaker.classToClassType(otherClass);
 
-        ClassMaker maker = new ClassMaker(factory, "test.MyClass", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
         maker.Implements(Runnable.class);
 
         maker.Declare("testBase", otherClass, ACC_PUBLIC);
@@ -179,7 +179,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         Class otherClass = baseMaker.defineClass();
         ClassType classType = baseMaker.classToClassType(otherClass);
 
-        ClassMaker maker = new ClassMaker(factory, "test.MyClass", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
         maker.Implements(Runnable.class);
 
         maker.Declare("testBase", otherClass, ACC_PUBLIC);
@@ -223,7 +223,8 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         Class otherClass = baseMaker.defineClass();
         ClassType classType = baseMaker.classToClassType(otherClass);
 
-        ClassMaker maker = new ClassMaker(factory, "test.MyClass", otherClass, null);
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
+        maker.Extends(otherClass);
         maker.Implements(Runnable.class);
 
         maker.Declare("testDerived", maker.getClassType(), ACC_PUBLIC);
@@ -282,7 +283,8 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         Class otherClass = baseMaker.defineClass();
         ClassType classType = baseMaker.classToClassType(otherClass);
 
-        ClassMaker maker = new ClassMaker(factory, "test.MyClass", otherClass, null);
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
+        maker.Extends(otherClass);
         maker.Implements(Runnable.class);
 
         maker.Declare("testBase", otherClass, ACC_PUBLIC);
@@ -332,7 +334,8 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         Class otherClass = baseMaker.defineClass();
         ClassType classType = baseMaker.classToClassType(otherClass);
 
-        ClassMaker maker = new ClassMaker(factory, "test.MyClass", otherClass, null);
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
+        maker.Extends(otherClass);
         maker.Implements(Runnable.class);
 
         maker.Declare("testBase", otherClass, ACC_PUBLIC);
@@ -374,7 +377,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
     public void testFieldAccessSameClass() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("MyClass", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
         maker.Implements(Runnable.class);
 
         maker.Declare("test", maker.getClassType(), ACC_PUBLIC);
@@ -461,7 +464,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         Class otherClass = baseMaker.defineClass();
 
         String className = "test.MyClass";
-        ClassMaker maker = new ClassMaker(factory, className, Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
         maker.Implements(Runnable.class);
 
         defaultConstructor(maker);
@@ -511,7 +514,8 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         Class otherClass = baseMaker.defineClass();
 
         String className = "test.MyClass";
-        ClassMaker maker = new ClassMaker(factory, className, otherClass, null);
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
+        maker.Extends(otherClass);
         maker.Implements(Runnable.class);
 
         defaultConstructor(maker);
@@ -560,7 +564,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         Class otherClass = baseMaker.defineClass();
 
         String className = "test.MyClass";
-        ClassMaker maker = new ClassMaker(factory, className, Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
         maker.Implements(Runnable.class);
 
         defaultConstructor(maker);
@@ -602,7 +606,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         ClassMakerFactory factory = new ClassMakerFactory();
 
         String className = "test.MyClass";
-        ClassMaker maker = new ClassMaker(factory, className, Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
         maker.Implements(Runnable.class);
 
         defaultConstructor(maker);

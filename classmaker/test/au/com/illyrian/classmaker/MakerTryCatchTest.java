@@ -50,8 +50,7 @@ public class MakerTryCatchTest extends ClassMakerTestCase
     public void setUp() throws Exception
     {
         factory = new ClassMakerFactory();
-        maker = factory.createClassMaker("MyClass", Object.class, "au/com/illyrian/classmaker/MakerTryCatchTest.java");
-        //defaultConstructor();
+        maker = factory.createClassMaker("au.com.illyrian.classmaker", "MakerTryCatchTest.java", "au/com/illyrian/classmaker/MakerTryCatchTest.java");
     }
 
     // Generate default constructor

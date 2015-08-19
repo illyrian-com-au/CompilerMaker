@@ -250,7 +250,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
 
     public void testIntAssignmentExceptions()
     {
-        ClassMaker maker = factory.createClassMaker("MyClass", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
 
         maker.Method("binary", ClassMaker.INT_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
@@ -356,7 +356,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
 
     public void testShortException() throws Exception
     {
-        ClassMaker maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         maker.Declare("byteField", ClassMaker.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
 
         maker.Method("run", ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
@@ -367,7 +367,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.byteField of type byte cannot be assigned type short", ex.getMessage());
+            assertEquals("Field test.MyClass.byteField of type byte cannot be assigned type short", ex.getMessage());
         }
     }
 
@@ -409,7 +409,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
 
     public void testCharException() throws Exception
     {
-        ClassMaker maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         maker.Declare("byteField", ClassMaker.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Declare("shortField", ClassMaker.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Declare("charField", ClassMaker.CHAR_TYPE, ClassMaker.ACC_PUBLIC);
@@ -426,7 +426,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.byteField of type byte cannot be assigned type char", ex.getMessage());
+            assertEquals("Field test.MyClass.byteField of type byte cannot be assigned type char", ex.getMessage());
         }
         try
         {
@@ -434,7 +434,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.shortField of type short cannot be assigned type char", ex.getMessage());
+            assertEquals("Field test.MyClass.shortField of type short cannot be assigned type char", ex.getMessage());
         }
     }
 
@@ -470,7 +470,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
 
     public void testLongException() throws Exception
     {
-        ClassMaker maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         maker.Declare("byteField", ClassMaker.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Declare("intField", ClassMaker.INT_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Declare("shortField", ClassMaker.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
@@ -484,7 +484,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.byteField of type byte cannot be assigned type long", ex.getMessage());
+            assertEquals("Field test.MyClass.byteField of type byte cannot be assigned type long", ex.getMessage());
         }
         try
         {
@@ -492,7 +492,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.shortField of type short cannot be assigned type long", ex.getMessage());
+            assertEquals("Field test.MyClass.shortField of type short cannot be assigned type long", ex.getMessage());
         }
         try
         {
@@ -500,7 +500,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.charField of type char cannot be assigned type long", ex.getMessage());
+            assertEquals("Field test.MyClass.charField of type char cannot be assigned type long", ex.getMessage());
         }
         try
         {
@@ -508,7 +508,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.intField of type int cannot be assigned type long", ex.getMessage());
+            assertEquals("Field test.MyClass.intField of type int cannot be assigned type long", ex.getMessage());
         }
     }
 
@@ -541,7 +541,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
 
     public void testFloatException() throws Exception
     {
-        ClassMaker maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         maker.Declare("byteField", ClassMaker.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Declare("intField", ClassMaker.INT_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Declare("shortField", ClassMaker.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
@@ -556,7 +556,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.byteField of type byte cannot be assigned type float", ex.getMessage());
+            assertEquals("Field test.MyClass.byteField of type byte cannot be assigned type float", ex.getMessage());
         }
         try
         {
@@ -564,7 +564,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.shortField of type short cannot be assigned type float", ex.getMessage());
+            assertEquals("Field test.MyClass.shortField of type short cannot be assigned type float", ex.getMessage());
         }
         try
         {
@@ -572,7 +572,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.charField of type char cannot be assigned type float", ex.getMessage());
+            assertEquals("Field test.MyClass.charField of type char cannot be assigned type float", ex.getMessage());
         }
         try
         {
@@ -580,7 +580,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.intField of type int cannot be assigned type float", ex.getMessage());
+            assertEquals("Field test.MyClass.intField of type int cannot be assigned type float", ex.getMessage());
         }
         try
         {
@@ -588,7 +588,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.longField of type long cannot be assigned type float", ex.getMessage());
+            assertEquals("Field test.MyClass.longField of type long cannot be assigned type float", ex.getMessage());
         }
     }
 
@@ -618,7 +618,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
 
     public void testDoubleException() throws Exception
     {
-        ClassMaker maker = factory.createClassMaker("MyClass", Object.class, "MyClass.java");
+        ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         maker.Declare("byteField", ClassMaker.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Declare("intField", ClassMaker.INT_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Declare("shortField", ClassMaker.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
@@ -634,7 +634,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.byteField of type byte cannot be assigned type double", ex.getMessage());
+            assertEquals("Field test.MyClass.byteField of type byte cannot be assigned type double", ex.getMessage());
         }
         try
         {
@@ -642,7 +642,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.shortField of type short cannot be assigned type double", ex.getMessage());
+            assertEquals("Field test.MyClass.shortField of type short cannot be assigned type double", ex.getMessage());
         }
         try
         {
@@ -650,7 +650,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.charField of type char cannot be assigned type double", ex.getMessage());
+            assertEquals("Field test.MyClass.charField of type char cannot be assigned type double", ex.getMessage());
         }
         try
         {
@@ -658,7 +658,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.intField of type int cannot be assigned type double", ex.getMessage());
+            assertEquals("Field test.MyClass.intField of type int cannot be assigned type double", ex.getMessage());
         }
         try
         {
@@ -666,7 +666,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.longField of type long cannot be assigned type double", ex.getMessage());
+            assertEquals("Field test.MyClass.longField of type long cannot be assigned type double", ex.getMessage());
         }
         try
         {
@@ -674,7 +674,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             fail("Should throw ClassMakerException.");
         } catch (ClassMakerException ex)
         {
-            assertEquals("Field MyClass.floatField of type float cannot be assigned type double", ex.getMessage());
+            assertEquals("Field test.MyClass.floatField of type float cannot be assigned type double", ex.getMessage());
         }
     }
 }

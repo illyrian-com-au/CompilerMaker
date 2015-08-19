@@ -91,7 +91,7 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     public void setUp()
     {
         factory = new ClassMakerFactory();
-        maker = factory.createClassMaker("test/MyClass", Object.class, "MyClass.java");
+        maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
         cfw = maker.getClassFileWriter();
     }
 

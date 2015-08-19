@@ -221,8 +221,8 @@ public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteC
     {
         ClassMakerFactory factory = new ClassMakerFactory();
         // new Fac().ComputeFac(10)
-        ClassMaker listMaker = factory.createClassMaker("MakerList", Object.class, null);
-        ClassMaker entryMaker = factory.createClassMaker("MakerEntry", Object.class, null);
+        ClassMaker listMaker = factory.createClassMaker("test", "MakerList", null);
+        ClassMaker entryMaker = factory.createClassMaker("test", "MakerEntry", null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
         codeEntry(entryMaker, "MakerEntry");
@@ -263,8 +263,8 @@ public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteC
     {
         ClassMakerFactory factory = new ClassMakerFactory();
         // new Fac().ComputeFac(10)
-        ClassMaker listMaker = factory.createClassMaker("MakerList", Object.class, null);
-        ClassMaker entryMaker = factory.createClassMaker("MakerEntry", Object.class, null);
+        ClassMaker listMaker = factory.createClassMaker("test", "MakerList", null);
+        ClassMaker entryMaker = factory.createClassMaker("test", "MakerEntry", null);
 
         factory.setPass(ClassMaker.FIRST_PASS);
         codeList(listMaker, "MakerEntry");

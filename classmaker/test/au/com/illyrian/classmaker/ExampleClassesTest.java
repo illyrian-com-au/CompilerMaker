@@ -147,7 +147,7 @@ public class ExampleClassesTest extends TestCase
     public void testSimpleMath() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("test.SimpleMath", Object.class, null);
+        ClassMaker maker = factory.createClassMaker("test", "SimpleMath", null);
         
         maker.Implements(Unary.class);
         
@@ -169,7 +169,7 @@ public class ExampleClassesTest extends TestCase
         ClassMakerFactory factory = new ClassMakerFactory();
 
         // Create interface test.Unary
-        ClassMaker maker1 = factory.createClassMaker("test.Unary", Object.class, null);
+        ClassMaker maker1 = factory.createClassMaker("test", "Unary", null);
         maker1.setIsInterface();
         maker1.Method("square", int.class, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_ABSTRACT);
         maker1.Declare("a", int.class, 0);
@@ -177,7 +177,7 @@ public class ExampleClassesTest extends TestCase
         maker1.EndClass();
     
         // Create a class that implements test.Unary
-        ClassMaker maker2 = factory.createClassMaker("test.SquareTest", Object.class, null);
+        ClassMaker maker2 = factory.createClassMaker("test", "SquareTest", null);
         maker2.Implements("test.Unary");
     
         maker2.Method("square", int.class, ClassMaker.ACC_PUBLIC);
@@ -188,7 +188,7 @@ public class ExampleClassesTest extends TestCase
         maker2.EndClass();
         
         // Create a class that calls test.Unary
-        ClassMaker maker3 = factory.createClassMaker("test.UnaryTest", Object.class, null);
+        ClassMaker maker3 = factory.createClassMaker("test", "UnaryTest", null);
         maker3.Implements(Square.class);
         maker3.Declare("test", "test.Unary", ClassMaker.ACC_PUBLIC);
     
