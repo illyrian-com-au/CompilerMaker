@@ -38,15 +38,15 @@ import au.com.illyrian.classmaker.members.MakerMethod;
  * and the interfaces that the class implements.
  */
 public class ClassType extends Type {
-    private DeclaredType   extendsDeclaredType = null;
-    private ClassType      extendsType = null;
-    private String         packageName = null;
-    private ClassType   [] interfaces = null;
-    private MakerMethod [] constructors = null;
-    private MakerMethod [] methods = null;
-    private MakerMethod [] allMethods = null;
-    private MakerField  [] fields = null;
-    private int            modifiers = 0;
+    private DeclaredType    extendsDeclaredType = null;
+    private ClassType       extendsType = null;
+    private String          packageName = null;
+    private DeclaredType [] interfaces = null;
+    private MakerMethod  [] constructors = null;
+    private MakerMethod  [] methods = null;
+    private MakerMethod  [] allMethods = null;
+    private MakerField   [] fields = null;
+    private int             modifiers = 0;
 
     public ClassType(Class javaClass)
     {
@@ -131,13 +131,13 @@ public class ClassType extends Type {
     }
 
     /** The list of interfaces implemented by this class. */
-    public ClassType   [] getInterfaces()
+    public DeclaredType   [] getInterfaces()
     {
     	return interfaces;
     }
     
     /** Sets the list of interfaces implemented by this class. */
-    public void setInterfaces(ClassType [] interfaces)
+    public void setInterfaces(DeclaredType [] interfaces)
     {
     	this.interfaces = interfaces;
     }

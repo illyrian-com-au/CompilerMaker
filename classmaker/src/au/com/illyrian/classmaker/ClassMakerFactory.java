@@ -76,7 +76,7 @@ public class ClassMakerFactory
     /** An empty prototype array of <code>Type</code> that may be provided to <code>Collection.toArray(Object[])</code>. */
     public static final Type[] TYPE_ARRAY = new Type[0];
     /** An empty prototype array of <code>ClassType</code>  that may be provided to <code>Collection.toArray(Object[])</code>. */
-    public static final ClassType[] CLASS_TYPE_ARRAY = new ClassType[0];
+    public static final DeclaredType[] DECLARED_TYPE_ARRAY = new DeclaredType[0];
     /** An empty prototype array of <code>MakerMethod</code> that may be provided to <code>Collection.toArray(Object[])</code>. */
     public static final MakerMethod[] METHOD_ARRAY = new MakerMethod[0];
     /** An empty prototype array of <code>MakeField</code> that may be provided to <code>Collection.toArray(Object[])</code>. */
@@ -520,10 +520,11 @@ public class ClassMakerFactory
     	if (classType.getInterfaces() == null && javaClass != null)
     	{
 	        Class [] javaInterfaces = javaClass.getInterfaces();
-	        ClassType [] interfaces = new ClassType [javaInterfaces.length]; 
+	        DeclaredType [] interfaces = new DeclaredType [javaInterfaces.length]; 
 	        for (int i = 0; i < javaInterfaces.length; i++)
 	        {
-	        	interfaces[i] = populateJavaClassMethods(null, javaInterfaces[i]);
+	            ClassType ifaceType = populateJavaClassMethods(null, javaInterfaces[i]);
+                    interfaces[i] = typeToDeclaredType(ifaceType);
 	        }
 	        classType.setInterfaces(interfaces);
     	}
@@ -542,7 +543,7 @@ public class ClassMakerFactory
         HashMap<String, MakerMethod> candidates = new HashMap<String, MakerMethod>();
         findJavaClassMethods(candidates, classType);
         if (classType.isInterface())
-        	findJavaInterfaceMethods(candidates, classType);
+            findJavaInterfaceMethods(candidates, classType);
         return candidates.values().toArray(METHOD_ARRAY);
     }
 
@@ -577,8 +578,9 @@ public class ClassMakerFactory
         populateJavaInterfaces(classType, classType.getJavaClass());
     	if (classType.getInterfaces() != null)
     	{    	
-    	    for (ClassType interfaceType : classType.getInterfaces())
+    	    for (DeclaredType declared : classType.getInterfaces())
     	    {
+    	        ClassType interfaceType = declared.getClassType();
     	        populateJavaClassMethods(interfaceType, interfaceType.getJavaClass());
     	        ClassMakerFactory.addMethods(candidates, interfaceType.getMethods());
 
@@ -637,14 +639,17 @@ public class ClassMakerFactory
         }
     }
 
-    static void addInterfaceMethods(Map<String, MakerMethod> allMethods, ClassType [] interfaces)
+    static void addInterfaceMethods(Map<String, MakerMethod> allMethods, DeclaredType [] interfaces)
     {
         // Add interface methods
-        for (ClassType ifaceType : interfaces)
+        for (DeclaredType declared : interfaces)
         {
-        	addMethods(allMethods, ifaceType.getMethods());
-        	// Recursively add methods from extended interfaces
-        	addInterfaceMethods(allMethods, ifaceType.getInterfaces());
+            ClassType ifaceType = declared.getClassType();
+            if (ifaceType == null)
+                throw new IllegalArgumentException("DeclaredType must refer to an interface");
+            addMethods(allMethods, ifaceType.getMethods());
+            // Recursively add methods from extended interfaces
+            addInterfaceMethods(allMethods, ifaceType.getInterfaces());
         }
     }
 

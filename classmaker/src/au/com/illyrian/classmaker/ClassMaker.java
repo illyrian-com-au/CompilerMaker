@@ -255,7 +255,7 @@ public class ClassMaker implements ExpressionIfc
     /** A list of methods in the class being generated. */
     private Vector<MakerMethod>     methods    = new Vector<MakerMethod>();
     /** A list of interfaces implemented by the class being generated. */
-    private Vector<ClassType>       interfaces = new Vector<ClassType>();  // FIXME change to DeclaredType
+    private Vector<DeclaredType>    interfaces = new Vector<DeclaredType>();
     /** A list of member fields in the class being generated. */
     private Vector<MakerField>      fieldTable = new Vector<MakerField>();
     /** A list of local variables in the class being generated. */
@@ -789,7 +789,7 @@ public class ClassMaker implements ExpressionIfc
         // Add generated methods if this is an interface
         if (isInterface())
         {
-        	ClassMakerFactory.addMethods(allMethods, getDeclaredMethods());
+            ClassMakerFactory.addMethods(allMethods, getDeclaredMethods());
         }
         getFactory().findJavaInterfaceMethods(allMethods, getClassType());
         return allMethods.values().toArray(ClassMakerFactory.METHOD_ARRAY);
@@ -808,9 +808,9 @@ public class ClassMaker implements ExpressionIfc
      * Gets the interfaces implemented by the generated class.
      * @return an array of implemented interfaces
      */
-    public ClassType[] getDeclaredInterfaces()
+    public DeclaredType[] getDeclaredInterfaces()
     {
-        return interfaces.toArray(ClassMakerFactory.CLASS_TYPE_ARRAY);
+        return interfaces.toArray(ClassMakerFactory.DECLARED_TYPE_ARRAY);
     }
 
     /**
@@ -1325,13 +1325,22 @@ public class ClassMaker implements ExpressionIfc
         if (thisClassType != null && thisClassType.getJavaClass() != null)
             return thisClassType.getJavaClass();
         
-        EndClass();
+        EndClass();  // declaredInterfaces is empty ???
         if (getPass() == FIRST_PASS)
             throw createException("ClassMaker.CannotDefineClassAfterFirstPhase");
         getSuperClass().defineClass();
+        defineInterfaces(this.getDeclaredInterfaces());
         Class thisClass = getFactory().getClassLoader().defineClass(cfw.getClassName(), cfw.toByteArray());
         thisClassType.setJavaClass(thisClass);
         return thisClass;
+    }
+    
+    private void defineInterfaces(DeclaredType [] interfaces)
+    {
+        for (DeclaredType declared : interfaces)
+        {
+            declared.defineClass();
+        }
     }
     
     /**
@@ -2466,8 +2475,9 @@ public class ClassMaker implements ExpressionIfc
         ClassType classType = classToClassType(javaClass);
         int mod = classType.getModifiers();
         if (!Modifier.isInterface(mod))
-            throw createException("ClassMaker.CannotImplementClass", classType.getName());
-        implementsClassType(classType);
+            throw createException("ClassMaker.CannotImplementClass", javaClass.getName());
+        DeclaredType declared = getFactory().typeToDeclaredType(classType);
+        implementsClassType(declared);
     }
 
     /**
@@ -2487,31 +2497,15 @@ public class ClassMaker implements ExpressionIfc
             int mod = classType.getModifiers();
             if (!Modifier.isInterface(mod))
                 throw createException("ClassMaker.CannotImplementClass", classType.getName());
-            implementsClassType(classType);
         }
+        implementsClassType(declared);
     }
-    /*
-        if (cfw != null)
-            throw createException("ClassMaker.ToLateToExtendTheClass");
-        DeclaredType declared = stringToDeclaredType(className);
-        if (getPass() != ClassMaker.FIRST_PASS)
-        {
-            ClassType type = declared.getClassType();
-            if (declared.getClassType() == null)
-            {
-                throw createException("ClassMaker.NoClassTypeCalled_1", className);
-            }
-            int mod = type.getModifiers();
-            if (Modifier.isInterface(mod))
-                throw createException("ClassMaker.CannotExtendInterface", type.getName());
-        }
-     */
 
     /**
      * Indicates that the class implements the named interface.
      * @param classType the type of the interface
      */
-    void implementsClassType(ClassType classType)
+    void implementsClassType(DeclaredType classType)
     {
         if (getClassFileWriter() != null)
         {

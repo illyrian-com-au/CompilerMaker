@@ -292,7 +292,7 @@ public class ExampleMethodsTest extends TestCase
     
     public void testLink() throws Exception
     {
-		ClassMakerBase.setSharedFactory(null);
+        ClassMakerBase.setSharedFactory(null);
         ClassMaker maker = new LinkMaker();
         Class linkClass = maker.defineClass();
         

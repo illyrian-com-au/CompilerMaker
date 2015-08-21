@@ -163,7 +163,7 @@ public class MethodInvocationConversion implements Convertable
             // J is a sub-interface of K.
             if (baseClass.getInterfaces() != null)
                 for (int i = 0; i < baseClass.getInterfaces().length; i++)
-                    if (target.equals(baseClass.getInterfaces()[i]))
+                    if (target.equals(baseClass.getInterfaces()[i].getType()))
                         return true;
 
             // Handle the switch from ClassType to Class

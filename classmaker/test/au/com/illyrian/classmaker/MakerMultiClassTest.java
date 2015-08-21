@@ -272,8 +272,8 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
         maker.EndClass();
         codeBase(initMaker);
 
-        // FIXME - does not work when order is reversed
-       // initMaker.defineClass();
+        // Test implicit loading of base class
+        // initMaker.defineClass();
         Class myClass = maker.defineClass();
         
         Getter value =  (Getter)myClass.newInstance();
@@ -311,7 +311,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
         
         // interface Initialiser
         ifaceMaker.setClassModifiers(ClassMaker.ACC_INTERFACE);
-        ifaceMaker.Method("setValue", void.class, ACC_PUBLIC | ACC_ABSTRACT);
+        ifaceMaker.Method("setValue", int.class, ACC_PUBLIC | ACC_ABSTRACT);
         ifaceMaker.Declare("value", int.class, 0);
         ifaceMaker.Forward();
         ifaceMaker.EndClass();
@@ -340,14 +340,14 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
         
         // interface Initialiser
         ifaceMaker.setClassModifiers(ClassMaker.ACC_INTERFACE);
-        ifaceMaker.Method("setValue", void.class, ACC_PUBLIC| ACC_ABSTRACT);
+        ifaceMaker.Method("setValue", int.class, ACC_PUBLIC | ACC_ABSTRACT);
         ifaceMaker.Declare("value", int.class, 0);
         ifaceMaker.Forward();
         ifaceMaker.EndClass();
 
-        // FIXME - does not work when order is reversed
-      //  ifaceMaker.defineClass();
-      //  initMaker.defineClass();
+        // Test implicit loading of interface
+        //ifaceMaker.defineClass();
+        initMaker.defineClass();
         Class myClass = maker.defineClass();
         
         Getter value =  (Getter)myClass.newInstance();
