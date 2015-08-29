@@ -341,7 +341,7 @@ public class AstExpressionVisitor implements SourceLine
     	{
             MakerField field = tree.operand.resolveMakerField(this);
             sourceLine = tree;
-            if (field.getClassType() == null)
+            if (field.isLocal())
                 return maker.Inc(field.getName());
             else if (field.isStatic())
                 return maker.Inc(field.getClassType().getName(), field.getName());
@@ -361,7 +361,7 @@ public class AstExpressionVisitor implements SourceLine
         } else {
             MakerField field = tree.operand.resolveMakerField(this);
             sourceLine = tree;
-            if (field.getClassType() == null)
+            if (field.isLocal())
                 return maker.Dec(field.getName());
             else if (field.isStatic())
                 return maker.Dec(field.getClassType().getName(), field.getName());
@@ -381,7 +381,7 @@ public class AstExpressionVisitor implements SourceLine
         } else {
             MakerField field = tree.operand.resolveMakerField(this);
             sourceLine = tree;
-            if (field.getClassType() == null)
+            if (field.isLocal())
                 return maker.PostInc(field.getName());
             else if (field.isStatic())
                 return maker.PostInc(field.getClassType().getName(), field.getName());
@@ -401,7 +401,7 @@ public class AstExpressionVisitor implements SourceLine
         } else {
             MakerField field = tree.operand.resolveMakerField(this);
             sourceLine = tree;
-            if (field.getClassType() == null)
+            if (field.isLocal())
                 return maker.PostDec(field.getName());
             else if (field.isStatic())
                 return maker.PostDec(field.getClassType().getName(), field.getName());
