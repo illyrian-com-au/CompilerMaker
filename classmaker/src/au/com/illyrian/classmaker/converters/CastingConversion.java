@@ -144,7 +144,7 @@ public class CastingConversion extends AssignmentConversion implements Convertab
             }
         }
         // Should not get here. All calls to this method should be guarded by a call to isConvertable.
-        throw new IllegalArgumentException("Cannot apply an Narrowing Primitive Conversion from type " + source.getName() + " to type " + target.getName());
+        throw new IllegalArgumentException("Cannot apply a Narrowing Primitive Conversion from type " + source.getName() + " to type " + target.getName());
     }
 
     /**
@@ -200,13 +200,13 @@ public class CastingConversion extends AssignmentConversion implements Convertab
         if (isNarrowingReferenceConvertable(source, target))
             return maker.toReference(source, target);
         // Should not get here. All calls to this method should be guarded by a call to isConvertable.
-        throw new IllegalArgumentException("Cannot apply an Narrowing Reference Conversion from type " + source.getName() + " to type " + target.getName());
+        throw new IllegalArgumentException("Cannot apply a Narrowing Reference Conversion from type " + source.getName() + " to type " + target.getName());
     }
 
     /**
      * Tests whether the source <code>Type</code> can be converted to the target <code>Type</code>.
      * <br/>
-     * Assignment conversion supports the following conversions:
+     * Casting conversion supports the following conversions:
      * <UL>
      *   <LI>identity conversion</LI>
      *   <LI>widening primitive conversion</LI>

@@ -664,13 +664,13 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             maker.Get(maker.getFullyQualifiedClassName(), "id");
             fail("Not static");
         } catch (ClassMakerException ex) {
-            assertEquals("Class variable 'id' is not static", ex.getMessage());
+            assertEquals("Class variable 'test.MyClass.id' is not static", ex.getMessage());
         }
         try {
             maker.Set(maker.getFullyQualifiedClassName(), "id", ClassMaker.INT_TYPE);
             fail("Not static");
         } catch (ClassMakerException ex) {
-            assertEquals("Class variable 'id' is not static", ex.getMessage());
+            assertEquals("Class variable 'test.MyClass.id' is not static", ex.getMessage());
         }
         try {
             maker.Set(maker.getFullyQualifiedClassName(), "n", ClassMaker.INT_TYPE);

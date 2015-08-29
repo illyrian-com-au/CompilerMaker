@@ -3066,9 +3066,21 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
             maker.Inc(maker.getFullyQualifiedClassName(), "b");
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("Class variable 'b' is not static", ex.getMessage());
+            assertEquals("Class variable 'test.MyClass.b' is not static", ex.getMessage());
         }
 
+    }
+
+    public void testDecException() throws Exception
+    {
+        // MemberField
+        maker.Declare("b", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("c", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC | ACC_STATIC);
+
+        maker.Method("other", ClassMaker.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMaker.INT_TYPE, 0);
+        maker.Begin();
+        maker.Declare("a", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
         try {
             maker.Dec("a");
             fail("Should throw ClassMakerException");
@@ -3097,9 +3109,21 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
             maker.Dec(maker.getFullyQualifiedClassName(), "b");
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("Class variable 'b' is not static", ex.getMessage());
+            assertEquals("Class variable 'test.MyClass.b' is not static", ex.getMessage());
         }
 
+    }
+
+    public void testPostIncException() throws Exception
+    {
+        // MemberField
+        maker.Declare("b", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("c", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC | ACC_STATIC);
+
+        maker.Method("other", ClassMaker.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMaker.INT_TYPE, 0);
+        maker.Begin();
+        maker.Declare("a", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
         try {
             maker.PostInc("a");
             fail("Should throw ClassMakerException");
@@ -3128,8 +3152,20 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
             maker.PostInc(maker.getFullyQualifiedClassName(), "b");
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("Class variable 'b' is not static", ex.getMessage());
+            assertEquals("Class variable 'test.MyClass.b' is not static", ex.getMessage());
         }
+    }
+
+    public void testPostDecException() throws Exception
+    {
+        // MemberField
+        maker.Declare("b", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("c", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC | ACC_STATIC);
+
+        maker.Method("other", ClassMaker.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMaker.INT_TYPE, 0);
+        maker.Begin();
+        maker.Declare("a", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
         try {
             maker.PostDec("a");
             fail("Should throw ClassMakerException");
@@ -3158,7 +3194,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
             maker.PostDec(maker.getFullyQualifiedClassName(), "b");
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("Class variable 'b' is not static", ex.getMessage());
+            assertEquals("Class variable 'test.MyClass.b' is not static", ex.getMessage());
         }
     }
 

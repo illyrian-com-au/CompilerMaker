@@ -625,7 +625,6 @@ public class ClassMaker implements ExpressionIfc
      */
     protected void setSuperClass(DeclaredType classType)
     {
-        // FIXME Update classtype information on first pass ...
         superClass = classType;
     }
 
@@ -1704,7 +1703,6 @@ public class ClassMaker implements ExpressionIfc
         return classType;
     }
 
-    // FIXME - add unit tests
     DeclaredType getPackageDeclared(String className) throws ClassMakerException
     {
         DeclaredType declaredType = null;
@@ -1853,12 +1851,14 @@ public class ClassMaker implements ExpressionIfc
      * @return an array of method descriptors
      */
     MakerMethod [] getMethods(ClassType classType)
-    {   // FIXME - only if allMethods is null
-        if (classType == thisClassType)
-            thisClassType.setAllMethods(getAllClassMethods());
-        else if (classType.getAllMethods() == null)
-        	classType.setAllMethods(getFactory().getMethods(classType));
-        
+    {
+        if (classType.getAllMethods() == null)
+        {
+            if (classType == thisClassType)
+                thisClassType.setAllMethods(getAllClassMethods());
+            else
+                classType.setAllMethods(getFactory().getMethods(classType));
+        }
         return classType.getAllMethods();
     }
 
@@ -1889,6 +1889,13 @@ public class ClassMaker implements ExpressionIfc
         Method(methodName, type, methodModifiers);
     }
 
+    /**
+     * Starts the declaration of a method.
+     * @param methodName the name of the method to be generated
+     * @param returnType the return type for the method
+     * @param methodModifiers appropriate modifiers include:
+     * <code>ACC_PUBLIC, ACC_PROTECTED, ACC_PRIVATE, ACC_STATIC, ACC_FINAL</code>
+     */
     public void Method(String methodName, Type returnType, int methodModifiers) throws ClassMakerException
     {
         DeclaredType declared = getDeclaredType(returnType);
@@ -1908,9 +1915,10 @@ public class ClassMaker implements ExpressionIfc
         if (method != null)
             throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toString());
         method = new MakerMethod(getClassType(), methodName, returnType, (short)methodModifiers);
+        
         // Adjust the slots used to account for the this pointer, if present.
-        // FIXME account for static methods
-        maxLocalSlots = getDeclaredType().getSlotSize();
+        maxLocalSlots = method.isStatic() ? 0 : getDeclaredType().getSlotSize();
+        
         // Determine whether the class declares a constructor.
         if (INIT.equals(methodName))
             hasConstructor = true;
@@ -1979,7 +1987,7 @@ public class ClassMaker implements ExpressionIfc
             markLineNumber(); // possibly add a new line number entry.
 
             cfw.add(ByteCode.NOP);
-            cfw.stopMethod(getMaxLocalSlots());
+            cfw.stopMethod(maxLocalSlots);
         }
 
         // Exit method.
@@ -3056,79 +3064,6 @@ public class ClassMaker implements ExpressionIfc
         return type;
     }
 
-    /**
-     * Sets a member variable to the value.
-     * </br>
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr><td>Java code</td><td>ClassMaker code</td></tr>
-     * <tr><td><code>obj.i = a;<code></td>
-     * <td><code>Eval(Set(Find("obj"), "i", Get("a")));</code></td></tr>
-     * </table>
-     * The value is subject to assignment conversion before it is set.
-     * @param type the type of the class containing the variable
-     * @param fieldName the name of the member variable
-     * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
-     * @deprecated distribute to other Assign methods
-     */
-//    Type Assign(MakerField field, Type type) throws ClassMakerException
-//    {
-//        if (getClassFileWriter() == null) return null;
-//        if (field != null)
-//        {
-//            if (field.isLocal())
-//            {
-//                dup(type);
-//                Set(field.getName(), type);
-//            }
-//            else if (field.isStatic())
-//            {
-//                dup(type);
-//                Set(field.getClassType().getName(), field.getName(), type);
-//            }
-//            else
-//            {
-//                dupunder(field.getClassType(), type);
-//                Set(field.getClassType(), field.getName(), type);
-//            }
-//            return type;
-//        }
-//        else
-//            throw createException("field is null");
-//    }
-
-    /**
-     * Sets a member variable to the value.
-     * </br>
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr><td>Java code</td><td>ClassMaker code</td></tr>
-     * <tr><td><code>obj.i = a;<code></td>
-     * <td><code>Eval(Set(Find("obj"), "i", Get("a")));</code></td></tr>
-     * </table>
-     * The value is subject to assignment conversion before it is set.
-     * @param type the type of the class containing the variable
-     * @param fieldName the name of the member variable
-     * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
-     * @deprecated distribute to other Assign methods
-     */
-//    Type Set(MakerField lvalue, Type value) throws ClassMakerException
-//    {
-//        MakerField field = lvalue.toField();
-//        if (field != null)
-//        {
-//            if (field.isLocal())
-//                return setLocal(field, value);
-//            else if (field.isStatic())
-//                return setStatic(field, value); // FIXME - no test
-//            else
-//                return setField(field, value);
-//        }
-//        else
-//            throw createException("Cannot assign to ", lvalue.getName());
-//    }
 
     /**
      * Sets the value on top of the stack to the named local variable or formal parameter.
@@ -3227,6 +3162,7 @@ public class ClassMaker implements ExpressionIfc
         MakerField field = Find(className, fieldName);
         Type declaredType = field.getType();
 
+        // FIXME - check that field is static
         if (!getFactory().getAssignmentConversion().isConvertable(valueType, declaredType))
             throw createException("ClassMaker.StaticFieldOfTypeCannotBeAssignedType_3",
                             field.getName(), declaredType.getName(), valueType.getName());
@@ -3260,6 +3196,17 @@ public class ClassMaker implements ExpressionIfc
         return loadField(field);
     }
 
+    private Type loadField(MakerField field)
+    {
+        assertNotNull(field, "field");
+        markLineNumber(); // possibly add a new line number entry.
+        ClassType classType = field.getClassType();
+        if (log.isLoggable(Level.FINE))
+            log.finest("load " + classType.getName() + ", " + field.getName() + ", " + field.getType().getSignature());
+        cfw.add(ByteCode.GETFIELD, classType.getName(), field.getName(), field.getType().getSignature());
+        return field.getType();
+    }
+    
     /**
      * Gets a value from a static member variable.
      * </br>
@@ -3277,11 +3224,22 @@ public class ClassMaker implements ExpressionIfc
     { 
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("Get(\"" + className + "\", " + fieldName+ ")");
+    	    cfw.setDebugComment("Get(\"" + className + "\", " + fieldName+ ")");
         MakerField field = Find(className, fieldName);
-        return loadField(field);
+        return loadStatic(field);
     }
 
+    private Type loadStatic(MakerField field)
+    {
+        assertNotNull(field, "field");
+        markLineNumber(); // possibly add a new line number entry.
+        ClassType classType = field.getClassType();
+        if (log.isLoggable(Level.FINE))
+            log.finest("static load " + classType.getName() + ", " + field.getName() + ", " + field.getType().getSignature());
+        cfw.add(ByteCode.GETSTATIC, classType.getName(), field.getName(), field.getType().getSignature());
+        return field.getType();
+    }
+    
     /**
      * Gets a local variable or formal parameter by name.
      * @param name name of the local variable
@@ -3296,39 +3254,6 @@ public class ClassMaker implements ExpressionIfc
         return loadLocal(field);
     }
 
-    private Type loadField(MakerField field)
-    {
-        assertNotNull(field, "field");
-        markLineNumber(); // possibly add a new line number entry.
-        ClassType classType = field.getClassType();
-        if (field.isStatic())
-        {
-            if (log.isLoggable(Level.FINE))
-                log.finest("static load " + classType.getName() + ", " + field.getName() + ", " + field.getType().getSignature());
-            cfw.add(ByteCode.GETSTATIC, classType.getName(), field.getName(), field.getType().getSignature());
-        } else {
-            if (log.isLoggable(Level.FINE))
-                log.finest("load " + classType.getName() + ", " + field.getName() + ", " + field.getType().getSignature());
-            cfw.add(ByteCode.GETFIELD, classType.getName(), field.getName(), field.getType().getSignature());
-        }
-        return field.getType();
-    }
-    
-//    private Type loadStaticField(MakerField field)
-//    {
-//        markLineNumber(); // possibly add a new line number entry.
-//        ClassType classType = field.getClassType();
-//        if (field.isStatic())
-//        {
-//            if (log.isLoggable(Level.FINE))
-//                log.finest("static load " + classType.getName() + ", " + field.getName() + ", " + field.getType().getSignature());
-//            cfw.add(ByteCode.GETSTATIC, classType.getName(), field.getName(), field.getType().getSignature());
-//        } else {
-//            throw this.createException("Static access to dynamic field: ", field.getName());
-//        }
-//        return field.getType();
-//    }
-    
     //##################### Member Field Methods. #####################
 
     /**
@@ -3384,7 +3309,7 @@ public class ClassMaker implements ExpressionIfc
         if (field == null)
             throw createException("ClassMaker.CannotFindStaticFieldInClass_2", classType.getName(), fieldName);
         if (!field.isStatic())
-            throw createException("ClassMaker.ClassVariableIsNotStatic_1", fieldName);
+            throw createException("ClassMaker.ClassVariableIsNotStatic_1", classType.getName() + "." + fieldName);
         return field;
     }
     
@@ -3586,7 +3511,7 @@ public class ClassMaker implements ExpressionIfc
     int addLocal(String name, DeclaredType declared, int modifiers)
     {
         MakerField field = new MakerField(name, declared, modifiers);
-        field.setSlot(getMaxLocalSlots());
+        field.setSlot(maxLocalSlots);
         field.setScopeLevel(getScopeLevel());
         // Adjust the number of slots used.
         maxLocalSlots += declared.getSlotSize();
@@ -3604,7 +3529,6 @@ public class ClassMaker implements ExpressionIfc
      */
     MakerField findLocalField(String name)
     {
-        // FIXME use findLocalIndex()
         for (int i=localTable.size()-1; i>=0; i--)
         {
             MakerField local = localTable.get(i);
@@ -3618,20 +3542,20 @@ public class ClassMaker implements ExpressionIfc
         return null;
     }
 
-    int findLocalIndex(String name)
-    {
-        for (int i=localTable.size()-1; i>=0; i--)
-        {
-            MakerField local = localTable.get(i);
-            if (!local.isInScope())
-                continue; // Skip locals that are out of scope
-            if (name.equals(local.getName()))
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
+//    int findLocalIndex(String name)
+//    {
+//        for (int i=localTable.size()-1; i>=0; i--)
+//        {
+//            MakerField local = localTable.get(i);
+//            if (!local.isInScope())
+//                continue; // Skip locals that are out of scope
+//            if (name.equals(local.getName()))
+//            {
+//                return i;
+//            }
+//        }
+//        return -1;
+//    }
 
     private void initLocal(MakerField field) 
     {
@@ -3673,18 +3597,18 @@ public class ClassMaker implements ExpressionIfc
         throw createException("ClassMaker.DontKnowHowToStoreType_1", type.getName());
     }
 
-    /** 
-     * Get the maximum local slots used by this method.
-     * <br/>
-     * This value is required when creating a stack frame.
-     * @return the maximum local slots used by the method
-     */
-    private short getMaxLocalSlots()
-    {
-    	return maxLocalSlots;
-    }
-    
-    //############# Variable declarations ################
+//    /** 
+//     * Get the maximum local slots used by this method.
+//     * <br/>
+//     * This value is required when creating a stack frame.
+//     * @return the maximum local slots used by the method
+//     */
+//    private short getMaxLocalSlots()
+//    {
+//    	return maxLocalSlots;
+//    }
+//    
+//    //############# Variable declarations ################
 
     /**
      * Declares a local variable or member field using a java class descriptor.
@@ -3953,7 +3877,7 @@ public class ClassMaker implements ExpressionIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Cast("+source+", "+target+");");
+            cfw.setDebugComment("Cast("+source+", "+target+");");
         Type targetType = target.getType();
         if (getFactory().getCastingConversion().isConvertable(source, targetType))
             return getFactory().getCastingConversion().convertTo(this, source, targetType);
@@ -5896,7 +5820,6 @@ public class ClassMaker implements ExpressionIfc
 
         getFactory().getAssignmentConversion().convertTo(this, valueType, declaredType);
 
-        // FIXME - primitiveSetAt()
         if (isClass(declaredType))
         {
             cfw.add(ByteCode.AASTORE);
@@ -5984,6 +5907,7 @@ public class ClassMaker implements ExpressionIfc
         }
         throw new IllegalArgumentException("Cannot create an array of type: " + type.getName());
     }
+    
     /**
      * Evaluate an expression as though it were a statement.
      * </br>
@@ -6122,7 +6046,7 @@ public class ClassMaker implements ExpressionIfc
     	if (isDebugCode())
     		cfw.setDebugComment("Inc(" + name + ")");
         MakerField local = Find(name);
-        return Inc(local);
+        return incLocal(local);
     }
     
     Type incLocal(MakerField local)
@@ -6152,7 +6076,7 @@ public class ClassMaker implements ExpressionIfc
     	if (isDebugCode())
     		cfw.setDebugComment("Inc(" + reference + ", " + name+ ")");
         MakerField field = Find(reference, name);
-        return Inc(field);
+        return incField(field);
     }
 
     Type incField(MakerField field)
@@ -6194,7 +6118,7 @@ public class ClassMaker implements ExpressionIfc
     	if (isDebugCode())
     		cfw.setDebugComment("Inc(\"" + className + "\", " + name+ ")");
         MakerField field = Find(className, name);
-        return Inc(field);
+        return incStatic(field);
     }
 
     Type incStatic(MakerField field)
@@ -6218,37 +6142,6 @@ public class ClassMaker implements ExpressionIfc
         return fieldType;
     }
 
-    /**
-     * Sets a member variable to the value.
-     * </br>
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr><td>Java code</td><td>ClassMaker code</td></tr>
-     * <tr><td><code>obj.i = a;<code></td>
-     * <td><code>Eval(Inc(Find("obj"), "i"));</code></td></tr>
-     * </table>
-     * The value is subject to assignment conversion before it is set.
-     * @param type the type of the class containing the variable
-     * @param fieldName the name of the member variable
-     * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
-     * @deprecated distribute & remove
-     */
-    public Type Inc(MakerField field) throws ClassMakerException
-    {
-        if (field != null)
-        {
-            if (field.isLocal())
-                return incLocal(field);
-            else if (field.isStatic())
-                return incStatic(field);
-            else
-                return incField(field);
-        }
-        else
-            throw createException("field is null");
-    }
-
     /**** Dec ****/
     
     /**
@@ -6268,8 +6161,8 @@ public class ClassMaker implements ExpressionIfc
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
     		cfw.setDebugComment("Dec(" + name + ")");
-        MakerField local = Find(name);
-        return Dec(local);
+        MakerField field = Find(name);
+        return decLocal(field);
     }
     
     Type decLocal(MakerField local)
@@ -6297,9 +6190,9 @@ public class ClassMaker implements ExpressionIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("Dec(" + reference + ", " + name+ ")");
+    	    cfw.setDebugComment("Dec(" + reference + ", " + name+ ")");
         MakerField field = Find(reference, name);
-        return Dec(field);
+        return decField(field);
     }
 
     Type decField(MakerField field)
@@ -6341,9 +6234,9 @@ public class ClassMaker implements ExpressionIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("Dec(\"" + className + "\", " + name+ ")");
+    	    cfw.setDebugComment("Dec(\"" + className + "\", " + name+ ")");
         MakerField field = Find(className, name);
-        return Dec(field);
+        return decStatic(field);
     }
 
     Type decStatic(MakerField field)
@@ -6365,37 +6258,6 @@ public class ClassMaker implements ExpressionIfc
         cfw.add(ByteCode.PUTSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
 
         return fieldType;
-    }
-
-    /**
-     * Sets a member variable to the value.
-     * </br>
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr><td>Java code</td><td>ClassMaker code</td></tr>
-     * <tr><td><code>obj.i = a;<code></td>
-     * <td><code>Eval(Dec(Find("obj", "i")));</code></td></tr>
-     * </table>
-     * The value is subject to assignment conversion before it is set.
-     * @param type the type of the class containing the variable
-     * @param fieldName the name of the member variable
-     * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
-     * @deprecated distribute & remove
-     */
-    public Type Dec(MakerField field) throws ClassMakerException
-    {
-        if (field != null)
-        {
-            if (field.isLocal())
-                return decLocal(field);
-            else if (field.isStatic())
-                return decStatic(field);
-            else
-                return decField(field);
-        }
-        else
-            throw createException("field is null");
     }
 
     /**** PostInc ****/
@@ -6449,7 +6311,7 @@ public class ClassMaker implements ExpressionIfc
     	if (isDebugCode())
     		cfw.setDebugComment("PostInc(" + reference + ", " + name+ ")");
         MakerField field = Find(reference, name);
-        return PostInc(field);
+        return postIncField(field);
     }
 
     Type postIncField(MakerField field)
@@ -6518,37 +6380,6 @@ public class ClassMaker implements ExpressionIfc
         return fieldType;
     }
 
-    /**
-     * Sets a member variable to the value.
-     * </br>
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr><td>Java code</td><td>ClassMaker code</td></tr>
-     * <tr><td><code>obj.i = a;<code></td>
-     * <td><code>Eval(Dec(Find("obj", "i")));</code></td></tr>
-     * </table>
-     * The value is subject to assignment conversion before it is set.
-     * @param type the type of the class containing the variable
-     * @param fieldName the name of the member variable
-     * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
-     * @deprecated distribute & remove
-     */
-    public Type PostInc(MakerField field) throws ClassMakerException
-    {
-        if (field != null)
-        {
-            if (field.isLocal())
-                return postIncLocal(field);
-            else if (field.isStatic())
-                return postIncStatic(field);
-            else
-                return postIncField(field);
-        }
-        else
-            throw createException("field is null");
-    }
-
     /**** PostDec ****/
     
     /**
@@ -6599,7 +6430,7 @@ public class ClassMaker implements ExpressionIfc
     	if (isDebugCode())
     		cfw.setDebugComment("PostDec(" + reference + ", " + name+ ")");
         MakerField field = Find(reference, name);
-        return PostDec(field);
+        return postDecField(field);
     }
 
     Type postDecField(MakerField field)
@@ -6666,37 +6497,6 @@ public class ClassMaker implements ExpressionIfc
         cfw.add(ByteCode.PUTSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
 
         return fieldType;
-    }
-
-    /**
-     * Sets a member variable to the value.
-     * </br>
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr><td>Java code</td><td>ClassMaker code</td></tr>
-     * <tr><td><code>obj.i = a;<code></td>
-     * <td><code>Eval(Dec(Find("obj", "i")));</code></td></tr>
-     * </table>
-     * The value is subject to assignment conversion before it is set.
-     * @param type the type of the class containing the variable
-     * @param fieldName the name of the member variable
-     * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
-     * @deprecated distribute & remove
-     */
-    public Type PostDec(MakerField field) throws ClassMakerException
-    {
-        if (field != null)
-        {
-            if (field.isLocal())
-                return postDecLocal(field);
-            else if (field.isStatic())
-                return postDecStatic(field);
-            else
-                return postDecField(field);
-        }
-        else
-            throw createException("field is null");
     }
 
     /**** IncAt ****/
@@ -7267,31 +7067,6 @@ public class ClassMaker implements ExpressionIfc
             return super.getScopeLevel() +1;
         }
 
-        /**
-         * Jumps to the end of the block when <code>Break</code> is called.
-         * The <code>label</code> must match the one provided for this statement;
-         * otherwise, passes the jump request down the statement stack.
-         * @param jumpTarget <code>ClassMaker.BREAK</code>,
-         *                   <code>ClassMaker.CONTINUE</code> or
-         *                   <code>ClassMaker.RETURN</code>.
-         * @param label the name of the statement to jump to or <code>null</code>
-         * @return the target <code>Statement</code> or <code>null</code> if not found.
-         */
-        protected Statement jumpToTarget(String jumpTarget, String label)
-        {
-            // FIXME - remove
-            if (BREAK.equals(jumpTarget) && label != null && label.equals(getLabel()))
-            {   // Break jumps to the end of the loop
-                if (getClassFileWriter() != null) 
-                    cfw.add(ByteCode.GOTO, blockEnd);
-            }
-            else
-            {   // Pass the request down the statement stack
-                return super.jumpToTarget(jumpTarget, label);
-            }
-            return this;
-        }
-        
         protected int getStatementEnd()
         {
             return blockEnd;

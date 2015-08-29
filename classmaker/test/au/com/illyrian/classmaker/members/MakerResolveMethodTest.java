@@ -156,6 +156,11 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
         maker.Declare("y", ClassMaker.INT_TYPE, 0);
         maker.Forward();
 
+        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Declare("x", ClassMaker.OBJECT_TYPE, 0);
+        maker.Declare("y", ClassMaker.OBJECT_TYPE, 0);
+        maker.Forward();
+
         MakerMethod method;
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(DESSERT).Push(SCONE));
         assertEquals("Did not resolve method: ", "void moorge(test.Dessert, test.Scone)", method.toString());
@@ -182,11 +187,6 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(ClassMaker.NULL_TYPE));
         assertEquals("Did not resolve method: ", "void moorge(test.ChocolateCake, test.Scone)", method.toString());
-
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
-        maker.Declare("x", ClassMaker.OBJECT_TYPE, 0);
-        maker.Declare("y", ClassMaker.OBJECT_TYPE, 0);
-        maker.Forward();
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(DESSERT).Push(DESSERT));
         assertEquals("Did not resolve method: ", "void moorge(java.lang.Object, java.lang.Object)", method.toString());
@@ -240,7 +240,31 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
     	failToResolveMethod("moorge", maker.Push(maker.ArrayOf(CAKE)).Push(ClassMaker.NULL_TYPE));
 
     	failToResolveMethod("moorge", maker.Push(ClassMaker.NULL_TYPE).Push(ClassMaker.NULL_TYPE));
+    }
 
+    public void testResolveArrayToObjectMethods() throws Exception
+    {
+        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Declare("x", maker.ArrayOf(DESSERT), 0);
+        maker.Declare("y", maker.ArrayOf(SCONE), 0);
+        maker.Forward();
+
+        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Declare("x", maker.ArrayOf(CAKE), 0);
+        maker.Declare("y", maker.ArrayOf(DESSERT), 0);
+        maker.Forward();
+
+        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Declare("x", maker.ArrayOf(CHOCOLATE_CAKE), 0);
+        maker.Declare("y", maker.ArrayOf(SCONE), 0);
+        maker.Forward();
+
+        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Declare("x", maker.ArrayOf(CHOCOLATE_CAKE), 0);
+        maker.Declare("y", maker.ArrayOf(ClassMaker.INT_TYPE), 0);
+        maker.Forward();
+
+        MakerMethod method;
         maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", ClassMaker.OBJECT_TYPE, 0);
         maker.Declare("y", ClassMaker.OBJECT_TYPE, 0);
