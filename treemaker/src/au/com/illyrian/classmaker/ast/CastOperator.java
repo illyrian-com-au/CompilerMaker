@@ -32,8 +32,8 @@ import au.com.illyrian.classmaker.types.Type;
 
 public class CastOperator extends AstExpressionBase
 {
-    AstExpression leftOperand;
-    AstExpression rightOperand;
+    private final AstExpression leftOperand;
+    private final AstExpression rightOperand;
 
     public CastOperator(AstExpression typeOperand, AstExpression valueOperand)
     {

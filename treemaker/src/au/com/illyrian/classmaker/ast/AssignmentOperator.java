@@ -32,8 +32,8 @@ import au.com.illyrian.classmaker.types.Type;
 
 public class AssignmentOperator extends AstExpressionBase
 {
-    final AstExpression leftOperand;
-    final AstExpression rightOperand;
+    private final AstExpression leftOperand;
+    private final AstExpression rightOperand;
 
     public AssignmentOperator(AstExpression left, AstExpression right)
     {

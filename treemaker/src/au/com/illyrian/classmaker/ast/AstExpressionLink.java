@@ -31,35 +31,35 @@ import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public class AstExpressionLink extends AstExpressionBase
 {
-	public final AstExpression left;
-	public final AstExpression right;
-	
+    public final AstExpression left;
+    public final AstExpression right;
+
     public AstExpressionLink(AstExpression left, AstExpression right)
     {
-    	if (left == null || right == null)
-    		throw new IllegalStateException("Left and right expressions must not be null");
+        if (left == null || right == null)
+            throw new IllegalStateException("Left and right expressions must not be null");
 
-    	this.left = left;
-    	this.right = right;
+        this.left = left;
+        this.right = right;
     }
-    
+
     public void resolveImport(AstStructureVisitor visitor)
     {
-         visitor.resolveImport(this);
+        visitor.resolveImport(this);
     }
 
     public void resolveImplements(AstStructureVisitor visitor)
     {
-         visitor.resolveImplements(this);
+        visitor.resolveImplements(this);
     }
 
     public String toString()
     {
-    	if (left == null)
-    		return right.toString();
-    	else if (right == null)
-    		return left.toString();
-    	else 
-    		return left + ", " + right;
+        if (left == null)
+            return right.toString();
+        else if (right == null)
+            return left.toString();
+        else
+            return left + ", " + right;
     }
 }

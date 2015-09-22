@@ -27,33 +27,43 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class ArrayIndex extends AstExpressionBase
 {
-    AstExpression arrayOperand;
-    AstExpression indexOperand;
+    private final AstExpression arrayOperand;
+    private final AstExpression indexOperand;
 
     public ArrayIndex(AstExpression arrayOperand, AstExpression indexOperand)
     {
         this.arrayOperand = arrayOperand;
         this.indexOperand = indexOperand;
     }
-    
+
+    public ArrayIndex(AstExpression arrayOperand, AstExpression indexOperand, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        this.arrayOperand = arrayOperand;
+        this.indexOperand = indexOperand;
+    }
+
     public Type resolveType(AstExpressionVisitor visitor)
     {
         return visitor.resolveType(this);
     }
-    
-    public AstExpression getArrayOperand() {
-		return arrayOperand;
-	}
 
-	public AstExpression getIndexOperand() {
-		return indexOperand;
-	}
+    public AstExpression getArrayOperand()
+    {
+        return arrayOperand;
+    }
 
-	public String toString()
+    public AstExpression getIndexOperand()
+    {
+        return indexOperand;
+    }
+
+    public String toString()
     {
         return arrayOperand + "[" + indexOperand + "]";
     }

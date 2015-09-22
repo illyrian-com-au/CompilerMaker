@@ -32,8 +32,8 @@ import au.com.illyrian.classmaker.types.Type;
 
 public class CommaOperator extends AstExpressionBase
 {
-    AstExpression leftExpression;
-    AstExpression rightExpression;
+    private final AstExpression leftExpression;
+    private final AstExpression rightExpression;
 
     public CommaOperator(AstExpression left, AstExpression right)
     {
@@ -49,6 +49,16 @@ public class CommaOperator extends AstExpressionBase
     public CallStack resolveCallStack(AstExpressionVisitor visitor)
     {
         return visitor.resolveCallStack(this);
+    }
+
+    public AstExpression getLeftExpression()
+    {
+        return leftExpression;
+    }
+
+    public AstExpression getRightExpression()
+    {
+        return rightExpression;
     }
 
     public String toString()

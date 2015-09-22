@@ -34,8 +34,8 @@ import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public class DotOperator extends AstExpressionBase
 {
-    final AstExpression leftOperand;
-    final AstExpression rightOperand;
+    private final AstExpression leftOperand;
+    private final AstExpression rightOperand;
     
     public DotOperator(AstExpression left, AstExpression right)
     {

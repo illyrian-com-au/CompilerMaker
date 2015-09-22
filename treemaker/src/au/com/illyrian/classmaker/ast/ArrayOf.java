@@ -1,5 +1,6 @@
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.DeclaredType;
 
 
@@ -10,6 +11,13 @@ public class ArrayOf extends AstExpressionBase
 
     public ArrayOf(AstExpression type, AstExpression dimension)
     {
+        this.type = type;
+        this.dimension = dimension;
+    }
+    
+    public ArrayOf(AstExpression type, AstExpression dimension, SourceLine sourceLine)
+    {
+        super(sourceLine);
         this.type = type;
         this.dimension = dimension;
     }

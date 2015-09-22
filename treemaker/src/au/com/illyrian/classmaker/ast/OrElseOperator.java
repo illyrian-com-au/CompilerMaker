@@ -33,8 +33,8 @@ import au.com.illyrian.classmaker.types.Type;
 
 public class OrElseOperator extends AstExpressionBase
 {
-    final AstExpression leftOperand;
-    final AstExpression rightOperand;
+    private final AstExpression leftOperand;
+    private final AstExpression rightOperand;
 
     public OrElseOperator(AstExpression left, AstExpression right)
     {

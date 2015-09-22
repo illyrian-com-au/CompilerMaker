@@ -32,8 +32,8 @@ import au.com.illyrian.classmaker.types.Type;
 
 public class InstanceOfOperator extends AstExpressionBase
 {
-    final AstExpression leftOperand;
-    final AstExpression rightOperand;
+    private final AstExpression leftOperand;
+    private final AstExpression rightOperand;
 
     public InstanceOfOperator(AstExpression left, AstExpression right)
     {

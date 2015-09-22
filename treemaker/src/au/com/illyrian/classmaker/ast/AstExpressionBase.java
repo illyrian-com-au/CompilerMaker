@@ -37,8 +37,8 @@ import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public abstract class AstExpressionBase implements AstExpression, SourceLine
 {
-    String filename = null;
-    int    lineNumber = 0;
+    private String filename = null;
+    private int    lineNumber = 0;
     
     public AstExpressionBase()
     {

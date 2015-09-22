@@ -32,7 +32,7 @@ import au.com.illyrian.classmaker.types.Type;
 
 public class PostIncrementOperator extends AstExpressionBase
 {
-    final AstExpression operand;
+    private final AstExpression operand;
 
     public PostIncrementOperator(AstExpression operand)
     {

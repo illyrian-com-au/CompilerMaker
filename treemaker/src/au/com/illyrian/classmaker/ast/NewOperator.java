@@ -65,6 +65,6 @@ public class NewOperator extends AstExpressionBase
 
     public String toString()
     {
-        return "new " + typeName + "(" + params + ")";
+        return "new " + typeName + "(" + (params == null ? "" : params) + ")";
     }
 }

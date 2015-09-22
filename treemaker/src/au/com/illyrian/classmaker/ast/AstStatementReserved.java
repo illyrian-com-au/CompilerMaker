@@ -29,43 +29,42 @@ package au.com.illyrian.classmaker.ast;
 
 import au.com.illyrian.classmaker.types.Type;
 
-
 public class AstStatementReserved extends AstExpressionBase
 {
-	public static final AstStatementReserved THIS = new AstStatementReserved("this");
-	public static final AstStatementReserved SUPER = new AstStatementReserved("super");
-	public static final AstStatementReserved NULL = new AstStatementReserved("null");
-	public final String reservedWord;
-	
-	public static AstStatementReserved lookup(String name)
-	{
-    	if (THIS.reservedWord.equals(name))
-    		return THIS;
-    	else if (SUPER.reservedWord.equals(name))
-    		return SUPER;
-    	else if (NULL.reservedWord.equals(name))
-    		return NULL;
-    	else
-    		throw new IllegalStateException("Unknown reserved word: " + name);
-	}
-	
+    public static final AstStatementReserved THIS = new AstStatementReserved("this");
+    public static final AstStatementReserved SUPER = new AstStatementReserved("super");
+    public static final AstStatementReserved NULL = new AstStatementReserved("null");
+    private final String reservedWord;
+
+    public static AstStatementReserved lookup(String name)
+    {
+        if (THIS.reservedWord.equals(name))
+            return THIS;
+        else if (SUPER.reservedWord.equals(name))
+            return SUPER;
+        else if (NULL.reservedWord.equals(name))
+            return NULL;
+        else
+            throw new IllegalStateException("Unknown reserved word: " + name);
+    }
+
     private AstStatementReserved(String reservedWord)
     {
-    	this.reservedWord = reservedWord;
+        this.reservedWord = reservedWord;
     }
-    
-//    public void resolveStatement(AstStructureVisitor visitor)
-//    {
-//        visitor.resolveStatement(this);
-//    }
-    
+
     public Type resolveType(AstExpressionVisitor visitor)
     {
         return visitor.resolveType(this);
     }
-    
+
+    public String getReservedWord()
+    {
+        return reservedWord;
+    }
+
     public String toString()
     {
-    	return reservedWord;
+        return reservedWord;
     }
 }

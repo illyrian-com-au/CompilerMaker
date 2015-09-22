@@ -31,7 +31,7 @@ import au.com.illyrian.classmaker.SourceLine;
 
 public class AstExpressionFactory 
 {
-    final SourceLine sourceLine;
+    private final SourceLine sourceLine;
     
     public AstExpressionFactory()
     {
@@ -41,6 +41,11 @@ public class AstExpressionFactory
     public AstExpressionFactory(SourceLine sourceLine)
     {
         this.sourceLine = sourceLine;
+    }
+    
+    public SourceLine getSourceLine() 
+    {
+        return sourceLine;
     }
 
     public TerminalName Name(String name)
@@ -240,17 +245,17 @@ public class AstExpressionFactory
 
     public ArrayIndex ArrayIndex(AstExpression left, AstExpression right)
     {
-        return new ArrayIndex(left, right);
+        return new ArrayIndex(left, right, sourceLine);
     }
 
     public AstExpression ArrayOf(AstExpression type) 
     {
-        return new ArrayOf(type, null);
+        return new ArrayOf(type, null, sourceLine);
     }
 
     public AstExpression ArrayOf(AstExpression type, AstExpression dimension) 
     {
-        return new ArrayOf(type, dimension);
+        return new ArrayOf(type, dimension, sourceLine);
     }
 
     public InstanceOfOperator InstanceOf(AstExpression left, AstExpression right)
