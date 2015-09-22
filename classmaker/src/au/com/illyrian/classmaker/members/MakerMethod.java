@@ -193,7 +193,7 @@ public class MakerMethod {
      * @param returnType return type of the method
      * @return the method signature
      */
-    private String createSignature(DeclaredType[] formalParameters, DeclaredType returnType)
+    String createSignature(DeclaredType[] formalParameters, DeclaredType returnType)
     {
         StringBuffer buf = new StringBuffer();
 

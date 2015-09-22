@@ -37,6 +37,7 @@ import au.com.illyrian.classmaker.ClassMakerException;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.types.ClassType;
+import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Type;
 
 public class MakerResolveMethodTest extends ClassMakerTestCase
@@ -489,4 +490,24 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
             assertEquals("Cannot resolve method call : " + signature, ex.getMessage());
         }
     }
+    
+    public void testFormalParameters()
+    {
+        MakerMethod method = new MakerMethod(null, null, null, (short)0);
+        DeclaredType voidDeclared = factory.typeToDeclaredType(ClassMaker.VOID_TYPE);
+        DeclaredType intDeclared = factory.typeToDeclaredType(ClassMaker.INT_TYPE);
+        assertEquals("Wrong default method", "()V", method.createSignature(ClassMakerFactory.DECLARED_TYPE_ARRAY, voidDeclared));
+        assertEquals("Wrong integer method", "()I", method.createSignature(ClassMakerFactory.DECLARED_TYPE_ARRAY, intDeclared));
+        DeclaredType[] emptyParam = {};
+        assertEquals("Wrong default method", "()V", method.createSignature(emptyParam, voidDeclared));
+        assertEquals("Wrong integer method", "()I", method.createSignature(emptyParam, intDeclared));
+        DeclaredType[] intParam = {intDeclared};
+        assertEquals("Wrong default method", "(I)V", method.createSignature(intParam, voidDeclared));
+        assertEquals("Wrong integer method", "(I)I", method.createSignature(intParam, intDeclared));
+        DeclaredType[] intIntParam = {intDeclared, intDeclared};
+        assertEquals("Wrong default method", "(II)V", method.createSignature(intIntParam, voidDeclared));
+        assertEquals("Wrong integer method", "(II)I", method.createSignature(intIntParam, intDeclared));
+    }
+
+
 }

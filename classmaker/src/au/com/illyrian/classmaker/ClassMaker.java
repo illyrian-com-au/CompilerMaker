@@ -347,6 +347,7 @@ public class ClassMaker implements ExpressionIfc
         setPackageName(packageName);
         setSimpleClassName(simpleName);
         setSourceFilename(sourceFile);
+        getDeclaredType();
     }
 
     /**
@@ -378,10 +379,10 @@ public class ClassMaker implements ExpressionIfc
     // Required properties
 
     /**
-     * Derives a name for the package from the name of the ClassMaker class.
+     * Provides a default name for the package.
      * </br>
-     * The default name will be the name of the Maker class with '<code>_$</code>' appended.
-     * @return the name of the generated class
+     * The default is to have no package name, but this method may be overridden.
+     * @return the name of the package
      */
     protected String defaultPackageName()
     {
@@ -389,22 +390,22 @@ public class ClassMaker implements ExpressionIfc
     }
 
     /**
-     * Sets the name of the class being generated.
+     * Sets the package name of the class being generated.
      * @param fullyQualifiedClassName the fully qualified name of the class
      * @throws ClassMakerException if it is too late to call this method
      */
     public void setPackageName(String packageName) throws ClassMakerException
-    { // FIXME change to Package
+    {
         if (cfw != null)
             throw createException("ClassMaker.ToLateToNameThePackage");
         this.packageName = packageName;
     }
 
     /**
-     * The fully qualified name of the generated class.
+     * The package name of the class being generated.
      * </br>
-     * Generates a class name if one has not been set explicitly.
-     * @see #defaultFullyQualifiedClassName()
+     * Returns the default package name if one has not been set explicitly.
+     * @see #defaultPackageName()
      * @return the name of the class
      */
     public String getPackageName()
@@ -415,9 +416,11 @@ public class ClassMaker implements ExpressionIfc
     }
 
     /**
-     * Derives a name for the generated class from the name of the ClassMaker class.
+     * Provides a default simple name for the class being generated.
      * </br>
+     * Derives a simple name from the name of the ClassMaker class.
      * The default name will be the name of the Maker class with '<code>_$</code>' appended.
+     * This method may be overridden to provide another default.
      * @return the name of the generated class
      */
     protected String defaultSimpleClassName()
@@ -426,7 +429,7 @@ public class ClassMaker implements ExpressionIfc
     }
 
     /**
-     * Sets the name of the class being generated.
+     * Sets the simple name of the class being generated.
      * @param className the fully qualified name of the class
      * @throws ClassMakerException if it is too late to call this method
      */
@@ -452,7 +455,7 @@ public class ClassMaker implements ExpressionIfc
     }
 
     /**
-     * Derives a name for the generated class from the name of the ClassMaker class.
+     * Provides a name for the generated class from the name of the ClassMaker class.
      * </br>
      * The default name will be the name of the Maker class with '<code>_$</code>' appended.
      * @return the name of the generated class
@@ -475,8 +478,7 @@ public class ClassMaker implements ExpressionIfc
         if (cfw != null)
             throw createException("ClassMaker.ToLateToNameTheFullyQualifiedClass");
         this.fullyQualifiedClassName = className;
-        //thisDeclaredType = getFactory().createDeclaredTypeForward(className);
-        thisDeclaredType = getFactory().createDeclaredTypeMaker(this);
+        getDeclaredType(); // thisDeclaredType = getFactory().createDeclaredTypeMaker(this);
     }
 
     /**
@@ -514,7 +516,7 @@ public class ClassMaker implements ExpressionIfc
         if (sourceLine != null)
             throw createException("ClassMaker.CannotSetSourceFilename");
         localSourceLine = new LocalSourceLine();
-        localSourceLine.setFilename(defaultSourceFilename());
+        localSourceLine.setFilename(filename);
         sourceLine = localSourceLine;
     }
 
@@ -585,7 +587,9 @@ public class ClassMaker implements ExpressionIfc
      */
     public DeclaredType getDeclaredType()
     {
-        return getFactory().typeToDeclaredType(getClassType());
+        if (thisDeclaredType == null)
+            thisDeclaredType = getFactory().createDeclaredTypeMaker(this);
+        return thisDeclaredType;
     }
 
     /**
@@ -8590,34 +8594,6 @@ public class ClassMaker implements ExpressionIfc
     }
 
     /**
-     * Creates a signature from the formal parameter types.
-     *
-     * @param formalParameters the formal parameters declared by the method
-     * @param returnType return type of the method
-     * @return the method signature
-     */
-    public static String createSignature(Type[] formalParameters, Type returnType)
-    {
-        StringBuffer buf = new StringBuffer();
-
-        if (formalParameters == null || formalParameters.length == 0)
-            buf.append("()");
-        else
-        {
-            buf.append('(');
-            for (int i = 0; i < formalParameters.length; i++)
-            {
-                String param = formalParameters[i].getSignature();
-                buf.append(param);
-            }
-            buf.append(')');
-        }
-        buf.append(returnType == null ? "V" : returnType.getSignature());
-
-        return buf.toString();
-    }
-
-    /**
      * Creates a formatted ClassMaker exception.
      * @param key the key to lookup in the resource bundle
      * @return a formatted ClassMakerException.
@@ -8690,10 +8666,10 @@ public class ClassMaker implements ExpressionIfc
 
         public void setFilename(String filename)
         {
-        	if (sourceFilename != null)
-        		throw new IllegalStateException("Filename cannot be set twice (old)" + sourceFilename
-        				+ " (new)" + filename);
-        	sourceFilename = filename;
+            if (sourceFilename != null)
+                throw new IllegalStateException("Filename cannot be set twice (old)" + sourceFilename + " (new)"
+                        + filename);
+            sourceFilename = filename;
         }
 
         /** 

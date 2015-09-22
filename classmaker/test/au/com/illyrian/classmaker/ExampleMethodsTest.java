@@ -314,7 +314,7 @@ public class ExampleMethodsTest extends TestCase
     
     public void testForwardDeclaration() throws Exception
     {
-		ClassMakerBase.setSharedFactory(null);
+        ClassMakerBase.setSharedFactory(null);
         ClassMakerFactory factory = new ClassMakerFactory();
         ClassMaker maker = factory.createClassMaker("test", "Unary", null);
         maker.Implements(Evaluate.class);

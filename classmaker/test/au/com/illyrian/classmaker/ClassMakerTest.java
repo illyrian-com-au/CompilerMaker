@@ -74,21 +74,6 @@ public class ClassMakerTest extends TestCase
         myClass.newInstance();
     }
 
-    public void testFormalParameters()
-    {
-        assertEquals("Wrong default method", "()V", ClassMaker.createSignature(ClassMakerFactory.TYPE_ARRAY, ClassMaker.VOID_TYPE));
-        assertEquals("Wrong integer method", "()I", ClassMaker.createSignature(ClassMakerFactory.TYPE_ARRAY, ClassMaker.INT_TYPE));
-        Type[] emptyParam = {};
-        assertEquals("Wrong default method", "()V", ClassMaker.createSignature(emptyParam, ClassMaker.VOID_TYPE));
-        assertEquals("Wrong integer method", "()I", ClassMaker.createSignature(emptyParam, ClassMaker.INT_TYPE));
-        Type[] intParam = {ClassMaker.INT_TYPE};
-        assertEquals("Wrong default method", "(I)V", ClassMaker.createSignature(intParam, ClassMaker.VOID_TYPE));
-        assertEquals("Wrong integer method", "(I)I", ClassMaker.createSignature(intParam, ClassMaker.INT_TYPE));
-        Type[] intIntParam = {ClassMaker.INT_TYPE, ClassMaker.INT_TYPE};
-        assertEquals("Wrong default method", "(II)V", ClassMaker.createSignature(intIntParam, ClassMaker.VOID_TYPE));
-        assertEquals("Wrong integer method", "(II)I", ClassMaker.createSignature(intIntParam, ClassMaker.INT_TYPE));
-    }
-
     public void testClassToName()
     {
         checkType("void", "V", void.class);
