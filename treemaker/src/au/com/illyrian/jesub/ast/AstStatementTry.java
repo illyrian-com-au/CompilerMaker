@@ -27,53 +27,52 @@
 
 package au.com.illyrian.jesub.ast;
 
-
 public class AstStatementTry extends AstCompoundBase
 {
-    AstStructure  catchClause = null;
-    AstStatementFinally  finallyClause = null;
-    
+    private AstStructure catchClause = null;
+    private AstStatementFinally finallyClause = null;
+
     public AstStatementTry()
     {
     }
-    
-    public AstStatementTry(AstStructure  tryCode, AstStructure catchCode, AstStatementFinally finallyCode)
+
+    public AstStatementTry(AstStructure tryCode, AstStructure catchCode, AstStatementFinally finallyCode)
     {
         setCode(tryCode);
         this.catchClause = catchCode;
         this.finallyClause = finallyCode;
     }
 
-    public AstStructure getCatch() 
+    public AstStructure getCatchClause()
     {
-		return catchClause;
-	}
+        return catchClause;
+    }
 
-	public void setCatch(AstStructure catchCode) 
-	{
-		this.catchClause = catchCode;
-	}
+    public void setCatchClause(AstStructure catchCode)
+    {
+        this.catchClause = catchCode;
+    }
 
-	public AstStatementFinally getFinally() 
-	{
-		return finallyClause;
-	}
+    public AstStatementFinally getFinallyClause()
+    {
+        return finallyClause;
+    }
 
-	public void setFinally(AstStatementFinally finallyCode) 
-	{
-		this.finallyClause = finallyCode;
-	}
+    public void setFinallyClause(AstStatementFinally finallyCode)
+    {
+        this.finallyClause = finallyCode;
+    }
 
-	public void resolveStatement(AstStructureVisitor visitor)
+    public void resolveStatement(AstStructureVisitor visitor)
     {
         visitor.resolveStatement(this);
     }
-    
+
     public String toString()
     {
-    	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
-    	String catchCode = (catchClause == null) ? "" : "" + catchClause;
-    	String finallyCode = (finallyClause == null) ? "" : "" + finallyClause;
-		return label +  "Try {\n "+ code + " } " + catchCode + finallyCode + ";";
+        String label = (getLabel() == null) ? "" : getLabel() + ": ";
+        String catchCode = (catchClause == null) ? "" : "" + catchClause;
+        String finallyCode = (finallyClause == null) ? "" : "" + finallyClause;
+        return label + "Try {\n " + getCode() + " } " + catchCode + finallyCode + ";";
     }
 }

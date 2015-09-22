@@ -27,45 +27,23 @@
 
 package au.com.illyrian.jesub.ast;
 
-
-
 public class AstStructureLink extends AstStructureBase
 {
     public final AstStructure left;
     public final AstStructure right;
-	
+
     public AstStructureLink(AstStructure left, AstStructure right)
     {
-    	if (left == null && right == null)
-    		throw new IllegalArgumentException("Both left and right structures must not be null");
+        if (left == null && right == null)
+            throw new IllegalArgumentException("Both left and right structures must not be null");
 
-    	this.left = left;
-    	this.right = right;
+        this.left = left;
+        this.right = right;
     }
-    
-//    public static AstStructure [] toArray(AstStructureLink link)
-//    {
-//    	if (link == null)
-//        	return new AstStructure [0];
-//    	else
-//    		return link.toArray(0);
-//    }
-//    
-//    private AstStructure [] toArray(int n)
-//    {
-//    	AstStructure [] result;
-//    	if (next == null) {
-//        	result = new AstStructure [n+1];
-//    	} else {
-//    		result = next.toArray(n+1);
-//    	}
-//    	result[n] = element;
-//    	return result;
-//    } 
-//    
+
     public void resolveDeclaration(AstStructureVisitor visitor)
     {
-         visitor.resolveDeclaration(this);
+        visitor.resolveDeclaration(this);
     }
 
     public void resolveStatement(AstStructureVisitor visitor)
@@ -75,26 +53,26 @@ public class AstStructureLink extends AstStructureBase
 
     public int size()
     {
-    	return (left == null ? 0 : left.size()) + (right == null ? 0 : right.size());
+        return (left == null ? 0 : left.size()) + (right == null ? 0 : right.size());
     }
-    
+
     public String toSignature()
     {
         if (left == null)
-                return right.toSignature();
+            return right.toSignature();
         else if (right == null)
-                return left.toSignature();
-        else 
-                return left.toSignature() + "\n" + right.toSignature();
+            return left.toSignature();
+        else
+            return left.toSignature() + "\n" + right.toSignature();
     }
 
     public String toString()
     {
-    	if (left == null)
-    		return "" + right;
-    	else if (right == null)
-    		return "" + left;
-    	else 
-    		return left + " " + right;
+        if (left == null)
+            return "" + right;
+        else if (right == null)
+            return "" + left;
+        else
+            return left + " " + right;
     }
 }

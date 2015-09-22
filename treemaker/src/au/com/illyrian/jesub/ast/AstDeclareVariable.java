@@ -32,9 +32,9 @@ import au.com.illyrian.classmaker.ast.TerminalName;
 
 public class AstDeclareVariable extends AstStructureBase
 {
-    TerminalName name;
-    AstExpression type;
-    AstModifiers modifiers;
+    private TerminalName name;
+    private AstExpression type;
+    private AstModifiers modifiers;
     
     public AstDeclareVariable(AstModifiers modifiers, AstExpression type, TerminalName name)
     {
@@ -54,6 +54,21 @@ public class AstDeclareVariable extends AstStructureBase
         visitor.resolveDeclaration(this);
     }
     
+    public TerminalName getName()
+    {
+        return name;
+    }
+
+    public AstExpression getType()
+    {
+        return type;
+    }
+
+    public AstModifiers getModifiers()
+    {
+        return modifiers;
+    }
+
     public String toSignature()
     {
         String modString = modifiers == null ? "" : modifiers + " ";

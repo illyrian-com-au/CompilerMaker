@@ -27,25 +27,25 @@
 
 package au.com.illyrian.jesub.ast;
 
-
 public class AstStatementCompound extends AstCompoundBase
 {
     public AstStatementCompound()
-    {}
+    {
+    }
 
     public AstStatementCompound(AstStructure code)
     {
         setCode(code);
     }
-    
-	public void resolveStatement(AstStructureVisitor visitor)
+
+    public void resolveStatement(AstStructureVisitor visitor)
     {
         visitor.resolveStatement(this);
     }
-    
+
     public String toString()
     {
-    	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
-		return label + "{\n" + code + "}\n";
+        String label = (getLabel() == null) ? "" : getLabel() + ": ";
+        return label + "{\n" + getCode() + "}\n";
     }
 }

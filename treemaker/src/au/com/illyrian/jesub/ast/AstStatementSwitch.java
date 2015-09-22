@@ -31,22 +31,27 @@ import au.com.illyrian.classmaker.ast.AstExpression;
 
 public class AstStatementSwitch extends AstCompoundBase
 {
-    final AstExpression expression;
-    
+    private final AstExpression expression;
+
     public AstStatementSwitch(AstExpression expression, AstStructure code)
     {
         this.expression = expression;
         setCode(code);
     }
-    
+
     public void resolveStatement(AstStructureVisitor visitor)
     {
         visitor.resolveStatement(this);
     }
-    
+
+    public AstExpression getExpression()
+    {
+        return expression;
+    }
+
     public String toString()
     {
-    	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
-		return label +  "switch (" + expression + ") {\n " + code + " };\n";
+        String label = (getLabel() == null) ? "" : getLabel() + ": ";
+        return label + "switch (" + expression + ") {\n " + getCode() + " };\n";
     }
 }

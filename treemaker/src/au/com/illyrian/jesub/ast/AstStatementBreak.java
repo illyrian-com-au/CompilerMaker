@@ -31,7 +31,7 @@ import au.com.illyrian.classmaker.ast.TerminalName;
 
 public class AstStatementBreak extends AstStructureBase
 {
-    final TerminalName label;
+    private final TerminalName label;
     
     public AstStatementBreak()
     {
@@ -48,6 +48,11 @@ public class AstStatementBreak extends AstStructureBase
         visitor.resolveStatement(this);
     }
     
+    public TerminalName getLabel()
+    {
+        return label;
+    }
+
     public String toString()
     {
     	return "break " + (label == null ? "" : label) + ";\n";

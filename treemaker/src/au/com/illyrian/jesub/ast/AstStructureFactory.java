@@ -64,6 +64,7 @@ public class AstStructureFactory extends AstExpressionFactory {
             AstExpression implementsList, AstStructure membersList) {
         AstDeclareClass declareClass = new AstDeclareClass(modifiers, name,
                 baseClass, implementsList, membersList);
+        declareClass.setSourceLine(getSourceLine());
         return declareClass;
     }
 
@@ -72,6 +73,7 @@ public class AstStructureFactory extends AstExpressionFactory {
             AstExpression implementsList) {
         AstDeclareClass declareClass = new AstDeclareClass(modifiers, name,
                 baseClass, implementsList, null);
+        declareClass.setSourceLine(getSourceLine());
         return declareClass;
     }
 
@@ -84,21 +86,25 @@ public class AstStructureFactory extends AstExpressionFactory {
             TerminalName name, AstStructure params, AstStructure code) {
         AstDeclareMethod declareMethod = new AstDeclareMethod(modifiers, type,
                 name, params, code);
+        declareMethod.setSourceLine(getSourceLine());
         return declareMethod;
     }
 
     public AstStatementReturn Return(AstExpression value) {
         AstStatementReturn stmt = new AstStatementReturn(value);
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
     public AstStatementEval Eval(AstExpression value) {
         AstStatementEval stmt = new AstStatementEval(value);
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
     public AstStatementCompound Compound() {
         AstStatementCompound stmt = new AstStatementCompound();
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
@@ -106,38 +112,45 @@ public class AstStructureFactory extends AstExpressionFactory {
             AstStructure thenStatement, AstStructure elseStatement) {
         AstStatementIf stmt = new AstStatementIf(condition, thenStatement,
                 elseStatement);
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
     public AstStatementWhile While(AstExpression condition,
             AstStructure bodyStatement) {
         AstStatementWhile stmt = new AstStatementWhile(condition, bodyStatement);
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
     public AstStatementFor For(AstExpression init, AstExpression cond,
             AstExpression step, AstStructure code) {
         AstStatementFor stmt = new AstStatementFor(init, cond, step, code);
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
     public AstStatementBreak Break() {
         AstStatementBreak stmt = new AstStatementBreak();
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
     public AstStructure Break(TerminalName name) {
         AstStatementBreak stmt = new AstStatementBreak(name);
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
     public AstStatementContinue Continue() {
         AstStatementContinue stmt = new AstStatementContinue();
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
     public AstStructure Continue(TerminalName name) {
         AstStatementContinue stmt = new AstStatementContinue(name);
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
@@ -153,16 +166,19 @@ public class AstStructureFactory extends AstExpressionFactory {
 
     public AstStatementSwitch Switch(AstExpression expression, AstStructure code) {
         AstStatementSwitch stmt = new AstStatementSwitch(expression, code);
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
     public AstStatementCase Case(TerminalNumber value) {
         AstStatementCase stmt = new AstStatementCase(value);
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
     public AstStatementDefault Default() {
         AstStatementDefault stmt = new AstStatementDefault();
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
@@ -170,17 +186,20 @@ public class AstStructureFactory extends AstExpressionFactory {
             AstStatementFinally finallyCode) {
         AstStatementTry stmt = new AstStatementTry(tryCode, catchCode,
                 finallyCode);
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
     public AstStatementCatch Catch(AstDeclareVariable exception,
             AstStructure catchCode) {
         AstStatementCatch stmt = new AstStatementCatch(exception, catchCode);
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 
     public AstStatementFinally Finally(AstStructure code) {
         AstStatementFinally stmt = new AstStatementFinally(code);
+        stmt.setSourceLine(getSourceLine());
         return stmt;
     }
 

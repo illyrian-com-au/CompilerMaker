@@ -31,7 +31,7 @@ import au.com.illyrian.classmaker.ast.AstExpression;
 
 public class AstStatementEval extends AstStructureBase
 {
-    final AstExpression expression;
+    private final AstExpression expression;
     
     public AstStatementEval(AstExpression expression)
     {
@@ -43,6 +43,11 @@ public class AstStatementEval extends AstStructureBase
         visitor.resolveStatement(this);
     }
     
+    public AstExpression getExpression()
+    {
+        return expression;
+    }
+
     public String toString()
     {
     	return expression + ";\n";

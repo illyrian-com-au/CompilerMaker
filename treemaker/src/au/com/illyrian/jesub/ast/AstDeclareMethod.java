@@ -32,23 +32,22 @@ import au.com.illyrian.classmaker.ast.TerminalName;
 
 public class AstDeclareMethod extends AstDeclareVariable
 {
-	AstStructure parameters = null;
-	AstStructure methodBody = null;
-    
+    private AstStructure parameters = null;
+    private AstStructure methodBody = null;
+
     public AstDeclareMethod(AstModifiers modifiers, AstExpression type, TerminalName name)
     {
         super(modifiers, type, name);
     }
 
-    public AstDeclareMethod(AstModifiers modifiers, AstExpression type, TerminalName name, 
-    		AstStructure params, AstStructure code)
+    public AstDeclareMethod(AstModifiers modifiers, AstExpression type, TerminalName name, AstStructure params,
+            AstStructure code)
     {
         super(modifiers, type, name);
         this.parameters = params;
         this.methodBody = code;
     }
 
-    
     public AstStructure getParameters()
     {
         return parameters;
@@ -58,16 +57,16 @@ public class AstDeclareMethod extends AstDeclareVariable
     {
         this.parameters = parameters;
     }
-    
+
     public AstDeclareMethod addParameter(AstDeclareVariable param)
     {
-    	if (parameters == null)
-    		parameters = param;
-    	else
-    		parameters = new AstStructureLink(parameters, param);
+        if (parameters == null)
+            parameters = param;
+        else
+            parameters = new AstStructureLink(parameters, param);
         return this;
     }
-    
+
     public AstStructure getMethodBody()
     {
         return methodBody;
@@ -80,10 +79,10 @@ public class AstDeclareMethod extends AstDeclareVariable
 
     public AstDeclareMethod add(AstStructure statement)
     {
-    	if (methodBody == null)
-    		methodBody = statement;
-    	else
-    		methodBody = new AstStructureLink(methodBody, statement);
+        if (methodBody == null)
+            methodBody = statement;
+        else
+            methodBody = new AstStructureLink(methodBody, statement);
         return this;
     }
 
@@ -91,10 +90,10 @@ public class AstDeclareMethod extends AstDeclareVariable
     {
         visitor.resolveDeclaration(this);
     }
-    
+
     public String toSignature()
     {
-    	return super.toSignature() + "(" + parameters + ")";
+        return super.toSignature() + "(" + parameters + ")";
     }
 
     public String toString()

@@ -31,9 +31,9 @@ import au.com.illyrian.classmaker.ast.TerminalName;
 
 public abstract class AstCompoundBase extends AstStructureBase
 {
-    protected AstStructure  code;
-    protected TerminalName label;
-    
+    private AstStructure code;
+    private  TerminalName label;
+
     public AstCompoundBase()
     {
         this.code = null;
@@ -44,31 +44,33 @@ public abstract class AstCompoundBase extends AstStructureBase
         this.code = code;
     }
 
-	public AstStructure getCode() 
-	{
-		return code;
-	}
-
-    public void setCode(AstStructure code) 
+    public AstStructure getCode()
     {
-		this.code = code;
-	}
+        return code;
+    }
 
-	public TerminalName getLabel() {
-		return label;
-	}
-
-	public AstCompoundBase setLabel(TerminalName label) {
-		this.label = label;
-		return this;
-	}
-
-	public AstCompoundBase add(AstStructure stmt)
+    public void setCode(AstStructure code)
     {
-		if (code == null)
-			code = stmt;
-		else
-			code = new AstStructureLink(code, stmt);
-    	return this;
+        this.code = code;
+    }
+
+    public TerminalName getLabel()
+    {
+        return label;
+    }
+
+    public AstCompoundBase setLabel(TerminalName label)
+    {
+        this.label = label;
+        return this;
+    }
+
+    public AstCompoundBase add(AstStructure stmt)
+    {
+        if (code == null)
+            code = stmt;
+        else
+            code = new AstStructureLink(code, stmt);
+        return this;
     }
 }

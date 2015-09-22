@@ -31,7 +31,7 @@ import au.com.illyrian.classmaker.ast.TerminalNumber;
 
 public class AstStatementCase extends AstStructureBase
 {
-    final TerminalNumber value;
+    private final TerminalNumber value;
     
     public AstStatementCase(TerminalNumber value)
     {
@@ -43,6 +43,11 @@ public class AstStatementCase extends AstStructureBase
         visitor.resolveStatement(this);
     }
     
+    public TerminalNumber getValue()
+    {
+        return value;
+    }
+
     public String toString()
     {
     	return "case " + value + ":\n";

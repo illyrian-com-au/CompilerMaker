@@ -27,21 +27,20 @@
 
 package au.com.illyrian.jesub.ast;
 
-
 public class AstStatementFinally extends AstCompoundBase
 {
     public AstStatementFinally(AstStructure code)
     {
-        this.code = code;
+        setCode(code);
     }
 
-	public void resolveStatement(AstStructureVisitor visitor)
+    public void resolveStatement(AstStructureVisitor visitor)
     {
         visitor.resolveStatement(this);
     }
-    
+
     public String toString()
     {
-    	return "finally {\n " + code + " }";
+        return "finally {\n " + getCode() + " }";
     }
 }

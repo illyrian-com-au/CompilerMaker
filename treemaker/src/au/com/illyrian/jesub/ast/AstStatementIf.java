@@ -32,10 +32,10 @@ import au.com.illyrian.classmaker.ast.TerminalName;
 
 public class AstStatementIf extends AstStructureBase
 {
-    AstExpression condition = null;
-    AstStructure thenCode = null;
-    AstStructure elseCode = null;
-    protected TerminalName label;
+    private AstExpression condition = null;
+    private AstStructure thenCode = null;
+    private AstStructure elseCode = null;
+    private TerminalName label;
 
     public AstStatementIf()
     {

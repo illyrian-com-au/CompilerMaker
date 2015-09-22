@@ -27,34 +27,33 @@
 
 package au.com.illyrian.jesub.ast;
 
-
 public class AstStatementCatch extends AstCompoundBase implements AstStructure
 {
     private final AstDeclareVariable exception;
-    
+
     public AstStatementCatch(AstDeclareVariable exception)
     {
-    	this.exception = exception;
-    }
-    
-    public AstStatementCatch(AstDeclareVariable exception, AstStructure catchCode)
-    {
-    	this.exception = exception;
-    	setCode(catchCode);
+        this.exception = exception;
     }
 
-    public AstDeclareVariable getException() 
+    public AstStatementCatch(AstDeclareVariable exception, AstStructure catchCode)
     {
-		return exception;
-	}
+        this.exception = exception;
+        setCode(catchCode);
+    }
+
+    public AstDeclareVariable getException()
+    {
+        return exception;
+    }
 
     public void resolveStatement(AstStructureVisitor visitor)
     {
         visitor.resolveStatement(this);
     }
-    
+
     public String toString()
     {
-    	return "catch (" + exception + ") {\n" + getCode() + "}";
+        return "catch (" + exception + ") {\n" + getCode() + "}";
     }
 }

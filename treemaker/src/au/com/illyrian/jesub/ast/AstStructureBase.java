@@ -27,9 +27,17 @@
 
 package au.com.illyrian.jesub.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 
-public class AstStructureBase /*extends AstExpressionBase*/ implements AstStructure
+
+public class AstStructureBase /*extends AstExpressionBase*/ implements AstStructure, SourceLine
 {
+    private String filename = null;
+    private int    lineNumber = 0;
+    
+    public AstStructureBase() {
+    }
+    
     public void resolveMember(AstStructureVisitor visitor)
     {
         throw new IllegalStateException("Cannot resolve Member: " + getClass().getSimpleName());
@@ -68,5 +76,24 @@ public class AstStructureBase /*extends AstExpressionBase*/ implements AstStruct
     public int size()
     {
     	return 1;
+    }
+    
+    public void setSourceLine(SourceLine sourceLine)
+    {
+        if (sourceLine != null)
+        {
+            filename = sourceLine.getFilename();
+            lineNumber = sourceLine.getLineNumber();
+        }
+    }
+    
+    public String getFilename()
+    {
+        return filename;
+    }
+
+    public int getLineNumber()
+    {
+        return lineNumber;
     }
 }

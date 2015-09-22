@@ -99,8 +99,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveImport(AstExpressionLink link)
     {
-        if (link != null)
-        {
+        if (link != null) {
             if (link.left != null)
                 link.left.resolveImport(this);
             if (link.right != null)
@@ -122,8 +121,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveImplements(AstExpressionLink link)
     {
-        if (link != null)
-        {
+        if (link != null) {
             if (link.left != null)
                 link.left.resolveImplements(this);
             if (link.right != null)
@@ -160,8 +158,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveDeclaration(AstStructureLink link)
     {
-        if (link != null)
-        {
+        if (link != null) {
             if (link.left != null)
                 link.left.resolveDeclaration(this);
             if (link.right != null)
@@ -171,12 +168,13 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveDeclaration(AstDeclareVariable member)
     {
+        sourceLine = member;
         try {
-            int modifiers = resolveModifiers(member.modifiers);
-            DeclaredType type = member.type.resolveDeclaredType(this);
-            if (type==null) 
-                throw new IllegalArgumentException("Cannot find declared type:" + member.type);
-            String name = member.name.resolvePath(this);
+            int modifiers = resolveModifiers(member.getModifiers());
+            DeclaredType type = member.getType().resolveDeclaredType(this);
+            if (type == null)
+                throw new IllegalArgumentException("Cannot find declared type:" + member.getType());
+            String name = member.getName().resolvePath(this);
             getMaker().Declare(name, type.getName(), modifiers);
         } catch (ClassMakerException ex) {
             addError(ex);
@@ -186,17 +184,18 @@ public class AstStructureVisitor extends AstExpressionVisitor
     public void resolveDeclaration(AstDeclareMethod method)
     {
         try {
-            int modifiers = method.modifiers.resolveModifiers(this);
-            String type = method.type.resolvePath(this);
-            String name = method.name.resolvePath(this);
+            int modifiers = method.getModifiers().resolveModifiers(this);
+            String type = method.getType().resolvePath(this);
+            String name = method.getName().resolvePath(this);
             getMaker().Method(name, type, modifiers);
-            if (method.parameters != null)
-                method.parameters.resolveDeclaration(this);
-            if (method.methodBody != null) {
+            if (method.getParameters() != null)
+                method.getParameters().resolveDeclaration(this);
+            if (method.getMethodBody() != null) {
                 getMaker().Begin();
-                // Do not process the body of the method if this is the first of two passes.
+                // Do not process the body of the method if this is the first of
+                // two passes.
                 if (getMaker().getPass() != ClassMaker.FIRST_PASS)
-                    method.methodBody.resolveStatement(this);
+                    method.getMethodBody().resolveStatement(this);
                 getMaker().End();
             } else
                 getMaker().Forward();
@@ -207,8 +206,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStructureLink link)
     {
-        if (link != null)
-        {
+        if (link != null) {
             if (link.left != null)
                 link.left.resolveStatement(this);
             if (link.right != null)
@@ -218,6 +216,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStatementReserved statement)
     {
+        sourceLine = statement;
         try {
             if (statement == AstStatementReserved.THIS)
                 getMaker().This();
@@ -235,7 +234,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
     public void resolveStatement(AstStatementEval statement)
     {
         try {
-            Type type = statement.expression.resolveType(this);
+            Type type = statement.getExpression().resolveType(this);
             getMaker().Eval(type);
         } catch (ClassMakerException ex) {
             addError(ex);
@@ -244,9 +243,10 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStatementReturn statement)
     {
+        sourceLine = statement;
         try {
-            if (statement.expression != null) {
-                Type type = statement.expression.resolveType(this);
+            if (statement.getExpression() != null) {
+                Type type = statement.getExpression().resolveType(this);
                 getMaker().Return(type);
             } else {
                 getMaker().Return();
@@ -260,12 +260,12 @@ public class AstStructureVisitor extends AstExpressionVisitor
     {
         try {
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
-            Type type = statement.condition.resolveType(this);
+            Type type = statement.getCondition().resolveType(this);
             getMaker().If(type).setLabel(label);
-            statement.thenCode.resolveStatement(this);
-            if (statement.elseCode != null) {
+            statement.getThenCode().resolveStatement(this);
+            if (statement.getElseCode() != null) {
                 getMaker().Else();
-                statement.elseCode.resolveStatement(this);
+                statement.getElseCode().resolveStatement(this);
             }
             getMaker().EndIf();
         } catch (ClassMakerException ex) {
@@ -275,10 +275,11 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStatementWhile statement)
     {
+        sourceLine = statement;
         try {
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
             getMaker().Loop().setLabel(label);
-            Type cond = statement.condition.resolveType(this);
+            Type cond = statement.getCondition().resolveType(this);
             getMaker().While(cond);
             statement.getCode().resolveStatement(this);
             getMaker().EndLoop();
@@ -289,6 +290,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStatementFor statement)
     {
+        sourceLine = statement;
         try {
             Type init = (statement.getInitialise() == null) ? null : statement.getInitialise().resolveType(this);
             ForWhile step1 = getMaker().For(init);
@@ -308,11 +310,12 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStatementBreak statement)
     {
+        sourceLine = statement;
         try {
-            if (statement.label == null)
+            if (statement.getLabel() == null)
                 getMaker().Break();
             else
-                getMaker().Break(statement.label.getName());
+                getMaker().Break(statement.getLabel().getName());
         } catch (ClassMakerException ex) {
             addError(ex);
         }
@@ -320,11 +323,12 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStatementContinue statement)
     {
+        sourceLine = statement;
         try {
-            if (statement.label == null)
+            if (statement.getLabel() == null)
                 getMaker().Continue();
             else
-                getMaker().Continue(statement.label.getName());
+                getMaker().Continue(statement.getLabel().getName());
         } catch (ClassMakerException ex) {
             addError(ex);
         }
@@ -334,7 +338,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
     {
         try {
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
-            Type cond = statement.expression.resolveType(this);
+            Type cond = statement.getExpression().resolveType(this);
             getMaker().Switch(cond).setLabel(label);
             statement.getCode().resolveStatement(this);
             getMaker().EndSwitch();
@@ -345,8 +349,9 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStatementCase statement)
     {
+        sourceLine = statement;
         try {
-            getMaker().Case(statement.value.intValue());
+            getMaker().Case(statement.getValue().intValue());
         } catch (ClassMakerException ex) {
             addError(ex);
         }
@@ -354,6 +359,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStatementDefault statement)
     {
+        sourceLine = statement;
         try {
             getMaker().Default();
         } catch (ClassMakerException ex) {
@@ -363,10 +369,11 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStatementCompound statement)
     {
+        sourceLine = statement;
         try {
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
             getMaker().Begin().setLabel(label);
-            statement.code.resolveStatement(this);
+            statement.getCode().resolveStatement(this);
             getMaker().End();
         } catch (ClassMakerException ex) {
             addError(ex);
@@ -379,10 +386,10 @@ public class AstStructureVisitor extends AstExpressionVisitor
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
             getMaker().Try().setLabel(label);
             statement.getCode().resolveStatement(this);
-            if (statement.catchClause != null)
-                statement.catchClause.resolveStatement(this);
-            if (statement.finallyClause != null)
-                statement.finallyClause.resolveStatement(this);
+            if (statement.getCatchClause() != null)
+                statement.getCatchClause().resolveStatement(this);
+            if (statement.getFinallyClause() != null)
+                statement.getFinallyClause().resolveStatement(this);
             getMaker().EndTry();
         } catch (ClassMakerException ex) {
             addError(ex);
@@ -391,10 +398,11 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStatementCatch catchClause)
     {
+        sourceLine = catchClause;
         try {
             AstDeclareVariable exception = catchClause.getException();
-            String exceptionName = exception.type.resolvePath(this);
-            String name = exception.name.getName();
+            String exceptionName = exception.getType().resolvePath(this);
+            String name = exception.getName().getName();
             getMaker().Catch(exceptionName, name);
 
             catchClause.getCode().resolveStatement(this);
@@ -405,6 +413,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStatementFinally finallyClause)
     {
+        sourceLine = finallyClause;
         try {
             getMaker().Finally();
             finallyClause.getCode().resolveStatement(this);

@@ -31,7 +31,7 @@ import au.com.illyrian.classmaker.ast.AstExpression;
 
 public class AstStatementWhile extends AstCompoundBase
 {
-    AstExpression condition = null;
+    private AstExpression condition = null;
     
     public AstStatementWhile()
     {
@@ -58,9 +58,21 @@ public class AstStatementWhile extends AstCompoundBase
         visitor.resolveStatement(this);
     }
     
+    public String getFilename()
+    {
+        return condition.getFilename();
+    }
+
+    public int getLineNumber()
+    {
+        // The line number for a While statement will be the bottom of the loop
+        // because that is when this instance is created, so use the line number of the condition instead.
+        return condition.getLineNumber();
+    }
+   
     public String toString()
     {
     	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
-		return label +  "while (" + condition + ")\n" + getCode();
+    	return label +  "while (" + condition + ")\n" + getCode();
     }
 }

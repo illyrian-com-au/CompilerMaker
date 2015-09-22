@@ -31,17 +31,17 @@ import au.com.illyrian.classmaker.ast.AstExpression;
 
 public class AstStatementFor extends AstCompoundBase
 {
-    AstExpression initialise = null;
-    AstExpression condition = null;
-    AstExpression increment = null;
-    
+    private AstExpression initialise = null;
+    private AstExpression condition = null;
+    private AstExpression increment = null;
+
     public AstStatementFor()
     {
     }
-    
+
     public AstStatementFor(AstExpression init, AstExpression cond, AstExpression step, AstStructure code)
     {
-    	super(code);
+        super(code);
         this.initialise = init;
         this.condition = cond;
         this.increment = step;
@@ -81,10 +81,22 @@ public class AstStatementFor extends AstCompoundBase
     {
         visitor.resolveStatement(this);
     }
-    
+
     public String toString()
     {
-    	String label = (getLabel() == null) ? "" :  getLabel() + ": ";
-		return label +  "for (" + initialise + "; " + condition + "; " + increment + ")\n " + code;
+        StringBuffer buf = new StringBuffer();
+        if (getLabel() != null)
+            buf.append(getLabel()).append(": ");
+        buf.append("for (");
+        if (initialise != null)
+            buf.append(initialise);
+        buf.append("; ");
+        if (condition != null)
+            buf.append(condition);
+        buf.append("; ");
+        if (increment == null)
+            buf.append(increment);
+        buf.append(")\n ").append(getCode());
+        return buf.toString();
     }
 }
