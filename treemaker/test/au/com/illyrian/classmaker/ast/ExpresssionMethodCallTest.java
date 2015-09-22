@@ -137,7 +137,7 @@ public class ExpresssionMethodCallTest extends TestCase
     public void testNew()
     {
         AstExpression ast = build.New(build.Name("String"), null);
-        assertEquals("Wrong toString()", "new String(null)", ast.toString());
+        assertEquals("Wrong toString()", "new String()", ast.toString());
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "ClassType(java.lang.String)", type.toString());
         assertEquals("Wrong output", "[New(java.lang.String).Init(null)]", buf.toString());

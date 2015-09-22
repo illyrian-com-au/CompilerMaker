@@ -476,7 +476,7 @@ public class ExpresssionBasicTest extends TestCase
                     "No special case for ExpressionTree type: DummyOperator", ex.getMessage());
         }
         
-        assertEquals("Wrong toString", "au.com.illyrian.classmaker.ast.AstExpressionVisitor", visitor.toString());
+        assertEquals("Wrong toString", "AstExpressionVisitor", visitor.toString());
     }
     
     public void testAstExpessionSourceLine()
