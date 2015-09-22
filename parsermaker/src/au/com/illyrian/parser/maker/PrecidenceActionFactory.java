@@ -39,7 +39,7 @@ import au.com.illyrian.parser.impl.PrecidenceAction;
 
 public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>, ParserConstants
 {
-	AstStructureFactory factory = new AstStructureFactory();
+    AstStructureFactory factory = new AstStructureFactory();
     
     public PrecidenceActionFactory()
     {

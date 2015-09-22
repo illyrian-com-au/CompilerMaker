@@ -22,7 +22,7 @@ public class ModuleActionMaker implements ModuleAction, ClassMakerLocation
     public void setClassMaker(ClassMaker classMaker) 
     {
     	maker = classMaker;
-	}
+    }
 
     public ClassMaker getClassMaker()
     {
