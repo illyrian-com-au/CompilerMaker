@@ -61,7 +61,7 @@ public class PrettyPrintWriter extends PrintWriter
     public void write(String s, int off, int len) 
     {
     	if (isStart)
-    		indent();
+    	    indent();
     	super.write(s,  off,  len);
     }
     
