@@ -34,19 +34,19 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     {
         PrecidenceParser<AstExpression> parser = new JavaOperatorPrecedenceParser<AstExpression>();
         parser.addPostfixOperator("(", ")", ParserConstants.CALL, 17, Operator.PARAMS);
-        parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY, true);
+        parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY);
         parser.addPostfixOperator("[", "]", ParserConstants.DOT, 16, Operator.BRACKET);
         parser.addPrefixOperator("-", ParserConstants.NEG, 15, Operator.PREFIX);
         parser.addPrefixOperator("(", ")", ParserConstants.CAST, 14, Operator.BRACKET);
-        parser.addInfixOperator("+", ParserConstants.ADD, 12, Operator.BINARY, true);
-        parser.addInfixOperator("-", ParserConstants.SUBT, 12, Operator.BINARY, true);
+        parser.addInfixOperator("+", ParserConstants.ADD, 12, Operator.BINARY);
+        parser.addInfixOperator("-", ParserConstants.SUBT, 12, Operator.BINARY);
 //        parser.addLedOperator("(", ")", ParserConstants.CALL, 17, Operator.PARAMS, true);
-//        parser.addLedOperator(".", ParserConstants.DOT, 16, Operator.BINARY, true);
+//        parser.addLedOperator(".", ParserConstants.DOT, 16, Operator.BINARY);
 //        parser.addLedOperator("[", "]", ParserConstants.DOT, 16, Operator.BRACKET, true);
 //        parser.addNudOperator("-", ParserConstants.NEG, 15, Operator.PREFIX, true);
 //        parser.addNudOperator("(", ")", ParserConstants.CAST, 14, Operator.BRACKET, true);
-//        parser.addLedOperator("+", ParserConstants.ADD, 12, Operator.BINARY, true);
-//        parser.addLedOperator("-", ParserConstants.SUBT, 12, Operator.BINARY, true);
+//        parser.addLedOperator("+", ParserConstants.ADD, 12, Operator.BINARY);
+//        parser.addLedOperator("-", ParserConstants.SUBT, 12, Operator.BINARY);
 
         PrecidenceActionFactory actions1 = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions1);

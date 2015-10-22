@@ -34,41 +34,41 @@ public class PrecidenceParser<Expr> extends ParserBase
         precidenceActions = actions;
     }
 
-    public Operator addInfixOperator(String name, int index, int precedence, int arity, boolean leftAssociative)
+    public Operator addInfixOperator(String name, int index, int precedence, int arity)
     {
-        return addLedOperator(name, null, index, precedence, arity, leftAssociative);
+        return addLedOperator(name, null, index, precedence, arity);
     }
     
     public Operator addPrefixOperator(String name, int index, int precedence, int arity)
     {
-        return addNudOperator(name, null, index, precedence, arity, true);
+        return addNudOperator(name, null, index, precedence, arity);
     }
     
     public Operator addPrefixOperator(String leftName, String rightName, int index, int precedence, int arity)
     {
-        return addNudOperator(leftName, rightName, index, precedence, arity, true);
+        return addNudOperator(leftName, rightName, index, precedence, arity);
     }
     
     public Operator addPostfixOperator(String name, int index, int precedence, int arity)
     {
-        return addLedOperator(name, null, index, precedence, arity, true);
+        return addLedOperator(name, null, index, precedence, arity);
     }
     
     public Operator addPostfixOperator(String leftName, String rightName, int index, int precedence, int arity)
     {
-        return addLedOperator(leftName, rightName, index, precedence, arity, true);
+        return addLedOperator(leftName, rightName, index, precedence, arity);
     }
     
-    protected Operator addNudOperator(String leftName, String rightName, int index, int precedence, int arity, boolean leftAssociative)
+    protected Operator addNudOperator(String leftName, String rightName, int index, int precedence, int arity)
     {
-        Operator op = new Operator(leftName, rightName, index, precedence, arity, leftAssociative);
+        Operator op = new Operator(leftName, rightName, index, precedence, arity);
         nudOperators.put(leftName, op);
         return op;
     }
     
-    protected Operator addLedOperator(String leftName, String rightName, int index, int precedence, int arity, boolean leftAssociative)
+    protected Operator addLedOperator(String leftName, String rightName, int index, int precedence, int arity)
     {
-        Operator op = new Operator(leftName, rightName, index, precedence, arity, leftAssociative);
+        Operator op = new Operator(leftName, rightName, index, precedence, arity);
         ledOperators.put(leftName, op);
         return op;
     }
@@ -127,9 +127,12 @@ public class PrecidenceParser<Expr> extends ParserBase
     {
         if (operator.mode == Operator.BINARY)
         {
-            int nextPrecedence = operator.leftAssociative ? 
-                   operator.precedence + 1 : operator.precedence;
-            Expr rightOperand = expression(nextPrecedence);
+            Expr rightOperand = expression(operator.precedence + 1);
+            leftOperand = getPrecidenceActions().infixAction(operator, leftOperand, rightOperand);
+        }
+        else if (operator.mode == Operator.BINARYRIGHT)
+        {
+            Expr rightOperand = expression(operator.precedence);
             leftOperand = getPrecidenceActions().infixAction(operator, leftOperand, rightOperand);
         }
         else if (operator.mode == Operator.POSTFIX)

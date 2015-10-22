@@ -24,13 +24,13 @@ public class CastingParserMakerTest extends ClassMakerTestCase
     PrecidenceParser createParser()
     {
         PrecidenceParser<AstExpression> parser = new JavaOperatorPrecedenceParser<AstExpression>();
-        parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY, true);
+        parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY);
         parser.addPostfixOperator("(", ")", ParserConstants.DOT, 16, Operator.BRACKET);
         parser.addPostfixOperator("[", "]", ParserConstants.DOT, 16, Operator.BRACKET);
         parser.addPrefixOperator("-", ParserConstants.NEG, 15, Operator.PREFIX);
         parser.addPrefixOperator("(", ")", ParserConstants.DOT, 14, Operator.BRACKET);
-        parser.addInfixOperator("+", ParserConstants.ADD, 12, Operator.BINARY, true);
-        parser.addInfixOperator("-", ParserConstants.SUBT, 12, Operator.BINARY, true);
+        parser.addInfixOperator("+", ParserConstants.ADD, 12, Operator.BINARY);
+        parser.addInfixOperator("-", ParserConstants.SUBT, 12, Operator.BINARY);
 
         PrecidenceActionFactory actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);

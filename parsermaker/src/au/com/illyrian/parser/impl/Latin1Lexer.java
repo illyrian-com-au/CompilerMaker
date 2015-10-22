@@ -28,37 +28,39 @@ import au.com.illyrian.parser.Lexer;
  * <li>OPEN_DELIM - ({[</li>
  * <li>CLOSE_DELIM - )}]</li>
  * <li>OPERATOR - Sequence of one or more delimiters</li>
- * <li>STRING - " any " </li>
+ * <li>STRING - " any "</li>
  * <li>RESERVED - An Identifier with special meaning</li>
  * </ul>
  * <p>
- * Identifiers start with an alphabetic character and may include any number of alphanumeric characters. <br>
- * Identifiers are case sensitive while reserved words (AND and OR) are <b>not</b> case sensitive.
+ * Identifiers start with an alphabetic character and may include any number of
+ * alphanumeric characters. <br>
+ * Identifiers are case sensitive while reserved words (AND and OR) are
+ * <b>not</b> case sensitive.
  *
  * @author strongd
  */
 public class Latin1Lexer implements Lexer
 {
     /** The last read token. Modified by nextToken() */
-    private int    token      = 0;
+    private int token = 0;
 
     private Input input = null;
-    
+
     /** Whitespace before the current token */
     private String whitespace;
 
     /** The characters in a string or char excluding the quotes. */
     private String tokenString;
-    
+
     /** The quote character that surrounded the string. */
     private char tokenDelimiter;
-    
+
     private String errorMessage;
-    
+
     /**
      * End of line character. (Used internally).
      */
-    protected static final char EOL       = '\n';
+    protected static final char EOL = '\n';
 
     /**
      * A map from reserved word to an object.
@@ -73,7 +75,8 @@ public class Latin1Lexer implements Lexer
     /**
      * Constructor for Search Query Tokeniser.
      *
-     * @param input the string to be tokenised.
+     * @param input
+     *            the string to be tokenised.
      */
     public Latin1Lexer()
     {
@@ -82,7 +85,8 @@ public class Latin1Lexer implements Lexer
     /**
      * Constructor for Search Query Tokeniser.
      *
-     * @param input the string to be tokenised.
+     * @param input
+     *            the string to be tokenised.
      */
     public Latin1Lexer(Input input)
     {
@@ -93,8 +97,10 @@ public class Latin1Lexer implements Lexer
     {
         this.input = input;
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see au.com.illyrian.parser.Lexer#getLexerInput()
      */
     public Input getLexerInput()
@@ -106,10 +112,10 @@ public class Latin1Lexer implements Lexer
     {
         return token;
     }
-    
+
     public void setReservedWords(Properties reservedWords)
     {
-    	this.reservedWords = reservedWords;
+        this.reservedWords = reservedWords;
     }
 
     public Properties getReservedWords()
@@ -118,19 +124,19 @@ public class Latin1Lexer implements Lexer
             reservedWords = new Properties();
         return reservedWords;
     }
-    
+
     public void setOperators(Properties operators)
     {
-    	this.operators = operators;
+        this.operators = operators;
     }
-    
+
     public Properties getOperators()
     {
         if (operators == null)
             operators = new Properties();
         return operators;
     }
-    
+
     /**
      * Get the whitespace before the current token.
      *
@@ -138,12 +144,17 @@ public class Latin1Lexer implements Lexer
      */
     public String getWhitespace()
     {
-    	return whitespace;
+        return whitespace;
     }
 
-    public Lexer clone() {return null;}
+    public Lexer clone()
+    {
+        return null;
+    }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see au.com.illyrian.parser.Lexer#getTokenString()
      */
     public String getTokenValue()
@@ -155,7 +166,7 @@ public class Latin1Lexer implements Lexer
     {
         return tokenString;
     }
-    
+
     public char getTokenDelimiter()
     {
         return tokenDelimiter;
@@ -165,35 +176,42 @@ public class Latin1Lexer implements Lexer
     {
         return errorMessage;
     }
-    
+
     public Integer getTokenInteger()
     {
-        if (token == INTEGER)
+        if (token == INTEGER) {
             return Integer.valueOf(input.getTokenString());
-        else
+        } else {
             throw new NumberFormatException("Token is not an Integer");
+        }
     }
 
     public Float getTokenFloat()
     {
-        if (token == DECIMAL)
+        if (token == DECIMAL) {
             return Float.valueOf(input.getTokenString());
-        else
+        } else {
             throw new NumberFormatException("Token is not a decimal number");
+        }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see au.com.illyrian.parser.Lexer#getTokenString()
      */
     public Object getTokenOperator()
     {
-        if (token == OPERATOR)
+        if (token == OPERATOR) {
             return getOperators().get(input.getTokenString());
-        else
+        } else {
             throw new IllegalStateException("Token is not an Operator");
+        }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see au.com.illyrian.parser.Lexer#getStart()
      */
     public int getStart()
@@ -201,7 +219,9 @@ public class Latin1Lexer implements Lexer
         return input.getTokenStart();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see au.com.illyrian.parser.Lexer#getFinish()
      */
     public int getFinish()
@@ -209,39 +229,42 @@ public class Latin1Lexer implements Lexer
         return input.getTokenFinish();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see au.com.illyrian.parser.Lexer#nextToken()
      */
     public int nextToken()
     {
         if (input == null)
             throw new NullPointerException("Input is null.");
-        
+
         // Move over any whitespace before the token.
         spanWhiteSpace();
 
         // Now examine the start character.
         char ch = input.startChar();
-        if (ch == Input.NULL)
+        if (ch == Input.NULL) {
             token = END;
-        else if (isIdentifierStartChar(ch))
-        	token = spanIdentifier();
-        else if (isDigitChar(ch))
+        } else if (isIdentifierStartChar(ch)) {
+            token = spanIdentifier();
+        } else if (isDigitChar(ch)) {
             token = spanNumber();
-        else if (isOperator(ch))
+        } else if (isOperator(ch)) {
             token = spanOperator();
-        else if (isDelimiter(ch))
-        	token = spanCharacter(DELIMITER);
-        else if (isOpenP(ch))
-        	token = spanCharacter(OPEN_P);
-        else if (isCloseP(ch))
-        	token = spanCharacter(CLOSE_P);
-        else if (isQuote(ch))
-        	token = spanStringLiteral();
-        else if (isCharacterQuote(ch))
+        } else if (isDelimiter(ch)) {
+            token = spanCharacter(DELIMITER);
+        } else if (isOpenP(ch)) {
+            token = spanCharacter(OPEN_P);
+        } else if (isCloseP(ch)) {
+            token = spanCharacter(CLOSE_P);
+        } else if (isQuote(ch)) {
+            token = spanStringLiteral();
+        } else if (isCharacterQuote(ch)) {
             token = spanCharLiteral();
-        else
+        } else {
             this.token = ERROR;
+        }
 
         return this.token;
     }
@@ -251,9 +274,9 @@ public class Latin1Lexer implements Lexer
      */
     int spanCharacter(int state)
     {
-    	char ch = input.startChar();  // Mark start of token
-    	ch = input.nextChar();
-    	return state;
+        char ch = input.startChar(); // Mark start of token
+        ch = input.nextChar();
+        return state;
     }
 
     /**
@@ -261,17 +284,14 @@ public class Latin1Lexer implements Lexer
      */
     int spanCharLiteral()
     {
-        char ch = input.startChar();  // Mark start of token
-        if (isCharacterQuote(ch))
-        {
+        char ch = input.startChar(); // Mark start of token
+        if (isCharacterQuote(ch)) {
             tokenDelimiter = ch;
             ch = input.nextChar();
-            if (!isCharacterQuote(ch))
-            {
-                tokenString = String.valueOf(ch);   // Step over character
+            if (!isCharacterQuote(ch)) {
+                tokenString = String.valueOf(ch); // Step over character
                 ch = input.nextChar();
-                if (isCharacterQuote(ch) && tokenDelimiter == ch)
-                {
+                if (isCharacterQuote(ch) && tokenDelimiter == ch) {
                     ch = input.nextChar();
                     return CHARACTER;
                 }
@@ -288,20 +308,17 @@ public class Latin1Lexer implements Lexer
     int spanStringLiteral()
     {
         StringBuffer buf = new StringBuffer();
-        char ch = input.startChar();  // Mark start of token
-        if (isQuote(ch))
-        {
+        char ch = input.startChar(); // Mark start of token
+        if (isQuote(ch)) {
             tokenDelimiter = ch;
             ch = input.nextChar();
-            while (!isQuote(ch))
-            {
+            while (!isQuote(ch)) {
                 if (ch == END)
                     break;
                 buf.append(ch);
                 ch = input.nextChar();
             }
-            if (ch == tokenDelimiter)
-            {
+            if (ch == tokenDelimiter) {
                 ch = input.nextChar();
                 tokenString = buf.toString();
                 return STRING;
@@ -317,29 +334,25 @@ public class Latin1Lexer implements Lexer
     protected void spanWhiteSpace()
     {
         char ch = input.startChar();
-    	if (isWhitespace(ch) || isStartComment(ch))
-    	{
-	        while (isWhitespace(ch) || isStartComment(ch))
-	        {
-	            if (isStartComment(ch))
-	            {
-	                spanComment();
-	                ch = input.nextChar();
-	            }
-	            else
-	            	ch = input.nextChar();
-	        }
-	        whitespace = getTokenValue();
-    	}
-    	else
-    	{
-    		whitespace = "";
-    	}
+        if (isWhitespace(ch) || isStartComment(ch)) {
+            while (isWhitespace(ch) || isStartComment(ch)) {
+                if (isStartComment(ch)) {
+                    spanComment();
+                    ch = input.nextChar();
+                } else {
+                    ch = input.nextChar();
+                }
+            }
+            whitespace = getTokenValue();
+        } else {
+            whitespace = "";
+        }
     }
 
     /**
-     * Span the current identifier in the input string. Determine whether the identifier is a reserved word. The text
-     * for the token will be available through getTokenString().
+     * Span the current identifier in the input string. Determine whether the
+     * identifier is a reserved word. The text for the token will be available
+     * through getTokenString().
      *
      * @return the code for the identifier or reserved word.
      */
@@ -347,85 +360,76 @@ public class Latin1Lexer implements Lexer
     {
         char ch = input.startChar();
         {
-	        // Move the finish pointer just past the end of the identifier.
-	        while (isIdentifierChar(ch))
-	        {
-	            ch = input.nextChar();
-	        }
+            // Move the finish pointer just past the end of the identifier.
+            while (isIdentifierChar(ch)) {
+                ch = input.nextChar();
+            }
         }
         // Examine the identifier to determine if it is a reserved word.
-        if (reservedWords != null)
-        {
-	        String identifier = getTokenValue();
-	        if (getReservedWords().getProperty(identifier) != null)
-	        {
-	            if (getOperators().getProperty(identifier) != null)
-	            {
-	                return OPERATOR;
-	            }
-	            return RESERVED;
-	        }
+        if (reservedWords != null) {
+            String identifier = getTokenValue();
+            if (getReservedWords().getProperty(identifier) != null) {
+                if (getOperators().getProperty(identifier) != null) {
+                    return OPERATOR;
+                }
+                return RESERVED;
+            }
         }
         return IDENTIFIER;
     }
 
     /**
-     * Span a sequence of operators in the input string.
-     * Determine whether the operator is valid. The text
-     * for the token will be available through getTokenString().
+     * Span a sequence of digits in the input string. Determine whether the
+     * number is valid. The text for the token will be available through
+     * getTokenValue().
      *
      * @return the code for the operator or delimiter.
      */
     public int spanNumber()
     {
         char ch = input.startChar();
-        while (isDigitChar(ch))
-        {
+        while (isDigitChar(ch)) {
             ch = input.nextChar();
         }
         if (ch != '.')
-        	return INTEGER;
+            return INTEGER;
         ch = input.nextChar();
-        while (isDigitChar(ch))
-        {
+        while (isDigitChar(ch)) {
             ch = input.nextChar();
         }
         return DECIMAL;
     }
 
     /**
-     * Span a sequence of operators in the input string.
-     * Determine whether the operator is valid. The text
-     * for the token will be available through getTokenString().
+     * Span a sequence of operators in the input string. Determine whether the
+     * operator is valid. The text for the token will be available through
+     * getTokenString().
      *
      * @return the code for the operator or delimiter.
      */
     public int spanOperator()
     {
         char ch = input.startChar();
-        while (isOperator(ch))
-        {
+        while (isOperator(ch)) {
             ch = input.nextChar();
         }
         return OPERATOR;
     }
 
     /**
-     * Span a sequence of operators in the input string.
-     * Determine whether the operator is valid. The text
-     * for the token will be available through getTokenString().
+     * Span a sequence of operators in the input string. Determine whether the
+     * operator is valid. The text for the token will be available through
+     * getTokenString().
      *
      * @return the code for the operator or delimiter.
      */
     public int spanString()
     {
         char ch = input.startChar();
-        if (isQuote(ch))
-        {
+        if (isQuote(ch)) {
             ch = input.nextChar();
-        
-            while (!isQuote(ch))
-            {
+
+            while (!isQuote(ch)) {
                 ch = input.nextChar();
             }
         }
@@ -433,8 +437,8 @@ public class Latin1Lexer implements Lexer
     }
 
     /**
-     * Span a comment.
-     * The text for the token will be available through getTokenString().
+     * Span a comment. The text for the token will be available through
+     * getTokenString().
      *
      * @return the code for the operator or delimiter.
      */
@@ -442,53 +446,52 @@ public class Latin1Lexer implements Lexer
     {
         // Move the start pointer past the end of line.
         char ch = input.startChar();
-        while (ch != Input.NULL && ch != EOL)
-        {
+        while (ch != Input.NULL && ch != EOL) {
             ch = input.nextChar();
         }
         return this.getTokenValue();
     }
 
     /**
-     * Span a comment.
-     * The text for the token will be available through getTokenString().
+     * Span a comment. The text for the token will be available through
+     * getTokenString().
      *
      * @return the code for the operator or delimiter.
      */
     public String spanToEndOfLine()
     {
         char ch = input.peekChar();
-        while (ch != Input.NULL && ch != EOL)
-        {
+        while (ch != Input.NULL && ch != EOL) {
             ch = input.nextChar();
         }
         return this.getTokenValue();
     }
-    
+
     int error(String message)
     {
         errorMessage = message;
         return ERROR;
     }
 
-    //#### character tests ####
-    
+    // #### character tests ####
+
     /**
      * Determine whether the character is a white space character.
      *
-     * @param ch the character to be tested.
+     * @param ch
+     *            the character to be tested.
      * @return true if the character is a digit.
      */
     public boolean isWhitespace(char ch)
     {
-    	return Character.isWhitespace(ch);
+        return Character.isWhitespace(ch);
     }
-    
+
     /**
      * Determine whether the character is a digit.
      *
-     * @param ch -
-     *            the character to be tested.
+     * @param ch
+     *            - the character to be tested.
      * @return true if the character is a digit.
      */
     public boolean isDigitChar(char ch)
@@ -499,8 +502,8 @@ public class Latin1Lexer implements Lexer
     /**
      * Determine whether the character is suitable in an identifier.
      *
-     * @param ch -
-     *            the character to be tested.
+     * @param ch
+     *            - the character to be tested.
      * @return true if the character is a letter or digit.
      */
     public boolean isIdentifierChar(char ch)
@@ -509,10 +512,11 @@ public class Latin1Lexer implements Lexer
     }
 
     /**
-     * Determine whether the character is suitable as the first character of an identifier.
+     * Determine whether the character is suitable as the first character of an
+     * identifier.
      *
-     * @param ch -
-     *            the character to be tested.
+     * @param ch
+     *            - the character to be tested.
      * @return true if the character is a letter.
      */
     public boolean isIdentifierStartChar(char ch)
@@ -552,26 +556,25 @@ public class Latin1Lexer implements Lexer
 
     public boolean isOperator(char ch)
     {
-        switch (ch)
-        {
-        case '+' :
-        case '-' :
-        case '*' :
-        case '/' :
-        case '=' :
-        case '%' :
-        case '&' :
-        case '|' :
-        case '<' :
-        case '>' :
-        case '.' :
-        case '?' :
-        case '!' :
-        case '~' :
-        case '^' :
-        case ':' :
+        switch (ch) {
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '=':
+        case '%':
+        case '&':
+        case '|':
+        case '<':
+        case '>':
+        case '.':
+        case '?':
+        case '!':
+        case '~':
+        case '^':
+        case ':':
             return true;
-        default :
+        default:
             return false;
         }
     }
@@ -595,9 +598,10 @@ public class Latin1Lexer implements Lexer
     {
         return input.getSourceFilename();
     }
-    
+
     /**
      * The line number
+     * 
      * @return the line number or 0 if not reading from a source file
      */
     public int getLineNumber()
@@ -607,8 +611,7 @@ public class Latin1Lexer implements Lexer
 
     public String toErrorString(int token, String value)
     {
-        switch (token)
-        {
+        switch (token) {
         case END:
             return "End of input expected";
         case OPEN_P:
@@ -634,8 +637,7 @@ public class Latin1Lexer implements Lexer
 
     public String toString()
     {
-        switch (token)
-        {
+        switch (token) {
         case END:
             return "END";
         case IDENTIFIER:

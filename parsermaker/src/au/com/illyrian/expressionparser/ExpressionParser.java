@@ -66,7 +66,7 @@ public class ExpressionParser extends PrecidenceParser
     
     protected void populateOperators()
     {
-        addInfixOperator("**", ParserConstants.POW, 16, Operator.BINARY, false);
+        addInfixOperator("**", ParserConstants.POW, 16, Operator.BINARYRIGHT);
         addPostfixOperator("--", ParserConstants.POSTDEC, 15, Operator.POSTFIX);
         addPostfixOperator("++", ParserConstants.POSTINC, 15, Operator.POSTFIX);
         addPrefixOperator("-", ParserConstants.NEG, 14, Operator.PREFIX);
@@ -76,25 +76,25 @@ public class ExpressionParser extends PrecidenceParser
         addPrefixOperator("~", ParserConstants.INV, 14, Operator.PREFIX);
         addPrefixOperator("!", ParserConstants.NOT, 14, Operator.PREFIX);
         addPrefixOperator("new", ParserConstants.NEW, 13, Operator.PREFIX);
-        addInfixOperator("*", ParserConstants.MULT, 12, Operator.BINARY, true);
-        addInfixOperator("/", ParserConstants.DIV, 12, Operator.BINARY, true);
-        addInfixOperator("%", ParserConstants.REM, 12, Operator.BINARY, true);
-        addInfixOperator("+", ParserConstants.ADD, 11, Operator.BINARY, true);
-        addInfixOperator("-", ParserConstants.SUBT, 11, Operator.BINARY, true);
-        addInfixOperator("<<", ParserConstants.SHL, 10, Operator.BINARY, true);
-        addInfixOperator(">>", ParserConstants.SHR, 10, Operator.BINARY, true);
-        addInfixOperator(">>>", ParserConstants.USHR, 10, Operator.BINARY, true);
-        addInfixOperator("<", ParserConstants.LT, 9, Operator.BINARY, true);
-        addInfixOperator(">", ParserConstants.GT, 9, Operator.BINARY, true);
-        addInfixOperator("<=", ParserConstants.LE, 9, Operator.BINARY, true);
-        addInfixOperator(">=", ParserConstants.GE, 9, Operator.BINARY, true);
-        addInfixOperator("==", ParserConstants.EQ, 8, Operator.BINARY, true);
-        addInfixOperator("!=", ParserConstants.NE, 8, Operator.BINARY, true);
-        addInfixOperator("instanceof", ParserConstants.INSTANCEOF, 8, Operator.BINARY, true);
-        addInfixOperator("&", ParserConstants.AND, 7, Operator.BINARY, true);
-        addInfixOperator("^", ParserConstants.XOR, 6, Operator.BINARY, true);
-        addInfixOperator("|", ParserConstants.OR, 5, Operator.BINARY, true);
-        addInfixOperator("=", ParserConstants.ASSIGN, 1, Operator.BINARY, false);
+        addInfixOperator("*", ParserConstants.MULT, 12, Operator.BINARY);
+        addInfixOperator("/", ParserConstants.DIV, 12, Operator.BINARY);
+        addInfixOperator("%", ParserConstants.REM, 12, Operator.BINARY);
+        addInfixOperator("+", ParserConstants.ADD, 11, Operator.BINARY);
+        addInfixOperator("-", ParserConstants.SUBT, 11, Operator.BINARY);
+        addInfixOperator("<<", ParserConstants.SHL, 10, Operator.BINARY);
+        addInfixOperator(">>", ParserConstants.SHR, 10, Operator.BINARY);
+        addInfixOperator(">>>", ParserConstants.USHR, 10, Operator.BINARY);
+        addInfixOperator("<", ParserConstants.LT, 9, Operator.BINARY);
+        addInfixOperator(">", ParserConstants.GT, 9, Operator.BINARY);
+        addInfixOperator("<=", ParserConstants.LE, 9, Operator.BINARY);
+        addInfixOperator(">=", ParserConstants.GE, 9, Operator.BINARY);
+        addInfixOperator("==", ParserConstants.EQ, 8, Operator.BINARY);
+        addInfixOperator("!=", ParserConstants.NE, 8, Operator.BINARY);
+        addInfixOperator("instanceof", ParserConstants.INSTANCEOF, 8, Operator.BINARY);
+        addInfixOperator("&", ParserConstants.AND, 7, Operator.BINARY);
+        addInfixOperator("^", ParserConstants.XOR, 6, Operator.BINARY);
+        addInfixOperator("|", ParserConstants.OR, 5, Operator.BINARY);
+        addInfixOperator("=", ParserConstants.ASSIGN, 1, Operator.BINARYRIGHT);
     }
 
     public void addOperator(String name, Object value)

@@ -23,14 +23,14 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
     PrecidenceParser createParser()
     {
         PrecidenceParser<AstExpression> parser = new PrecidenceParser<AstExpression>();
-        parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY, true);
+        parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY);
         parser.addPrefixOperator("-", ParserConstants.NEG, 14, Operator.PREFIX);
-        parser.addInfixOperator("*", ParserConstants.MULT, 12, Operator.BINARY, true);
-        parser.addInfixOperator("/", ParserConstants.DIV, 12, Operator.BINARY, true);
-        parser.addInfixOperator("%", ParserConstants.REM, 12, Operator.BINARY, true);
-        parser.addInfixOperator("+", ParserConstants.ADD, 11, Operator.BINARY, true);
-        parser.addInfixOperator("-", ParserConstants.SUBT, 11, Operator.BINARY, true);
-        parser.addInfixOperator("=", ParserConstants.ASSIGN, 1, Operator.BINARY, false);
+        parser.addInfixOperator("*", ParserConstants.MULT, 12, Operator.BINARY);
+        parser.addInfixOperator("/", ParserConstants.DIV, 12, Operator.BINARY);
+        parser.addInfixOperator("%", ParserConstants.REM, 12, Operator.BINARY);
+        parser.addInfixOperator("+", ParserConstants.ADD, 11, Operator.BINARY);
+        parser.addInfixOperator("-", ParserConstants.SUBT, 11, Operator.BINARY);
+        parser.addInfixOperator("=", ParserConstants.ASSIGN, 1, Operator.BINARYRIGHT);
         PrecidenceActionFactory actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
         return parser;

@@ -6,35 +6,33 @@ public class Operator
     public static final int PREFIX = 1;
     public static final int POSTFIX = 2;
     public static final int BINARY = 4;
-    public static final int TERNARY = 8;
-    public static final int BRACKET = 16;
-    public static final int PARAMS = 32;
+    public static final int BINARYRIGHT = 8;
+    public static final int TERNARY = 16;
+    public static final int BRACKET = 32;
+    public static final int PARAMS = 64;
 
     public final String name;
     public final int index;
     public final int precedence;
     public final int mode;
-    public final boolean leftAssociative;
     public final String endName;
 
-    public Operator(String name, int index, int precedence, int arity, boolean leftAssociative)
+    public Operator(String name, int index, int precedence, int mode)
     {
         this.name = name;
         this.endName = null;
         this.index = index;
         this.precedence = precedence;
-        this.mode = arity;
-        this.leftAssociative = leftAssociative;
+        this.mode = mode;
     }
     
-    public Operator(String name, String endName, int index, int precedence, int arity, boolean leftAssociative)
+    public Operator(String name, String endName, int index, int precedence, int mode)
     {
         this.name = name;
         this.endName = endName;
         this.index = index;
         this.precedence = precedence;
-        this.mode = arity;
-        this.leftAssociative = leftAssociative;
+        this.mode = mode;
     }
 
     public String getName()
@@ -62,11 +60,6 @@ public class Operator
         return mode;
     }
 
-    public boolean isLeftAssociative()
-    {
-        return leftAssociative;
-    }
-
     public String toString()
     {
         StringBuffer buf = new StringBuffer();
@@ -85,7 +78,9 @@ public class Operator
             break;
         case Operator.BINARY:
             buf.append("binary, ");
-            buf.append(leftAssociative ? "leftAssociative" : "rightAssociative");
+            break;
+        case Operator.BINARYRIGHT:
+            buf.append("binary_right, ");
             break;
         case Operator.TERNARY:
             buf.append("ternary");
