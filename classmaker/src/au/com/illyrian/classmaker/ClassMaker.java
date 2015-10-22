@@ -478,7 +478,7 @@ public class ClassMaker implements ExpressionIfc
         if (cfw != null)
             throw createException("ClassMaker.ToLateToNameTheFullyQualifiedClass");
         this.fullyQualifiedClassName = className;
-        getDeclaredType(); // thisDeclaredType = getFactory().createDeclaredTypeMaker(this);
+        getDeclaredType();
     }
 
     /**
@@ -1122,25 +1122,6 @@ public class ClassMaker implements ExpressionIfc
     {
         return hasConstructor;
     }
-
-    /**
-     * Set the current pass for the class generator.
-     * </br>
-     * The following are valid options.
-     * <ul>
-     * <li><code>ClassMaker.ONE_PASS</code></li>
-     * <li><code>ClassMaker.FIRST_PASS</code></li>
-     * <li><code>ClassMaker.SECOND_PASS</code></li>
-     * </ul>
-     * The default is <code>ClassMaker.ONE_PASS</code>.
-     * @param pass the pass for the class generator
-     */
-//    public void setPass(int pass)
-//    {
-//        generationPass = pass;
-//        // Set flags at start of pass.
-//        hasConstructor = false;
-//    }
 
     /**
      * Get the current pass for the class generator.
@@ -3545,21 +3526,6 @@ public class ClassMaker implements ExpressionIfc
         }
         return null;
     }
-
-//    int findLocalIndex(String name)
-//    {
-//        for (int i=localTable.size()-1; i>=0; i--)
-//        {
-//            MakerField local = localTable.get(i);
-//            if (!local.isInScope())
-//                continue; // Skip locals that are out of scope
-//            if (name.equals(local.getName()))
-//            {
-//                return i;
-//            }
-//        }
-//        return -1;
-//    }
 
     private void initLocal(MakerField field) 
     {
@@ -8717,26 +8683,6 @@ public class ClassMaker implements ExpressionIfc
     	return sourceLine;
     }
     
-    /** 
-     * Current source file name. 
-     * <br/>
-     * Delegates to <code>getSourceLine().getFilename()</code> if <code>LineNumber</code> interface is set.
-     */
-//    public String getFilename()
-//    {
-//        return sourceLine.getFilename();
-//    }
-
-    /** 
-     * Current Line Number.
-     * <br/>
-     * Delegates to <code>getSourceLine().getLineNumber()</code> if <code>LineNumber</code> interface is set.
-     */
-//    public int getLineNumber()
-//    {
-//        return sourceLine.getLineNumber();
-//    }
-
     /**
      * Remembers the current line number.
      * <br/>
