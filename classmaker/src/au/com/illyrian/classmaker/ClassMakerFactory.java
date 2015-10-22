@@ -43,7 +43,6 @@ import au.com.illyrian.classmaker.members.MethodResolver;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.DeclaredType;
-import au.com.illyrian.classmaker.types.DeclaredTypeForward;
 import au.com.illyrian.classmaker.types.DeclaredTypeMaker;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
@@ -314,14 +313,6 @@ public class ClassMakerFactory
         return type;
     }
     
-    protected DeclaredTypeForward createDeclaredTypeForward(String className)
-    {
-        DeclaredTypeForward declared = new DeclaredTypeForward(className);
-        // Bypass check that Type exists.
-        declaredMap.put(className, declared);
-        return declared;
-    }
-
     protected DeclaredTypeMaker createDeclaredTypeMaker(ClassMaker maker)
     {
         DeclaredTypeMaker declared = new DeclaredTypeMaker(maker);
