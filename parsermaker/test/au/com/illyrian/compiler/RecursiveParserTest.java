@@ -1,0 +1,160 @@
+package au.com.illyrian.compiler;
+
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import junit.framework.TestCase;
+import au.com.illyrian.compiler.ast.AstMergeVisitor;
+import au.com.illyrian.compiler.ast.AstParser;
+import au.com.illyrian.parser.Input;
+import au.com.illyrian.parser.Lexer;
+import au.com.illyrian.parser.impl.CompileModule;
+import au.com.illyrian.parser.impl.LexerInputStream;
+
+public class RecursiveParserTest extends TestCase
+{
+    StringReader reader;
+    StringWriter writer;
+    PrintWriter  out;
+    
+    public void setUp()
+    {
+        writer = new StringWriter() ;
+        out = new PrintWriter(writer);
+    }
+    
+    public StringReader getReader()
+    {
+        return new StringReader(writer.toString());
+    }
+
+    public void testSimpleSequence() throws Exception
+    {
+        out.println("{");
+        out.println("   test ::= the \"quick\" brown fox;");
+        out.println("}");
+        Input input = new LexerInputStream(getReader(), null);
+        CompileModule compile = new CompileModule();
+        compile.setInput(input);
+        
+        RecursiveParser parser = new RecursiveParser();
+        parser.addReserved("the");
+        compile.visit(parser);
+        AstParser tree = parser.parseClass();
+        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        
+        String expect = "test ::= <the> \"quick\" brown fox . ;";
+        assertNotNull("Should not be null:", tree);
+        assertEquals("AST", expect, tree.toString());
+    }
+
+    public void testAlternatives1() throws Exception
+    {
+        out.println("{");
+        out.println("   test ::= the| \"quick\" brown |fox;");
+        out.println("}");
+        Input input = new LexerInputStream(getReader(), null);
+        CompileModule compile = new CompileModule();
+        compile.setInput(input);
+        
+        RecursiveParser parser = new RecursiveParser();
+        parser.addReserved("the");
+        compile.visit(parser);
+        AstParser tree = parser.parseClass();
+        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        
+        assertNotNull("Should not be null:", tree);
+        String expect = "test ::= ( <the> . | \"quick\" brown . | fox . ) ;";
+        assertEquals("AST", expect, tree.toString());
+    }
+
+    public void testAlternatives2() throws Exception
+    {
+        out.println("{");
+        out.println("   test ::= the \"quick\" | fox(brown);");
+        out.println("}");
+        Input input = new LexerInputStream(getReader(), null);
+        CompileModule compile = new CompileModule();
+        compile.setInput(input);
+        
+        RecursiveParser parser = new RecursiveParser();
+        parser.addReserved("the");
+        compile.visit(parser);
+        AstParser tree = parser.parseClass();
+        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        
+        assertNotNull("Should not be null:", tree);
+        String expect = "test ::= ( <the> \"quick\" . | fox(brown) . ) ;";
+        assertEquals("AST", expect, tree.toString());
+    }
+
+    public void testPackage() throws Exception
+    {
+        out.println("{");
+        out.println("   package_opt ::= PACKAGE qualified_name SEMI ");
+        out.println("       |   PACKAGE qualified_name error(\"IncompletePackageName\") ");
+        out.println("       |   empty ");
+        out.println("       |   recover(class_declaration) ;");
+        out.println("}");
+        Input input = new LexerInputStream(getReader(), null);
+        CompileModule compile = new CompileModule();
+        compile.setInput(input);
+        
+        RecursiveParser parser = new RecursiveParser();
+        parser.addReserved("PACKAGE");
+        parser.addReserved("EMPTY");
+        parser.addReserved("SEMI");
+        parser.addReserved("IDENTIFIER");
+        compile.visit(parser);
+        AstParser tree = parser.parseClass();
+        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertNotNull("Should not be null:", tree);
+        AstMergeVisitor merger = new AstMergeVisitor();
+        AstParser merged = tree.resolveMerge(merger);
+
+        String expect = "package_opt ::= ( <PACKAGE> qualified_name ( <SEMI> . "
+                + "| error(\"IncompletePackageName\") . ) "
+                + "| empty . | recover(class_declaration) . ) ;";
+        assertEquals("AST", expect, merged.toString());
+    }
+
+    public void testImport() throws Exception
+    {
+        out.println("{");
+        out.println("   import_mult    ::= IMPORT import_path import_mult");
+        out.println("                  |   EMPTY ;");
+        out.println("   import_path    ::= name DOT import_path");
+        out.println("                  |   name SEMI");
+        out.println("                  |   MULT SEMI");
+        out.println("                  |   error(\"IncpmpleteImportPath\") ;");
+        out.println("   name           ::= IDENTIFIER ;");
+        out.println("}");
+
+        Input input = new LexerInputStream(getReader(), null);
+        CompileModule compile = new CompileModule();
+        compile.setInput(input);
+        
+        RecursiveParser parser = new RecursiveParser();
+        parser.addReserved("IMPORT");
+        parser.addReserved("EMPTY");
+        parser.addReserved("DOT");
+        parser.addReserved("SEMI");
+        parser.addReserved("MULT");
+        parser.addReserved("IDENTIFIER");
+        compile.visit(parser);
+        AstParser tree = parser.parseClass();
+        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertNotNull("Should not be null:", tree);
+        AstMergeVisitor merger = new AstMergeVisitor();
+        AstParser newtree = tree.resolveMerge(merger);
+
+        String expect = "import_mult ::= ( <IMPORT> import_path import_mult . | <EMPTY> . ) ; "
+                + "import_path ::= ( name ( <DOT> import_path . | <SEMI> . ) "
+                + "| <MULT> <SEMI> . "
+                + "| error(\"IncpmpleteImportPath\") . ) ; "
+                + "name ::= <IDENTIFIER> . ;";
+        assertEquals("AST", expect, newtree.toString());
+    }
+
+}
