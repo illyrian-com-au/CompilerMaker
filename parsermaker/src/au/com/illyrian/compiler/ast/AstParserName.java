@@ -18,4 +18,18 @@ public class AstParserName extends AstParserBase
     {
         visitor.resolveRule(this);
     }
+    
+    public boolean matches(AstParser other)
+    {
+        if (other instanceof AstParserName)
+        {
+            AstParserName otherName = (AstParserName)other;
+            return name.equals(otherName.name);
+        }
+        return false;
+    }
+    
+    public String toString() {
+        return name;
+    }
 }

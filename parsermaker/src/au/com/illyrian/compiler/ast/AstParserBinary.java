@@ -11,6 +11,10 @@ public abstract class AstParserBinary extends AstParserBase
         this.right = right;
     }
 
+    public AstParser resolveAlternatives(AstMergeVisitor visitor) {
+        return visitor.resolveMerge(this);
+    }
+
     public AstParser getLeft()
     {
         return left;
@@ -21,5 +25,19 @@ public abstract class AstParserBinary extends AstParserBase
         return right;
     }
     
+    public AstParser getHead() {
+        return left;
+    }
     
+    public AstParser getTail() {
+        return right;
+    }
+
+    public AstParserBinary replace(AstParser head, AstParser tail) {
+        return this;
+    }
+
+    public String toString() {
+        return left + " " + right;
+    }
 }

@@ -10,6 +10,11 @@ public interface Input
     public static final char NULL       = '\0';
 
     /**
+     * End of line character.
+     */
+    public static final char EOLN       = '\n';
+
+    /**
      * Get the input string.
      *
      * @return the input string currently being parsed.
@@ -56,7 +61,7 @@ public interface Input
      *
      * @return a character or NULL if past the end of input.
      */
-    public char peekChar();
+    public char getChar();
 
     /**
      * The source file.

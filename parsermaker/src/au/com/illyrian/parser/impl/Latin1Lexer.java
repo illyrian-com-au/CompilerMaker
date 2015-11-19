@@ -263,7 +263,7 @@ public class Latin1Lexer implements Lexer
         } else if (isCharacterQuote(ch)) {
             token = spanCharLiteral();
         } else {
-            this.token = ERROR;
+            this.token = error("Unrecognised input character: \\x0" + Integer.toOctalString(ch));
         }
 
         return this.token;
@@ -333,10 +333,10 @@ public class Latin1Lexer implements Lexer
      */
     protected void spanWhiteSpace()
     {
-        char ch = input.startChar();
-        if (isWhitespace(ch) || isStartComment(ch)) {
-            while (isWhitespace(ch) || isStartComment(ch)) {
-                if (isStartComment(ch)) {
+        int ch = input.startChar();
+        if (isWhitespace((char)ch) || isStartComment((char)ch)) {
+            while (isWhitespace((char)ch) || isStartComment((char)ch)) {
+                if (isStartComment((char)ch)) {
                     spanComment();
                     ch = input.nextChar();
                 } else {
@@ -460,7 +460,7 @@ public class Latin1Lexer implements Lexer
      */
     public String spanToEndOfLine()
     {
-        char ch = input.peekChar();
+        char ch = input.getChar();
         while (ch != Input.NULL && ch != EOL) {
             ch = input.nextChar();
         }
@@ -661,6 +661,7 @@ public class Latin1Lexer implements Lexer
         case STRING:
             return "STRING=" + getTokenValue();
         }
-        return "unknown";
+        return "Unknown token @ " + input + "\n" 
+              + input.getTokenStart() + ": "+ input.getLine().substring(input.getTokenStart());
     }
 }

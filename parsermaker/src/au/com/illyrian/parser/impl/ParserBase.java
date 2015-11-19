@@ -54,6 +54,10 @@ public class ParserBase
         this.lexer = lexer;
     }
     
+    public void addReserved(String word) {
+        getLexer().getReservedWords().put(word, word);
+    }
+    
     public int getToken()
     {
         return getLexer().getToken();
@@ -65,9 +69,15 @@ public class ParserBase
         int token = getLexer().nextToken();
         if (token == Lexer.ERROR)
         {
-            throw error(getInput(), "Invalid character: " + getLexer().getTokenValue());
+            throw error(getInput(), getLexer().getErrorMessage() );
         }
         return token;
+    }
+
+    public boolean match(int s)
+    {
+        int token = getLexer().getToken();
+        return (token == s);
     }
 
     public boolean match(int s, String value)

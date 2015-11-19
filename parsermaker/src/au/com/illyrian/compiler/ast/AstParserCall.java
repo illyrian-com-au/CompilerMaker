@@ -25,4 +25,8 @@ public class AstParserCall extends AstParserBase
     {
         visitor.resolveRule(this);
     }
+
+    public String toString() {
+        return getName() + "(" + (actuals == null ? "" : actuals) + ")";
+    }
 }

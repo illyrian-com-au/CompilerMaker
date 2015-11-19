@@ -52,11 +52,27 @@ public class LexerInputStream extends LexerInputString implements Input
     public char startChar()
     {
         char ch = super.startChar();
-        if (ch == Input.NULL)
+        if (ch == Input.EOLN)
         {
             nextLine();
         }
         return super.startChar();
+    }
+    
+    public char nextChar()
+    {
+        if (getChar() == Input.EOLN)
+        {
+            nextLine();
+        } else {
+            incrementFinish();
+        }
+        char ch = getChar();
+        return ch;
+    }
+
+    protected char eoln() {
+        return Input.EOLN;
     }
 
     /**
@@ -82,5 +98,10 @@ public class LexerInputStream extends LexerInputString implements Input
     public void close() throws IOException
     {
         reader.close();
+    }
+    
+    public String toString()
+    {
+        return getSourceFilename() + ':' + getLineNumber() + " " + super.toString();
     }
 }

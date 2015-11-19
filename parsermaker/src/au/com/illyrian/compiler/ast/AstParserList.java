@@ -13,4 +13,13 @@ public class AstParserList extends AstParserBinary
         visitor.resolveRule(this);
     }
 
+    public AstParserList replace(AstParser left, AstParser right) {
+        if (left == this.getLeft() && right == this.getRight())
+            return this;
+        return new AstParserList(left, right);
+    }
+
+    public String toString() {
+        return getLeft() + "\n" + getRight();
+    }
 }

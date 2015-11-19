@@ -61,9 +61,10 @@ public class InputStreamTest extends TestCase
     public void testSpacedTokeniser() throws Exception
     {
         out.println();
-        out.println("package;");
+        out.println("package ;");
         out.println();
-        out.println("import;");
+        out.println();
+        out.println("import; ");
         out.println();
         Latin1Lexer tokeniser = new Latin1Lexer(new LexerInputStream(getReader(), null));
         expect(tokeniser, Lexer.IDENTIFIER, "package");

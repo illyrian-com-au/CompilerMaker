@@ -18,4 +18,19 @@ public class AstParserString extends AstParserBase
     {
         visitor.resolveRule(this);
     }
+    
+    public boolean matches(AstParser other)
+    {
+        if (other instanceof AstParserString)
+        {
+            AstParserString otherString = (AstParserString)other;
+            return value.equals(otherString.value);
+        }
+        return false;
+    }
+    
+    public String toString() {
+        return "\"" + value + "\"";
+    }
+
 }

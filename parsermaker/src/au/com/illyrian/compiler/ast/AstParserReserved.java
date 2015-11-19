@@ -11,4 +11,18 @@ public class AstParserReserved extends AstParserName
     {
         visitor.resolveRule(this);
     }
+    
+    public boolean matches(AstParser other)
+    {
+        if (other instanceof AstParserReserved)
+        {
+            AstParserReserved otherReserved = (AstParserReserved)other;
+            return getName().matches(otherReserved.getName());
+        }
+        return false;
+    }
+    
+    public String toString() {
+        return "<" + getName() + ">";
+    }
 }

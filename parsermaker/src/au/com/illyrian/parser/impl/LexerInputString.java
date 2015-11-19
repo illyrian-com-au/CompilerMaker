@@ -14,18 +14,17 @@ import java.io.File;
 
 import au.com.illyrian.parser.Input;
 
-
 public class LexerInputString implements Input
 {
     /** The line of input. */
     private String line;
 
     /** The start of the current token */
-    private int    start      = 0;
+    private int start = 0;
 
     /** Just past the end of the current token. */
-    private int    finish     = 0;
-    
+    private int finish = 0;
+
     /**
      * Constructor for String Tokeniser.
      *
@@ -37,7 +36,8 @@ public class LexerInputString implements Input
     /**
      * Constructor for Strong Tokeniser.
      *
-     * @param input the string to be tokenised.
+     * @param input
+     *            the string to be tokenised.
      */
     public LexerInputString(String input)
     {
@@ -51,7 +51,7 @@ public class LexerInputString implements Input
     {
         return line;
     }
-    
+
     /* (non-Javadoc)
      * @see au.com.illyrian.parser.LexerInput#setInput(java.lang.String)
      */
@@ -61,13 +61,13 @@ public class LexerInputString implements Input
         start = 0;
         finish = 0;
     }
-    
+
     /* (non-Javadoc)
      * @see au.com.illyrian.parser.LexerInput#getFinish()
      */
     public int getTokenFinish()
     {
-    	return finish;
+        return finish;
     }
 
     /* (non-Javadoc)
@@ -75,9 +75,9 @@ public class LexerInputString implements Input
      */
     public int getTokenStart()
     {
-    	return start;
+        return start;
     }
-    
+
     /**
      * Get the character at the start of the current token.
      *
@@ -85,8 +85,8 @@ public class LexerInputString implements Input
      */
     public char startChar()
     {
-   		start = finish;
-        return (line != null && start < line.length() ? line.charAt(start) : Input.NULL);
+        start = finish;
+        return getChar();
     }
 
     /**
@@ -94,17 +94,9 @@ public class LexerInputString implements Input
      */
     int spanCharacter(int state)
     {
-        char ch = startChar();  // Mark start of token
-        incrementFinish();   // Step over character
+        char ch = startChar(); // Mark start of token
+        incrementFinish(); // Step over character
         return state;
-    }
-
-    protected void incrementFinish()
-    {
-        if (finish < line.length())
-        {
-            ++finish;
-        }
     }
 
     /**
@@ -114,26 +106,39 @@ public class LexerInputString implements Input
      */
     public char nextChar()
     {
-    	incrementFinish();
-    	return peekChar();
-    }
-    
-    public char peekChar()
-    {
-    	if (finish < line.length())
-    		return line.charAt(finish);
-    	else
-    		return Input.NULL;
+        incrementFinish();
+        return getChar();
     }
 
-	/* (non-Javadoc)
+    protected void incrementFinish()
+    {
+        if (finish < line.length()) {
+            ++finish;
+        }
+    }
+
+    public char getChar()
+    {
+        if (line == null)
+            return Input.NULL;
+        else if (finish < line.length())
+            return line.charAt(finish);
+        else
+            return eoln();
+    }
+    
+    protected char eoln() {
+        return Input.NULL;
+    }
+
+    /* (non-Javadoc)
      * @see au.com.illyrian.parser.LexerInput#getTokenString()
      */
-	public String getTokenString() 
-	{
-		// Don't read beyond the end of the string.
-		return (line != null) ? line.substring(getTokenStart(), getTokenFinish()) : null;
-	}
+    public String getTokenString()
+    {
+        // Don't read beyond the end of the string.
+        return (line != null) ? line.substring(start, finish) : null;
+    }
 
     /**
      * The source file.
@@ -154,7 +159,7 @@ public class LexerInputString implements Input
     {
         return 0;
     }
-    
+
     /**
      * The source file.
      * 
@@ -167,6 +172,14 @@ public class LexerInputString implements Input
 
     public String toString()
     {
-        return getSourceFilename() + ':' + getLineNumber();
+        if (line == null)
+            return "EOF";
+        StringBuffer buf = new StringBuffer();
+        buf.append(line.substring(0, start));
+        buf.append('$');
+        buf.append(line.substring(start, finish));
+        buf.append('$');
+        buf.append(line.substring(finish, line.length()));
+        return buf.toString();
     }
 }

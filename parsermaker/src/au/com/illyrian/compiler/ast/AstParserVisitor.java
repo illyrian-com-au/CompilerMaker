@@ -37,4 +37,8 @@ public class AstParserVisitor
     public void resolveRule(AstParserReserved reserved)
     {
     }
+
+    public void resolveRule(AstParserEmpty astParserEmpty)
+    {
+    }
 }
