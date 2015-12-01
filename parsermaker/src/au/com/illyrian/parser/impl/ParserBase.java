@@ -17,12 +17,12 @@ public class ParserBase
 
     public Input getInput()
     {
-        return getLexer().getLexerInput();
+        return getLexer().getInput();
     }
     
     public void setInput(Input input)
     {
-        getLexer().setLexerInput(input);
+        getLexer().setInput(input);
     }
 
     public CompileUnit getCompileUnit()

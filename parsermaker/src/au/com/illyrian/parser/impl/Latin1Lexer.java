@@ -55,6 +55,9 @@ public class Latin1Lexer implements Lexer
     /** The quote character that surrounded the string. */
     private char tokenDelimiter;
 
+    /** The text of a comment. */
+    private String commentString = null;
+
     private String errorMessage;
 
     /**
@@ -90,22 +93,25 @@ public class Latin1Lexer implements Lexer
      */
     public Latin1Lexer(Input input)
     {
-        setLexerInput(input);
+        setInput(input);
     }
 
-    public void setLexerInput(Input input)
+    public void setInput(Input input)
     {
         this.input = input;
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see au.com.illyrian.parser.Lexer#getLexerInput()
      */
-    public Input getLexerInput()
+    public Input getInput()
     {
         return input;
+    }
+
+    public String getCommentString()
+    {
+        return commentString;
     }
 
     public int getToken()
@@ -238,34 +244,36 @@ public class Latin1Lexer implements Lexer
     {
         if (input == null)
             throw new NullPointerException("Input is null.");
+        
+        do {
 
-        // Move over any whitespace before the token.
-        spanWhiteSpace();
-
-        // Now examine the start character.
-        char ch = input.startChar();
-        if (ch == Input.NULL) {
-            token = END;
-        } else if (isIdentifierStartChar(ch)) {
-            token = spanIdentifier();
-        } else if (isDigitChar(ch)) {
-            token = spanNumber();
-        } else if (isOperator(ch)) {
-            token = spanOperator();
-        } else if (isDelimiter(ch)) {
-            token = spanCharacter(DELIMITER);
-        } else if (isOpenP(ch)) {
-            token = spanCharacter(OPEN_P);
-        } else if (isCloseP(ch)) {
-            token = spanCharacter(CLOSE_P);
-        } else if (isQuote(ch)) {
-            token = spanStringLiteral();
-        } else if (isCharacterQuote(ch)) {
-            token = spanCharLiteral();
-        } else {
-            this.token = error("Unrecognised input character: \\x0" + Integer.toOctalString(ch));
-        }
-
+            // Move over any whitespace before the token.
+            spanWhiteSpace();
+    
+            // Now examine the start character.
+            char ch = input.startChar();
+            if (ch == Input.NULL) {
+                token = END;
+            } else if (isIdentifierStartChar(ch)) {
+                token = spanIdentifier();
+            } else if (isDigitChar(ch)) {
+                token = spanNumber();
+            } else if (isOperator(ch)) {
+                token = spanOperator();
+            } else if (isDelimiter(ch)) {
+                token = spanCharacter(DELIMITER);
+            } else if (isOpenP(ch)) {
+                token = spanCharacter(OPEN_P);
+            } else if (isCloseP(ch)) {
+                token = spanCharacter(CLOSE_P);
+            } else if (isQuote(ch)) {
+                token = spanStringLiteral();
+            } else if (isCharacterQuote(ch)) {
+                token = spanCharLiteral();
+            } else {
+                this.token = error("Unrecognised input character: \\x0" + Integer.toOctalString(ch));
+            }
+        } while (token == COMMENT);
         return this.token;
     }
 
@@ -412,6 +420,9 @@ public class Latin1Lexer implements Lexer
         char ch = input.startChar();
         while (isOperator(ch)) {
             ch = input.nextChar();
+            if (isStartMultiComment()) {
+                return spanMultiComment();
+            }
         }
         return OPERATOR;
     }
@@ -433,7 +444,7 @@ public class Latin1Lexer implements Lexer
                 ch = input.nextChar();
             }
         }
-        return OPERATOR;
+        return STRING;
     }
 
     /**
@@ -450,6 +461,40 @@ public class Latin1Lexer implements Lexer
             ch = input.nextChar();
         }
         return this.getTokenValue();
+    }
+
+    boolean isStartMultiComment() {
+        if (input.getTokenFinish() - input.getTokenStart() == 2) {
+            if ("/*".equals(input.getTokenString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Span a comment. The text for the token will be available through
+     * getCommentString().
+     *
+     * @return the code for the operator or delimiter.
+     */
+    public int spanMultiComment()
+    {
+        commentString = "";
+        char prev = Input.NULL;
+        char ch = input.nextChar();
+        while (ch != Input.NULL) {
+            if (prev == '*' && ch == '/') {
+                input.nextChar();
+                break;
+            } else if (ch == Input.EOLN) {
+                commentString += input.getTokenString();
+            }
+            prev = ch;
+            ch = input.nextChar();
+        }
+        commentString += input.getTokenString();
+        return COMMENT;
     }
 
     /**

@@ -64,7 +64,7 @@ public class RecursiveParser extends ParserBase
         AstParser $1 = parse_rule();
         if (!match(Lexer.CLOSE_P, "}")) {
             AstParser $2 = rules_plus();
-            return factory.Seq($1, $2);
+            return factory.List($1, $2);
         } else {
             return $1;
         }

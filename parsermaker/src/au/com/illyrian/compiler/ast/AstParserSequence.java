@@ -1,5 +1,9 @@
 package au.com.illyrian.compiler.ast;
 
+import java.util.Set;
+
+import au.com.illyrian.parser.ParserException;
+
 public class AstParserSequence extends AstParserBinary
 {
     AstParser [] seqArray;
@@ -10,11 +14,6 @@ public class AstParserSequence extends AstParserBinary
         seqArray = concat(left.toSeqArray(), right.toSeqArray());
     }
 
-    public void resolveRule(AstParserVisitor visitor)
-    {
-        visitor.resolveRule(this);
-    }
-    
     public AstParser resolveMerge(AstMergeVisitor visitor) {
         return visitor.resolveMerge(this);
     }
@@ -37,6 +36,11 @@ public class AstParserSequence extends AstParserBinary
         return seqArray;
     }
     
+    public boolean resolveFirst(AstFirstVisitor visitor, Set<String> firstSet) throws ParserException
+    {
+        return visitor.resolveFirst(this, firstSet);
+    }
+
     public String toString() {
         return getLeft() + " " + getRight();
     }

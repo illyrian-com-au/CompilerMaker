@@ -57,6 +57,10 @@ public interface Lexer
      * The String literal token.
      */
     public static final int STRING = 11;
+    /**
+     * The String literal token.
+     */
+    public static final int COMMENT = 12;
 
     /**
      * Get the text for the current token.
@@ -94,7 +98,7 @@ public interface Lexer
     
     public int getToken();
 
-    public Input getLexerInput();
+    public Input getInput();
     
-    public void setLexerInput(Input input);
+    public void setInput(Input input);
 }

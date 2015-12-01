@@ -1,5 +1,7 @@
 package au.com.illyrian.compiler.ast;
 
+import java.util.Set;
+
 public class AstParserCall extends AstParserBase
 {
     private final AstParser name;
@@ -21,9 +23,9 @@ public class AstParserCall extends AstParserBase
         return actuals;
     }
 
-    public void resolveRule(AstParserVisitor visitor)
+    public boolean resolveFirst(AstFirstVisitor visitor, Set<String> firstSet)
     {
-        visitor.resolveRule(this);
+        return visitor.resolveFirst(this, firstSet);
     }
 
     public String toString() {

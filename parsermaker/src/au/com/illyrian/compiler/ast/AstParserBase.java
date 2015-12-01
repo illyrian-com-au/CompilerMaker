@@ -2,8 +2,6 @@ package au.com.illyrian.compiler.ast;
 
 public abstract class AstParserBase implements AstParser
 {
-     public abstract void resolveRule(AstParserVisitor visitor);
-
      public AstParser resolveMerge(AstMergeVisitor visitor) {
          return visitor.resolveMerge(this);
      }
@@ -26,6 +24,10 @@ public abstract class AstParserBase implements AstParser
      
      public AstParser [] toSeqArray() {
          return new AstParser [] { this };
+     }
+     
+     public AstParserRule [] toRuleArray() {
+         return null;
      }
      
      protected AstParser [] concat(AstParser [] left, AstParser [] right)

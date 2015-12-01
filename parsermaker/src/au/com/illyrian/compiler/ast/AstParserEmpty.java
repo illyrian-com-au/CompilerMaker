@@ -1,16 +1,17 @@
 package au.com.illyrian.compiler.ast;
 
+import java.util.Set;
+
 public class AstParserEmpty extends AstParserBase
 {
     public AstParserEmpty() {
     }
     
-    @Override
-    public void resolveRule(AstParserVisitor visitor)
+    public boolean resolveFirst(AstFirstVisitor visitor, Set<String> firstSet)
     {
-        visitor.resolveRule(this);
+        return visitor.resolveFirst(this, firstSet);
     }
-    
+
     public String toString() {
         return ".";
     }

@@ -1,5 +1,9 @@
 package au.com.illyrian.compiler.ast;
 
+import java.util.Set;
+
+import au.com.illyrian.parser.ParserException;
+
 public class AstParserReserved extends AstParserName
 {
     public AstParserReserved(String name)
@@ -7,11 +11,6 @@ public class AstParserReserved extends AstParserName
         super(name);
     }
 
-    public void resolveRule(AstParserVisitor visitor)
-    {
-        visitor.resolveRule(this);
-    }
-    
     public boolean matches(AstParser other)
     {
         if (other instanceof AstParserReserved)
@@ -22,6 +21,11 @@ public class AstParserReserved extends AstParserName
         return false;
     }
     
+    public boolean resolveFirst(AstFirstVisitor visitor, Set<String> firstSet) throws ParserException
+    {
+        return visitor.resolveFirst(this, firstSet);
+    }
+
     public String toString() {
         return "<" + getName() + ">";
     }

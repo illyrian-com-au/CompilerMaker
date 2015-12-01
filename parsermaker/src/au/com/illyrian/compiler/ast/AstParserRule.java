@@ -1,5 +1,9 @@
 package au.com.illyrian.compiler.ast;
 
+import java.util.Set;
+
+import au.com.illyrian.parser.ParserException;
+
 public class AstParserRule extends AstParserBase
 {
     private final AstParser target;
@@ -13,14 +17,18 @@ public class AstParserRule extends AstParserBase
         this.action = action;
     }
 
-    public void resolveRule(AstParserVisitor visitor)
-    {
-        visitor.resolveRule(this);
-    }
-    
     public AstParser resolveMerge(AstMergeVisitor visitor) 
     {
         return visitor.resolveMerge(this);
+    }
+
+    public boolean resolveFirst(AstFirstVisitor visitor, Set<String> firstSet) throws ParserException
+    {
+        return visitor.resolveFirst(this, firstSet);
+    }
+    
+    public AstParserRule [] toRuleArray() {
+        return new AstParserRule [] { this };
     }
 
     public AstParser getTarget()
