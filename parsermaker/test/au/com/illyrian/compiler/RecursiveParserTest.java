@@ -123,7 +123,7 @@ public class RecursiveParserTest extends TestCase
     {
         out.println("{");
         out.println("   import_mult    ::= IMPORT import_path import_mult");
-        out.println("                  |   EMPTY ;");
+        out.println("                  |   /*EMPTY*/ ;");
         out.println("   import_path    ::= name DOT import_path");
         out.println("                  |   name SEMI");
         out.println("                  |   MULT SEMI");
@@ -149,11 +149,43 @@ public class RecursiveParserTest extends TestCase
         AstMergeVisitor merger = new AstMergeVisitor();
         AstParser newtree = tree.resolveMerge(merger);
 
-        String expect = "import_mult ::= ( <IMPORT> import_path import_mult . | <EMPTY> . ) ; "
+        String expect = "import_mult ::= ( <IMPORT> import_path import_mult . | . ) ; "
                 + "import_path ::= ( name ( <DOT> import_path . | <SEMI> . ) "
                 + "| <MULT> <SEMI> . "
                 + "| error(\"IncpmpleteImportPath\") . ) ; "
                 + "name ::= <IDENTIFIER> . ;";
+        assertEquals("AST", expect, newtree.toString());
+    }
+
+    
+    public void testMemberMult() throws Exception
+    {
+        out.println("{");
+        out.println("   member_mult ::= member member_mult");
+        out.println("                 | /*EMPTY*/");
+        out.println("                 | recover(member) ; ");
+        out.println("   member ::= modifier_mult method_type IDENTIFIER LPAR formal_mult RPAR method_body");
+        out.println("            | modifier_mult method_type IDENTIFIER SEMI ;");
+        out.println("}");
+
+        Input input = new LexerInputStream(getReader(), null);
+        CompileModule compile = new CompileModule();
+        compile.setInput(input);
+        
+        RecursiveParser parser = new RecursiveParser();
+        parser.addReserved("LPAR");
+        parser.addReserved("RPAR");
+        parser.addReserved("SEMI");
+        parser.addReserved("IDENTIFIER");
+        compile.visit(parser);
+        AstParser tree = parser.parseClass();
+        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertNotNull("Should not be null:", tree);
+        AstMergeVisitor merger = new AstMergeVisitor();
+        AstParser newtree = tree.resolveMerge(merger);
+
+        String expect = "member_mult ::= ( member member_mult . | . | recover(member) . ) ; "
+                + "member ::= modifier_mult method_type <IDENTIFIER> ( <LPAR> formal_mult <RPAR> method_body . | <SEMI> . ) ;";
         assertEquals("AST", expect, newtree.toString());
     }
 

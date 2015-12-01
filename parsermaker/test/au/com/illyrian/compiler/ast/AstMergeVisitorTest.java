@@ -1,10 +1,11 @@
-package au.com.illyrian.compiler;
+package au.com.illyrian.compiler.ast;
 
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 
 import junit.framework.TestCase;
+import au.com.illyrian.compiler.RecursiveParser;
 import au.com.illyrian.compiler.ast.AstMergeVisitor;
 import au.com.illyrian.compiler.ast.AstParser;
 import au.com.illyrian.compiler.ast.AstParserFactory;
