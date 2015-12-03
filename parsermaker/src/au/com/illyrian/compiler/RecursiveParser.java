@@ -77,16 +77,16 @@ public class RecursiveParser extends ParserBase
         expect(Lexer.OPERATOR, "::=");
         AstParser $3 = rule_alt();
         AstParser $4 = action_opt();
-        expect(Lexer.DELIMITER, ";", "'|', '=' or ';' expected");
+//        expect(Lexer.DELIMITER, ";", "'|', '=' or ';' expected");
         return factory.Rule($1, $3, $4);
     }
 
     /*
-     * action_opt ::= '=' rule_action | EMPTY ;
+     * action_opt ::= rule_action | EMPTY ;
      */
     public AstParser action_opt() throws ParserException
     {
-        if (accept(Lexer.OPERATOR, "=")) {
+        if (match(Lexer.OPEN_P, "{")) {
             return rule_action();
         } else {
             return null;
@@ -216,7 +216,7 @@ public class RecursiveParser extends ParserBase
 
     public void error(String message) throws ParserException
     {
-        throw new ParserException(message);
+        this.getCompileUnit().error(getInput(), message);
     }
 
 }
