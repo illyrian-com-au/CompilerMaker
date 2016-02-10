@@ -28,6 +28,7 @@
 package au.com.illyrian.classmaker.ast;
 
 import au.com.illyrian.classmaker.CallStack;
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class CommaOperator extends AstExpressionBase
@@ -37,6 +38,13 @@ public class CommaOperator extends AstExpressionBase
 
     public CommaOperator(AstExpression left, AstExpression right)
     {
+        leftExpression = left;
+        rightExpression = right;
+    }
+
+    public CommaOperator(AstExpression left, AstExpression right, SourceLine sourceLine)
+    {
+        super(sourceLine);
         leftExpression = left;
         rightExpression = right;
     }

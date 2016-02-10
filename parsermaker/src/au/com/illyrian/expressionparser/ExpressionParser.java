@@ -140,13 +140,13 @@ public class ExpressionParser extends PrecidenceParser
 
     public void setClassMaker(ClassMaker classMaker) 
     {
-    	maker = classMaker;
-	}
+        maker = classMaker;
+    }
 
-	public ClassMaker getClassMaker() 
-	{
-		return maker;
-	}
+    public ClassMaker getClassMaker() 
+    {
+        return maker;
+    }
 
     public Object parseClass() throws ParserException
     {

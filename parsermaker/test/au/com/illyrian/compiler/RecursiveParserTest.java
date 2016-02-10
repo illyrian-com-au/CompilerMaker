@@ -149,12 +149,12 @@ public class RecursiveParserTest extends TestCase
         AstMergeVisitor merger = new AstMergeVisitor();
         AstParser newtree = tree.resolveMerge(merger);
 
-        String expect = "import_mult ::= ( <IMPORT> import_path import_mult . | . ) ; "
-                + "import_path ::= ( name ( <DOT> import_path . | <SEMI> . ) "
-                + "| <MULT> <SEMI> . "
-                + "| error(\"IncpmpleteImportPath\") . ) ; "
-                + "name ::= <IDENTIFIER> . ;";
-        assertEquals("AST", expect, newtree.toString());
+        writer = new StringWriter() ;
+        out = new PrintWriter(writer);
+        out.println("import_mult ::= ( <IMPORT> import_path import_mult . | . ) ;");
+        out.println("import_path ::= ( name ( <DOT> import_path . | <SEMI> . ) | <MULT> <SEMI> . | error(\"IncpmpleteImportPath\") . ) ;");
+        out.print("name ::= <IDENTIFIER> . ;");
+        assertEquals("AST", writer.toString(), newtree.toString());
     }
 
     
@@ -184,9 +184,41 @@ public class RecursiveParserTest extends TestCase
         AstMergeVisitor merger = new AstMergeVisitor();
         AstParser newtree = tree.resolveMerge(merger);
 
-        String expect = "member_mult ::= ( member member_mult . | . | recover(member) . ) ; "
-                + "member ::= modifier_mult method_type <IDENTIFIER> ( <LPAR> formal_mult <RPAR> method_body . | <SEMI> . ) ;";
-        assertEquals("AST", expect, newtree.toString());
+        writer = new StringWriter() ;
+        out = new PrintWriter(writer);
+        out.println("member_mult ::= ( member member_mult . | . | recover(member) . ) ;");
+        out.print("member ::= modifier_mult method_type <IDENTIFIER> ( <LPAR> formal_mult <RPAR> method_body . | <SEMI> . ) ;");
+        assertEquals("AST", writer.toString(), newtree.toString());
+    }
+
+    
+    public void testFunctions() throws Exception
+    {
+        out.println("{");
+        out.println("   function_opt ::= error(\"Got it wrong\")");
+        out.println("                 | lookahead(IDENTIFIER, COLON) ");
+        out.println("                 | lookahead() ");
+        out.println("                 | recover(member) ");
+        out.println("                 | expression(0) ");
+        out.println("                 | function(3.141) ");
+        out.println("                 | /*EMPTY*/ ;");
+        out.println("}");
+
+        Input input = new LexerInputStream(getReader(), null);
+        CompileModule compile = new CompileModule();
+        compile.setInput(input);
+        
+        RecursiveParser parser = new RecursiveParser();
+        parser.addReserved("COLON");
+        parser.addReserved("IDENTIFIER");
+        compile.visit(parser);
+        AstParser tree = parser.parseClass();
+        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertNotNull("Should not be null:", tree);
+
+        String expect = "function_opt ::= ( error(\"Got it wrong\") . | lookahead(<IDENTIFIER>, <COLON>) . "
+                + "| lookahead() . | recover(member) . | expression(0) . | function(3.141) . | . ) ;";
+        assertEquals("AST", expect, tree.toString());
     }
 
 }

@@ -29,7 +29,7 @@ public class RelativePrecidenceParserTest extends TestCase
     
     PrecidenceParser createParser()
     {
-        PrecidenceParser<AstExpression> parser = new JavaOperatorPrecedenceParser<AstExpression>();
+        PrecidenceParser<AstExpression> parser = new PrecidenceParser<AstExpression>();
         parser.addInfixOperator("==", ParserConstants.EQ, 8, Operator.BINARY);
         parser.addInfixOperator("!=", ParserConstants.NE, 8, Operator.BINARY);
         parser.addInfixOperator("&&", ParserConstants.ANDTHEN, 4, Operator.BINARY);

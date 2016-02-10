@@ -321,4 +321,33 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("AST", expect, newtree.toString());
     }
     
+    public void testMergeImportStates() throws Exception
+    {
+        out.println("{");
+        out.println("   import_path    ::= name DOT import_path");
+        out.println("                  |   name SEMI");
+        out.println("                  |   MULT SEMI");
+        out.println("                  |   error(\"IncpmpleteImportPath\")");
+        out.println("         ;");
+        out.println("name ::= IDENTIFIER;");
+        out.println("}");
+
+        Input input = new LexerInputStream(getReader(), null);
+        CompileModule compile = new CompileModule();
+        compile.setInput(input);
+        
+        RecursiveParser parser = new RecursiveParser();
+        compile.visit(parser);
+        AstParser tree = parser.parseClass();
+        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertNotNull("Should not be null:", tree);
+        
+        AstMergeVisitor merger = new AstMergeVisitor();
+        AstParser newtree = tree.resolveMerge(merger);
+        assertNotNull("Should not be null:", newtree);
+        String expect = "import_path ::= ( name ( DOT import_path . | SEMI . ) | MULT SEMI . | error(\"IncpmpleteImportPath\") . ) ;\n"
+                      + "name ::= IDENTIFIER . ;";
+        assertEquals("AST", expect, newtree.toString());
+    }
+    
 }

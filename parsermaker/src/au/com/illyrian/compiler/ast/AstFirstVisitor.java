@@ -1,6 +1,5 @@
 package au.com.illyrian.compiler.ast;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,7 +11,7 @@ public class AstFirstVisitor
 {
     public static final String EMPTY = "<EMPTY>";
     
-    Map<String, Set<String>> firstSets;
+    Map<String, FirstSet> firstSets;
     Map<String, AstParserRule>ruleSet;
     
     public AstFirstVisitor() {
@@ -20,15 +19,15 @@ public class AstFirstVisitor
         ruleSet = new HashMap<String, AstParserRule>();
     }
     
-    Map<String, Set<String>> createMap() {
-        return new HashMap<String, Set<String>>();
+    Map<String, FirstSet> createMap() {
+        return new HashMap<String, FirstSet>();
     }
     
-    Set<String> createSet() {
-        return new HashSet<String>();
+    FirstSet createSet(String name) {
+        return new FirstSet(name);
     }
 
-    Set<String> getSet(String name) {
+    public FirstSet getSet(String name) {
         return firstSets.get(name);
     }
     
@@ -54,7 +53,7 @@ public class AstFirstVisitor
     {
         boolean hasEmpty = false;
         String name = rule.getTarget().toString();
-        Set<String> set = getSet(name);
+        FirstSet set = getSet(name);
         if (set == null) {
             if (firstSets.containsKey(name)) {
                 // A name without a Set indicates that we are already processing it further up the stack.
@@ -62,13 +61,15 @@ public class AstFirstVisitor
             } else {
                 // Add name without a Set to detect left recursion. If we see it again there is a problem.
                 firstSets.put(name, null);
-                set = createSet();
+                set = createSet(name);
                 hasEmpty = rule.getBody().resolveFirst(this, set);
                 if (hasEmpty) {
                     set.add(EMPTY);
                 }
                 firstSets.put(name, set);
             }
+        } else {
+            hasEmpty = set.contains(EMPTY);
         }
         if (firstSet != null) {
             mergeSets(firstSet, set);
@@ -126,9 +127,12 @@ public class AstFirstVisitor
         return true;
     }
 
-    public boolean resolveFirst(AstParserCall call, Set<String> firstSet)
+    public boolean resolveFirst(AstParserCall call, Set<String> firstSet) throws ParserException
     {
         // Do not add method calls to the first set as these are for special processing.
+        if ("lookahead".equals(call.getName()) || "precedence".equals(call.getName())) {
+            add(firstSet, call.toString());
+        }
         return false;
     }
 

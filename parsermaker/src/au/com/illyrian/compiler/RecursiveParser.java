@@ -4,10 +4,9 @@ import au.com.illyrian.compiler.ast.AstParser;
 import au.com.illyrian.compiler.ast.AstParserFactory;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.Latin1Lexer;
-import au.com.illyrian.parser.impl.ParserBase;
+import au.com.illyrian.parser.impl.PrecidenceParser;
 
-public class RecursiveParser extends ParserBase
+public class RecursiveParser extends PrecidenceParser<AstParser>
 {
     AstParserFactory factory;
 
@@ -21,7 +20,7 @@ public class RecursiveParser extends ParserBase
         return new ParserLexer();
     }
 
-    /**
+    /*
      * class_body ::= '{' rules_plus '}' 
      * rules_plus ::= parse_rule rules_plus 
      *            | parse_rule 
@@ -50,6 +49,7 @@ public class RecursiveParser extends ParserBase
         return class_body();
     }
 
+    /* class_body ::= '{' rules_plus '}' { $2 } ; */
     public AstParser class_body() throws ParserException
     {
         AstParser result = null;
@@ -59,50 +59,30 @@ public class RecursiveParser extends ParserBase
         return result;
     }
 
+    /* 
+     * rules_plus ::= parse_rule lookahead(RPAR) <EMPTY>
+     *            |   parse_rule rules_plus { factory.List($1, $2) }
+     *            ;
+     */
     public AstParser rules_plus() throws ParserException
     {
         AstParser $1 = parse_rule();
-        if (!match(Lexer.CLOSE_P, "}")) {
+        if (match(Lexer.CLOSE_P, "}")) {
+            return $1;
+        } else {
             AstParser $2 = rules_plus();
             return factory.List($1, $2);
-        } else {
-            return $1;
         }
     }
 
-    /* parse_rule ::= rule_target '::=' rule_alt action_opt ';' */
+    /* parse_rule ::= rule_target '::=' rule_alt ';' { factory.Rule($1, $3) } ; */
     public AstParser parse_rule() throws ParserException
     {
         AstParser $1 = rule_target();
         expect(Lexer.OPERATOR, "::=");
         AstParser $3 = rule_alt();
-        AstParser $4 = action_opt();
-//        expect(Lexer.DELIMITER, ";", "'|', '=' or ';' expected");
-        return factory.Rule($1, $3, $4);
-    }
-
-    /*
-     * action_opt ::= rule_action | EMPTY ;
-     */
-    public AstParser action_opt() throws ParserException
-    {
-        if (match(Lexer.OPEN_P, "{")) {
-            return rule_action();
-        } else {
-            return null;
-        }
-    }
-
-    /*
-     * rule_action ::= '{' ... '}'
-     */
-    public AstParser rule_action() throws ParserException
-    {
-        expect(Lexer.OPEN_P, "{");
-        while (!match(Lexer.CLOSE_P, "}"))
-            nextToken();
-        expect(Lexer.CLOSE_P, "}");
-        return null;
+        expect(Lexer.DELIMITER, ";", "'|', '=' or ';' expected");
+        return factory.Rule($1, $3);
     }
 
     /*
@@ -114,7 +94,7 @@ public class RecursiveParser extends ParserBase
         if (match(Lexer.IDENTIFIER, null)) {
             $1 = name();
         } else {
-            error("Name of rule expected.");
+            throw error("Name of rule expected.");
         }
         // String type = null;
         // if (accept(Lexer.OPERATOR, ":"))
@@ -139,17 +119,34 @@ public class RecursiveParser extends ParserBase
     }
 
     /*
-     * seq_rule ::= lookahead('|' | '=' | ';') EMPTY | rule_token seq_rule ;
+     * seq_rule ::= rule_action | lookahead('|' | ';') EMPTY | rule_token seq_rule ;
      */
     public AstParser rule_seq() throws ParserException
     {
-        if (first$rule_token()) {
+        AstParser $$;
+        if (match(Lexer.OPEN_P, "{")) {
+            $$ = rule_action();
+        } else if (match(Lexer.DELIMITER, ";") || match(Lexer.OPERATOR, "|")){
+            $$ = factory.Empty();
+        } else /*if (first$rule_token()) */ {
             AstParser $1 = rule_token();
             AstParser $3 = rule_seq();
-            return factory.Seq($1, $3);
-        } else {
-            return factory.Empty();
+            $$ = factory.Seq($1, $3);
         }
+        return $$;
+    }
+
+    /*
+     * rule_action ::= '{' ... '}'
+     */
+    public AstParser rule_action() throws ParserException
+    {
+        // FIXME create rule action
+        expect(Lexer.OPEN_P, "{");
+        while (!match(Lexer.CLOSE_P, "}"))
+            nextToken();
+        expect(Lexer.CLOSE_P, "}");
+        return factory.Empty();
     }
 
     boolean first$rule_token() {
@@ -168,12 +165,7 @@ public class RecursiveParser extends ParserBase
         if (match(Lexer.IDENTIFIER, null)) {
             AstParser $1 = name();
             if (accept(Lexer.OPEN_P, "(")) {
-                AstParser $3;
-                if (match(Lexer.CLOSE_P, ")")) {
-                    $3 = null;
-                } else {
-                    $3 = actual_opt();
-                }
+                AstParser $3 = actual_opt();
                 expect(Lexer.CLOSE_P, ")");
                 $$ = factory.Call($1, $3);
             } else {
@@ -190,33 +182,70 @@ public class RecursiveParser extends ParserBase
     }
 
     /*
-     * actual_opt ::= lookahead(RPAR) EMPTY | rule_token ;
+     * actual_opt ::= lookahead(RPAR) EMPTY | param_mult ;
      */
     public AstParser actual_opt() throws ParserException
     {
         if (match(Lexer.CLOSE_P, ")")) {
             return null;
         } else {
-            return rule_token();
+            return param_mult();
         }
     }
 
     /*
-     * name ::= IDENTIFIER = { factory.Name(getLexer()) }
+     * param_mult ::= actual COMMA param_mult { factory.Comma($1, $3) } 
+     *            |   actual 
+     *            ;
      */
-    public AstParser name() throws ParserException
+    public AstParser param_mult() throws ParserException
     {
-        if (match(Lexer.IDENTIFIER, null)) {
-            AstParser result = factory.Name(getLexer());
-            return result;
+        AstParser $1 = actual();
+        if (accept(Lexer.DELIMITER, ",")) {
+            AstParser $3 = param_mult();
+            return factory.Comma($1,  $3);
         } else {
-            throw new IllegalStateException("Rule name has no option for input: " + getLexer());
+            return $1;
         }
     }
 
-    public void error(String message) throws ParserException
+    /*
+     * actual ::= INTEGER { factory.Integer(getLexer()) }
+     *        |   DECIMAL { factory.Decimal(getLexer()) }
+     *        |   rule_token ;
+     */
+    public AstParser actual() throws ParserException
     {
-        this.getCompileUnit().error(getInput(), message);
+        AstParser $$; 
+        if (match(Lexer.INTEGER, null)) {
+            $$ = factory.Integer(getLexer());
+        } else if (match(Lexer.DECIMAL, null)) {
+            $$ = factory.Decimal(getLexer());
+        } else {
+            $$ = rule_token();
+        }
+        return $$;
+    }
+
+    /*
+     * name ::= IDENTIFIER { factory.Name(getLexer()) }
+     *      |   error("NameExpected")
+     *      ;
+     */
+    public AstParser name() throws ParserException
+    {
+        AstParser $$;
+        if (match(Lexer.IDENTIFIER, null)) {
+            $$ = factory.Name(getLexer());
+        } else {
+            throw error("NameExpected");
+        }
+        return $$;
+    }
+
+    public ParserException error(String message)
+    {
+        return getCompileUnit().error(getInput(), message);
     }
 
 }

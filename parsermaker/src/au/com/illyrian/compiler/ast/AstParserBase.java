@@ -45,4 +45,8 @@ public abstract class AstParserBase implements AstParser
      public AstParser getTail() {
          return null;
      }
+     
+     public String getName() {
+         return null;
+     }
 }

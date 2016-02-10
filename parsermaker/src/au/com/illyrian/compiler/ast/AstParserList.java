@@ -37,7 +37,9 @@ public class AstParserList extends AstParserBinary
         return list;
     }
 
-
+    public AstParser resolveMerge(AstMergeVisitor visitor) {
+        return visitor.resolveMerge(this);
+    }
 
     public String toString() {
         return getLeft() + "\n" + getRight();

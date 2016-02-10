@@ -29,7 +29,7 @@ public class CastingPrecidenceParserTest extends TestCase
 
     PrecidenceParser createReferenceParser()
     {
-        PrecidenceParser<AstExpression> parser = new JavaOperatorPrecedenceParser<AstExpression>();
+        PrecidenceParser<AstExpression> parser = new PrecidenceParser<AstExpression>();
         parser.addPostfixOperator("(", ")", ParserConstants.CALL, 17, Operator.PARAMS);
         parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY);
         parser.addPostfixOperator("[", "]", ParserConstants.NOP, 16, Operator.BRACKET);
@@ -41,6 +41,7 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.addInfixOperator("||", ParserConstants.ORELSE, 3, Operator.BINARY);
         parser.addInfixOperator("?", ParserConstants.ORELSE, 2, Operator.BINARY);
         parser.addInfixOperator(":", ParserConstants.ORELSE, 2, Operator.BINARY);
+        parser.addReserved("this");
         PrecidenceActionFactory actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
         return parser;
@@ -144,6 +145,17 @@ public class CastingPrecidenceParserTest extends TestCase
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
         assertEquals("Wrong expression", "cast(byte, cast(short, cast(int, b())))", result.toString());
+    }
+
+    public void testCastThis() throws Exception
+    {
+        out.println("(au.com.MyClass)this");
+        PrecidenceParser parser = createReferenceParser();
+        createCompileModule(writer.toString(), parser);
+        parser.nextToken();
+        Object result = parser.expression();
+        assertNotNull("Parser result is null", result);
+        assertEquals("Wrong expression", "cast(au.com.MyClass, this)", result.toString());
     }
 
     public void testCastingParser9() throws Exception

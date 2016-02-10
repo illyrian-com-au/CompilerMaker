@@ -265,12 +265,7 @@ public class AstExpressionFactory
 
     public CommaOperator Comma(AstExpression left, AstExpression right)
     {
-        return new CommaOperator(left, right);
-    }
-    
-    public CommaOperator Comma(AstExpression expr)
-    {
-        return new CommaOperator(null, expr);
+        return new CommaOperator(left, right, sourceLine);
     }
     
     public MethodCall Call(TerminalName left, AstExpression right)

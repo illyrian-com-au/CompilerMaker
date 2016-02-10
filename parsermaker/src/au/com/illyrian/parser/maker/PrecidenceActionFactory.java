@@ -58,23 +58,8 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>,
 
     public AstExpression callAction(AstExpression name, AstExpression callStack) throws ParserException
     {
-    	// FIXME
     	TerminalName name1 = (TerminalName)name;
-    	CommaOperator params = (CommaOperator)callStack;
-        return factory.Call(name1, params);
-    }
-
-    public AstExpression beginParameters(AstExpression name) throws ParserException
-    {
-        return null;
-    }
-
-    public AstExpression addParameter(AstExpression callStack, AstExpression param) throws ParserException
-    {
-    	// FIXME
-    	CommaOperator left = (CommaOperator)callStack;
-    	AstExpression right = (AstExpression)param;
-        return factory.Comma(left, right);
+        return factory.Call(name1, callStack);
     }
 
     public AstExpression literalAction(Lexer lexer) throws ParserException
@@ -83,16 +68,16 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>,
         switch (lexer.getToken())
         {
         case Lexer.INTEGER:
-        	result = factory.Literal(lexer.getTokenInteger());
+            result = factory.Literal(lexer.getTokenInteger());
             break;
         case Lexer.DECIMAL:
-        	result = factory.Literal(lexer.getTokenFloat());
+            result = factory.Literal(lexer.getTokenFloat());
             break;
         case Lexer.CHARACTER:
-        	result = factory.Literal(lexer.getTokenInteger());
+            result = factory.Literal(lexer.getTokenInteger());
             break;
         case Lexer.STRING:
-        	result = factory.Literal(lexer.getTokenValue());
+            result = factory.Literal(lexer.getTokenValue());
             break;
         default:
             throw new ParserException("Cannot handle: " + lexer);
@@ -174,6 +159,9 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>,
         case OR:
         	result = factory.Or(leftOperand, rightOperand);
             break;
+        case COMMA:
+            result = factory.Comma(leftOperand, rightOperand);
+        break;
             // FIXME add other binary operators
         default:
             throw new IllegalStateException("Don't know how to process binary operator: " + operator);

@@ -4,25 +4,25 @@ import java.util.Set;
 
 import au.com.illyrian.parser.ParserException;
 
-public class AstParserString extends AstParserBase
+public class AstParserInteger extends AstParserBase
 {
-    private final String value;
+    private final Integer value;
     
-    public AstParserString(String value)
+    public AstParserInteger(Integer value)
     {
         this.value = value;
     }
 
-    public String getValue()
+    public Integer getValue()
     {
         return value;
     }
 
     public boolean matches(AstParser other)
     {
-        if (other instanceof AstParserString)
+        if (other instanceof AstParserInteger)
         {
-            AstParserString otherValue = (AstParserString)other;
+            AstParserInteger otherValue = (AstParserInteger)other;
             return value.equals(otherValue.value);
         }
         return false;
@@ -30,11 +30,11 @@ public class AstParserString extends AstParserBase
     
     public boolean resolveFirst(AstFirstVisitor visitor, Set<String> firstSet) throws ParserException
     {
-        return visitor.resolveFirst(this, firstSet);
+        return false;
     }
 
     public String toString() {
-        return "\"" + value + "\"";
+        return "" + value;
     }
 
 }

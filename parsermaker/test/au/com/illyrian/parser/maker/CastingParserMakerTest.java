@@ -10,7 +10,6 @@ import au.com.illyrian.expressionparser.FuncABC;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.JavaOperatorPrecedenceParser;
 import au.com.illyrian.parser.impl.LexerInputString;
 import au.com.illyrian.parser.impl.Operator;
 import au.com.illyrian.parser.impl.ParserConstants;
@@ -23,7 +22,7 @@ public class CastingParserMakerTest extends ClassMakerTestCase
     
     PrecidenceParser createParser()
     {
-        PrecidenceParser<AstExpression> parser = new JavaOperatorPrecedenceParser<AstExpression>();
+        PrecidenceParser<AstExpression> parser = new PrecidenceParser<AstExpression>();
         parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY);
         parser.addPostfixOperator("(", ")", ParserConstants.DOT, 16, Operator.BRACKET);
         parser.addPostfixOperator("[", "]", ParserConstants.DOT, 16, Operator.BRACKET);

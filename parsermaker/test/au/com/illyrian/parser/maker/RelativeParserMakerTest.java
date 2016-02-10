@@ -9,7 +9,6 @@ import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.JavaOperatorPrecedenceParser;
 import au.com.illyrian.parser.impl.LexerInputString;
 import au.com.illyrian.parser.impl.Operator;
 import au.com.illyrian.parser.impl.ParserConstants;
@@ -38,7 +37,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     
     PrecidenceParser createParser()
     {
-        PrecidenceParser<AstExpression> parser = new JavaOperatorPrecedenceParser<AstExpression>();
+        PrecidenceParser<AstExpression> parser = new PrecidenceParser<AstExpression>();
         parser.addInfixOperator("<", ParserConstants.LT, 9, Operator.BINARY);
         parser.addInfixOperator(">", ParserConstants.GT, 9, Operator.BINARY);
         parser.addInfixOperator("<=", ParserConstants.LE, 9, Operator.BINARY);

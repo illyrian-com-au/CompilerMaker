@@ -13,8 +13,8 @@ public class AstParserFactory
         return new AstParserList(left, right);
     }
     
-    public AstParserRule Rule(AstParser target, AstParser body, AstParser action) {
-        return new AstParserRule(target, body, action);
+    public AstParserRule Rule(AstParser target, AstParser body) {
+        return new AstParserRule(target, body);
     }
 
     public AstParser Seq(AstParser left, AstParser right) {
@@ -37,17 +37,45 @@ public class AstParserFactory
 
     public AstParserName Name(Lexer lexer) throws ParserException
     {
-        // FIXME - check IDENTIFIER
-        AstParserName result = new AstParserName(lexer.getTokenValue());
-        lexer.nextToken();
-        return result;
+        if (lexer.getToken() == Lexer.IDENTIFIER) {
+            AstParserName result = new AstParserName(lexer.getTokenValue());
+            lexer.nextToken();
+            return result;
+        } else {
+            throw new IllegalArgumentException("Identifier expected.");
+        }
     }
     
     public AstParserString String(Lexer lexer) {
-        // FIXME - check STRING
-        AstParserString result = new AstParserString(lexer.getTokenString());
-        lexer.nextToken();
-        return result;
+        if (lexer.getToken() == Lexer.STRING) {
+            AstParserString result = new AstParserString(lexer.getTokenString());
+            lexer.nextToken();
+            return result;
+        } else {
+            throw new IllegalArgumentException("String expected.");
+        }
+    }
+
+    public AstParser Integer(Lexer lexer)
+    {
+        if (lexer.getToken() == Lexer.INTEGER) {
+            AstParserInteger result = new AstParserInteger(lexer.getTokenInteger());
+            lexer.nextToken();
+            return result;
+        } else {
+            throw new IllegalArgumentException("Integer expected.");
+        }
+    }
+
+    public AstParser Decimal(Lexer lexer)
+    {
+        if (lexer.getToken() == Lexer.DECIMAL) {
+            AstParserDecimal result = new AstParserDecimal(lexer.getTokenFloat());
+            lexer.nextToken();
+            return result;
+        } else {
+            throw new IllegalArgumentException("Integer expected.");
+        }
     }
 
     public AstParserReserved Reserved(Lexer lexer)
@@ -61,6 +89,11 @@ public class AstParserFactory
     public AstParser Empty()
     {
         return new AstParserEmpty();
+    }
+
+    public AstParser Comma(AstParser left, AstParser right)
+    {
+        return new AstParserComma(left, right);
     }
 
 }

@@ -7,16 +7,35 @@ public class AstMergeVisitor
     {
     }
     
+    public AstParserBase resolveMerge(AstParserList binary)
+    {
+        AstParser head = null;
+        if (binary.getLeft() != null) {
+            head = binary.getLeft().resolveMerge(this);
+        }
+        AstParser tail = null;
+        if (binary.getRight() != null) {
+            tail = binary.getRight().resolveMerge(this);
+        }
+        return binary.replace(head, tail);
+    }
+
     public AstParser resolveMerge(AstParserRule rule)
     {
         AstParser newBody = rule.getBody().resolveMerge(this);
-        return rule.replicate(rule.getTarget(), newBody, rule.getAction());
+        return rule.replicate(rule.getTarget(), newBody);
     }
 
     public AstParserBase resolveMerge(AstParserBinary binary)
     {
-        AstParser head = (binary.getLeft() != null) ? binary.getLeft().resolveMerge(this) : null;
-        AstParser tail = (binary.getRight() != null) ? binary.getRight().resolveMerge(this) : null;
+        AstParser head = null;
+        if (binary.getLeft() != null) {
+            head = binary.getLeft().resolveMerge(this);
+        }
+        AstParser tail = null;
+        if (binary.getRight() != null) {
+            tail = binary.getRight().resolveMerge(this);
+        }
         return binary.replace(head, tail);
     }
 

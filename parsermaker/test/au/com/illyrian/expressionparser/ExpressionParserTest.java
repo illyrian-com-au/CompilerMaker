@@ -18,39 +18,37 @@ public class ExpressionParserTest extends TestCase
     LexerInputString input;
     Object output;
 
-    PrecidenceAction<AstExpression> action = new PrecidenceActionFactory() {
-    	
+    PrecidenceAction<AstExpression> action = new PrecidenceActionFactory()
+    {
+
         public AstExpression infixAction(Operator operator, AstExpression leftOperand, AstExpression rightOperand)
                 throws ParserException
         {
-        	if (operator.getIndex() == ParserConstants.POW)
-        	{
-	        	AstExpression left = (AstExpression)leftOperand;
-	        	AstExpression right = (AstExpression)rightOperand;
-	        	AstExpression result = new BinaryOperator(BinaryOperator.POW, left, right);
-	        	return result;
-	        } else if (operator.getIndex() == ParserConstants.INSTANCEOF)
-        	{
-	        	AstExpression left = (AstExpression)leftOperand;
-	        	AstExpression right = (AstExpression)rightOperand;
-	        	AstExpression result = new BinaryOperator(ParserConstants.INSTANCEOF, left, right);
-	        	return result;
-	        }
-        	return super.infixAction(operator, leftOperand, rightOperand);
+            if (operator.getIndex() == ParserConstants.POW) {
+                AstExpression left = (AstExpression) leftOperand;
+                AstExpression right = (AstExpression) rightOperand;
+                AstExpression result = new BinaryOperator(BinaryOperator.POW, left, right);
+                return result;
+            } else if (operator.getIndex() == ParserConstants.INSTANCEOF) {
+                AstExpression left = (AstExpression) leftOperand;
+                AstExpression right = (AstExpression) rightOperand;
+                AstExpression result = new BinaryOperator(ParserConstants.INSTANCEOF, left, right);
+                return result;
+            }
+            return super.infixAction(operator, leftOperand, rightOperand);
         }
 
         public AstExpression prefixAction(Operator operator, AstExpression operand) throws ParserException
         {
-        	if (operator.getIndex() == ParserConstants.NEW)
-        	{
-	        	AstExpression expr = (AstExpression)operand;
-	        	AstExpression result = new UnaryOperator(operator.getIndex(), expr);
-	        	return result;
-	        }
-        	return super.prefixAction(operator, operand);
+            if (operator.getIndex() == ParserConstants.NEW) {
+                AstExpression expr = (AstExpression) operand;
+                AstExpression result = new UnaryOperator(operator.getIndex(), expr);
+                return result;
+            }
+            return super.prefixAction(operator, operand);
         }
     };
-    
+
     public void setUp()
     {
         input = new LexerInputString();
@@ -66,7 +64,7 @@ public class ExpressionParserTest extends TestCase
         input.setLine("{fred}");
         parser.setInput(input);
         output = parser.parseExpression();
-        assertEquals("Identifier expected",  "fred", output.toString());
+        assertEquals("Identifier expected", "fred", output.toString());
     }
 
     public void testInteger() throws Exception
@@ -74,7 +72,7 @@ public class ExpressionParserTest extends TestCase
         input.setLine("{1234}");
         parser.setInput(input);
         output = parser.parseExpression();
-        assertEquals("Integer expected",  "1234", output.toString());
+        assertEquals("Integer expected", "1234", output.toString());
     }
 
     public void testAndVarVar() throws Exception
@@ -226,52 +224,53 @@ public class ExpressionParserTest extends TestCase
         System.out.println(output.toString());
         assertEquals("Wrong expression", "((a * b) + (c * d))", output.toString());
     }
-/*
-    public void testFunction0() throws Exception
-    {
-        input.setLine("{f() = a/2;}");
-        parser.setInput(input);
-        output = parser.parseMember();
-        System.out.println(output.toString());
-        assertEquals("Wrong expression", "(f () (a 2 /))", output.toString());
-    }
 
-    public void testFunction1() throws Exception
-    {
-        input.setLine("{f(a) = a*1234;}");
-        parser.setInput(input);
-        output = parser.parseMember();
-        System.out.println(output.toString());
-        assertEquals("Wrong expression", "(f (a) (a 1234 *))", output.toString());
-    }
+    /*
+        public void testFunction0() throws Exception
+        {
+            input.setLine("{f() = a/2;}");
+            parser.setInput(input);
+            output = parser.parseMember();
+            System.out.println(output.toString());
+            assertEquals("Wrong expression", "(f () (a 2 /))", output.toString());
+        }
 
-    public void testFunction2() throws Exception
-    {
-        input.setLine("{f(a,b) = a - b;}");
-        parser.setInput(input);
-        output = parser.parseMember();
-        System.out.println(output.toString());
-        assertEquals("Wrong expression", "(f (a b) (a b -))", output.toString());
-    }
+        public void testFunction1() throws Exception
+        {
+            input.setLine("{f(a) = a*1234;}");
+            parser.setInput(input);
+            output = parser.parseMember();
+            System.out.println(output.toString());
+            assertEquals("Wrong expression", "(f (a) (a 1234 *))", output.toString());
+        }
 
-    public void testDeclareClass() throws Exception
-    {
-        input.setLine("{class Test{ f(a,b) = a - b; }}");
-        parser.setInput(input);
-        output = parser.parseClass();
-        System.out.println(output.toString());
-        assertEquals("Wrong expression", "(class Test null ((f (a b) (a b -)))", output.toString());
-    }
+        public void testFunction2() throws Exception
+        {
+            input.setLine("{f(a,b) = a - b;}");
+            parser.setInput(input);
+            output = parser.parseMember();
+            System.out.println(output.toString());
+            assertEquals("Wrong expression", "(f (a b) (a b -))", output.toString());
+        }
 
-    public void testDeclareClassExtends() throws Exception
-    {
-        input.setLine("{class Test extends Fred{ f(a,b) = a - b; }}");
-        parser.setInput(input);
-        output = parser.parseClass();
-        System.out.println(output.toString());
-        assertEquals("Wrong expression", "(class Test Fred ((f (a b) (a b -)))", output.toString());
-    }
-*/
+        public void testDeclareClass() throws Exception
+        {
+            input.setLine("{class Test{ f(a,b) = a - b; }}");
+            parser.setInput(input);
+            output = parser.parseClass();
+            System.out.println(output.toString());
+            assertEquals("Wrong expression", "(class Test null ((f (a b) (a b -)))", output.toString());
+        }
+
+        public void testDeclareClassExtends() throws Exception
+        {
+            input.setLine("{class Test extends Fred{ f(a,b) = a - b; }}");
+            parser.setInput(input);
+            output = parser.parseClass();
+            System.out.println(output.toString());
+            assertEquals("Wrong expression", "(class Test Fred ((f (a b) (a b -)))", output.toString());
+        }
+    */
     public void testAssign() throws Exception
     {
         input.setLine("{a = b}");
@@ -505,7 +504,6 @@ public class ExpressionParserTest extends TestCase
         assertEquals("Wrong expression", "#18(Abc)", output.toString());
     }
 
-   
     public void testInstanceOf() throws Exception
     {
         input.setLine("{a instanceof Abc}");
@@ -521,7 +519,7 @@ public class ExpressionParserTest extends TestCase
         output = parser.parseExpression();
         assertEquals("Wrong expression", "(((a << b) >> c) >>> d)", output.toString());
     }
-    
+
     public void testBitwise2() throws Exception
     {
         input.setLine("{a >>> b >> c << d}");
@@ -529,7 +527,7 @@ public class ExpressionParserTest extends TestCase
         output = parser.parseExpression();
         assertEquals("Wrong expression", "(((a >>> b) >> c) << d)", output.toString());
     }
-    
+
     public void testBitwiseAdd() throws Exception
     {
         input.setLine("{a+1 >>> b-2 != c & d}");
@@ -537,7 +535,7 @@ public class ExpressionParserTest extends TestCase
         output = parser.parseExpression();
         assertEquals("Wrong expression", "((((a + 1) >>> (b - 2)) != c) & d)", output.toString());
     }
-    
+
     public void testRelations1() throws Exception
     {
         input.setLine("{a < b > c <= d >= e}");
@@ -545,7 +543,7 @@ public class ExpressionParserTest extends TestCase
         output = parser.parseExpression();
         assertEquals("Wrong expression", "((((a < b) > c) <= d) >= e)", output.toString());
     }
-    
+
     public void testRelations2() throws Exception
     {
         input.setLine("{a >= b <= c < d > e}");
@@ -553,15 +551,16 @@ public class ExpressionParserTest extends TestCase
         output = parser.parseExpression();
         assertEquals("Wrong expression", "((((a >= b) <= c) < d) > e)", output.toString());
     }
-        
+
     public void testRelation3() throws Exception
     {
         input.setLine("{a+1 >= b*2 <= c<<2 < d>>>3 > e>>1}");
         parser.setInput(input);
         output = parser.parseExpression();
-        assertEquals("Wrong expression", "(((((a + 1) >= (b * 2)) <= (c << 2)) < (d >>> 3)) > (e >> 1))", output.toString());
+        assertEquals("Wrong expression", "(((((a + 1) >= (b * 2)) <= (c << 2)) < (d >>> 3)) > (e >> 1))",
+                output.toString());
     }
-    
+
     public void testNoInput() throws Exception
     {
         input.setLine("");
@@ -570,7 +569,7 @@ public class ExpressionParserTest extends TestCase
             output = parser.parseExpression();
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
-            assertEquals("Wrong ParserException",  "'{' expected at start of code fragment.", ex.getMessage());
+            assertEquals("Wrong ParserException", "'{' expected at start of code fragment.", ex.getMessage());
         }
     }
 
@@ -582,7 +581,7 @@ public class ExpressionParserTest extends TestCase
             output = parser.parseExpression();
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
-            assertEquals("Wrong ParserException",  "Expression expected.", ex.getMessage());
+            assertEquals("Wrong ParserException", "Expression expected.", ex.getMessage());
         }
     }
 
@@ -594,7 +593,7 @@ public class ExpressionParserTest extends TestCase
             output = parser.parseExpression();
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
-            assertEquals("Wrong ParserException",  "Expression expected.", ex.getMessage());
+            assertEquals("Wrong ParserException", "Expression expected.", ex.getMessage());
         }
     }
 
@@ -607,7 +606,7 @@ public class ExpressionParserTest extends TestCase
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             System.out.println(ex);
-            assertEquals("Wrong ParserException",  "\')\' expected.", ex.getMessage());
+            assertEquals("Wrong ParserException", "\')\' expected.", ex.getMessage());
         }
     }
 
@@ -620,7 +619,7 @@ public class ExpressionParserTest extends TestCase
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             System.out.println(ex);
-            assertEquals("Wrong ParserException",  "Operator not implemented: <>", ex.getMessage());
+            assertEquals("Wrong ParserException", "Operator not implemented: <>", ex.getMessage());
         }
     }
 
@@ -633,7 +632,7 @@ public class ExpressionParserTest extends TestCase
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             System.out.println(ex);
-            assertEquals("Wrong ParserException",  "Expression expected.", ex.getMessage());
+            assertEquals("Wrong ParserException", "Expression expected.", ex.getMessage());
         }
     }
 
@@ -646,7 +645,7 @@ public class ExpressionParserTest extends TestCase
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             System.out.println(ex);
-            assertEquals("Wrong ParserException",  "Operator or '}' expected.", ex.getMessage());
+            assertEquals("Wrong ParserException", "Operator or '}' expected.", ex.getMessage());
         }
     }
 
@@ -659,7 +658,7 @@ public class ExpressionParserTest extends TestCase
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             System.out.println(ex);
-            assertEquals("Wrong ParserException",  "Operator expected.", ex.getMessage());
+            assertEquals("Wrong ParserException", "Operator expected.", ex.getMessage());
         }
     }
 
@@ -672,7 +671,7 @@ public class ExpressionParserTest extends TestCase
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             System.out.println(ex);
-            assertEquals("Wrong ParserException",  "Expression expected.", ex.getMessage());
+            assertEquals("Wrong ParserException", "Expression expected.", ex.getMessage());
         }
     }
 
@@ -685,7 +684,7 @@ public class ExpressionParserTest extends TestCase
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             System.out.println(ex);
-            assertEquals("Wrong ParserException",  "Unbalanced perentheses - too many \')\'.", ex.getMessage());
+            assertEquals("Wrong ParserException", "Unbalanced perentheses - too many \')\'.", ex.getMessage());
         }
     }
 }

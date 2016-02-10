@@ -358,7 +358,7 @@ public class AstStatementMakerTest extends ClassMakerTestCase
             build.Declare(build.Name("int"), build.Name("y"));
         	build.Try(); 
         	{
-        	    build.Eval(build.Call(build.Name("f"), build.Comma(build.Name("x"))));
+        	    build.Eval(build.Call(build.Name("f"), build.Name("x")));
         	    build.Eval(build.Assign(build.Name("y"), build.Name("x")));
         	} build.Catch(build.Name(IOException.class.getName()), build.Name("ex1")); {
         	    build.Eval(build.Assign(build.Name("y"), build.Literal(-10)));

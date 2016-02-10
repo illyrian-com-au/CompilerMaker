@@ -16,7 +16,7 @@ import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.CompileUnit;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.JavaOperatorPrecedenceParser;
+import au.com.illyrian.parser.impl.CompileModule;
 import au.com.illyrian.parser.impl.LexerInputStream;
 import au.com.illyrian.parser.impl.LexerInputString;
 import au.com.illyrian.parser.impl.Operator;
@@ -29,10 +29,11 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     PrintWriter  out;
     ClassMakerFactory factory = new ClassMakerFactory();
     ClassMaker maker = factory.createClassMaker();
+    CompileModule compileUnit = new CompileModule();
     
     PrecidenceParser createParser()
     {
-        PrecidenceParser<AstExpression> parser = new JavaOperatorPrecedenceParser<AstExpression>();
+        PrecidenceParser<AstExpression> parser = new PrecidenceParser<AstExpression>();
         parser.addPostfixOperator("(", ")", ParserConstants.CALL, 17, Operator.PARAMS);
         parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY);
         parser.addPostfixOperator("[", "]", ParserConstants.DOT, 16, Operator.BRACKET);
@@ -47,9 +48,11 @@ public class MethodParserMakerTest extends ClassMakerTestCase
 //        parser.addNudOperator("(", ")", ParserConstants.CAST, 14, Operator.BRACKET, true);
 //        parser.addLedOperator("+", ParserConstants.ADD, 12, Operator.BINARY);
 //        parser.addLedOperator("-", ParserConstants.SUBT, 12, Operator.BINARY);
+        parser.addInfixOperator(",", ParserConstants.COMMA, 0, Operator.BINARY);
 
         PrecidenceActionFactory actions1 = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions1);
+        parser.setCompileUnit(compileUnit);
         return parser;
     }
 

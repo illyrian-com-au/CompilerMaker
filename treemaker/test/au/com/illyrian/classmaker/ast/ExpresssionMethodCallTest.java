@@ -70,7 +70,7 @@ public class ExpresssionMethodCallTest extends TestCase
     public void testLocalCallParams()
     {
     	AstExpression ast = build.Call(build.Name("f"), 
-    			build.Comma(build.Comma(build.Comma(build.Literal(1)), build.Literal(2)), build.Literal(3)));
+    			build.Comma(build.Comma(build.Literal(1), build.Literal(2)), build.Literal(3)));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong toString()", "f(1, 2, 3)", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
@@ -79,7 +79,7 @@ public class ExpresssionMethodCallTest extends TestCase
 
     public void testOtherCallParams()
     {
-    	AstExpression ast = build.Dot(build.Name("x"), build.Call(build.Name("f"), build.Comma(build.Literal(1))));
+    	AstExpression ast = build.Dot(build.Name("x"), build.Call(build.Name("f"), build.Literal(1)));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong toString()", "x.f(1)", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
@@ -89,7 +89,7 @@ public class ExpresssionMethodCallTest extends TestCase
     public void testStaticCallParams()
     {  
     	AstExpression ast = build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Object")), 
-    			build.Call(build.Name("f"), build.Comma(build.Literal(1))));
+    			build.Call(build.Name("f"), build.Literal(1)));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong toString()", "java.lang.Object.f(1)", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
@@ -127,7 +127,7 @@ public class ExpresssionMethodCallTest extends TestCase
     public void testLocalCallExpressions()
     {
     	AstExpression ast = build.Call(build.Name("f"), 
-    			build.Comma(build.Comma(build.Comma(build.Mult(build.Literal(2), build.Literal(3))), build.Literal("Hello")), build.Name("a")));
+    			build.Comma(build.Comma(build.Mult(build.Literal(2), build.Literal(3)), build.Literal("Hello")), build.Name("a")));
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong toString()", "f((2 * 3), \"Hello\", a)", ast.toString());
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());

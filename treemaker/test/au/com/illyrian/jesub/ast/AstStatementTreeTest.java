@@ -483,7 +483,7 @@ public class AstStatementTreeTest extends ClassMakerTestCase
       	method.add(build.Declare(null, intType, build.Name("y")));
       	
       	AstStatementCompound tryCode = build.Compound();
-      	tryCode.add(build.Eval(build.Call(build.Name("f"), build.Comma(build.Name("x")))));
+      	tryCode.add(build.Eval(build.Call(build.Name("f"), build.Name("x"))));
       	tryCode.add(build.Eval(build.Assign(build.Name("y"), build.Name("x"))));
       	
       	AstStatementCompound code1 = build.Compound();

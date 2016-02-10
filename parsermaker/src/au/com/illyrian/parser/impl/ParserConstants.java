@@ -36,10 +36,11 @@ public interface ParserConstants {
     public static final int OR  = 73;
     public static final int ANDTHEN = 74;
     public static final int ORELSE = 75;
-    public static final int ASSIGN = 91;
+    public static final int ASSIGN = 81;
+    public static final int COMMA = 91;
 
     /* Other operators */
     public static final int CALL = 101;
-    public static final int INDEX = 101;
+    public static final int INDEX = 102;
 
 }

@@ -10,16 +10,17 @@
         ;
         
     modifier_mult ::=
-            modifier modifier_mult                { ast.Modifier($1, $2) }
-        |   /*EMPTY*/
-        ;
-        
-    modifier ::=
-            PUBLIC | PROTECTED | PRIVATE | ABSTRACT | FINAL | STRICTFP 
+            PUBLIC  modifier_mult            { ast.Modifier($1, $2) }
+        |   PROTECTED  modifier_mult         { ast.Modifier($1, $2) }
+        |   PRIVATE  modifier_mult           { ast.Modifier($1, $2) }
+        |   ABSTRACT  modifier_mult          { ast.Modifier($1, $2) }
+        |   FINAL  modifier_mult             { ast.Modifier($1, $2) }
+        |   STRICTFP  modifier_mult          { ast.Modifier($1, $2) }
+        |   /*EMPTY*/ 
         ;
     
     compilation_unit ::=
-            package_opt import_mult class_plus  { ast.Module($1, $2, $3) }
+            package_opt import_mult class_declaration_plus { ast.Module($1, $2, $3) }
         ;
             
     package_opt ::= 
@@ -37,8 +38,8 @@
         
     import_path_plus ::= 
             name DOT import_path_plus   { ast.Dot($1, $3) }
-        |   name SEMICOLON              { $1 }
-        |   MULT SEMICOLON              { ast.Name("*") }
+        |   name SEMI              { $1 }
+        |   MULT SEMI              { ast.Name("*") }
         |   error("IncompleteImportPath")
         ;
         
@@ -97,15 +98,21 @@
         
     type ::=
             class_type
+        |   class_type LBRAC RBRAC      { ast.ArrayOf($1) }
         |   primitive_type              { ast.Name($1) }
-        |   array_type
+        |   primitive_type LBRAC RBRAC  { ast.ArrayOf($1) }
         ;
         
     primitive_type ::=
-            BOOLEAN | BYTE | CHAR | SHORT | INT | LONG | FLOAT | DOUBLE ;
-    
-    array_type ::=
-            type LBRAC RBRAC                    { ast.ArrayOf($1) }
+            BOOLEAN             { ast.Name("boolean") }
+        |   BYTE                { ast.Name("byte") }
+        |   CHAR                { ast.Name("char") }
+        |   SHORT               { ast.Name("short") }
+        |   INT                 { ast.Name("int") }
+        |   LONG                { ast.Name("long") }
+        |   FLOAT               { ast.Name("float") }
+        |   DOUBLE              { ast.Name("double") }
+        ;
     
     class_type ::= 
             qualified_name 
@@ -117,7 +124,7 @@
     
     method_body ::=
             compound_statement
-        |   SEMICOLON
+        |   SEMI
         ;
     
     compound_statement ::=
@@ -138,7 +145,8 @@
         |   break_statement
         |   continue_statement
         |   return_statement
-        |   SEMICOLON                           { null }
+        |   SEMI                           { null }
+        |   declare_statement
         |   expression_statement
         |   recover(statement)
         ;
@@ -146,6 +154,7 @@
     declare_label_opt ::=
             lookahead(IDENTIFIER, COLON)
             name COLON                                          { ast.Label($1) } 
+        ;
     
     if_else_statement ::=
             'if' LPAR expression RPAR statement else_opt        { ast.If($3, $5, $6) }
@@ -161,7 +170,7 @@
         ;
     
     for_statement ::=
-            'for' LPAR expression_opt SEMICOLON expression_opt SEMICOLON expression_opt RPAR statement
+            'for' LPAR expression_opt SEMI expression_opt SEMI expression_opt RPAR statement
                                 { ast.For($3, $5, $7, $9) }
         ;
     
@@ -176,19 +185,20 @@
         ;
     
     catch_clause ::=
-            'catch' LPAR class_type name RPAR compound_statement catch_mult   
+            'catch' LPAR class_type name RPAR compound_statement  
                                                                 { ast.Catch($3, $4, $6) }
         ;
     
     finally_clause ::=
             'finally' compound_statement                        { ast.Finally($2) }
+        ;
     
     break_statement ::=
-            'break' label_opt SEMICOLON                         { ast.Break($2) }
+            'break' label_opt SEMI                         { ast.Break($2) }
         ;
     
     continue_statement ::=
-            'continue' label_opt SEMICOLON                      { ast.Continue($2) }
+            'continue' label_opt SEMI                      { ast.Continue($2) }
         ;
     
     label_opt ::=
@@ -197,12 +207,15 @@
         ;
     
     return_statement ::=
-            'return' expression_opt SEMICOLON   { ast.Return($2) }
-        |   'return' SEMICOLON                  { ast.Return() }
+            'return' expression_opt SEMI   { ast.Return($2) }
         ;
     
+    declare_statement ::=
+            modifier_mult type name SEMI   { new Declare($1, $2, $3) }
+        ;
+
     expression_statement ::=
-            expression SEMICOLON                { ast.Eval($1) }
+            expression SEMI                { ast.Eval($1) }
         ;
 
     expression_opt ::=
@@ -211,11 +224,12 @@
         ;
         
     expression ::=                          
-            precedence(0)
+            precedence(1) 
         ;
+    /* FIXME - allow line comments // */
 
     actual_opt ::=                       
-            precidence(-1)
+            precedence(0)
         |   /*EMPTY*/
         ;
  }

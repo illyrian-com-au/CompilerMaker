@@ -23,5 +23,6 @@ public interface AstParser
     public AstParser getHead();
     
     public AstParser getTail();
-
+    
+    public String getName();
 }

@@ -11,15 +11,18 @@ public class JesubParser extends PrecidenceParser
 
     Token::{
     
-        DOT        ::= token(Lexer.DELIMITER, '.');
         SEMI       ::= token(Lexer.DELIMITER, ';');
-        COMMA      ::= token(Lexer.DELIMITER, ',');
+
+        DOT        ::= token(Lexer.OPERATOR, '.');
+        COMMA      ::= token(Lexer.OPERATOR, ',');
         MULT       ::= token(Lexer.OPERATOR, '*');
         
         BEGIN      ::= token(Lexer.OPEN_P, '{');
         END        ::= token(Lexer.CLOSE_P, '}');
         LPAR       ::= token(Lexer.OPEN_P, '(');
         RPAR       ::= token(Lexer.CLOSE_P, ')');
+        LBRA       ::= token(Lexer.OPEN_P, '[');
+        RBRA       ::= token(Lexer.CLOSE_P, ']');
         
         PACKAGE    ::= token(Lexer.RESERVED, "package");
         IMPORT     ::= token(Lexer.RESERVED, "import");
