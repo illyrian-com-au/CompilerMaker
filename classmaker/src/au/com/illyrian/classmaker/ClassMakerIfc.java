@@ -1,5 +1,6 @@
 package au.com.illyrian.classmaker;
 
+import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.ClassMaker.ForWhile;
 import au.com.illyrian.classmaker.ClassMaker.Initialiser;
 import au.com.illyrian.classmaker.ClassMaker.Labelled;
@@ -10,7 +11,7 @@ import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 
-public interface ExpressionIfc
+public interface ClassMakerIfc
 {
     /**
      * Sets the name of the class being generated.
@@ -1438,7 +1439,7 @@ public interface ExpressionIfc
      * @param cond next conditional expression
      * @return logic expression including shortcut logic
      */
-    public ClassMaker.AndOrExpression AndThen(ClassMaker.AndOrExpression andOr, Type cond);
+    public AndOrExpression AndThen(AndOrExpression andOr, Type cond);
 
     /**
      * Creates a <code>cond &&</code> logic expression.
@@ -1455,7 +1456,7 @@ public interface ExpressionIfc
      * @param cond next conditional expression
      * @return logic expression including shortcut logic
      */
-    public ClassMaker.AndOrExpression AndThen(Type cond);
+    public AndOrExpression AndThen(Type cond);
 
     /**
      * Appends a <code>cond ||</code> logic expression to a preceeding expression.
@@ -1473,7 +1474,7 @@ public interface ExpressionIfc
      * @param cond next conditional expression
      * @return logic expression including shortcut logic
      */
-    public ClassMaker.AndOrExpression OrElse(ClassMaker.AndOrExpression andOr, Type cond);
+    public AndOrExpression OrElse(AndOrExpression andOr, Type cond);
 
     /**
      * Creates a <code>cond ||</code> logic expression.
@@ -1490,7 +1491,7 @@ public interface ExpressionIfc
      * @param cond next conditional expression
      * @return logic expression including shortcut logic
      */
-    public ClassMaker.AndOrExpression OrElse(Type cond);
+    public AndOrExpression OrElse(Type cond);
 
     /**
      * Contains an expression that includes shortcut AND and OR logic.
@@ -1507,7 +1508,7 @@ public interface ExpressionIfc
      * @param cond last conditional expression
      * @return return type is always boolean
      */
-    public Type Logic(ClassMaker.AndOrExpression andOr, Type cond);
+    public Type Logic(AndOrExpression andOr, Type cond);
 
     // Program Statements
     /**

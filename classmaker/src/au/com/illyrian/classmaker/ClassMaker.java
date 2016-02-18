@@ -144,7 +144,7 @@ import au.com.illyrian.classmaker.types.Type;
  *
  * @author Donald Strong
  */
-public class ClassMaker implements ExpressionIfc
+public class ClassMaker implements ClassMakerIfc
 {
     private static final Logger log = Logger.getLogger(ClassMaker.class.getName());
     

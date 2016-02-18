@@ -30,13 +30,14 @@ package au.com.illyrian.classmaker.ast;
 import junit.framework.TestCase;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerException;
-import au.com.illyrian.classmaker.ExpressionIfc;
+import au.com.illyrian.classmaker.ClassMakerText;
+import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public class ExpresssionDotOperatorTest extends TestCase
 {
-    ExpressionIfc buf = new ClassMakerText();
+    ClassMakerIfc buf = new ClassMakerText();
     AstExpressionFactory build = new AstExpressionFactory();
     AstStructureVisitor visitor = new AstStructureVisitor(buf);
 

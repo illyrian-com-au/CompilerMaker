@@ -28,13 +28,14 @@
 package au.com.illyrian.classmaker.ast;
 
 import junit.framework.TestCase;
-import au.com.illyrian.classmaker.ExpressionIfc;
+import au.com.illyrian.classmaker.ClassMakerText;
+import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class ExpresssionBasicTest extends TestCase
 {
-    ExpressionIfc buf = new ClassMakerText();
+    ClassMakerIfc buf = new ClassMakerText();
     AstExpressionVisitor visitor = new AstExpressionVisitor(buf);
     AstExpressionFactory ast = new AstExpressionFactory();
    

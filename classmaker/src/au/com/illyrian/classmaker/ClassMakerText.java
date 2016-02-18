@@ -1,20 +1,15 @@
-package au.com.illyrian.classmaker.ast;
+package au.com.illyrian.classmaker;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Stack;
 
-import au.com.illyrian.classmaker.CallStack;
-import au.com.illyrian.classmaker.CallStackMaker;
-import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.ClassMaker.ForWhile;
 import au.com.illyrian.classmaker.ClassMaker.Initialiser;
 import au.com.illyrian.classmaker.ClassMaker.Labelled;
-import au.com.illyrian.classmaker.ClassMakerException;
-import au.com.illyrian.classmaker.ClassMakerFactory;
-import au.com.illyrian.classmaker.ExpressionIfc;
+
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
@@ -22,7 +17,7 @@ import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 
-public class ClassMakerText extends PrintWriter implements ExpressionIfc {
+public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     ClassMakerFactory factory = new ClassMakerFactory();
     Stack<String> stack = new Stack<String>();
 
