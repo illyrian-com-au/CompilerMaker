@@ -21,10 +21,10 @@ public class AstParserAlternative extends AstParserBinary
         return visitor.resolveMerge(this);
     }
 
-    public AstParserAlternative replace(AstParser head, AstParser tail) {
-        if (head == this.getHead() && tail == this.getTail())
+    public AstParserAlternative replace(AstParser left, AstParser right) {
+        if (left == this.getHead() && right == this.getTail())
             return this;
-        return new AstParserAlternative(head, tail);
+        return new AstParserAlternative(left, right);
     }
 
     public AstParser [] toAltArray() {

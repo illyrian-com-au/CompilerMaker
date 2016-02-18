@@ -43,7 +43,7 @@ public class AstParserRule extends AstParserBase
         return getTarget().getName();
     }
 
-    public AstParserRule replicate(AstParser target, AstParser body) {
+    public AstParserRule replace(AstParser target, AstParser body) {
         if (target == this.target && body == this.body)
             return this;
         return new AstParserRule(target, body);

@@ -51,7 +51,7 @@
     class_declaration ::=
             modifier_mult CLASS simple_name extends_opt implements_opt class_body 
                                     { ast.DeclareClass($1, $3, $4, $5, $6) }
-        |   modifier_mult INTERFACE simple_name extends_opt interface_body 
+        |   modifier_mult INTERFACE simple_name extends_opt class_body 
                                     { ast.DeclareInterface($1, $3, $4, $5) }
         |   error("ExpectedClassOrInterface") 
         ;
@@ -152,8 +152,8 @@
         ;
     
     declare_label_opt ::=
-            lookahead(IDENTIFIER, COLON)
-            name COLON                                          { ast.Label($1) } 
+            lookahead(IDENTIFIER, COLON) name COLON             { ast.Label($1) } 
+        |   /*EMPTY*/
         ;
     
     if_else_statement ::=
@@ -226,7 +226,8 @@
     expression ::=                          
             precedence(1) 
         ;
-    /* FIXME - allow line comments // */
+    /* FIXME - allow line comments */
+    // Line comments now work
 
     actual_opt ::=                       
             precedence(0)
