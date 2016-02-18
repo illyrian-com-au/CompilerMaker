@@ -65,7 +65,7 @@ public class InstanceOfOperator extends AstExpressionBase
     
     public String toString()
     {
-        return "instanceof(" + leftOperand + "," + rightOperand + ")";
+        return "instanceof(" + leftOperand + ", " + rightOperand + ")";
     }
 
 }
