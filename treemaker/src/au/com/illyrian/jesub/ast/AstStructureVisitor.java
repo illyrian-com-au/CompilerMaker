@@ -32,7 +32,7 @@ import au.com.illyrian.classmaker.ClassMaker.ForStep;
 import au.com.illyrian.classmaker.ClassMaker.ForWhile;
 import au.com.illyrian.classmaker.ClassMaker.Labelled;
 import au.com.illyrian.classmaker.ClassMakerException;
-import au.com.illyrian.classmaker.ExpressionIfc;
+import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
@@ -47,7 +47,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
     {
     }
 
-    public AstStructureVisitor(ExpressionIfc classMaker)
+    public AstStructureVisitor(ClassMakerIfc classMaker)
     {
         super(classMaker);
     }
