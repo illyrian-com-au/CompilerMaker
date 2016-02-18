@@ -33,7 +33,7 @@ import au.com.illyrian.classmaker.CallStack;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.ClassMakerException;
-import au.com.illyrian.classmaker.ExpressionIfc;
+import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.DeclaredType;
@@ -41,7 +41,7 @@ import au.com.illyrian.classmaker.types.Type;
 
 public class AstExpressionVisitor implements SourceLine
 {
-    ExpressionIfc maker = null;
+    ClassMakerIfc maker = null;
     
     private static final ClassMakerException [] ERRORS_PROTO = new ClassMakerException[0];
     private Vector <ClassMakerException> errorList = new Vector <ClassMakerException>();
@@ -51,17 +51,17 @@ public class AstExpressionVisitor implements SourceLine
     {
     }
     
-    public AstExpressionVisitor(ExpressionIfc classMaker)
+    public AstExpressionVisitor(ClassMakerIfc classMaker)
     {
         setMaker(classMaker);
     }
     
-    public ExpressionIfc getMaker()
+    public ClassMakerIfc getMaker()
     {
         return maker;
     }
 
-    public void setMaker(ExpressionIfc maker)
+    public void setMaker(ClassMakerIfc maker)
     {
         this.maker = maker;
     }
