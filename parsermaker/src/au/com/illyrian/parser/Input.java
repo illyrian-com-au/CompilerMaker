@@ -83,4 +83,6 @@ public interface Input
      */
     public int getLineNumber();
     
+    public String peek(int lookahead);
+    
 }

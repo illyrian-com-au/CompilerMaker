@@ -244,12 +244,12 @@ public class Latin1Lexer implements Lexer
     {
         if (input == null)
             throw new NullPointerException("Input is null.");
-        
+
         do {
 
             // Move over any whitespace before the token.
             spanWhiteSpace();
-    
+
             // Now examine the start character.
             char ch = input.startChar();
             if (ch == Input.NULL) {
@@ -258,8 +258,10 @@ public class Latin1Lexer implements Lexer
                 token = spanIdentifier();
             } else if (isDigitChar(ch)) {
                 token = spanNumber();
-            } else if (isOperator(ch)) {
-                token = spanOperator();
+            } else if (peekLineComment()) {
+                token = spanLineComment();
+            } else  if (peekMultiComment()) {
+                token = spanMultiComment();
             } else if (isDelimiter(ch)) {
                 token = spanCharacter(DELIMITER);
             } else if (isOpenP(ch)) {
@@ -270,6 +272,8 @@ public class Latin1Lexer implements Lexer
                 token = spanStringLiteral();
             } else if (isCharacterQuote(ch)) {
                 token = spanCharLiteral();
+            } else if (isOperator(ch)) {
+                token = spanOperator();
             } else {
                 this.token = error("Unrecognised input character: \\x0" + Integer.toOctalString(ch));
             }
@@ -342,10 +346,10 @@ public class Latin1Lexer implements Lexer
     protected void spanWhiteSpace()
     {
         int ch = input.startChar();
-        if (isWhitespace((char)ch) || isStartComment((char)ch)) {
-            while (isWhitespace((char)ch) || isStartComment((char)ch)) {
-                if (isStartComment((char)ch)) {
-                    spanComment();
+        if (isWhitespace((char) ch) || isStartComment((char) ch)) {
+            while (isWhitespace((char) ch) || isStartComment((char) ch)) {
+                if (isStartComment((char) ch)) {
+                    spanLineComment();
                     ch = input.nextChar();
                 } else {
                     ch = input.nextChar();
@@ -419,10 +423,10 @@ public class Latin1Lexer implements Lexer
     {
         char ch = input.startChar();
         while (isOperator(ch)) {
-            ch = input.nextChar();
-            if (isStartMultiComment()) {
-                return spanMultiComment();
+            if (peekLineComment() || peekMultiComment()) {
+                break;
             }
+            ch = input.nextChar();
         }
         return OPERATOR;
     }
@@ -447,23 +451,47 @@ public class Latin1Lexer implements Lexer
         return STRING;
     }
 
+    boolean isStartLineComment()
+    {
+        if (input.getTokenFinish() - input.getTokenStart() == 2) {
+            if ("//".equals(input.getTokenString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean peekLineComment()
+    {
+        return ("//".equals(input.peek(2)));
+    }
+
     /**
      * Span a comment. The text for the token will be available through
      * getTokenString().
      *
      * @return the code for the operator or delimiter.
      */
-    public String spanComment()
+    public int spanLineComment()
     {
         // Move the start pointer past the end of line.
         char ch = input.startChar();
+        ch = input.nextChar();
+        ch = input.nextChar();
         while (ch != Input.NULL && ch != EOL) {
             ch = input.nextChar();
         }
-        return this.getTokenValue();
+        commentString = input.getTokenString();
+        return COMMENT;
     }
 
-    boolean isStartMultiComment() {
+    boolean peekMultiComment()
+    {
+        return ("/*".equals(input.peek(2)));
+    }
+
+    boolean isStartMultiComment()
+    {
         if (input.getTokenFinish() - input.getTokenStart() == 2) {
             if ("/*".equals(input.getTokenString())) {
                 return true;
@@ -471,7 +499,7 @@ public class Latin1Lexer implements Lexer
         }
         return false;
     }
-    
+
     /**
      * Span a comment. The text for the token will be available through
      * getCommentString().
@@ -706,7 +734,7 @@ public class Latin1Lexer implements Lexer
         case STRING:
             return "STRING=" + getTokenValue();
         }
-        return "Unknown token @ " + input + "\n" 
-              + input.getTokenStart() + ": "+ input.getLine().substring(input.getTokenStart());
+        return "Unknown token @ " + input + "\n" + input.getTokenStart() + ": "
+                + input.getLine().substring(input.getTokenStart());
     }
 }

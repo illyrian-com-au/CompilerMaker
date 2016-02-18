@@ -254,8 +254,9 @@ public class PrecidenceParser<Expr> extends ParserBase
         case Lexer.DECIMAL:
         case Lexer.STRING:
         case Lexer.CHARACTER:
-        case Lexer.RESERVED:
             return true;
+        case Lexer.RESERVED:
+            return (match(Lexer.RESERVED, "this") || match(Lexer.RESERVED, "super"));
         default:
             return (getNudOperator() != null);
         }

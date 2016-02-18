@@ -35,13 +35,17 @@ public class CastingPrecidenceParserTest extends TestCase
         parser.addPostfixOperator("[", "]", ParserConstants.NOP, 16, Operator.BRACKET);
         parser.addPrefixOperator("-", ParserConstants.NEG, 15, Operator.PREFIX);
         parser.addPrefixOperator("(", ")", ParserConstants.CAST, 14, Operator.BRACKET);
+        parser.addInfixOperator("instanceof", ParserConstants.INSTANCEOF, 13, Operator.BINARY);
         parser.addInfixOperator("+", ParserConstants.ADD, 12, Operator.BINARY);
         parser.addInfixOperator("-", ParserConstants.SUBT, 12, Operator.BINARY);
         parser.addInfixOperator("&&", ParserConstants.ANDTHEN, 4, Operator.BINARY);
         parser.addInfixOperator("||", ParserConstants.ORELSE, 3, Operator.BINARY);
         parser.addInfixOperator("?", ParserConstants.ORELSE, 2, Operator.BINARY);
         parser.addInfixOperator(":", ParserConstants.ORELSE, 2, Operator.BINARY);
+        // Reserved words
         parser.addReserved("this");
+        parser.addReserved("super");
+        parser.addReserved("instanceof");
         PrecidenceActionFactory actions = new PrecidenceActionFactory();
         parser.setPrecidenceActions(actions);
         return parser;
@@ -156,6 +160,28 @@ public class CastingPrecidenceParserTest extends TestCase
         Object result = parser.expression();
         assertNotNull("Parser result is null", result);
         assertEquals("Wrong expression", "cast(au.com.MyClass, this)", result.toString());
+    }
+
+    public void testCastSuper() throws Exception
+    {
+        out.println("(au.com.MyClass)super");
+        PrecidenceParser parser = createReferenceParser();
+        createCompileModule(writer.toString(), parser);
+        parser.nextToken();
+        Object result = parser.expression();
+        assertNotNull("Parser result is null", result);
+        assertEquals("Wrong expression", "cast(au.com.MyClass, super)", result.toString());
+    }
+
+    public void testInstanceof() throws Exception
+    {
+        out.println("this instanceof au.com.MyIface");
+        PrecidenceParser parser = createReferenceParser();
+        createCompileModule(writer.toString(), parser);
+        parser.nextToken();
+        Object result = parser.expression();
+        assertNotNull("Parser result is null", result);
+        assertEquals("Wrong expression", "instanceof(this, au.com.MyIface)", result.toString());
     }
 
     public void testCastingParser9() throws Exception

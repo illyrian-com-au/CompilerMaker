@@ -170,6 +170,16 @@ public class LexerInputString implements Input
         return (getSourceFile() == null ? "" : getSourceFile().getPath());
     }
 
+    public String peek(int lookahead) {
+        if (line== null)
+            return null;
+        int offset = finish + lookahead;
+        if (offset >= line.length())
+            return line.substring(finish);
+        else
+            return line.substring(finish, offset);
+    }
+    
     public String toString()
     {
         if (line == null)

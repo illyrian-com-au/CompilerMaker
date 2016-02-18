@@ -123,9 +123,10 @@ public class Latin1LexerTest extends TestCase
     {
         LexerInputString inp = new LexerInputString("\"fred\"");
         Latin1Lexer tok = new Latin1Lexer(inp);
-        assertEquals("String literal expected", Lexer.STRING, tok.nextToken());
-        assertEquals("String literal expected", "\"fred\"", tok.getTokenValue());
-        assertEquals("String expected", "fred", tok.getTokenString());
+        assertEquals("Lexer.STRING", Lexer.STRING, tok.nextToken());
+        assertEquals("String literal", "\"fred\"", tok.getTokenValue());
+        assertEquals("String value", "fred", tok.getTokenString());
+        assertEquals("String delimter", '"', tok.getTokenDelimiter());
         assertEquals("END expected", Lexer.END, tok.nextToken());
     }
 
@@ -133,9 +134,10 @@ public class Latin1LexerTest extends TestCase
     {
         LexerInputString inp = new LexerInputString("\"\"");
         Latin1Lexer tok = new Latin1Lexer(inp);
-        assertEquals("String literal expected", Lexer.STRING, tok.nextToken());
-        assertEquals("String literal expected", "\"\"", tok.getTokenValue());
-        assertEquals("String expected", "", tok.getTokenString());
+        assertEquals("Lexer.STRING", Lexer.STRING, tok.nextToken());
+        assertEquals("String literal", "\"\"", tok.getTokenValue());
+        assertEquals("String value", "", tok.getTokenString());
+        assertEquals("String delimter", '"', tok.getTokenDelimiter());
         assertEquals("END expected", Lexer.END, tok.nextToken());
     }
 
@@ -159,8 +161,10 @@ public class Latin1LexerTest extends TestCase
     {
         LexerInputString inp = new LexerInputString("'a'");
         Latin1Lexer tok = new Latin1Lexer(inp);
-        assertEquals("Character literal expected", Latin1Lexer.CHARACTER, tok.nextToken());
-        assertEquals("Character literal expected", "'a'", tok.getTokenValue());
+        assertEquals("Latin1Lexer.CHARACTER", Latin1Lexer.CHARACTER, tok.nextToken());
+        assertEquals("Character literal", "'a'", tok.getTokenValue());
+        assertEquals("Character value", "a", tok.getTokenString());
+        assertEquals("Character delimter", '\'', tok.getTokenDelimiter());
         assertEquals("END expected", Latin1Lexer.END, tok.nextToken());
     }
 
@@ -188,9 +192,63 @@ public class Latin1LexerTest extends TestCase
         assertEquals("Error message", "Missing character within quotes.", tok.getErrorMessage());
     }
 
+    public void testPeekLineComment1()
+    {
+        LexerInputString inp = new LexerInputString("brown//\nfox");
+        Latin1Lexer tok = new Latin1Lexer(inp);
+        assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
+        assertEquals("tok.getTokenValue()", "brown", tok.getTokenValue());
+        assertEquals("peek", "//", inp.peek(2));
+        assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
+        assertEquals("tok.getTokenValue()", "fox", tok.getTokenValue());
+        assertEquals("END expected", Latin1Lexer.END, tok.nextToken());
+    }
+
+    public void testPeekLineComment2()
+    {
+        LexerInputString inp = new LexerInputString("brown+//\nfox");
+        Latin1Lexer tok = new Latin1Lexer(inp);
+        assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
+        assertEquals("tok.getTokenValue()", "brown", tok.getTokenValue());
+        assertEquals("Operator expected", Latin1Lexer.OPERATOR, tok.nextToken());
+        assertEquals("tok.getTokenValue()", "+", tok.getTokenValue());
+        assertEquals("peek", "//", inp.peek(2));
+        assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
+        assertEquals("tok.getTokenValue()", "fox", tok.getTokenValue());
+        assertEquals("END expected", Latin1Lexer.END, tok.nextToken());
+    }
+
+    public void testPeekMultiComment1()
+    {
+        LexerInputString inp = new LexerInputString("brown/*Hello*/fox");
+        Latin1Lexer tok = new Latin1Lexer(inp);
+        assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
+        assertEquals("tok.getTokenValue()", "brown", tok.getTokenValue());
+        assertEquals("peek", "/*", inp.peek(2));
+        assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
+        assertEquals("tok.getTokenValue()", "fox", tok.getTokenValue());
+        assertEquals("END expected", Latin1Lexer.END, tok.nextToken());
+    }
+
+    public void testPeekMultiComment2()
+    {
+        LexerInputString inp = new LexerInputString("brown*/*Hello*/*fox");
+        Latin1Lexer tok = new Latin1Lexer(inp);
+        assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
+        assertEquals("tok.getTokenValue()", "brown", tok.getTokenValue());
+        assertEquals("Operator expected", Latin1Lexer.OPERATOR, tok.nextToken());
+        assertEquals("tok.getTokenValue()", "*", tok.getTokenValue());
+        assertEquals("peek", "/*", inp.peek(2));
+        assertEquals("Operator expected", Latin1Lexer.OPERATOR, tok.nextToken());
+        assertEquals("tok.getTokenValue()", "*", tok.getTokenValue());
+        assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
+        assertEquals("tok.getTokenValue()", "fox", tok.getTokenValue());
+        assertEquals("END expected", Latin1Lexer.END, tok.nextToken());
+    }
+
     public void testComment1()
     {
-        LexerInputString inp = new LexerInputString("c #h*(\n+a");
+        LexerInputString inp = new LexerInputString("c //h*(\n+a");
         Latin1Lexer tok = new Latin1Lexer(inp);
         assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
         assertEquals("'c' expected", "c", tok.getTokenValue());
@@ -204,7 +262,7 @@ public class Latin1LexerTest extends TestCase
 
     public void testComment2()
     {
-        LexerInputString inp = new LexerInputString("c #comment\n+#(another)\na");
+        LexerInputString inp = new LexerInputString("c //comment\n+ //(another)\na");
         Latin1Lexer tok = new Latin1Lexer(inp);
         assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
         assertEquals("'c' expected", "c", tok.getTokenValue());
