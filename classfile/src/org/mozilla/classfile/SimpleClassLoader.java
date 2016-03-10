@@ -33,19 +33,19 @@ import java.security.ProtectionDomain;
 
 public class SimpleClassLoader extends ClassLoader
 {
-    public SimpleClassLoader() {
+    public SimpleClassLoader()
+    {
         this.parentLoader = getClass().getClassLoader();
     }
 
-    public SimpleClassLoader(ClassLoader parentLoader) {
+    public SimpleClassLoader(ClassLoader parentLoader)
+    {
         this.parentLoader = parentLoader;
     }
 
     public Class defineClass(String className, byte[] classBytes)
     {
         String classDotName = className.replace('/', '.');
-        // The generated classes in this case refer only to Rhino classes
-        // which must be accessible through this class loader
         Exception e;
         try {
             Class<?> cl = super.defineClass(classDotName, classBytes, 0, classBytes.length,
@@ -57,16 +57,16 @@ public class SimpleClassLoader extends ClassLoader
         } catch (IllegalArgumentException x) {
             e = x;
         }
-        throw new RuntimeException("Malformed optimizer package " + e);
+        throw new RuntimeException("Could not load class from byte array: " + className, e);
     }
 
-    public void linkClass(Class<?> cl) {
+    public void linkClass(Class<?> cl)
+    {
         resolveClass(cl);
     }
 
     @Override
-    public Class<?> loadClass(String name, boolean resolve)
-        throws ClassNotFoundException
+    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException
     {
         Class<?> cl = findLoadedClass(name);
         if (cl == null) {
@@ -84,14 +84,13 @@ public class SimpleClassLoader extends ClassLoader
 
     public static ProtectionDomain getProtectionDomain(final Class<?> clazz)
     {
-        return (ProtectionDomain)AccessController.doPrivileged(
-                new PrivilegedAction<Object>()
-                {
-                    public Object run()
-                    {
-                        return clazz.getProtectionDomain();
-                    }
-                });
+        return (ProtectionDomain) AccessController.doPrivileged(new PrivilegedAction<Object>()
+        {
+            public Object run()
+            {
+                return clazz.getProtectionDomain();
+            }
+        });
     }
 
     private final ClassLoader parentLoader;
