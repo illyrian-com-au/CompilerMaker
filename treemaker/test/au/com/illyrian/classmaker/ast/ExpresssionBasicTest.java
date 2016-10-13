@@ -433,7 +433,7 @@ public class ExpresssionBasicTest extends TestCase
     public void testInstanceOf()
     {
         AstExpression expr = ast.InstanceOf(ast.Name("Foo"), ast.Name("Object"));
-        assertEquals("Wrong toString()", "instanceof(Foo,Object)", expr.toString());
+        assertEquals("Wrong toString()", "instanceof(Foo, Object)", expr.toString());
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
         assertEquals("Wrong output", "[InstanceOf(Get(\"Foo\"), \"Object\")]", buf.toString());

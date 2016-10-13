@@ -138,7 +138,7 @@ public class ExpresssionDotOperatorTest extends TestCase
             fail("Should throw ClassMakerException: " + ast);
         } catch (ClassMakerException e)
         {
-            // Success
+            assertEquals("Wrong message", "Unknown Class path: java.lang.Unknown", e.getMessage());
         }
     }
 
@@ -150,7 +150,7 @@ public class ExpresssionDotOperatorTest extends TestCase
             fail("Should throw ClassMakerException: " + ast);
         } catch (ClassMakerException e)
         {
-            // Success
+            assertEquals("Wrong message", "Unknown path: java.lang.Unknown", e.getMessage());
         }
     }
 

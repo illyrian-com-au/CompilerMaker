@@ -21,6 +21,15 @@ public class ExpressionArrayTest extends TestCase
         assertEquals("Wrong output", "[GetAt(Get(\"x\"), Get(\"a\"))]", buf.toString());
     }
 
+    public void testGetAt2()
+    {
+        AstExpression expr = ast.ArrayIndex(ast.ArrayIndex(ast.Name("x"), ast.Name("a")), ast.Literal(2));
+        assertEquals("Wrong toString()", "x[a][2]", expr.toString());
+        Type type = expr.resolveType(visitor);
+        assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
+        assertEquals("Wrong output", "[GetAt(GetAt(Get(\"x\"), Get(\"a\")), Literal(2))]", buf.toString());
+    }
+
     public void testAssignAt()
     {
         AstExpression expr = ast.Assign(ast.ArrayIndex(ast.Name("x"), ast.Name("a")), ast.Literal(1));
@@ -28,6 +37,15 @@ public class ExpressionArrayTest extends TestCase
         Type type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[AssignAt(Get(\"x\"), Get(\"a\"), Literal(1))]", buf.toString());
+    }
+
+    public void testAssignAt2()
+    {
+        AstExpression expr = ast.Assign(ast.ArrayIndex(ast.ArrayIndex(ast.Name("x"), ast.Name("a")), ast.Literal(0)), ast.Literal(1));
+        assertEquals("Wrong toString()", "(x[a][0] = 1)", expr.toString());
+        Type type = expr.resolveType(visitor);
+        assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
+        assertEquals("Wrong output", "[AssignAt(GetAt(Get(\"x\"), Get(\"a\")), Literal(0), Literal(1))]", buf.toString());
     }
 
     public void testIncAt()
@@ -69,21 +87,53 @@ public class ExpressionArrayTest extends TestCase
     public void testArrayOf()
     {
         AstExpression expr = ast.ArrayOf(ast.Name("int"));
-        assertEquals("Wrong toString()", "int []", expr.toString());
+        assertEquals("Wrong toString()", "int[]", expr.toString());
         DeclaredType type = expr.resolveDeclaredType(visitor);
         assertNotNull("resolveDecleredType() returned null", type);
         assertEquals("Wrong type", "DeclaredType(int[])", type.toString());
         assertEquals("Wrong output", "[]", buf.toString());
     }
 
-    public void testNewArray()
+    public void testNewArrayOld()
     {
         AstExpression expr = ast.NewArray(ast.ArrayOf(ast.Name("int")), ast.Name("a"));
-        assertEquals("Wrong toString()", "new int [a]", expr.toString());
+        assertEquals("Wrong toString()", "new int[a]", expr.toString());
         Type type = expr.resolveType(visitor);
         assertNotNull("resolveDecleredType() returned null", type);
         assertEquals("Wrong type", "ArrayType(int[])", type.toString());
         assertEquals("Wrong output", "[NewArray(int[], Get(\"a\"))]", buf.toString());
+    }
+
+    public void testNewArray()
+    {
+        AstExpression expr = ast.New(ast.ArrayIndex(ast.Name("int"), ast.Name("a")));
+        assertEquals("Wrong toString()", "new int[a]", expr.toString());
+        Type type = expr.resolveType(visitor);
+        assertNotNull("resolveDecleredType() returned null", type);
+        assertEquals("Wrong type", "ArrayType(int[])", type.toString());
+        assertEquals("Wrong output", "[NewArray(int[], Get(\"a\"))]", buf.toString());
+    }
+
+    public void testNewArray2()
+    {
+        int [][] array = new int[5][];
+        AstExpression expr = ast.New(ast.ArrayIndex(ast.ArrayOf(ast.Name("int")), ast.Literal(5)));
+        assertEquals("Wrong toString()", "new int[][5]", expr.toString());
+        Type type = expr.resolveType(visitor);
+        assertNotNull("resolveDecleredType() returned null", type);
+        assertEquals("Wrong type", "ArrayType(int[][])", type.toString());
+        assertEquals("Wrong output", "[NewArray(int[][], Literal(5))]", buf.toString());
+    }
+
+
+    public void testNewArray2Alt()
+    {
+        int [][] array = new int[5][];
+        AstExpression expr = ast.New(ast.ArrayIndex(ast.ArrayIndex(ast.Name("int"), ast.Literal(5)), null));
+        assertEquals("Wrong toString()", "new int[5][]", expr.toString());
+        Type type = expr.resolveType(visitor);
+        assertEquals("Wrong type", "ArrayType(int[][])", type.toString());
+        assertEquals("Wrong output", "[NewArray(int[][], Literal(5))]", buf.toString());
     }
 
     public void testArrayLength()

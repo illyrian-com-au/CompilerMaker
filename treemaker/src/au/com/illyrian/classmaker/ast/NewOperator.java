@@ -32,20 +32,17 @@ import au.com.illyrian.classmaker.types.Type;
 
 public class NewOperator extends AstExpressionBase
 {
-    private final AstExpression typeName;
-    private final AstExpression params;
+    private final AstExpression constructor;
 
-    public NewOperator(AstExpression type, AstExpression actualParameters)
+    public NewOperator(AstExpression constructor)
     {
-        params = actualParameters;
-        typeName = type;
+        this.constructor = constructor;
     }
 
-    public NewOperator(AstExpression type, AstExpression actualParameters, SourceLine sourceLine)
+    public NewOperator(AstExpression constructor, SourceLine sourceLine)
     {
         super(sourceLine);
-        params = actualParameters;
-        typeName = type;
+        this.constructor = constructor;
     }
 
     public Type resolveType(AstExpressionVisitor visitor)
@@ -53,18 +50,13 @@ public class NewOperator extends AstExpressionBase
         return visitor.resolveType(this);
     }
 
-    public AstExpression getParams()
+    public AstExpression getConstructor()
     {
-        return params;
-    }
-
-    public AstExpression getTypeName()
-    {
-        return typeName;
+        return constructor;
     }
 
     public String toString()
     {
-        return "new " + typeName + "(" + (params == null ? "" : params) + ")";
+        return "new " + constructor;
     }
 }

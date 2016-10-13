@@ -29,6 +29,7 @@ package au.com.illyrian.classmaker.ast;
 
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.members.MakerField;
+import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
@@ -58,6 +59,11 @@ public class DotOperator extends AstExpressionBase
     public Type resolveTypeOrNull(AstExpressionVisitor visitor)
     {
         return visitor.resolveTypeOrNull(this);
+    }
+    
+    public DeclaredType resolveDeclaredType(AstExpressionVisitor visitor)
+    {
+        return visitor.resolveDeclaredType(this);
     }
     
     public MakerField resolveMakerField(AstExpressionVisitor visitor)

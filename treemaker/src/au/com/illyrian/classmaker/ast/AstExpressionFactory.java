@@ -250,7 +250,7 @@ public class AstExpressionFactory
 
     public AstExpression ArrayOf(AstExpression type) 
     {
-        return new ArrayOf(type, null, sourceLine);
+        return new ArrayOf(type, sourceLine);
     }
 
     public AstExpression ArrayOf(AstExpression type, AstExpression dimension) 
@@ -268,14 +268,14 @@ public class AstExpressionFactory
         return new CommaOperator(left, right, sourceLine);
     }
     
-    public MethodCall Call(TerminalName left, AstExpression right)
+    public MethodCall Call(AstExpression left, AstExpression right)
     {
         return new MethodCall(left, right, sourceLine);
     }
 
-    public NewOperator New(AstExpression left, CommaOperator right)
+    public NewOperator New(AstExpression constructor)
     {
-        return new NewOperator(left, right, sourceLine);
+        return new NewOperator(constructor, sourceLine);
     }
 
     public NewArrayOperator NewArray(AstExpression left, AstExpression right)

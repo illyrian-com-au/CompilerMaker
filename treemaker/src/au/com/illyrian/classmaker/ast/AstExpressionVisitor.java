@@ -256,12 +256,36 @@ public class AstExpressionVisitor implements SourceLine
     
     public Type resolveType(NewOperator tree)
     {
-        DeclaredType declared = tree.getTypeName().resolveDeclaredType(this);
+        return tree.getConstructor().resolveNew(this);
+    }
+    
+    public Type resolveNew(MethodCall tree)
+    {
+        DeclaredType declared = tree.getName().resolveDeclaredType(this);
         CallStack stack = null;
         if (tree.getParams() != null)
             stack = tree.getParams().resolveCallStack(this);
         sourceLine = tree;
         return maker.New(declared).Init(stack);
+    }
+    
+    public Type resolveNew(ArrayIndex tree)
+    {
+        DeclaredType declared = tree.getArrayOperand().resolveDeclaredType(this);
+        DeclaredType arrayType = maker.ArrayOf(declared);
+        Type size = resolveArraySize(tree);
+        return maker.NewArray(arrayType, size);
+    }
+    
+    public Type resolveArraySize(ArrayIndex index) {
+        if (index.getIndexOperand() == null) {
+            return index.getArrayOperand().resolveArraySize(this);
+        } else if (index.getIndexOperand() == null) {
+            // FIXME - Should throw ParseException
+            throw new IllegalStateException("Array dimension not provided");
+        } else {
+            return index.getIndexOperand().resolveType(this);
+        }
     }
     
     public Type resolveType(NewArrayOperator tree)
@@ -591,11 +615,18 @@ public class AstExpressionVisitor implements SourceLine
         sourceLine = arrayOf;
         return maker.ArrayOf(type);
     }
+    
+    public DeclaredType resolveDeclaredType(ArrayIndex arrayOf)
+    {
+        DeclaredType type = arrayOf.getArrayOperand().resolveDeclaredType(this);
+        sourceLine = arrayOf;
+        return maker.ArrayOf(type);
+    }
 
 	// resolveCallStack(...)
     public CallStack resolveCallStack(MethodCall call)
     {
-        String methodName = call.getMethodName().resolvePath(this);
+        String methodName = call.getName().resolvePath(this);
         CallStack actualParameters = null;
         sourceLine = call;
         if (call.getParams() == null)
@@ -615,6 +646,7 @@ public class AstExpressionVisitor implements SourceLine
     //      1st param
     public CallStack resolveCallStack(CommaOperator tree)
     {
+        // FIXME - Just call resolveCallStack on left and right parameters.
         if (tree.getLeftExpression() == null)
         {
             Type reference = tree.getRightExpression().resolveType(this);

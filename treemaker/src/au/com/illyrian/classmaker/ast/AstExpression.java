@@ -41,6 +41,10 @@ public interface AstExpression extends ResolvePath, SourceLine
 
     public Type resolveTypeOrNull(AstExpressionVisitor visitor);
     
+    public Type resolveNew(AstExpressionVisitor visitor);
+    
+    public Type resolveArraySize(AstExpressionVisitor visitor);
+    
     public String resolvePath(AstExpressionVisitor visitor);
     
     public MakerField resolveMakerField(AstExpressionVisitor visitor);

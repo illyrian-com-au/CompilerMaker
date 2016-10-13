@@ -52,12 +52,18 @@ public abstract class AstExpressionBase implements AstExpression, SourceLine
     
     public Type resolveType(AstExpressionVisitor visitor)
     {
-        throw new IllegalStateException(getClass().getSimpleName() + "does not define resolveType(visitor)");
+        throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveType(visitor)");
     }
     
     public String resolvePath(AstExpressionVisitor visitor)
     {
-        throw new IllegalStateException(getClass().getSimpleName() + "does not define resolvePath(visitor)");
+        throw new IllegalStateException(getClass().getSimpleName() + " does not define resolvePath(visitor)");
+    }
+
+    public Type resolveNew(AstExpressionVisitor visitor)
+    {
+        // FIXME Cannot apply new operator to expression: toString()
+        throw new IllegalStateException("Cannot apply new operator to expression: " + toString());
     }
 
     /**
@@ -72,7 +78,7 @@ public abstract class AstExpressionBase implements AstExpression, SourceLine
     
     public MakerField resolveMakerField(AstExpressionVisitor visitor)
     {
-        throw new IllegalStateException(getClass().getSimpleName() + "does not define resolveMakerField(visitor)");
+        throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveMakerField(visitor)");
     }
     
     public CallStack resolveCallStack(AstExpressionVisitor visitor)
@@ -92,19 +98,23 @@ public abstract class AstExpressionBase implements AstExpression, SourceLine
     
     public void resolveImport(AstStructureVisitor visitor)
     {
-        throw new IllegalStateException(getClass().getSimpleName() + "does not define resolveImport(visitor)");
+        throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveImport(visitor)");
     }
 
     public void resolveImplements(AstStructureVisitor visitor)
     {
-        throw new IllegalStateException(getClass().getSimpleName() + "does not define resolveImplements(visitor)");
+        throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveImplements(visitor)");
     }
 
     public DeclaredType resolveDeclaredType(AstExpressionVisitor visitor) 
     {
-        throw new IllegalStateException(getClass().getSimpleName() + "does not define resolveDeclaredType(visitor)");
+        throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveDeclaredType(visitor)");
     }
 
+    public Type resolveArraySize(AstExpressionVisitor visitor) {
+        throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveArraySize(visitor)");
+    }
+    
     public void setSourceLine(SourceLine sourceLine)
     {
         filename = sourceLine.getFilename();

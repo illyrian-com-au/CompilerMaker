@@ -33,25 +33,30 @@ import au.com.illyrian.classmaker.types.Type;
 
 public class MethodCall extends AstExpressionBase
 {
-    private final TerminalName methodName;
+    private final AstExpression name;
     private final AstExpression params;
     
-    public MethodCall(TerminalName name, AstExpression actualParameters)
+    public MethodCall(AstExpression name, AstExpression actualParameters)
     {
         params = actualParameters;
-        methodName  = name;
+        this.name  = name;
     }
     
-    public MethodCall(TerminalName name, AstExpression actualParameters, SourceLine sourceLine)
+    public MethodCall(AstExpression name, AstExpression actualParameters, SourceLine sourceLine)
     {
         super(sourceLine);
         params = actualParameters;
-        methodName  = name;
+        this.name  = name;
     }
     
     public Type resolveType(AstExpressionVisitor visitor)
     {
         return visitor.resolveType(this);
+    }
+
+    public Type resolveNew(AstExpressionVisitor visitor)
+    {
+        return visitor.resolveNew(this);
     }
 
     public CallStack resolveCallStack(AstExpressionVisitor visitor)
@@ -69,13 +74,13 @@ public class MethodCall extends AstExpressionBase
         return params;
     }
 
-    public TerminalName getMethodName()
+    public AstExpression getName()
     {
-        return methodName;
+        return name;
     }
     
     public String toString()
     {
-        return methodName + "(" + (params == null ? "" : params) + ")";
+        return name + "(" + (params == null ? "" : params) + ")";
     }
 }

@@ -27,6 +27,7 @@
 
 package au.com.illyrian.classmaker.ast;
 
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public class AstExpressionLink extends AstExpressionBase
@@ -42,7 +43,17 @@ public class AstExpressionLink extends AstExpressionBase
         this.left = left;
         this.right = right;
     }
+    
+    public AstExpressionLink(AstExpression left, AstExpression right, SourceLine sourceLine)
+    {
+        super(sourceLine);
+        if (left == null || right == null)
+            throw new IllegalStateException("Left and right expressions must not be null");
 
+        this.left = left;
+        this.right = right;
+    }
+    
     public void resolveImport(AstStructureVisitor visitor)
     {
         visitor.resolveImport(this);

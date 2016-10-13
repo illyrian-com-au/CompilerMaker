@@ -135,13 +135,33 @@ public class ExpresssionMethodCallTest extends TestCase
         assertEquals("Wrong output", "[Call(This(), \"f\", Push(Mult(Literal(2), Literal(3))).Push(Literal(\"Hello\")).Push(Get(\"a\")))]", buf.toString());
     }
 
-    public void testNew()
+    public void testNewString()
     {
-        AstExpression ast = build.New(build.Name("String"), null);
+        AstExpression ast = build.New(build.Call(build.Name("String"), null));
         assertEquals("Wrong toString()", "new String()", ast.toString());
         Type type = ast.resolveType(visitor);
         assertEquals("Wrong type", "ClassType(java.lang.String)", type.toString());
         assertEquals("Wrong output", "[New(java.lang.String).Init(null)]", buf.toString());
+    }
+
+    public void testNewJavaLangString()
+    {
+        AstExpression className = build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("String")); 
+        AstExpression ast = build.New(build.Call(className, null));
+        assertEquals("Wrong toString()", "new java.lang.String()", ast.toString());
+        Type type = ast.resolveType(visitor);
+        assertEquals("Wrong type", "ClassType(java.lang.String)", type.toString());
+        assertEquals("Wrong output", "[New(java.lang.String).Init(null)]", buf.toString());
+    }
+
+    public void testNewStringBuffer30()
+    {
+        AstExpression className = build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("StringBuffer")); 
+        AstExpression ast = build.New(build.Call(className, build.Literal(30)));
+        assertEquals("Wrong toString()", "new java.lang.StringBuffer(30)", ast.toString());
+        Type type = ast.resolveType(visitor);
+        assertEquals("Wrong type", "ClassType(java.lang.StringBuffer)", type.toString());
+        assertEquals("Wrong output", "[New(java.lang.StringBuffer).Init(Literal(30))]", buf.toString());
     }
 
     public void testCallDotCall()
