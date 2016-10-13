@@ -1,12 +1,13 @@
-package au.com.illyrian.parser.impl;
+package au.com.illyrian.parser.expr;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import junit.framework.TestCase;
-import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.parser.maker.PrecidenceActionFactory;
+import au.com.illyrian.classmaker.ast.AstExpressionFactory;
+import au.com.illyrian.parser.impl.ModuleContext;
+import au.com.illyrian.parser.opp.OperatorPrecidenceParser;
 
 public class IncrementPrecidenceParserTest extends TestCase
 {
@@ -19,38 +20,43 @@ public class IncrementPrecidenceParserTest extends TestCase
         out = new PrintWriter(writer);
     }
     
-    CompileModule createCompileModule(String input, PrecidenceParser parser) throws IOException
+    ModuleContext createCompileModule(String input, OperatorPrecidenceParser parser) throws IOException
     {
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInputString(input, null);
         compile.visitParser(parser);
         return compile;
     }
     
-    PrecidenceParser createIncrementParser()
+    OperatorPrecidenceParser createIncrementParser()
     {
-        PrecidenceParser<AstExpression> parser = new PrecidenceParser<AstExpression>();
-        parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY);
-        parser.addPostfixOperator("--", ParserConstants.POSTDEC, 15, Operator.POSTFIX);
-        parser.addPostfixOperator("++", ParserConstants.POSTINC, 15, Operator.POSTFIX);
-        parser.addPrefixOperator("-", ParserConstants.NEG, 14, Operator.PREFIX);
-        parser.addPrefixOperator("--", ParserConstants.DEC, 14, Operator.PREFIX);
-        parser.addPrefixOperator("++", ParserConstants.INC, 14, Operator.PREFIX);
-        parser.addInfixOperator("*", ParserConstants.MULT, 12, Operator.BINARY);
-        parser.addInfixOperator("/", ParserConstants.DIV, 12, Operator.BINARY);
-        parser.addInfixOperator("%", ParserConstants.REM, 12, Operator.BINARY);
-        parser.addInfixOperator("+", ParserConstants.ADD, 11, Operator.BINARY);
-        parser.addInfixOperator("-", ParserConstants.SUBT, 11, Operator.BINARY);
-        parser.addInfixOperator("=", ParserConstants.ASSIGN, 1, Operator.BINARYRIGHT);
-        PrecidenceAction<AstExpression> actions = new PrecidenceActionFactory();
-        parser.setPrecidenceActions(actions);
+        AstExpressionPrecidenceParser parser = new AstExpressionPrecidenceParser();
+        AstExpressionFactory factory = new AstExpressionFactory();
+        parser.setAstExpressionFactory(factory);
         return parser;
+//        OperatorPrecidenceParser<AstExpression> parser = new OperatorPrecidenceParser<AstExpression>();
+//        AstExpressionFactory factory = new AstExpressionFactory();
+//        AstExpressionPrecidenceAction actions = new AstExpressionPrecidenceAction(factory);
+//        parser.setPrecidenceActions(actions);
+//        parser.addLedOperator(".", ParserConstants.DOT, 16, Operator.BINARY);
+//        parser.addLedOperator("--", ParserConstants.POSTDEC, 15, Operator.POSTFIX);
+//        parser.addLedOperator("++", ParserConstants.POSTINC, 15, Operator.POSTFIX);
+//        parser.addNudOperator("-", ParserConstants.NEG, 14, Operator.PREFIX);
+//        parser.addNudOperator("--", ParserConstants.DEC, 14, Operator.PREFIX);
+//        parser.addNudOperator("++", ParserConstants.INC, 14, Operator.PREFIX);
+//        parser.addLedOperator("*", ParserConstants.MULT, 12, Operator.BINARY);
+//        parser.addLedOperator("/", ParserConstants.DIV, 12, Operator.BINARY);
+//        parser.addLedOperator("%", ParserConstants.REM, 12, Operator.BINARY);
+//        parser.addLedOperator("+", ParserConstants.ADD, 11, Operator.BINARY);
+//        parser.addLedOperator("-", ParserConstants.SUBT, 11, Operator.BINARY);
+//        parser.addLedOperator("=", ParserConstants.ASSIGN, 1, Operator.BINARYRIGHT);
+//        return parser;
     }
 
     public void testPostfixOperator() throws Exception
     {
         out.println("a--");
-        PrecidenceParser parser = createIncrementParser();
+        OperatorPrecidenceParser parser = createIncrementParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -61,7 +67,7 @@ public class IncrementPrecidenceParserTest extends TestCase
     public void testPostincAddPostdec() throws Exception
     {
         out.println("a++ +b--");
-        PrecidenceParser parser = createIncrementParser();
+        OperatorPrecidenceParser parser = createIncrementParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -72,7 +78,7 @@ public class IncrementPrecidenceParserTest extends TestCase
     public void testPostdecMultPostinc() throws Exception
     {
         out.println("a-- *b++");
-        PrecidenceParser parser = createIncrementParser();
+        OperatorPrecidenceParser parser = createIncrementParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -83,7 +89,7 @@ public class IncrementPrecidenceParserTest extends TestCase
     public void testIncrementParser1() throws Exception
     {
         out.println("b = - ++a--");
-        PrecidenceParser parser = createIncrementParser();
+        OperatorPrecidenceParser parser = createIncrementParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -94,7 +100,7 @@ public class IncrementPrecidenceParserTest extends TestCase
     public void testAssignNegParser2() throws Exception
     {
         out.println("b = - z.a");
-        PrecidenceParser parser = createIncrementParser();
+        OperatorPrecidenceParser parser = createIncrementParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -105,7 +111,7 @@ public class IncrementPrecidenceParserTest extends TestCase
     public void testPostDecParser3() throws Exception
     {
         out.println("z.a--");
-        PrecidenceParser parser = createIncrementParser();
+        OperatorPrecidenceParser parser = createIncrementParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -116,7 +122,7 @@ public class IncrementPrecidenceParserTest extends TestCase
     public void testPreDecParser3() throws Exception
     {
         out.println("--z.a");
-        PrecidenceParser parser = createIncrementParser();
+        OperatorPrecidenceParser parser = createIncrementParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -127,7 +133,7 @@ public class IncrementPrecidenceParserTest extends TestCase
     public void testPrePostDecParser3() throws Exception
     {
         out.println("--z.a--");
-        PrecidenceParser parser = createIncrementParser();
+        OperatorPrecidenceParser parser = createIncrementParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();

@@ -1,12 +1,13 @@
-package au.com.illyrian.parser.impl;
+package au.com.illyrian.parser.expr;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import junit.framework.TestCase;
-import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.parser.maker.PrecidenceActionFactory;
+import au.com.illyrian.classmaker.ast.AstExpressionFactory;
+import au.com.illyrian.parser.impl.ModuleContext;
+import au.com.illyrian.parser.opp.OperatorPrecidenceParser;
 
 public class RelativePrecidenceParserTest extends TestCase
 {
@@ -19,30 +20,35 @@ public class RelativePrecidenceParserTest extends TestCase
         out = new PrintWriter(writer);
     }
 
-    CompileModule createCompileModule(String input, PrecidenceParser parser) throws IOException
+    ModuleContext createCompileModule(String input, OperatorPrecidenceParser parser) throws IOException
     {
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInputString(input, null);
         compile.visitParser(parser);
         return compile;
     }
     
-    PrecidenceParser createParser()
+    OperatorPrecidenceParser createParser()
     {
-        PrecidenceParser<AstExpression> parser = new PrecidenceParser<AstExpression>();
-        parser.addInfixOperator("==", ParserConstants.EQ, 8, Operator.BINARY);
-        parser.addInfixOperator("!=", ParserConstants.NE, 8, Operator.BINARY);
-        parser.addInfixOperator("&&", ParserConstants.ANDTHEN, 4, Operator.BINARY);
-        parser.addInfixOperator("||", ParserConstants.ORELSE, 3, Operator.BINARY);
-        PrecidenceAction<AstExpression> actions = new PrecidenceActionFactory();
-        parser.setPrecidenceActions(actions);
-       return parser;
+        AstExpressionPrecidenceParser parser = new AstExpressionPrecidenceParser();
+        AstExpressionFactory factory = new AstExpressionFactory();
+        parser.setAstExpressionFactory(factory);
+        return parser;
+//        OperatorPrecidenceParser<AstExpression> parser = new OperatorPrecidenceParser<AstExpression>();
+//        AstExpressionFactory factory = new AstExpressionFactory();
+//        AstExpressionPrecidenceAction actions = new AstExpressionPrecidenceAction(factory);
+//        parser.setPrecidenceActions(actions);
+//        parser.addLedOperator("==", ParserConstants.EQ, 8, Operator.BINARY);
+//        parser.addLedOperator("!=", ParserConstants.NE, 8, Operator.BINARY);
+//        parser.addLedOperator("&&", ParserConstants.ANDTHEN, 4, Operator.BINARY);
+//        parser.addLedOperator("||", ParserConstants.ORELSE, 3, Operator.BINARY);
+//       return parser;
     }
 
     public void testShortcutParser1() throws Exception
     {
         out.println("a == b != c");
-        PrecidenceParser parser = createParser();
+        OperatorPrecidenceParser parser = createParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -53,7 +59,7 @@ public class RelativePrecidenceParserTest extends TestCase
     public void testShortcutParser2() throws Exception
     {
         out.println("a && b");
-        PrecidenceParser parser = createParser();
+        OperatorPrecidenceParser parser = createParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -64,7 +70,7 @@ public class RelativePrecidenceParserTest extends TestCase
     public void testShortcutParser3() throws Exception
     {
         out.println("a && b && c && d && e");
-        PrecidenceParser parser = createParser();
+        OperatorPrecidenceParser parser = createParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -75,7 +81,7 @@ public class RelativePrecidenceParserTest extends TestCase
     public void testShortcutParser4() throws Exception
     {
         out.println("a || b || c || d || e");
-        PrecidenceParser parser = createParser();
+        OperatorPrecidenceParser parser = createParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -86,7 +92,7 @@ public class RelativePrecidenceParserTest extends TestCase
     public void testShortcutParser5() throws Exception
     {
         out.println("a || b && c || d && e");
-        PrecidenceParser parser = createParser();
+        OperatorPrecidenceParser parser = createParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -97,7 +103,7 @@ public class RelativePrecidenceParserTest extends TestCase
     public void testShortcutParser6() throws Exception
     {
         out.println("a && b && c || d && e && f");
-        PrecidenceParser parser = createParser();
+        OperatorPrecidenceParser parser = createParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -108,7 +114,7 @@ public class RelativePrecidenceParserTest extends TestCase
     public void testShortcutParser7() throws Exception
     {
         out.println("a || b || c && d || e || f");
-        PrecidenceParser parser = createParser();
+        OperatorPrecidenceParser parser = createParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -119,7 +125,7 @@ public class RelativePrecidenceParserTest extends TestCase
     public void testShortcutParser8() throws Exception
     {
         out.println("a == b || c != d && e == f");
-        PrecidenceParser parser = createParser();
+        OperatorPrecidenceParser parser = createParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();
@@ -130,7 +136,7 @@ public class RelativePrecidenceParserTest extends TestCase
     public void testShortcutParser9() throws Exception
     {
         out.println("a == b && c != d || e == f");
-        PrecidenceParser parser = createParser();
+        OperatorPrecidenceParser parser = createParser();
         createCompileModule(writer.toString(), parser);
         parser.nextToken();
         Object result = parser.expression();

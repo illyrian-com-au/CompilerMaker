@@ -32,13 +32,21 @@ import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
 import au.com.illyrian.classmaker.types.Type;
-import au.com.illyrian.parser.maker.PrecidenceActionFactory;
 
-public class ExpressionActionFactory extends PrecidenceActionFactory 
-    implements ExpressionAction<AstExpression>, ClassMakerLocation
+/**
+ * 
+ * @author donald
+ */
+public class ExpressionActionFactory 
+    implements ClassMakerLocation
 {
     private ClassMaker  maker = null;
 
+    public ExpressionActionFactory()
+    {
+        
+    }
+    
     public void setClassMaker(ClassMaker classMaker) 
     {
         maker = classMaker;

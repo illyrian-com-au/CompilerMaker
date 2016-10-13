@@ -10,7 +10,7 @@ import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.domainparser.ClassParser;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.impl.LexerInputStream;
-import au.com.illyrian.parser.maker.CompileModuleMaker;
+import au.com.illyrian.parser.maker.ModuleContextMaker;
 
 public class ExpressionClassMakerTest extends TestCase
 {
@@ -43,7 +43,7 @@ public class ExpressionClassMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);
@@ -76,7 +76,7 @@ public class ExpressionClassMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);
@@ -107,7 +107,7 @@ public class ExpressionClassMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);
@@ -140,7 +140,7 @@ public class ExpressionClassMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);
@@ -173,7 +173,7 @@ public class ExpressionClassMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);
@@ -206,7 +206,7 @@ public class ExpressionClassMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);
@@ -239,7 +239,7 @@ public class ExpressionClassMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);
@@ -272,7 +272,7 @@ public class ExpressionClassMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);
@@ -305,7 +305,7 @@ public class ExpressionClassMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);
@@ -338,7 +338,7 @@ public class ExpressionClassMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);

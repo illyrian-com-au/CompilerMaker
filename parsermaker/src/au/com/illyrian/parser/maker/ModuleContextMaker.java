@@ -2,13 +2,13 @@ package au.com.illyrian.parser.maker;
 
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerLocation;
-import au.com.illyrian.parser.impl.CompileModule;
+import au.com.illyrian.parser.impl.ModuleContext;
 
-public class CompileModuleMaker extends CompileModule implements ClassMakerLocation
+public class ModuleContextMaker extends ModuleContext implements ClassMakerLocation
 {
     private ClassMaker maker = null;
     
-    public CompileModuleMaker()
+    public ModuleContextMaker()
     {
     }
 

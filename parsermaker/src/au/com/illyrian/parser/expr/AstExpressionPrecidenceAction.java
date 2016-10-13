@@ -25,43 +25,32 @@
 // of the authors and should not be interpreted as representing official policies,
 // either expressed or implied, of the FreeBSD Project.
 
-package au.com.illyrian.parser.maker;
+package au.com.illyrian.parser.expr;
 
 import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.classmaker.ast.TerminalName;
-import au.com.illyrian.jesub.ast.AstStructureFactory;
+import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.Operator;
 import au.com.illyrian.parser.impl.ParserConstants;
-import au.com.illyrian.parser.impl.PrecidenceAction;
+import au.com.illyrian.parser.opp.OperatorPrecidenceAction;
 
-public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>, ParserConstants
+public class AstExpressionPrecidenceAction 
+   implements OperatorPrecidenceAction<AstExpression>, ParserConstants
 {
-    AstStructureFactory factory = new AstStructureFactory();
+    final AstExpressionFactory factory;
 
-    public PrecidenceActionFactory()
+    public AstExpressionPrecidenceAction(AstExpressionFactory factory)
     {
         super();
+        this.factory = factory;
     }
 
-    public AstStructureFactory factory()
+    public AstExpressionFactory factory()
     {
         return factory;
     }
 
-    public AstExpression identifierAction(String name) throws ParserException
-    {
-        return factory.Name(name);
-    }
-
-    public AstExpression callAction(AstExpression name, AstExpression callStack) throws ParserException
-    {
-        TerminalName name1 = (TerminalName) name;
-        return factory.Call(name1, callStack);
-    }
-
-    public AstExpression literalAction(Lexer lexer) throws ParserException
+    public AstExpression tokenAction(Lexer lexer) throws ParserException
     {
         AstExpression result = null;
         switch (lexer.getToken()) {
@@ -75,7 +64,13 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>,
             result = factory.Literal(lexer.getTokenInteger());
             break;
         case Lexer.STRING:
-            result = factory.Literal(lexer.getTokenValue());
+            result = factory.Literal(lexer.getTokenString());
+            break;
+        case Lexer.IDENTIFIER:
+            result = factory.Name(lexer.getTokenValue());
+            break;
+        case Lexer.RESERVED:
+            result = factory.Reserved(lexer.getTokenValue());
             break;
         default:
             throw new ParserException("Cannot handle: " + lexer);
@@ -83,16 +78,11 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>,
         return result;
     }
 
-    public AstExpression parenthesesAction(AstExpression expr) throws ParserException
-    {
-        return expr;
-    }
-
-    public AstExpression infixAction(Operator operator, AstExpression leftOperand, AstExpression rightOperand)
+    public AstExpression binaryAction(int operator, AstExpression leftOperand, AstExpression rightOperand)
             throws ParserException
     {
         AstExpression result = null;
-        switch (operator.getIndex()) {
+        switch (operator) {
         case ADD:
             result = factory.Add(leftOperand, rightOperand);
             break;
@@ -159,8 +149,20 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>,
         case INSTANCEOF:
             result = factory.InstanceOf(leftOperand, rightOperand);
             break;
+        case INDEX:
+            result = factory.ArrayIndex(leftOperand, rightOperand);
+            break;
+        case CAST:
+            result = factory.Cast(leftOperand, rightOperand);
+            break;
+        case CALL:
+            result = factory.Call(leftOperand, rightOperand);
+            break;
         case COMMA:
             result = factory.Comma(leftOperand, rightOperand);
+            break;
+        case ARRAYOF:
+            result = factory.ArrayOf(leftOperand, rightOperand);
             break;
         // FIXME add other binary operators
         default:
@@ -169,10 +171,10 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>,
         return result;
     }
 
-    public AstExpression prefixAction(Operator operator, AstExpression operand) throws ParserException
+    public AstExpression unaryAction(int operator, AstExpression operand) throws ParserException
     {
         AstExpression result = null;
-        switch (operator.getIndex()) {
+        switch (operator) {
         case NEG:
             result = factory.Neg(operand);
             break;
@@ -182,43 +184,38 @@ public class PrecidenceActionFactory implements PrecidenceAction<AstExpression>,
         case INV:
             result = factory.Inv(operand);
             break;
+        case NEW:
+            result = factory.New(operand);
+            break;
         case INC:
             result = factory.Inc(operand);
             break;
         case DEC:
             result = factory.Dec(operand);
             break;
-        default:
-            throw new IllegalStateException("Don't know how to process prefix operator: " + operator);
-        }
-        return result;
-    }
-
-    public AstExpression postfixAction(Operator operator, AstExpression operand) throws ParserException
-    {
-        AstExpression result = null;
-        switch (operator.getIndex()) {
         case POSTINC:
             result = factory.PostInc(operand);
             break;
         case POSTDEC:
             result = factory.PostDec(operand);
             break;
+        case ARRAYOF:
+            result = factory.ArrayOf(operand);
+            break;
+        case NOP:
+            result = operand;
+            break;
         default:
-            throw new IllegalStateException("Don't know how to process postfix operator: " + operator);
+            throw new IllegalStateException("Don't know how to process unary operator: " + operator);
         }
         return result;
     }
-
-    public AstExpression bracketAction(Operator operator, AstExpression leftOperand, AstExpression rightOperand)
-            throws ParserException
-    {
-        return factory.ArrayIndex(leftOperand, rightOperand);
+    
+    public AstExpression call(AstExpression name, AstExpression parameters) {
+        return factory.Call(name,  parameters);
     }
-
-    public AstExpression castAction(AstExpression type, AstExpression value) throws ParserException
-    {
-        return factory.Cast(type, value);
+    
+    public AstExpression index(AstExpression name, AstExpression parameters) {
+        return factory.ArrayIndex(name,  parameters);
     }
-
 }

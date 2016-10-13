@@ -9,19 +9,19 @@ import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.expressionparser.FuncA;
 import au.com.illyrian.expressionparser.FuncABC;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
-import au.com.illyrian.parser.CompileUnit;
+import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.CompileModule;
+import au.com.illyrian.parser.expr.AstExpressionPrecidenceParser;
 import au.com.illyrian.parser.impl.LexerInputStream;
 import au.com.illyrian.parser.impl.LexerInputString;
-import au.com.illyrian.parser.impl.Operator;
-import au.com.illyrian.parser.impl.ParserConstants;
-import au.com.illyrian.parser.impl.PrecidenceParser;
+import au.com.illyrian.parser.impl.ModuleContext;
+import au.com.illyrian.parser.opp.OperatorPrecidenceParser;
 
 public class MethodParserMakerTest extends ClassMakerTestCase
 {
@@ -29,30 +29,13 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     PrintWriter  out;
     ClassMakerFactory factory = new ClassMakerFactory();
     ClassMaker maker = factory.createClassMaker();
-    CompileModule compileUnit = new CompileModule();
+    ModuleContext compileUnit = new ModuleContext();
     
-    PrecidenceParser createParser()
+    OperatorPrecidenceParser createParser()
     {
-        PrecidenceParser<AstExpression> parser = new PrecidenceParser<AstExpression>();
-        parser.addPostfixOperator("(", ")", ParserConstants.CALL, 17, Operator.PARAMS);
-        parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY);
-        parser.addPostfixOperator("[", "]", ParserConstants.DOT, 16, Operator.BRACKET);
-        parser.addPrefixOperator("-", ParserConstants.NEG, 15, Operator.PREFIX);
-        parser.addPrefixOperator("(", ")", ParserConstants.CAST, 14, Operator.BRACKET);
-        parser.addInfixOperator("+", ParserConstants.ADD, 12, Operator.BINARY);
-        parser.addInfixOperator("-", ParserConstants.SUBT, 12, Operator.BINARY);
-//        parser.addLedOperator("(", ")", ParserConstants.CALL, 17, Operator.PARAMS, true);
-//        parser.addLedOperator(".", ParserConstants.DOT, 16, Operator.BINARY);
-//        parser.addLedOperator("[", "]", ParserConstants.DOT, 16, Operator.BRACKET, true);
-//        parser.addNudOperator("-", ParserConstants.NEG, 15, Operator.PREFIX, true);
-//        parser.addNudOperator("(", ")", ParserConstants.CAST, 14, Operator.BRACKET, true);
-//        parser.addLedOperator("+", ParserConstants.ADD, 12, Operator.BINARY);
-//        parser.addLedOperator("-", ParserConstants.SUBT, 12, Operator.BINARY);
-        parser.addInfixOperator(",", ParserConstants.COMMA, 0, Operator.BINARY);
-
-        PrecidenceActionFactory actions1 = new PrecidenceActionFactory();
-        parser.setPrecidenceActions(actions1);
-        parser.setCompileUnit(compileUnit);
+        AstExpressionPrecidenceParser parser = new AstExpressionPrecidenceParser();
+        AstExpressionFactory factory = new AstExpressionFactory();
+        parser.setAstExpressionFactory(factory);
         return parser;
     }
 
@@ -123,11 +106,11 @@ public class MethodParserMakerTest extends ClassMakerTestCase
         maker.End();
     }
 
-    CompileUnit createCompileModule(PrecidenceParser parser) throws IOException
+    CompilerContext createCompileModule(OperatorPrecidenceParser parser) throws IOException
     {
         Input input = new LexerInputStream(getReader(), null);
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setClassMaker(maker);
         compile.visitParser(parser);
@@ -138,7 +121,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     private Type parseExpression(String input) throws ParserException
     {
         Input lexer = new LexerInputString(input);
-        PrecidenceParser parser = createParser();
+        OperatorPrecidenceParser parser = createParser();
         parser.setInput(lexer);
         parser.nextToken();
         AstExpression expr = (AstExpression)parser.expression();

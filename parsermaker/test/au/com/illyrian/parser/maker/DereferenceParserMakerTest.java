@@ -4,35 +4,27 @@ import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.expressionparser.FuncA;
 import au.com.illyrian.expressionparser.FuncABC;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.expr.AstExpressionPrecidenceParser;
 import au.com.illyrian.parser.impl.LexerInputString;
-import au.com.illyrian.parser.impl.Operator;
-import au.com.illyrian.parser.impl.ParserConstants;
-import au.com.illyrian.parser.impl.PrecidenceParser;
+import au.com.illyrian.parser.opp.OperatorPrecidenceParser;
 
 public class DereferenceParserMakerTest extends ClassMakerTestCase
 {
     ClassMakerFactory factory = new ClassMakerFactory();
     ClassMaker maker = factory.createClassMaker();
 
-    PrecidenceParser createParser()
+    OperatorPrecidenceParser createParser()
     {
-        PrecidenceParser<AstExpression> parser = new PrecidenceParser<AstExpression>();
-        parser.addInfixOperator(".", ParserConstants.DOT, 16, Operator.BINARY);
-        parser.addPrefixOperator("-", ParserConstants.NEG, 14, Operator.PREFIX);
-        parser.addInfixOperator("*", ParserConstants.MULT, 12, Operator.BINARY);
-        parser.addInfixOperator("/", ParserConstants.DIV, 12, Operator.BINARY);
-        parser.addInfixOperator("%", ParserConstants.REM, 12, Operator.BINARY);
-        parser.addInfixOperator("+", ParserConstants.ADD, 11, Operator.BINARY);
-        parser.addInfixOperator("-", ParserConstants.SUBT, 11, Operator.BINARY);
-        parser.addInfixOperator("=", ParserConstants.ASSIGN, 1, Operator.BINARYRIGHT);
-        PrecidenceActionFactory actions = new PrecidenceActionFactory();
-        parser.setPrecidenceActions(actions);
+        AstExpressionPrecidenceParser parser = new AstExpressionPrecidenceParser();
+        AstExpressionFactory factory = new AstExpressionFactory();
+        parser.setAstExpressionFactory(factory);
         return parser;
     }
 
@@ -72,7 +64,7 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
     private Type parseExpression(String input) throws ParserException
     {
         Input lexer = new LexerInputString(input);
-        PrecidenceParser parser = createParser();
+        OperatorPrecidenceParser parser = createParser();
         parser.setInput(lexer);
         parser.nextToken();
         AstExpression expr = (AstExpression)parser.expression();

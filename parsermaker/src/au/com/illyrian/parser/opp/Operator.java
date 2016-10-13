@@ -1,4 +1,4 @@
-package au.com.illyrian.parser.impl;
+package au.com.illyrian.parser.opp;
 
 
 public class Operator
@@ -13,25 +13,25 @@ public class Operator
 
     public final String name;
     public final int index;
-    public final int precedence;
+    public final int precidence;
     public final int mode;
     public final String endName;
 
-    public Operator(String name, int index, int precedence, int mode)
+    public Operator(String name, int index, int precidence, int mode)
     {
         this.name = name;
         this.endName = null;
         this.index = index;
-        this.precedence = precedence;
+        this.precidence = precidence;
         this.mode = mode;
     }
     
-    public Operator(String name, String endName, int index, int precedence, int mode)
+    public Operator(String name, String endName, int index, int precidence, int mode)
     {
         this.name = name;
         this.endName = endName;
         this.index = index;
-        this.precedence = precedence;
+        this.precidence = precidence;
         this.mode = mode;
     }
 
@@ -50,9 +50,9 @@ public class Operator
         return index;
     }
 
-    public int getPrecedence()
+    public int getPrecidence()
     {
-        return precedence;
+        return precidence;
     }
 
     public int getMode()
@@ -67,7 +67,7 @@ public class Operator
         if (endName != null)
             buf.append(endName).append(", ");
         buf.append(index).append(", ");
-        buf.append(precedence).append(", ");
+        buf.append(precidence).append(", ");
         switch (mode)
         {
         case Operator.PREFIX:
@@ -77,10 +77,10 @@ public class Operator
             buf.append("postfix");
             break;
         case Operator.BINARY:
-            buf.append("binary, ");
+            buf.append("binary");
             break;
         case Operator.BINARYRIGHT:
-            buf.append("binary_right, ");
+            buf.append("binary_right");
             break;
         case Operator.TERNARY:
             buf.append("ternary");

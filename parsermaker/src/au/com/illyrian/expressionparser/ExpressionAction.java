@@ -11,7 +11,7 @@
 package au.com.illyrian.expressionparser;
 
 import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.PrecidenceAction;
+import au.com.illyrian.parser.opp.OperatorPrecidenceAction;
 
 /**
  *
@@ -19,9 +19,9 @@ import au.com.illyrian.parser.impl.PrecidenceAction;
  *
  * @author strongd
  */
-public interface ExpressionAction <T> extends PrecidenceAction <T>
+public interface ExpressionAction <T> extends OperatorPrecidenceAction <T>
 {
-	public Object declareFunctionName(String identifier) throws ParserException;
+    public Object declareFunctionName(String identifier) throws ParserException;
 
     public Object addParameter(Object params, String identifier) throws ParserException;
 
@@ -35,9 +35,9 @@ public interface ExpressionAction <T> extends PrecidenceAction <T>
 
     public Object declareClass(Object classname, Object extendClass, Object functionList) throws ParserException;
 
-	public void beginMethod() throws ParserException;
+    public void beginMethod() throws ParserException;
 
-	public Object endMethod(Object type) throws ParserException;
-	
-	public Object getModule() throws ParserException;
+    public Object endMethod(Object type) throws ParserException;
+
+    public Object getModule() throws ParserException;
 }

@@ -12,14 +12,17 @@ package au.com.illyrian.expressionparser;
 
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerLocation;
+import au.com.illyrian.classmaker.ast.AstExpressionFactory;
+import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParseExpression;
-import au.com.illyrian.parser.ParseMember;
+import au.com.illyrian.parser.ParseMembers;
 import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.Operator;
+import au.com.illyrian.parser.expr.AstExpressionPrecidenceAction;
+import au.com.illyrian.parser.expr.AstExpressionPrecidenceParser;
 import au.com.illyrian.parser.impl.ParserConstants;
-import au.com.illyrian.parser.impl.PrecidenceParser;
+import au.com.illyrian.parser.opp.Operator;
 
 /**
  *
@@ -36,8 +39,8 @@ import au.com.illyrian.parser.impl.PrecidenceParser;
  *
  * @author strongd
  */
-public class ExpressionParser extends PrecidenceParser
-    implements ParseClass, ParseMember, ParseExpression, ClassMakerLocation
+public class ExpressionParser extends AstExpressionPrecidenceParser
+    implements ParseClass, ParseMembers, ParseExpression, ClassMakerLocation
 {
     private ClassMaker maker = null;
 
@@ -51,7 +54,7 @@ public class ExpressionParser extends PrecidenceParser
     {
         super();
         populateReservedWords();
-        populateOperators();
+        //populateOperators();
     }
     
     protected void populateReservedWords()
@@ -64,53 +67,53 @@ public class ExpressionParser extends PrecidenceParser
         addReservedWord("instanceof", "instanceof");
     }
     
-    protected void populateOperators()
-    {
-        addInfixOperator("**", ParserConstants.POW, 16, Operator.BINARYRIGHT);
-        addPostfixOperator("--", ParserConstants.POSTDEC, 15, Operator.POSTFIX);
-        addPostfixOperator("++", ParserConstants.POSTINC, 15, Operator.POSTFIX);
-        addPrefixOperator("-", ParserConstants.NEG, 14, Operator.PREFIX);
-        addPrefixOperator("--", ParserConstants.DEC, 14, Operator.PREFIX);
-        addPrefixOperator("++", ParserConstants.INC, 14, Operator.PREFIX);
-        addPrefixOperator("+", ParserConstants.NOP, 14, Operator.PREFIX);
-        addPrefixOperator("~", ParserConstants.INV, 14, Operator.PREFIX);
-        addPrefixOperator("!", ParserConstants.NOT, 14, Operator.PREFIX);
-        addPrefixOperator("new", ParserConstants.NEW, 13, Operator.PREFIX);
-        addInfixOperator("*", ParserConstants.MULT, 12, Operator.BINARY);
-        addInfixOperator("/", ParserConstants.DIV, 12, Operator.BINARY);
-        addInfixOperator("%", ParserConstants.REM, 12, Operator.BINARY);
-        addInfixOperator("+", ParserConstants.ADD, 11, Operator.BINARY);
-        addInfixOperator("-", ParserConstants.SUBT, 11, Operator.BINARY);
-        addInfixOperator("<<", ParserConstants.SHL, 10, Operator.BINARY);
-        addInfixOperator(">>", ParserConstants.SHR, 10, Operator.BINARY);
-        addInfixOperator(">>>", ParserConstants.USHR, 10, Operator.BINARY);
-        addInfixOperator("<", ParserConstants.LT, 9, Operator.BINARY);
-        addInfixOperator(">", ParserConstants.GT, 9, Operator.BINARY);
-        addInfixOperator("<=", ParserConstants.LE, 9, Operator.BINARY);
-        addInfixOperator(">=", ParserConstants.GE, 9, Operator.BINARY);
-        addInfixOperator("==", ParserConstants.EQ, 8, Operator.BINARY);
-        addInfixOperator("!=", ParserConstants.NE, 8, Operator.BINARY);
-        addInfixOperator("instanceof", ParserConstants.INSTANCEOF, 8, Operator.BINARY);
-        addInfixOperator("&", ParserConstants.AND, 7, Operator.BINARY);
-        addInfixOperator("^", ParserConstants.XOR, 6, Operator.BINARY);
-        addInfixOperator("|", ParserConstants.OR, 5, Operator.BINARY);
-        addInfixOperator("=", ParserConstants.ASSIGN, 1, Operator.BINARYRIGHT);
-    }
+//    protected void populateOperators()
+//    {
+//        addLedOperator("**", ParserConstants.POW, 16, Operator.BINARYRIGHT);
+//        addLedOperator("--", ParserConstants.POSTDEC, 15, Operator.POSTFIX);
+//        addLedOperator("++", ParserConstants.POSTINC, 15, Operator.POSTFIX);
+//        addNudOperator("-", ParserConstants.NEG, 14, Operator.PREFIX);
+//        addNudOperator("--", ParserConstants.DEC, 14, Operator.PREFIX);
+//        addNudOperator("++", ParserConstants.INC, 14, Operator.PREFIX);
+//        addNudOperator("+", ParserConstants.NOP, 14, Operator.PREFIX);
+//        addNudOperator("~", ParserConstants.INV, 14, Operator.PREFIX);
+//        addNudOperator("!", ParserConstants.NOT, 14, Operator.PREFIX);
+//        addNudOperator("new", ParserConstants.NEW, 13, Operator.PREFIX);
+//        addLedOperator("*", ParserConstants.MULT, 12, Operator.BINARY);
+//        addLedOperator("/", ParserConstants.DIV, 12, Operator.BINARY);
+//        addLedOperator("%", ParserConstants.REM, 12, Operator.BINARY);
+//        addLedOperator("+", ParserConstants.ADD, 11, Operator.BINARY);
+//        addLedOperator("-", ParserConstants.SUBT, 11, Operator.BINARY);
+//        addLedOperator("<<", ParserConstants.SHL, 10, Operator.BINARY);
+//        addLedOperator(">>", ParserConstants.SHR, 10, Operator.BINARY);
+//        addLedOperator(">>>", ParserConstants.USHR, 10, Operator.BINARY);
+//        addLedOperator("<", ParserConstants.LT, 9, Operator.BINARY);
+//        addLedOperator(">", ParserConstants.GT, 9, Operator.BINARY);
+//        addLedOperator("<=", ParserConstants.LE, 9, Operator.BINARY);
+//        addLedOperator(">=", ParserConstants.GE, 9, Operator.BINARY);
+//        addLedOperator("==", ParserConstants.EQ, 8, Operator.BINARY);
+//        addLedOperator("!=", ParserConstants.NE, 8, Operator.BINARY);
+//        addLedOperator("instanceof", ParserConstants.INSTANCEOF, 8, Operator.BINARY);
+//        addLedOperator("&", ParserConstants.AND, 7, Operator.BINARY);
+//        addLedOperator("^", ParserConstants.XOR, 6, Operator.BINARY);
+//        addLedOperator("|", ParserConstants.OR, 5, Operator.BINARY);
+//        addLedOperator("=", ParserConstants.ASSIGN, 1, Operator.BINARYRIGHT);
+//    }
 
-    public void addOperator(String name, Object value)
-    {
-        getLexer().getOperators().put(name, value);
-    }
+//    public void addOperator(String name, Object value)
+//    {
+//        getLexer().getOperators().put(name, value);
+//    }
 
     public void addReservedWord(String name, Object value)
     {
         getLexer().getReservedWords().put(name, value);
     }
 
-    protected Object getOperator(String op)
-    {
-        return getLexer().getOperators().get(op);
-    }
+//    protected Object getOperator(String op)
+//    {
+//        return getLexer().getOperators().get(op);
+//    }
     
     /**
      * Public constructor for the search query parser.
@@ -121,7 +124,9 @@ public class ExpressionParser extends PrecidenceParser
     public void setExpressionAction(ExpressionActionFactory actions)
     {
         this.expressionAction = actions;
-        setPrecidenceActions(actions);
+        AstExpressionFactory factory = new AstExpressionFactory();
+        AstExpressionPrecidenceAction precidenceActions = new AstExpressionPrecidenceAction(factory);
+        setPrecidenceActions(precidenceActions);
     }
     
     public ExpressionActionFactory getExpressionAction()
@@ -148,8 +153,9 @@ public class ExpressionParser extends PrecidenceParser
         return maker;
     }
 
-    public Object parseClass() throws ParserException
+    public Object parseClass(CompilerContext context) throws ParserException
     {
+        setCompilerContext(context);
         // Read the first token from input.
         nextToken();
 
@@ -276,8 +282,9 @@ public class ExpressionParser extends PrecidenceParser
      * @throws Exception -
      *             if an error occurs.
      */
-    public Object parseMember() throws ParserException
+    public Object parseMembers(CompilerContext context) throws ParserException
     {
+        setCompilerContext(context);
         // Read the first token from input.
         nextToken();
 
@@ -368,8 +375,11 @@ public class ExpressionParser extends PrecidenceParser
      * @throws Exception -
      *             if an error occurs.
      */
-    public Object parseExpression() throws ParserException
+    public Object parseExpression(CompilerContext context) throws ParserException
     {
+        setCompilerContext(context);
+        context.visitParser(this);
+        
         // Read the first token from input.
         nextToken();
 
