@@ -27,12 +27,23 @@
 
 package org.mozilla.classfile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SimpleClassLoader extends ClassLoader
 {
+    private Map<String, Class<?>> localClasses = new HashMap<String, Class<?>>();
+    private File classesDir = null;
+    
     public SimpleClassLoader()
     {
         this.parentLoader = getClass().getClassLoader();
@@ -43,6 +54,26 @@ public class SimpleClassLoader extends ClassLoader
         this.parentLoader = parentLoader;
     }
 
+    public File getClassesDir()
+    {
+        return classesDir;
+    }
+
+    public void setClassesDir(File classesDir)
+    {
+        this.classesDir = classesDir;
+    }
+
+    public Map<String, Class<?>> getLocalClasses()
+    {
+        return localClasses;
+    }
+
+    public ClassLoader getParentLoader()
+    {
+        return parentLoader;
+    }
+
     public Class defineClass(String className, byte[] classBytes)
     {
         String classDotName = className.replace('/', '.');
@@ -51,6 +82,7 @@ public class SimpleClassLoader extends ClassLoader
             Class<?> cl = super.defineClass(classDotName, classBytes, 0, classBytes.length,
                     SimpleClassLoader.getProtectionDomain(getClass()));
             resolveClass(cl);
+            localClasses.put(classDotName, cl);
             return cl;
         } catch (SecurityException x) {
             e = x;
@@ -60,27 +92,83 @@ public class SimpleClassLoader extends ClassLoader
         throw new RuntimeException("Could not load class from byte array: " + className, e);
     }
 
-    public void linkClass(Class<?> cl)
-    {
-        resolveClass(cl);
+    protected Class<?> findLocalClass(String name) throws ClassNotFoundException {
+        Class<?> cl = localClasses.get(name);
+        return cl;
     }
 
-    @Override
-    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException
-    {
-        Class<?> cl = findLoadedClass(name);
+    /**
+     * Finds the class with the specified <a href="#name">binary name</a>.
+     * This method should be overridden by class loader implementations that
+     * follow the delegation model for loading classes, and will be invoked by
+     * the {@link #loadClass <tt>loadClass</tt>} method after checking the
+     * parent class loader for the requested class.  The default implementation
+     * throws a <tt>ClassNotFoundException</tt>.  </p>
+     *
+     * @param  name
+     *         The <a href="#name">binary name</a> of the class
+     *
+     * @return  The resulting <tt>Class</tt> object
+     *
+     * @throws  ClassNotFoundException
+     *          If the class could not be found
+     *
+     */
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        Class<?> cl = findLocalClass(name);
         if (cl == null) {
-            if (parentLoader != null) {
-                cl = parentLoader.loadClass(name);
-            } else {
-                cl = findSystemClass(name);
+            String className = name.replace('.', '/') + ".class";
+            File classFile = new File(classesDir, className);
+            if (!classFile.exists()) {
+                throw new ClassNotFoundException(name);
             }
-        }
-        if (resolve) {
-            resolveClass(cl);
+            // Load byte stream for class
+            byte[] bytes;
+            try {
+                FileInputStream input = new FileInputStream(classFile);
+                bytes = getBytes(input);
+                cl = defineClass(name, bytes);
+            } catch (IOException ex) {
+                throw new ClassNotFoundException(className);
+            }
         }
         return cl;
     }
+
+    byte[] getBytes(InputStream in) throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            byte[] buffer = new byte[2048];
+            int read = 0;
+            while (in.available() > 0) {
+                read = in.read(buffer, 0, buffer.length);
+                if (read < 0) {
+                    break;
+                }
+                out.write(buffer, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        return out.toByteArray();
+    }
+
+    //    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException
+//    {
+//        Class<?> cl = findLocalClass(name);
+//        if (cl == null) {
+//            if (parentLoader != null) {
+//                cl = parentLoader.loadClass(name);
+//            } else {
+//                cl = findSystemClass(name);
+//            }
+//        }
+//        if (resolve) {
+//            resolveClass(cl);
+//        }
+//        return cl;
+//    }
 
     public static ProtectionDomain getProtectionDomain(final Class<?> clazz)
     {
