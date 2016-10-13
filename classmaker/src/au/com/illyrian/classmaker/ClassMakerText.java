@@ -302,6 +302,8 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
             return new DeclaredType(ClassMaker.OBJECT_TYPE);
         else if (typeName.endsWith("String"))
             return new DeclaredType(ClassMaker.STRING_TYPE);
+        else if (typeName.endsWith("StringBuffer"))
+            return new DeclaredType(ClassMaker.STRING_BUFFER_TYPE);
         else if (typeName.equals("int"))
             return new DeclaredType(ClassMaker.INT_TYPE);
         else {

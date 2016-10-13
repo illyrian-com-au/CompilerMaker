@@ -416,7 +416,7 @@ public class ClassMakerFactory
         try
         {
             String name = ClassMaker.toDotName(className);
-            Class javaClass = getClassLoader().loadClass(name, false);
+            Class javaClass = getClassLoader().loadClass(name);
             return classToType(javaClass);
         } catch (ClassNotFoundException ex) {
             return null;

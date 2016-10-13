@@ -252,9 +252,9 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
         DeclaredType declared1 = maker.findDeclaredType("CallStack");
         assertNotNull("Cannot find CallStack", declared1);
         assertEquals("Wrong class name", "au.com.illyrian.classmaker.CallStack", declared1.getName());
-        DeclaredType declared2 = maker.findDeclaredType("ExpressionIfc");
-        assertNotNull("Cannot find ExpressionIfc", declared2);
-        assertEquals("Wrong class name", "au.com.illyrian.classmaker.ExpressionIfc", declared2.getName());
+        DeclaredType declared2 = maker.findDeclaredType("ClassMakerIfc");
+        assertNotNull("Cannot find ClassMakerIfc", declared2);
+        assertEquals("Wrong class name", "au.com.illyrian.classmaker.ClassMakerIfc", declared2.getName());
     }
 
     public void testImport() throws Exception

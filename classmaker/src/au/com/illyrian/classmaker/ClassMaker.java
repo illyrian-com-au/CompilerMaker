@@ -8732,6 +8732,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             throw createException("ClassMaker.OutputFolderDoesNotExist_1", classesDir.getName());
         }
+        EndClass();
         ClassFileWriter cfw = getClassFileWriter();
         String className = cfw.getClassName() + ".class";
         File classFile = new File(classesDir, className);
