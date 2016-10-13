@@ -3,6 +3,7 @@ package au.com.illyrian.domainparser;
 public class TestClassAction extends TestModuleAction implements ClassAction
 {
     private StringBuffer modifierBuf = new StringBuffer();
+    private boolean hasImplements = false;
     
     public Object addModifier(String modifier)
     {
@@ -13,36 +14,41 @@ public class TestClassAction extends TestModuleAction implements ClassAction
     
     public Object setClassModifiers(Object modifiers)
     {
-        buffer.append("(modifiers ");
         buffer.append(modifiers);
-        buffer.append(") ");
         return modifiers;
     }
 
     public String setClassName(String simpleName)
     {
-        String str = "(class " + simpleName + ") ";
+        String str = "class " + simpleName + " ";
         buffer.append(str);
-//        if (modifierBuf.length() > 0)
-//        {
-//            module.append("(modifiers ");
-//            module.append(modifierBuf.toString());
-//            module.append(") ");
-//        }
         return str;
     }
 
     public Object declareExtends(String className)
     {
-        String str = "(extends " + className + ") ";
+        String str = "extends " + className + " ";
         buffer.append(str);
         return str;
     }
 
     public Object declareImplements(String className)
     {
-        String str = "(implements " + className + ") ";
+        String str = "implements " + className + " ";
+        if (hasImplements) {
+            str = className + " ";
+        }
+        hasImplements = true;
         buffer.append(str);
+        return str;
+    }
+    
+    public Object declareMembers(Object members)
+    {
+        String str = members.toString();
+        buffer.append("{\n");
+        buffer.append(str);
+        buffer.append("\n}");
         return str;
     }
 }

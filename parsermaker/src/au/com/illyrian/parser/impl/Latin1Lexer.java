@@ -167,6 +167,10 @@ public class Latin1Lexer implements Lexer
     {
         return input.getTokenString();
     }
+    
+    protected void setTokenString(String value) {
+        tokenString = value;
+    }
 
     public String getTokenString()
     {
@@ -249,36 +253,47 @@ public class Latin1Lexer implements Lexer
 
             // Move over any whitespace before the token.
             spanWhiteSpace();
+            // Read the next token
+            token = spanNextToken();
 
-            // Now examine the start character.
-            char ch = input.startChar();
-            if (ch == Input.NULL) {
-                token = END;
-            } else if (isIdentifierStartChar(ch)) {
-                token = spanIdentifier();
-            } else if (isDigitChar(ch)) {
-                token = spanNumber();
-            } else if (peekLineComment()) {
-                token = spanLineComment();
-            } else  if (peekMultiComment()) {
-                token = spanMultiComment();
-            } else if (isDelimiter(ch)) {
-                token = spanCharacter(DELIMITER);
-            } else if (isOpenP(ch)) {
-                token = spanCharacter(OPEN_P);
-            } else if (isCloseP(ch)) {
-                token = spanCharacter(CLOSE_P);
-            } else if (isQuote(ch)) {
-                token = spanStringLiteral();
-            } else if (isCharacterQuote(ch)) {
-                token = spanCharLiteral();
-            } else if (isOperator(ch)) {
-                token = spanOperator();
-            } else {
-                this.token = error("Unrecognised input character: \\x0" + Integer.toOctalString(ch));
-            }
         } while (token == COMMENT);
-        return this.token;
+        return token;
+    }
+
+    /**
+     * Read the next token.
+     */
+    protected int spanNextToken()
+    {
+        int token;
+        // Now examine the start character.
+        char ch = input.startChar();
+        if (ch == Input.NULL) {
+            token = END;
+        } else if (isIdentifierStartChar(ch)) {
+            token = spanIdentifier();
+        } else if (isDigitChar(ch)) {
+            token = spanNumber();
+        } else if (peekLineComment()) {
+            token = spanLineComment();
+        } else  if (peekMultiComment()) {
+            token = spanMultiComment();
+        } else if (isDelimiter(ch)) {
+            token = spanCharacter(DELIMITER);
+        } else if (isOpenP(ch)) {
+            token = spanCharacter(OPEN_P);
+        } else if (isCloseP(ch)) {
+            token = spanCharacter(CLOSE_P);
+        } else if (isQuote(ch)) {
+            token = spanStringLiteral();
+        } else if (isCharacterQuote(ch)) {
+            token = spanCharLiteral();
+        } else if (isOperator(ch)) {
+            token = spanOperator();
+        } else {
+            token = error("Unrecognised input character: \\x0" + Integer.toOctalString(ch));
+        }
+        return token;
     }
 
     /**
@@ -540,7 +555,7 @@ public class Latin1Lexer implements Lexer
         return this.getTokenValue();
     }
 
-    int error(String message)
+    protected int error(String message)
     {
         errorMessage = message;
         return ERROR;

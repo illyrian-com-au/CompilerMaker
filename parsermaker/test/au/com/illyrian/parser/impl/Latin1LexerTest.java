@@ -37,10 +37,15 @@ public class Latin1LexerTest extends TestCase
         operators.put("=", "");
     }
 
+    public Latin1Lexer createLexer(Input inp) {
+        Latin1Lexer lex = new Latin1Lexer(inp);
+        return lex;
+    }
+    
     public void testSpanIdentifier()
     {
         Input inp = new LexerInputString("a big\tname");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         // Tokenise "a "
         assertTrue("isStartIdentifier", tok.isIdentifierStartChar(inp.startChar()));
         tok.spanIdentifier();
@@ -79,7 +84,7 @@ public class Latin1LexerTest extends TestCase
     public void testIdentifiers()
     {
         LexerInputString inp = new LexerInputString("a\n b\t c");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Identifier expected", Lexer.IDENTIFIER, tok.nextToken());
         assertEquals("Whitespace '' expected", "", tok.getWhitespace());
         assertEquals("Identifier 'a' expected", "a", tok.getTokenValue());
@@ -97,7 +102,7 @@ public class Latin1LexerTest extends TestCase
     public void testPerentheses()
     {
         LexerInputString inp = new LexerInputString("()");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
 
         assertEquals("Open perenthesis expected", Lexer.OPEN_P, tok.nextToken());
         assertEquals("Perenthesis '(' expected", "(", tok.getTokenValue());
@@ -109,7 +114,7 @@ public class Latin1LexerTest extends TestCase
     public void testPerenthesesIdentifier()
     {
         LexerInputString inp = new LexerInputString("(a)");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Open perenthesis expected", Lexer.OPEN_P, tok.nextToken());
         assertEquals("Perenthesis '(' expected", "(", tok.getTokenValue());
         assertEquals("Identifier expected", Lexer.IDENTIFIER, tok.nextToken());
@@ -122,7 +127,7 @@ public class Latin1LexerTest extends TestCase
     public void testStringLiteral()
     {
         LexerInputString inp = new LexerInputString("\"fred\"");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Lexer.STRING", Lexer.STRING, tok.nextToken());
         assertEquals("String literal", "\"fred\"", tok.getTokenValue());
         assertEquals("String value", "fred", tok.getTokenString());
@@ -133,7 +138,7 @@ public class Latin1LexerTest extends TestCase
     public void testEmptyStringLiteral()
     {
         LexerInputString inp = new LexerInputString("\"\"");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Lexer.STRING", Lexer.STRING, tok.nextToken());
         assertEquals("String literal", "\"\"", tok.getTokenValue());
         assertEquals("String value", "", tok.getTokenString());
@@ -144,7 +149,7 @@ public class Latin1LexerTest extends TestCase
     public void testStringLiteralError1()
     {
         LexerInputString inp = new LexerInputString("\"");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("ERROR expected", Lexer.ERROR, tok.nextToken());
         assertEquals("Error message", "Missing quote at end of String: \"", tok.getErrorMessage());
     }
@@ -152,7 +157,7 @@ public class Latin1LexerTest extends TestCase
     public void testStringLiteralError2()
     {
         LexerInputString inp = new LexerInputString("\"fred");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("ERROR expected", Latin1Lexer.ERROR, tok.nextToken());
         assertEquals("Error message", "Missing quote at end of String: \"", tok.getErrorMessage());
     }
@@ -195,7 +200,7 @@ public class Latin1LexerTest extends TestCase
     public void testPeekLineComment1()
     {
         LexerInputString inp = new LexerInputString("brown//\nfox");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
         assertEquals("tok.getTokenValue()", "brown", tok.getTokenValue());
         assertEquals("peek", "//", inp.peek(2));
@@ -207,7 +212,7 @@ public class Latin1LexerTest extends TestCase
     public void testPeekLineComment2()
     {
         LexerInputString inp = new LexerInputString("brown+//\nfox");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
         assertEquals("tok.getTokenValue()", "brown", tok.getTokenValue());
         assertEquals("Operator expected", Latin1Lexer.OPERATOR, tok.nextToken());
@@ -221,7 +226,7 @@ public class Latin1LexerTest extends TestCase
     public void testPeekMultiComment1()
     {
         LexerInputString inp = new LexerInputString("brown/*Hello*/fox");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
         assertEquals("tok.getTokenValue()", "brown", tok.getTokenValue());
         assertEquals("peek", "/*", inp.peek(2));
@@ -233,7 +238,7 @@ public class Latin1LexerTest extends TestCase
     public void testPeekMultiComment2()
     {
         LexerInputString inp = new LexerInputString("brown*/*Hello*/*fox");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
         assertEquals("tok.getTokenValue()", "brown", tok.getTokenValue());
         assertEquals("Operator expected", Latin1Lexer.OPERATOR, tok.nextToken());
@@ -249,7 +254,7 @@ public class Latin1LexerTest extends TestCase
     public void testComment1()
     {
         LexerInputString inp = new LexerInputString("c //h*(\n+a");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
         assertEquals("'c' expected", "c", tok.getTokenValue());
         assertEquals("Operator expected", Latin1Lexer.OPERATOR, tok.nextToken());
@@ -263,7 +268,7 @@ public class Latin1LexerTest extends TestCase
     public void testComment2()
     {
         LexerInputString inp = new LexerInputString("c //comment\n+ //(another)\na");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
         assertEquals("'c' expected", "c", tok.getTokenValue());
         assertEquals("Operator expected", Latin1Lexer.OPERATOR, tok.nextToken());
@@ -281,7 +286,7 @@ public class Latin1LexerTest extends TestCase
         out.println(" +  /* followed");
         out.println("  by another */ a  ");
         StringReader reader = new StringReader(writer.toString());
-        Latin1Lexer tok = new Latin1Lexer(new LexerInputStream(reader, null));
+        Latin1Lexer tok = createLexer(new LexerInputStream(reader, null));
         assertEquals("Identifier expected", Latin1Lexer.IDENTIFIER, tok.nextToken());
         assertEquals("'c' expected", "c", tok.getTokenValue());
         assertEquals("Operator expected", Latin1Lexer.OPERATOR, tok.nextToken());
@@ -294,7 +299,7 @@ public class Latin1LexerTest extends TestCase
     public void testReservedWordIf()
     {
         LexerInputString inp = new LexerInputString(" if \t");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         tok.setReservedWords(reservedWords);
         assertEquals("Reserved Word expected", Latin1Lexer.RESERVED, tok.nextToken());
         assertEquals("Reserved Word 'if' expected", "if", tok.getTokenValue());
@@ -305,7 +310,7 @@ public class Latin1LexerTest extends TestCase
     public void testReservedWordElse()
     {
         LexerInputString inp = new LexerInputString("else");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         tok.setReservedWords(reservedWords);
         assertEquals("Reserved Word expected", Latin1Lexer.RESERVED, tok.nextToken());
         assertEquals("Reserved Word 'else' expected", "else", tok.getTokenValue());
@@ -316,7 +321,7 @@ public class Latin1LexerTest extends TestCase
     public void testReservedWordWhile()
     {
         LexerInputString inp = new LexerInputString(" while");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         tok.setReservedWords(reservedWords);
         assertEquals("Reserved Word expected", Latin1Lexer.RESERVED, tok.nextToken());
         assertEquals("Reserved Word 'while' expected", "while", tok.getTokenValue());
@@ -326,7 +331,7 @@ public class Latin1LexerTest extends TestCase
     public void testDelimiters()
     {
         LexerInputString inp = new LexerInputString(",;");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Delimiter expected", Latin1Lexer.DELIMITER, tok.nextToken());
         assertEquals("Delimiter expected", ",", tok.getTokenValue());
         assertEquals("Delimiter expected", Latin1Lexer.DELIMITER, tok.nextToken());
@@ -337,7 +342,7 @@ public class Latin1LexerTest extends TestCase
     public void testOperators()
     {
         LexerInputString inp = new LexerInputString("* - + = / % | &");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Operator expected", Latin1Lexer.OPERATOR, tok.nextToken());
         assertEquals("Operator expected", "*", tok.getTokenValue());
         assertEquals("Operator expected", Latin1Lexer.OPERATOR, tok.nextToken());
@@ -360,7 +365,7 @@ public class Latin1LexerTest extends TestCase
     public void testBigOperators()
     {
         LexerInputString inp = new LexerInputString("== === != -= += *= /= %= |= &= && || << >> >>>");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Operator expected", Lexer.OPERATOR, tok.nextToken());
         assertEquals("Operator expected", "==", tok.getTokenValue());
         assertEquals("Operator expected", Lexer.OPERATOR, tok.nextToken());
@@ -397,14 +402,14 @@ public class Latin1LexerTest extends TestCase
     public void testOne()
     {
         LexerInputString inp = new LexerInputString("1");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Integer expected", Lexer.INTEGER, tok.nextToken());
     }
 
     public void testInteger()
     {
         LexerInputString inp = new LexerInputString(" 1234567890");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Integer expected", Lexer.INTEGER, tok.nextToken());
         assertEquals("Whitespace ' ' expected", " ", tok.getWhitespace());
     }
@@ -412,14 +417,14 @@ public class Latin1LexerTest extends TestCase
     public void testDecimal()
     {
         LexerInputString inp = new LexerInputString("12345.67890");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Decimal expected", Lexer.DECIMAL, tok.nextToken());
     }
 
     public void testDelimiter()
     {
         LexerInputString inp = new LexerInputString("1;");
-        Latin1Lexer tok = new Latin1Lexer(inp);
+        Latin1Lexer tok = createLexer(inp);
         assertEquals("Integer expected", Lexer.INTEGER, tok.nextToken());
         assertEquals("1 expected", "1", tok.getTokenValue());
         assertEquals("Delimiter expected", Lexer.DELIMITER, tok.nextToken());

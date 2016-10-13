@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 import au.com.illyrian.domainparser.ModuleParser;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.CompileModule;
+import au.com.illyrian.parser.impl.ModuleContext;
 import au.com.illyrian.parser.impl.LexerInputStream;
 
 public class JesubParserTest extends TestCase
@@ -38,9 +38,9 @@ public class JesubParserTest extends TestCase
         expected.println("setSimpleClassName(\"test\");");
         Input input = new LexerInputStream(getReader(), null);
         ModuleParser parser = new ModuleParser();
-        parser.setModuleAction(action);
+        parser.setAction(action);
 
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -61,9 +61,9 @@ public class JesubParserTest extends TestCase
         expected.println("setSimpleClassName(\"test\");");
         Input input = new LexerInputStream(getReader(), null);
         ModuleParser parser = new ModuleParser();
-        parser.setModuleAction(action);
+        parser.setAction(action);
 
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -84,9 +84,9 @@ public class JesubParserTest extends TestCase
         expected.println("setSimpleClassName(\"test\");");
         Input input = new LexerInputStream(getReader(), null);
         ModuleParser parser = new ModuleParser();
-        parser.setModuleAction(action);
+        parser.setAction(action);
 
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -108,9 +108,9 @@ public class JesubParserTest extends TestCase
         expected.println("Extends(\"BaseClass\");");
         Input input = new LexerInputStream(getReader(), null);
         ModuleParser parser = new ModuleParser();
-        parser.setModuleAction(action);
+        parser.setAction(action);
 
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -132,9 +132,9 @@ public class JesubParserTest extends TestCase
         expected.println("Implements(\"Runnable\");");
         Input input = new LexerInputStream(getReader(), null);
         ModuleParser parser = new ModuleParser();
-        parser.setModuleAction(action);
+        parser.setAction(action);
 
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -158,9 +158,9 @@ public class JesubParserTest extends TestCase
         expected.println("Implements(\"Compatable\");");
         Input input = new LexerInputStream(getReader(), null);
         ModuleParser parser = new ModuleParser();
-        parser.setModuleAction(action);
+        parser.setAction(action);
 
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -185,9 +185,9 @@ public class JesubParserTest extends TestCase
         expected.println("Implements(\"Compatable\");");
         Input input = new LexerInputStream(getReader(), null);
         ModuleParser parser = new ModuleParser();
-        parser.setModuleAction(action);
+        parser.setAction(action);
 
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -230,9 +230,9 @@ public class JesubParserTest extends TestCase
         out.println("    int a;");
         Input input = new LexerInputStream(getReader(), "Test.dat");
         ModuleParser parser = new ModuleParser();
-        parser.setModuleAction(action);
+        parser.setAction(action);
 
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
 

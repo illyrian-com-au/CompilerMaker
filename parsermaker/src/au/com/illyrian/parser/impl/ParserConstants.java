@@ -42,5 +42,6 @@ public interface ParserConstants {
     /* Other operators */
     public static final int CALL = 101;
     public static final int INDEX = 102;
+    public static final int ARRAYOF = 103;
 
 }

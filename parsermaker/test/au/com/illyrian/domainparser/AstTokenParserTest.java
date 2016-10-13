@@ -3,7 +3,7 @@ package au.com.illyrian.domainparser;
 import junit.framework.TestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.CompileModule;
+import au.com.illyrian.parser.impl.ModuleContext;
 import au.com.illyrian.parser.impl.LexerInputString;
 
 public class AstTokenParserTest extends TestCase
@@ -11,21 +11,20 @@ public class AstTokenParserTest extends TestCase
     AstTokenParser parser;
     LexerInputString input;
     AstExpression output;
+    ModuleContext context;
 
     public void setUp()
     {
         input = new LexerInputString();
         parser = new AstTokenParser();
-        CompileModule unit = new CompileModule();
-        unit.setInput(input);
-        parser.setCompileUnit(unit);
+        context = new ModuleContext();
     }
 
     public void testInteger() throws Exception
     {
         input.setLine("{1234}");
-        parser.setInput(input);
-        output = parser.parseClass();
+        context.setInput(input);
+        output = parser.parseClass(context);
         assertEquals("Integer expected",  "1234", output.toString());
     }
 
@@ -33,8 +32,8 @@ public class AstTokenParserTest extends TestCase
     {
         input.setLine("");
         try {
-            parser.setInput(input);
-            output = parser.parseClass();
+            context.setInput(input);
+            output = parser.parseClass(context);
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             assertEquals("Wrong ParserException",  "'{' expected", ex.getMessage());
@@ -45,8 +44,8 @@ public class AstTokenParserTest extends TestCase
     {
         input.setLine("{");
         try {
-            parser.setInput(input);
-            output = parser.parseClass();
+            context.setInput(input);
+            output = parser.parseClass(context);
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             assertEquals("Wrong ParserException",  "A numeric value is expected", ex.getMessage());
@@ -57,8 +56,8 @@ public class AstTokenParserTest extends TestCase
     {
         input.setLine("{}");
         try {
-            parser.setInput(input);
-            output = parser.parseClass();
+            context.setInput(input);
+            output = parser.parseClass(context);
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             assertEquals("Wrong ParserException",  "A numeric value is expected", ex.getMessage());
@@ -70,8 +69,8 @@ public class AstTokenParserTest extends TestCase
     {
         input.setLine("{");
         try {
-            parser.setInput(input);
-            output = parser.parseClass();
+            context.setInput(input);
+            output = parser.parseClass(context);
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             System.out.println(ex);
@@ -83,8 +82,8 @@ public class AstTokenParserTest extends TestCase
     {
         input.setLine("{1 ");
         try {
-            parser.setInput(input);
-            output = parser.parseClass();
+            context.setInput(input);
+            output = parser.parseClass(context);
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             System.out.println(ex);
@@ -96,8 +95,8 @@ public class AstTokenParserTest extends TestCase
     {
         input.setLine("{1 2)");
         try {
-            parser.setInput(input);
-            output = parser.parseClass();
+            context.setInput(input);
+            output = parser.parseClass(context);
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             System.out.println(ex);
@@ -109,8 +108,8 @@ public class AstTokenParserTest extends TestCase
     {
         input.setLine("{1 + }");
         try {
-            parser.setInput(input);
-            output = parser.parseClass();
+            context.setInput(input);
+            output = parser.parseClass(context);
             fail("Expected Exception but got \"" + output + "\"");
         } catch (ParserException ex) {
             System.out.println(ex);

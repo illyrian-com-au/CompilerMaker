@@ -5,12 +5,12 @@ import java.util.Properties;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.domainparser.ModuleAction;
-import au.com.illyrian.parser.CompileUnit;
+import au.com.illyrian.parser.CompilerContext;
 
 public class ModuleActionMaker implements ModuleAction, ClassMakerLocation
 {
     protected ClassMaker  maker = null;
-    protected CompileUnit compileUnit = null;
+    protected CompilerContext compileUnit = null;
     
     private Properties map = new Properties();
 
@@ -31,14 +31,14 @@ public class ModuleActionMaker implements ModuleAction, ClassMakerLocation
         return maker;
     }
 
-	public CompileUnit getCompileUnit()
+	public CompilerContext getCompileUnit()
     {
         if (compileUnit == null)
             throw new NullPointerException("compileUnit is null.");
         return compileUnit;
     }
 
-    public void setCompileUnit(CompileUnit compileUnit)
+    public void setCompileUnit(CompilerContext compileUnit)
     {
         this.compileUnit = compileUnit;
     }
@@ -90,6 +90,7 @@ public class ModuleActionMaker implements ModuleAction, ClassMakerLocation
 
     public Object Import(String fullyQualifiedClassname)
     {
+        // FIXME delegate to CompilerContext
     	int offset = fullyQualifiedClassname.lastIndexOf('.');
     	String simpleClassName = (offset == -1) ? fullyQualifiedClassname : fullyQualifiedClassname.substring(offset+1);
     	this.setAlias(simpleClassName, fullyQualifiedClassname);

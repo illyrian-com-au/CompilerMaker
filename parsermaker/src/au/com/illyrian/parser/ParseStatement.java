@@ -8,5 +8,5 @@ public interface ParseStatement<T>
      * @return the result of parsing the input.
      * @throws Exception - if an error occurs.
      */
-    public T parseStatement() throws ParserException;
+    public T parseStatement(CompilerContext context) throws ParserException;
 }

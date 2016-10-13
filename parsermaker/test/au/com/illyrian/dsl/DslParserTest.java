@@ -7,7 +7,7 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.impl.CompileModule;
+import au.com.illyrian.parser.impl.ModuleContext;
 import au.com.illyrian.parser.impl.LexerInputStream;
 
 public class DslParserTest extends TestCase
@@ -37,8 +37,8 @@ public class DslParserTest extends TestCase
         compile.setInput(input);
         
         DSL parser = new DSL();
-        compile.visit(parser);
-        parser.parseClass();
+        //compile.visit(parser);
+        parser.parseClass(compile);
         assertEquals("token", Lexer.END, parser.getLexer().nextToken());
     }
 
@@ -52,8 +52,8 @@ public class DslParserTest extends TestCase
         compile.setInput(input);
         
         DSL parser = new DSL();
-        compile.visit(parser);
-        parser.parseClass();
+        //compile.visit(parser);
+        parser.parseClass(compile);
         assertEquals("token", Lexer.END, parser.getLexer().nextToken());
     }
 */
@@ -63,12 +63,12 @@ public class DslParserTest extends TestCase
         out.println("   test ::= the , \"quick\" | 'brown', fox;");
         out.println("}");
         Input input = new LexerInputStream(getReader(), null);
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         
         DSL parser = new DSL();
-        compile.visit(parser);
-        parser.parseClass();
+        //compile.visit(parser);
+        parser.parseClass(compile);
         assertEquals("token", Lexer.END, parser.getLexer().nextToken());
     }
 /*

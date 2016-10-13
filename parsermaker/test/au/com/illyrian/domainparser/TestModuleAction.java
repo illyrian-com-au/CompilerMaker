@@ -46,14 +46,14 @@ public class TestModuleAction implements ModuleAction
     	int offset = fullyQualifiedClassname.lastIndexOf('.');
     	String simpleClassName = (offset == -1) ? fullyQualifiedClassname : fullyQualifiedClassname.substring(offset+1);
     	this.setAlias(simpleClassName, fullyQualifiedClassname);
-        String str = "(import " + fullyQualifiedClassname + ") ";
+        String str = "import " + fullyQualifiedClassname + ";\n";
         buffer.append(str);
         return str;
     }
 
     public Object Package(String packageName)
     {
-        String str = "(package " + packageName + ") ";
+        String str = "package " + packageName + ";\n";
         buffer.append(str);
         return str;
     }

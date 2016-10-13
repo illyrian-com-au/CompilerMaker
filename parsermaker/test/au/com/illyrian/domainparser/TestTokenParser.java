@@ -1,14 +1,17 @@
 package au.com.illyrian.domainparser;
 
+import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseClass;
-import au.com.illyrian.parser.ParseMember;
+import au.com.illyrian.parser.ParseMembers;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.ParserBase;
 
-public class TestTokenParser extends ParserBase implements ParseClass, ParseMember
+public class TestTokenParser extends ParserBase implements ParseClass, ParseMembers
 {
+    StringBuffer buf = new StringBuffer();
+    
     public TestTokenParser()
     {
         setLexer(createLexer());
@@ -31,38 +34,29 @@ public class TestTokenParser extends ParserBase implements ParseClass, ParseMemb
                 return;
             if (match(Lexer.OPEN_P, "{"))
                 perentheses();
+            buf.append(getLexer().getTokenValue());
+            buf.append(' ');
             nextToken();
         }
         throw error(getInput(), "Unexpected end of input");
     }
     
-//    /* (non-Javadoc)
-//     * @see au.com.illyrian.classparser.Parser#parse()
-//     */
-//    public Object parseClass(Input input, Object action) throws ParserException
-//    {
-//        setInput(input);
-//        nextToken();
-//        perentheses();
-//        return null;
-//    }
-//
     /* (non-Javadoc)
      * @see au.com.illyrian.classparser.Parser#parse()
      */
-    public Object parseClass() throws ParserException
+    public Object parseClass(CompilerContext context) throws ParserException
     {
-//        setInput(input);
+        setCompilerContext(context);
         nextToken();
         perentheses();
-        return null;
+        return buf.toString();
     }
     
-    public Object parseMember() throws ParserException
+    public Object parseMembers(CompilerContext context) throws ParserException
     {
+        setCompilerContext(context);
         nextToken();
         perentheses();
-        return null;
+        return buf.toString();
     }
-
 }

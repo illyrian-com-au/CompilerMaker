@@ -1,12 +1,7 @@
 package au.com.illyrian.parser.impl;
 
-import java.util.Properties;
-
-import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.impl.LexerInputString;
-
-
 import junit.framework.TestCase;
+import au.com.illyrian.parser.Input;
 
 public class InputStringTest extends TestCase
 {

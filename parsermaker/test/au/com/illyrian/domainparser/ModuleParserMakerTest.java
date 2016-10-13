@@ -8,7 +8,7 @@ import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.impl.LexerInputStream;
-import au.com.illyrian.parser.maker.CompileModuleMaker;
+import au.com.illyrian.parser.maker.ModuleContextMaker;
 
 import junit.framework.TestCase;
 
@@ -40,7 +40,7 @@ public class ModuleParserMakerTest extends TestCase
         Input input = new LexerInputStream(getReader(), null);
         
         ClassMaker maker = factory.createClassMaker();
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setClassMaker(maker);
         compile.parseModule();
@@ -64,7 +64,7 @@ public class ModuleParserMakerTest extends TestCase
         Input input = new LexerInputStream(getReader(), null);
         
         ClassMaker maker = factory.createClassMaker();
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setClassMaker(maker);
         compile.parseModule();
@@ -87,7 +87,7 @@ public class ModuleParserMakerTest extends TestCase
         Input input = new LexerInputStream(getReader(), null);
         
         ClassMaker maker = factory.createClassMaker();
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setClassMaker(maker);
         compile.parseModule();

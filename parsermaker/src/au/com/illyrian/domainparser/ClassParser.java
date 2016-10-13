@@ -35,6 +35,8 @@ import au.com.illyrian.parser.maker.ClassActionMaker;
 */
 public class ClassParser extends ModuleParser
 {
+    private ClassAction classAction = null;
+    
    /**
     * Public constructor for the search query parser. When no actions are provided the parser only performs validation.
     */
@@ -52,19 +54,30 @@ public class ClassParser extends ModuleParser
 
     public ClassAction getClassAction()
     {
-        return (ClassAction)getModuleAction();
+        if (classAction == null)
+            createAction();
+        return classAction;
     }
 
-    public void setClassAction(ClassAction actions)
+//    public void setModuleAction(ModuleAction actions)
+//    {
+//        super.setModuleAction(actions);
+//        if (actions instanceof ClassAction) {
+//            setClassAction((ClassAction)actions);
+//        }
+//    }
+//
+    public void setAction(ClassAction actions)
     {
-        setModuleAction(actions);
+        classAction = actions;
+        super.setAction(actions);
     }
 
-    protected ModuleAction createModuleAction()
+    protected void createAction()
     {
-        ModuleAction action = new ClassActionMaker();
-        getCompileUnit().visitParser(action);
-        return action;
+        ClassAction action = new ClassActionMaker();
+        getCompilerContext().visitParser(action);
+        setAction(action);
     }
 
     /**
@@ -154,7 +167,8 @@ public class ClassParser extends ModuleParser
            if (match(Lexer.OPERATOR, "::"))
            {
                String qualifiedName = getClassAction().getParserName(parseName.toString());
-               result = getCompileUnit().getInvokeParser().invokeParseMember(qualifiedName, getInput());
+               result = getCompilerContext().getInvokeParser().invokeParseMember(qualifiedName, getInput());
+               getClassAction().declareMembers(result);
 
                nextToken();
                if (accept(Lexer.OPERATOR, "::")) 

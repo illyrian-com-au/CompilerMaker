@@ -1,5 +1,6 @@
 package au.com.illyrian.dsl.pc;
 
+import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParserException;
@@ -43,8 +44,9 @@ public class PC extends ParserBase implements ParseClass
      *  cha_attr    ::= "Charisma" ':' ability_score
      *  ability_score ::= int {3..18}
      */
-    public Object parseClass() throws ParserException
+    public Object parseClass(CompilerContext context) throws ParserException
     {
+        setCompilerContext(context);
         nextToken();
         
         class_body();

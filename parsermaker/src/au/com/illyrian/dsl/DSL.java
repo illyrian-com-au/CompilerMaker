@@ -1,6 +1,7 @@
 package au.com.illyrian.dsl;
 
 import au.com.illyrian.dsl.ast.DslActionAstFactory;
+import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParserException;
@@ -58,8 +59,9 @@ public class DSL extends ParserBase implements ParseClass
      *  sub_action  ::= { qualifier '(' java_expr ')' } 
      *  java_expr   ::= 
      */
-    public Object parseClass() throws ParserException
+    public Object parseClass(CompilerContext context) throws ParserException
     {
+        setCompilerContext(context);
         getDslAction();
         nextToken();
         

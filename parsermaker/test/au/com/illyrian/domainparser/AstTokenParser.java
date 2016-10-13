@@ -4,6 +4,7 @@ package au.com.illyrian.domainparser;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.BinaryOperator;
 import au.com.illyrian.classmaker.ast.TerminalNumber;
+import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParserException;
@@ -20,6 +21,14 @@ public class AstTokenParser extends ParserBase implements ParseClass<AstExpressi
     protected Latin1Lexer createLexer()
     {
         return new Latin1Lexer();
+    }
+    
+    public AstExpression parseClass(CompilerContext context) throws ParserException
+    {
+        setCompilerContext(context);
+        
+        nextToken();
+        return perentheses();
     }
     
     public AstExpression perentheses() throws ParserException
@@ -75,11 +84,5 @@ public class AstTokenParser extends ParserBase implements ParseClass<AstExpressi
     	} else {
     		throw error(getInput(), "Unknown operator: " + operator);
     	}
-    }
-    
-    public AstExpression parseClass() throws ParserException
-    {
-        nextToken();
-        return perentheses();
     }
 }

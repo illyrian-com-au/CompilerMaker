@@ -35,4 +35,10 @@ public class ClassActionMaker extends ModuleActionMaker implements ClassAction
         maker.Implements(className);
         return className;
     }
+    
+    @Override
+    public Object declareMembers(Object members)
+    {
+        return members;
+    }
 }

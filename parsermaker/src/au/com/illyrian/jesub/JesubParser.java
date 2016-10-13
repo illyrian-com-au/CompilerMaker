@@ -3,12 +3,13 @@ package au.com.illyrian.jesub;
 
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerLocation;
+import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParseExpression;
-import au.com.illyrian.parser.ParseMember;
+import au.com.illyrian.parser.ParseMembers;
 import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.PrecidenceParser;
+import au.com.illyrian.parser.opp.OperatorPrecidenceParser;
 
 /**
 *
@@ -38,8 +39,8 @@ import au.com.illyrian.parser.impl.PrecidenceParser;
 * 
 * @author Donald Strong
 */
-public class JesubParser extends PrecidenceParser
-    implements ParseClass, ParseMember, ParseExpression, ClassMakerLocation
+public class JesubParser extends OperatorPrecidenceParser
+    implements ParseClass, ParseMembers, ParseExpression, ClassMakerLocation
 {
     JesubAction jesubAction = null;
     ClassMaker classMaker = null;
@@ -86,7 +87,7 @@ public class JesubParser extends PrecidenceParser
     {
         // FIXME ClassMaker if possible otherwise string.
         JesubAction action = new JesubActionString();
-        getCompileUnit().visitParser(action);
+        getCompilerContext().visitParser(action);
         return action;
     }
     
@@ -115,20 +116,27 @@ public class JesubParser extends PrecidenceParser
         return classMaker;
     }
 
-    public Object parseExpression() throws ParserException
+    public Object parseExpression(CompilerContext context) throws ParserException
     {
-        getJesubAction();
-        return expression();
+        setCompilerContext(context);
+        beginFragment();
+        Object result = expression();
+        endFragment();
+        return result;
     }
 
-    public Object parseMember() throws ParserException
+    public Object parseMembers(CompilerContext context) throws ParserException
     {
-        getJesubAction();
-        return declare_body();
+        setCompilerContext(context);
+        beginFragment();
+        Object result = declare_body();
+        endFragment();
+        return result;
     }
 
-    public Object parseClass() throws ParserException
+    public Object parseClass(CompilerContext context) throws ParserException
     {
+        setCompilerContext(context);
         beginFragment();
         Object result = dec_class();
         endFragment();

@@ -1,6 +1,7 @@
 package au.com.illyrian.domainparser;
 
 
+import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseModule;
@@ -15,7 +16,7 @@ import au.com.illyrian.parser.maker.ModuleActionMaker;
 * Loads a domain specific language parser and delegates to it.
 * <p>
 * The Domain Parser is a generic parser that can parse any domain specific language.
-* It does this by loading a specific parser for the langauge and then delegating
+* It does this by loading a specific parser for the language and then delegating
 * the parsing of the domain specific language to that parser.
 *  
 * The Domain Parser only does three things:
@@ -56,20 +57,20 @@ public class ModuleParser extends ParserBase implements ParseModule
     public ModuleAction getModuleAction()
     {
         if (moduleAction == null)
-            moduleAction = createModuleAction();
+            createAction();
         return moduleAction;
     }
 
-    public void setModuleAction(ModuleAction actions)
+    public void setAction(ModuleAction actions)
     {
         this.moduleAction = actions;
     }
     
-    protected ModuleAction createModuleAction()
+    protected void createAction()
     {
         ModuleAction action = new ModuleActionMaker();
-        getCompileUnit().visitParser(action);
-        return action;
+        getCompilerContext().visitParser(action);
+        setAction(action);
     }
 
     protected Latin1Lexer createLexer()
@@ -109,8 +110,9 @@ public class ModuleParser extends ParserBase implements ParseModule
     * @return the result of parsing the input and applying actions from ExpressionAction.
     * @throws ParserException - if an error occurs.
     */
-   public Object parseModule() throws ParserException
+   public Object parseModule(CompilerContext context) throws ParserException
    {
+       setCompilerContext(context);
        // Read the first token from input.
        nextToken();
 
@@ -172,6 +174,7 @@ public class ModuleParser extends ParserBase implements ParseModule
            expect(Lexer.DELIMITER, ";", "';' expected at end of fully qualified class name");
            more_imports();
 
+           this.getCompilerContext().addFullyQualifiedClassName(className);
            result = getModuleAction().Import(className);
        }
        return result;
@@ -243,7 +246,7 @@ public class ModuleParser extends ParserBase implements ParseModule
            if (match(Lexer.OPERATOR, "::"))
            {
                String qualifiedName = getModuleAction().getParserName(parseName.toString());
-               InvokeParser parser = getCompileUnit().getInvokeParser();
+               InvokeParser parser = getCompilerContext().getInvokeParser();
                Input input = getInput();
                result = parser.invokeParseClass(qualifiedName, input);
                getModuleAction().handleModule(result);

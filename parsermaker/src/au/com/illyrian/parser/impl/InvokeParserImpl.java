@@ -1,44 +1,44 @@
 package au.com.illyrian.parser.impl;
 
-import au.com.illyrian.parser.CompileUnit;
+import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParseExpression;
-import au.com.illyrian.parser.ParseMember;
+import au.com.illyrian.parser.ParseMembers;
 import au.com.illyrian.parser.ParseModule;
 import au.com.illyrian.parser.ParseStatement;
 import au.com.illyrian.parser.ParserException;
 
 public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
 {
-    private CompileUnit compileUnit = null;
+    private CompilerContext compilerContext = null;
 
     public InvokeParserImpl()
     {
         super();
     }
 
-    public InvokeParserImpl(CompileUnit compileUnit)
+    public InvokeParserImpl(CompilerContext compilerContext)
     {
         super();
-        setCompileUnit(compileUnit);
+        setCompilerContext(compilerContext);
     }
 
-    public CompileUnit getCompileUnit()
+    public CompilerContext getCompilerContext()
     {
-        if (compileUnit == null)
-            throw new NullPointerException("compileUnit is null");
-        return compileUnit;
+        if (compilerContext == null)
+            throw new NullPointerException("compilerContext is null");
+        return compilerContext;
     }
 
-    public void setCompileUnit(CompileUnit compileUnit)
+    public void setCompilerContext(CompilerContext context)
     {
-        this.compileUnit = compileUnit;
+        this.compilerContext = context;
     }
 
     protected ClassLoader getClassLoader()
     {
-        return getCompileUnit().getClassLoader();
+        return getCompilerContext().getClassLoader();
     }
 
     protected Object loadParser(String parseName, Input input) throws ParserException
@@ -67,7 +67,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             Object parser = loadParser(parseName, input);
             parserInstance = (ParseModule<T>) parser;
         } catch (ClassCastException cce) {
-            throw error(input, "Class does not implement the ParseModule interface: " + parseName);
+            throw error(input, "Class " + parseName + " does not implement the ParseModule interface.");
         } catch (ParserException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -75,8 +75,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             pex.setParserStatus(input);
             throw pex;
         }
-        getCompileUnit().visitParser(parserInstance);
-        return parserInstance.parseModule();
+        return parserInstance.parseModule(getCompilerContext());
     }
 
     /* (non-Javadoc)
@@ -89,7 +88,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             Object parser = loadParser(parseName, input);
             parserInstance = (ParseClass<T>) parser;
         } catch (ClassCastException cce) {
-            throw error(input, "Class does not implement the ParseClass interface: " + parseName);
+            throw error(input, "Class " + parseName + " does not implement the ParseClass interface.");
         } catch (ParserException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -97,8 +96,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             pex.setParserStatus(input);
             throw pex;
         }
-        getCompileUnit().visitParser(parserInstance);
-        return parserInstance.parseClass();
+        return parserInstance.parseClass(getCompilerContext());
     }
 
     /* (non-Javadoc)
@@ -106,12 +104,12 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
      */
     public T invokeParseMember(String parseName, Input input) throws ParserException
     {
-        ParseMember<T> parserInstance = null;
+        ParseMembers<T> parserInstance = null;
         try {
             Object parser = loadParser(parseName, input);
-            parserInstance = (ParseMember<T>) parser;
+            parserInstance = (ParseMembers<T>) parser;
         } catch (ClassCastException cce) {
-            throw error(input, "Class does not implement the ParseMember interface: " + parseName);
+            throw error(input, "Class " + parseName + " does not implement the ParseMember interface.");
         } catch (ParserException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -119,8 +117,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             pex.setParserStatus(input);
             throw pex;
         }
-        getCompileUnit().visitParser(parserInstance);
-        return parserInstance.parseMember();
+        return parserInstance.parseMembers(getCompilerContext());
     }
 
     /* (non-Javadoc)
@@ -133,7 +130,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             Object parser = loadParser(parseName, input);
             parserInstance = (ParseStatement<T>) parser;
         } catch (ClassCastException cce) {
-            throw error(input, "Class does not implement the ParseStatement interface: " + parseName);
+            throw error(input, "Class " + parseName + " does not implement the ParseStatement interface.");
         } catch (ParserException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -141,8 +138,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             pex.setParserStatus(input);
             throw pex;
         }
-        getCompileUnit().visitParser(parserInstance);
-        return parserInstance.parseStatement();
+        return parserInstance.parseStatement(getCompilerContext());
     }
 
     /* (non-Javadoc)
@@ -155,7 +151,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             Object parser = loadParser(parseName, input);
             parserInstance = (ParseExpression) parser;
         } catch (ClassCastException cce) {
-            throw error(input, "Class does not implement the ParseExpression interface: " + parseName);
+            throw error(input, "Class " + parseName + " does not implement the ParseExpression interface.");
         } catch (ParserException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -163,7 +159,6 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             pex.setParserStatus(input);
             throw pex;
         }
-        getCompileUnit().visitParser(parserInstance);
-        return parserInstance.parseExpression();
+        return parserInstance.parseExpression(getCompilerContext());
     }
 }

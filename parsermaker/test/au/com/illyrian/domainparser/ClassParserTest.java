@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 import au.com.illyrian.jesub.PrettyPrintWriter;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.CompileModule;
+import au.com.illyrian.parser.impl.ModuleContext;
 import au.com.illyrian.parser.impl.LexerInputStream;
 
 public class ClassParserTest  extends TestCase
@@ -34,13 +34,14 @@ public class ClassParserTest  extends TestCase
 	    out.println("TestTokenParser::{");
 	    out.println("   a * b + c;");
 	    out.println("}::TestTokenParser");
-	    String expected = "(import au.com.illyrian.domainparser.TestTokenParser) "
-	                    + "(class test) ";
+	    String expected = "import au.com.illyrian.domainparser.TestTokenParser;\n"
+	                    + "class test {\n"
+                            + "a * b + c ; \n}";
 	    Input input = new LexerInputStream(getReader(), null);
 	    ClassParser parser = new ClassParser();
-	    parser.setClassAction(action);
+	    parser.setAction(action);
 	    
-	    CompileModule compile = new CompileModule();
+	    ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -51,17 +52,18 @@ public class ClassParserTest  extends TestCase
     public void testClassModifierPublic() throws Exception
     {
         out.println("import au.com.illyrian.domainparser.TestTokenParser;");
-        out.println("public class test");
+        out.println("public class Test");
         out.println("TestTokenParser::{");
         out.println("   a * b + c;");
         out.println("}::TestTokenParser");
-        String expected = "(import au.com.illyrian.domainparser.TestTokenParser) "
-                        + "(modifiers public ) (class test) ";
+        String expected = "import au.com.illyrian.domainparser.TestTokenParser;\n"
+                + "public class Test {\n"
+                + "a * b + c ; \n}";
         Input input = new LexerInputStream(getReader(), null);
         ClassParser parser = new ClassParser();
-        parser.setClassAction(action);
+        parser.setAction(action);
         
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -72,17 +74,18 @@ public class ClassParserTest  extends TestCase
     public void testClassModifierMany() throws Exception
     {
         out.println("import au.com.illyrian.domainparser.TestTokenParser;");
-        out.println("public protected abstract final strictfp class test");
+        out.println("public protected abstract final strictfp class Test");
         out.println("TestTokenParser::{");
         out.println("   a * b + c;");
         out.println("}::TestTokenParser");
-        String expected = "(import au.com.illyrian.domainparser.TestTokenParser) "
-                        + "(modifiers public protected abstract final strictfp ) (class test) ";
-        Input input = new LexerInputStream(getReader(), null);
+        String expected = "import au.com.illyrian.domainparser.TestTokenParser;\n"
+                + "public protected abstract final strictfp class Test {\n"
+                + "a * b + c ; \n}";
+         Input input = new LexerInputStream(getReader(), null);
         ClassParser parser = new ClassParser();
-        parser.setClassAction(action);
+        parser.setAction(action);
         
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -97,13 +100,14 @@ public class ClassParserTest  extends TestCase
         out.println("au.com.illyrian.domainparser.TestTokenParser::{");
         out.println("   a * b + c;");
         out.println("}::au.com.illyrian.domainparser.TestTokenParser");
-        String expected = "(package au.com.illyrian.domainparser) "
-                        + "(class Test) (extends BaseClass) ";
+        String expected = "package au.com.illyrian.domainparser;\n"
+                + "class Test extends BaseClass {\n"
+                + "a * b + c ; \n}";
         Input input = new LexerInputStream(getReader(), null);
         ClassParser parser = new ClassParser();
-        parser.setClassAction(action);
+        parser.setAction(action);
         
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -118,13 +122,14 @@ public class ClassParserTest  extends TestCase
         out.println("au.com.illyrian.domainparser.TestTokenParser::{");
         out.println("   a * b + c;");
         out.println("}::au.com.illyrian.domainparser.TestTokenParser");
-        String expected = "(package au.com.illyrian.domainparser) "
-                        + "(class Test) (implements BaseIface) ";
+        String expected = "package au.com.illyrian.domainparser;\n"
+                + "class Test implements BaseIface {\n"
+                + "a * b + c ; \n}";
         Input input = new LexerInputStream(getReader(), null);
         ClassParser parser = new ClassParser();
-        parser.setClassAction(action);
+        parser.setAction(action);
         
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -139,13 +144,14 @@ public class ClassParserTest  extends TestCase
         out.println("au.com.illyrian.domainparser.TestTokenParser::{");
         out.println("   a * b + c;");
         out.println("}::au.com.illyrian.domainparser.TestTokenParser");
-        String expected = "(package au.com.illyrian.domainparser) "
-                        + "(class Test) (implements BaseIface) (implements AltIface) (implements OptIface) ";
+        String expected = "package au.com.illyrian.domainparser;\n"
+                + "class Test implements BaseIface AltIface OptIface {\n"
+                + "a * b + c ; \n}";
         Input input = new LexerInputStream(getReader(), null);
         ClassParser parser = new ClassParser();
-        parser.setClassAction(action);
+        parser.setAction(action);
         
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -160,13 +166,14 @@ public class ClassParserTest  extends TestCase
         out.println("au.com.illyrian.domainparser.TestTokenParser::{");
         out.println("   a * b + c;");
         out.println("}::au.com.illyrian.domainparser.TestTokenParser");
-        String expected = "(package au.com.illyrian.domainparser) "
-                        + "(class Test) (extends BaseClass) (implements BaseIface) ";
+        String expected = "package au.com.illyrian.domainparser;\n"
+                + "class Test extends BaseClass implements BaseIface {\n"
+                + "a * b + c ; \n}";
         Input input = new LexerInputStream(getReader(), null);
         ClassParser parser = new ClassParser();
-        parser.setClassAction(action);
+        parser.setAction(action);
         
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         Object output = compile.parseModule();
@@ -180,9 +187,9 @@ public class ClassParserTest  extends TestCase
         out.println("TestTokenParser::{");
         Input input = new LexerInputStream(getReader(), "Test.dat");
         ClassParser parser = new ClassParser();
-        parser.setClassAction(action);
+        parser.setAction(action);
         
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
 
@@ -206,9 +213,9 @@ public class ClassParserTest  extends TestCase
         out.println("TestModuleAction::{");
         Input input = new LexerInputStream(getReader(), "Test.dat");
         ClassParser parser = new ClassParser();
-        parser.setClassAction(action);
+        parser.setAction(action);
         
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
 
@@ -219,8 +226,8 @@ public class ClassParserTest  extends TestCase
         }
         catch (ParserException pex)
         {
-            String msg = "Class does not implement the ParseMember interface: "
-                    + "au.com.illyrian.domainparser.TestModuleAction";
+            String msg = "Class au.com.illyrian.domainparser.TestModuleAction"
+                    + " does not implement the ParseMember interface.";
             assertEquals("ParserException ", msg, pex.getMessage());
             assertEquals("ParserException ", "Test.dat", pex.getSourceFilename());
             assertEquals("ParserException ", 3, pex.getLineNumber());
@@ -235,9 +242,9 @@ public class ClassParserTest  extends TestCase
         
         Input input = new LexerInputStream(getReader(), "Test.dat");
         ClassParser parser = new ClassParser();
-        parser.setClassAction(action);
+        parser.setAction(action);
         
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         try {
@@ -261,9 +268,9 @@ public class ClassParserTest  extends TestCase
         out.println("}::DummyParser");
         Input input = new LexerInputStream(getReader(), "Test.dat");
         ClassParser parser = new ClassParser();
-        parser.setClassAction(action);
+        parser.setAction(action);
         
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         try {
@@ -288,9 +295,9 @@ public class ClassParserTest  extends TestCase
         out.println("   a * b + c;");
         Input input = new LexerInputStream(getReader(), "Test.dat");
         ClassParser parser = new ClassParser();
-        parser.setClassAction(action);
+        parser.setAction(action);
         
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         compile.setModuleParser(parser);
         try {

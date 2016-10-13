@@ -1,6 +1,6 @@
 package au.com.illyrian.parser.impl;
 
-import au.com.illyrian.parser.CompileUnit;
+import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
@@ -8,7 +8,7 @@ import au.com.illyrian.parser.ParserException;
 public class ParserBase
 {
     private Lexer lexer;
-    private CompileUnit compileUnit = null;
+    private CompilerContext compilerContext = null;
 
     public ParserBase()
     {
@@ -25,16 +25,17 @@ public class ParserBase
         getLexer().setInput(input);
     }
 
-    public CompileUnit getCompileUnit()
+    public CompilerContext getCompilerContext()
     {
-        if (compileUnit == null)
-            throw new NullPointerException("compileUnit is null.");
-        return compileUnit;
+        if (compilerContext == null)
+            throw new NullPointerException("CompilerContext is null.");
+        return compilerContext;
     }
 
-    public void setCompileUnit(CompileUnit compileModule)
+    public void setCompilerContext(CompilerContext context)
     {
-        this.compileUnit = compileModule;
+        this.compilerContext = context;
+        context.visitParser(this);
     }
 
     public Lexer getLexer()
@@ -129,11 +130,17 @@ public class ParserBase
         */
     public ParserException error(Input input, String message)
     {
-        return getCompileUnit().error(input, message);
+        ParserException ex =  new ParserException(message);
+        ex.setParserStatus(input);
+        return ex;
+        //return getCompileUnit().error(input, message);
     }
     
     public String toString()
     {
+        if (getInput() == null) {
+            return "$$ - no input";
+        }
         String line = getInput().getLine();
         if (line == null)
             return "$$";

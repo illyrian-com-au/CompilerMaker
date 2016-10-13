@@ -28,4 +28,6 @@ public interface ClassAction extends ModuleAction
     public Object declareExtends(String className);
 
     public Object declareImplements(String className);
+
+    public Object declareMembers(Object members);
 }

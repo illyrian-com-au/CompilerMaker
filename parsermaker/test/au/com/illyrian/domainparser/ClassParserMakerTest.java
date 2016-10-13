@@ -9,7 +9,7 @@ import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.expressionparser.FuncA;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.impl.LexerInputStream;
-import au.com.illyrian.parser.maker.CompileModuleMaker;
+import au.com.illyrian.parser.maker.ModuleContextMaker;
 
 import junit.framework.TestCase;
 
@@ -42,7 +42,7 @@ public class ClassParserMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);
@@ -68,7 +68,7 @@ public class ClassParserMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);
@@ -95,7 +95,7 @@ public class ClassParserMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);
@@ -124,7 +124,7 @@ public class ClassParserMakerTest extends TestCase
         ClassMaker maker = factory.createClassMaker();
         ClassParser parser = new ClassParser();
         
-        CompileModuleMaker compile = new CompileModuleMaker();
+        ModuleContextMaker compile = new ModuleContextMaker();
         compile.setInput(input);
         compile.setModuleParser(parser);
         compile.setClassMaker(maker);

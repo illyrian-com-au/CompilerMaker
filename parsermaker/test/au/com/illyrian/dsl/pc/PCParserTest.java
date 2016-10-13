@@ -7,7 +7,7 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.impl.CompileModule;
+import au.com.illyrian.parser.impl.ModuleContext;
 import au.com.illyrian.parser.impl.LexerInputStream;
 
 public class PCParserTest extends TestCase
@@ -38,12 +38,12 @@ public class PCParserTest extends TestCase
         out.println("  Alignment : lawful");
         out.println("}");
         Input input = new LexerInputStream(getReader(), null);
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         
         PC parser = new PC();
-        compile.visit(parser);
-        parser.parseClass();
+        //compile.visit(parser);
+        parser.parseClass(compile);
         assertEquals("token", Lexer.END, parser.getLexer().nextToken());
     }
 /*
@@ -57,8 +57,8 @@ public class PCParserTest extends TestCase
         compile.setInput(input);
         
         PC parser = new PC();
-        compile.visit(parser);
-        parser.parseClass();
+        //compile.visit(parser);
+        parser.parseClass(compile);
         assertEquals("token", Lexer.END, parser.getLexer().nextToken());
     }
 
@@ -72,8 +72,8 @@ public class PCParserTest extends TestCase
         compile.setInput(input);
         
         PC parser = new PC();
-        compile.visit(parser);
-        parser.parseClass();
+        //compile.visit(parser);
+        parser.parseClass(compile);
         assertEquals("token", Lexer.END, parser.getLexer().nextToken());
     }
 */

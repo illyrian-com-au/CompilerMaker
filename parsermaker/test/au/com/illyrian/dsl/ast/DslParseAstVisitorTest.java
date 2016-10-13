@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 import au.com.illyrian.dsl.DSL;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.impl.CompileModule;
+import au.com.illyrian.parser.impl.ModuleContext;
 import au.com.illyrian.parser.impl.LexerInputStream;
 
 public class DslParseAstVisitorTest extends TestCase
@@ -35,18 +35,19 @@ public class DslParseAstVisitorTest extends TestCase
         out.println("   fox  ::= \"fox\";");
         out.println("}");
         Input input = new LexerInputStream(getReader(), null);
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         
         DSL parser = new DSL();
-        compile.visit(parser);
+        //compile.visit(parser);
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
-        DslLanguage result = (DslLanguage)parser.parseClass();
+        DslLanguage result = (DslLanguage)parser.parseClass(compile);
         DslAstVisitor visitor = new DslAstVisitor();
         result.sequence(visitor);
         String output = visitor.toString();
-//        assertEquals("", output);
+        // FIXME - change to BnfParser
+        //assertEquals("", output);
     }
 
     public void testDSLAltIdentifiers() throws Exception
@@ -55,14 +56,14 @@ public class DslParseAstVisitorTest extends TestCase
         out.println("   alts ::= \"the\" | \"quick\" | \"brown\" | \"fox\";");
         out.println("}");
         Input input = new LexerInputStream(getReader(), null);
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         
         DSL parser = new DSL();
-        compile.visit(parser);
+        //compile.visit(parser);
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
-        DslLanguage result = (DslLanguage)parser.parseClass();
+        DslLanguage result = (DslLanguage)parser.parseClass(compile);
         assertEquals("token", Lexer.END, parser.getLexer().nextToken());
         DslAstVisitor visitor = new DslAstVisitor();
         result.sequence(visitor);
@@ -80,14 +81,14 @@ public class DslParseAstVisitorTest extends TestCase
         out.println("   fox ::= \"fox\";");
         out.println("}");
         Input input = new LexerInputStream(getReader(), null);
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         
         DSL parser = new DSL();
-        compile.visit(parser);
+        //compile.visit(parser);
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
-        DslLanguage result = (DslLanguage)parser.parseClass();
+        DslLanguage result = (DslLanguage)parser.parseClass(compile);
         assertEquals("token", Lexer.END, parser.getLexer().nextToken());
         DslAstVisitor visitor = new DslAstVisitor();
         result.sequence(visitor);
@@ -102,14 +103,14 @@ public class DslParseAstVisitorTest extends TestCase
         out.println("   fox  ::= \"fox\";");
         out.println("}");
         Input input = new LexerInputStream(getReader(), null);
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         
         DSL parser = new DSL();
-        compile.visit(parser);
+        //compile.visit(parser);
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
-        DslLanguage result = (DslLanguage)parser.parseClass();
+        DslLanguage result = (DslLanguage)parser.parseClass(compile);
         DslAstVisitor visitor = new DslAstVisitor();
         result.sequence(visitor);
         String output = visitor.toString();
@@ -123,14 +124,14 @@ public class DslParseAstVisitorTest extends TestCase
         out.println("   test ::= the , quick | brown, fox;");
         out.println("}");
         Input input = new LexerInputStream(getReader(), null);
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         
         DSL parser = new DSL();
-        compile.visit(parser);
+        //compile.visit(parser);
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
-        Object result = parser.parseClass();
+        Object result = parser.parseClass(compile);
         assertEquals("token", Lexer.END, parser.getLexer().nextToken());
         String output = "" + result;
         assertEquals("test ::= the, (quick | brown), fox\n", output);
@@ -142,14 +143,14 @@ public class DslParseAstVisitorTest extends TestCase
         out.println("   test ::= the , \"quick\", 'brown', fox;");
         out.println("}");
         Input input = new LexerInputStream(getReader(), null);
-        CompileModule compile = new CompileModule();
+        ModuleContext compile = new ModuleContext();
         compile.setInput(input);
         
         DSL parser = new DSL();
-        compile.visit(parser);
+        //compile.visit(parser);
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
-        Object result = parser.parseClass();
+        Object result = parser.parseClass(compile);
         assertEquals("token", Lexer.END, parser.getLexer().nextToken());
         String output = "" + result;
         assertEquals("test ::= the, \"quick\", \'brown\', fox\n", output);
