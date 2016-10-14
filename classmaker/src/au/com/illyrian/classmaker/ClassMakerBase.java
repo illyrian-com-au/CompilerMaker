@@ -27,6 +27,9 @@
 
 package au.com.illyrian.classmaker;
 
+import java.io.File;
+import java.io.IOException;
+
 /**
  * The simplest way to use ClassMaker is to derive a class from ClassMakerBase 
  * and implement the <code>code()</code> method.
@@ -177,6 +180,12 @@ public abstract class ClassMakerBase extends ClassMaker
         return super.defineClass();
     }
 
+    public File saveClass(File classesDir) throws IOException
+    {
+        generateCode();
+        return super.saveClass(classesDir);
+    }
+    
     /**
      * Completes processing of the class.
      * </br>

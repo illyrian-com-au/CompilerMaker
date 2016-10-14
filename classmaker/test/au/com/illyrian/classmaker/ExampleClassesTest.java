@@ -37,6 +37,12 @@ import junit.framework.TestCase;
 
 public class ExampleClassesTest extends TestCase
 {
+    protected void setUp() throws Exception {
+        // Use separate factories to avoid duplicates in class loaded.
+        ClassMakerFactory factory = new ClassMakerFactory();
+        ClassMakerBase.setSharedFactory(factory);
+    }
+    
     // BEGIN Import Example 1
     public interface Openable
     {
@@ -57,7 +63,7 @@ public class ExampleClassesTest extends TestCase
     }
 
     // END Import Example 1
-/***
+
     public void testJavaImport() throws IOException
     {
         Openable exec = new OpenClass();
@@ -115,7 +121,7 @@ public class ExampleClassesTest extends TestCase
         output.close();
         file.delete();
     }
-***/
+
     // Classes Example - Implementing an Interface 
     public interface Square
     {
@@ -143,7 +149,6 @@ public class ExampleClassesTest extends TestCase
         Square exec = (Square) squareClass.newInstance();
         assertEquals("Square test", 4, exec.square(2));
     }
-    /***
 
     public interface Unary
     {
@@ -151,6 +156,7 @@ public class ExampleClassesTest extends TestCase
     }
     public void testSimpleMath() throws Exception
     {
+        // Use separate factories to avoid duplicates in class loaded.
         ClassMakerFactory factory = new ClassMakerFactory();
         ClassMaker maker = factory.createClassMaker("test", "SimpleMath", null);
 
@@ -216,7 +222,7 @@ public class ExampleClassesTest extends TestCase
 
         assertEquals("Square test", 4, exec.square(2));
     }
-***/
+
     // Classes Example - Implementing an Interface 
     public void testSaveClass() throws Exception
     {
@@ -226,19 +232,22 @@ public class ExampleClassesTest extends TestCase
         // Save the generated class into the build folder.
         File classesDir = new File("build/temp/classes");
         classesDir.mkdirs();
-        File classFile = maker.saveClass(classesDir);
-        assertTrue("File does not exist: " + classFile.getAbsolutePath(), classFile.exists());
-
-        // Load the Class from the classpath and create an instance.
-        SimpleClassLoader loader = maker.getFactory().getClassLoader();
-        loader.setClassesDir(classesDir);
-        Class squareClass = loader.loadClass(className);
-        assertEquals("Class Name", className, squareClass.getName());
-        Square exec = (Square) squareClass.newInstance();
-        assertEquals("Square test", 4, exec.square(2));
-
-        // Delete the SquareTest.class file.
-        maker.deleteClass(classesDir);
-        assertFalse("File should be deleted: " + classFile.getAbsolutePath(), classFile.exists());
+        try {
+            File classFile = maker.saveClass(classesDir);
+            assertTrue("File does not exist: " + classFile.getAbsolutePath(), classFile.exists());
+    
+            // Load the Class from the classpath and create an instance.
+            SimpleClassLoader loader = maker.getFactory().getClassLoader();
+            loader.setClassesDir(classesDir);
+            Class squareClass = loader.loadClass(className);
+            assertEquals("Class Name", className, squareClass.getName());
+            Square exec = (Square) squareClass.newInstance();
+            assertEquals("Square test", 4, exec.square(2));
+            maker.deleteClass(classesDir);
+            assertFalse("File should be deleted: " + classFile.getAbsolutePath(), classFile.exists());
+        } finally {
+            // Delete the SquareTest.class file.
+            maker.deleteClass(classesDir);
+        }
     }
 }
