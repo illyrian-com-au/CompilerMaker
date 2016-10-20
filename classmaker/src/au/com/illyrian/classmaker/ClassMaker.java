@@ -3567,21 +3567,10 @@ public class ClassMaker implements ClassMakerIfc
         throw createException("ClassMaker.DontKnowHowToStoreType_1", type.getName());
     }
 
-//    /** 
-//     * Get the maximum local slots used by this method.
-//     * <br/>
-//     * This value is required when creating a stack frame.
-//     * @return the maximum local slots used by the method
-//     */
-//    private short getMaxLocalSlots()
-//    {
-//    	return maxLocalSlots;
-//    }
-//    
-//    //############# Variable declarations ################
+    //############# Variable declarations ################
 
     /**
-     * Declares a local variable or member field using a java class descriptor.
+     * Declare a local variable or member field using a java class descriptor.
      * </br>
      * This method is used to declare all variables. The variable will be a
      * class member, formal parameter or local variable depending upon where
@@ -3638,7 +3627,7 @@ public class ClassMaker implements ClassMakerIfc
     }
 
     /**
-     * Declares a local variable or member field using a java class descriptor.
+     * Declare a local variable or member field using the name of a type.
      * </br>
      * This method is used to declare all variables. The variable will be a
      * class member, formal parameter or local variable depending upon where

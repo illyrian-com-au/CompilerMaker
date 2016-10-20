@@ -141,7 +141,7 @@ public class ExampleClassesTest extends TestCase
             End();
         }
     }
-
+   
     public void testSquareTest() throws Exception
     {
         ClassMaker maker = new SquareTestMaker();
