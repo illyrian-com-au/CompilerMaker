@@ -48,7 +48,7 @@ public class AstStatementReserved extends AstExpressionBase
             throw new IllegalStateException("Unknown reserved word: " + name);
     }
 
-    private AstStatementReserved(String reservedWord)
+    protected AstStatementReserved(String reservedWord)
     {
         this.reservedWord = reservedWord;
     }
