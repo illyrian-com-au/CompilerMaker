@@ -4,7 +4,6 @@ import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 
 public class BnfTreeFactory extends AstExpressionFactory
@@ -54,7 +53,7 @@ public class BnfTreeFactory extends AstExpressionFactory
         return new BnfTreeMacroCall(name, pattern);
     }
 
-    public BnfTreeName BnfName(Lexer lexer) throws ParserException
+    public BnfTreeName BnfName(Lexer lexer)
     {
         if (lexer.getTokenType() == TokenType.IDENTIFIER) {
             BnfTreeName result = BnfName(lexer.getTokenValue());

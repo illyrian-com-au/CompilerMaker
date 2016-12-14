@@ -36,12 +36,12 @@ public class BnfFirstVisitor
         ruleSet.put(name, rule);
     }
 
-    public boolean resolveFirst(BnfTreeParser bnfTreeParser, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfTreeParser bnfTreeParser, Set<String> firstSet)
     {
         return bnfTreeParser.getRules().resolveFirst(this, firstSet);
     }
     
-    public boolean resolveFirst(BnfTreeList list, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfTreeList list, Set<String> firstSet)
     {
         BnfTreeRule [] rules = list.toRuleArray();
         for (BnfTreeRule rule : rules) {
@@ -53,7 +53,7 @@ public class BnfFirstVisitor
         return false;
     }
 
-    public boolean resolveFirst(BnfTreeRule rule, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfTreeRule rule, Set<String> firstSet)
     {
         boolean hasEmpty = false;
         String name = rule.getTarget().toString();
@@ -82,13 +82,13 @@ public class BnfFirstVisitor
         return hasEmpty;
     }
     
-    void mergeSets(Set<String> firstSet, Set<String> set) throws ParserException {
+    void mergeSets(Set<String> firstSet, Set<String> set) {
         for (String name: set) {
             add(firstSet, name);
         }
     }
 
-    void add(Set<String> firstSet, String name) throws ParserException {
+    void add(Set<String> firstSet, String name) {
         if (firstSet.contains(name)) {
             throw new ParserException("Ambiguous grammer on terminal: " + name);
         } else if (name != EMPTY) {
@@ -96,7 +96,7 @@ public class BnfFirstVisitor
         }
     }
 
-    public boolean resolveFirst(BnfTreeAlternative alt, Set<String> firstSet) throws ParserException {
+    public boolean resolveFirst(BnfTreeAlternative alt, Set<String> firstSet) {
         boolean hasEmpty = false;
         BnfTree []alternatives = alt.toAltArray();
         for (BnfTree<?> clause : alternatives) {
@@ -106,7 +106,7 @@ public class BnfFirstVisitor
         return hasEmpty;
     }
 
-    public boolean resolveFirst(BnfTreeSequence seq, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfTreeSequence seq, Set<String> firstSet)
     {
         boolean hasEmpty = seq.getHead().resolveFirst(this, firstSet);
         if (hasEmpty) {
@@ -115,7 +115,7 @@ public class BnfFirstVisitor
         return hasEmpty;
     }
 
-    public boolean resolveFirst(BnfTreeName name, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfTreeName name, Set<String> firstSet)
     {
         boolean hasEmpty = false;
         BnfTreeRule rule = ruleSet.get(name.getName());
@@ -132,25 +132,25 @@ public class BnfFirstVisitor
         return true;
     }
 
-    public boolean resolveFirst(BnfTreeMethodCall call, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfTreeMethodCall call, Set<String> firstSet)
     {
         // Do not add method calls to the first set as these are for special processing.
         return false;
     }
 
-    public boolean resolveFirst(BnfTreeReserved reserved, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfTreeReserved reserved, Set<String> firstSet)
     {
         add(firstSet, reserved.getName());
         return  false;
     }
 
-    public boolean resolveFirst(BnfTreeString string, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfTreeString string, Set<String> firstSet)
     {
         add(firstSet, string.toString());
         return false;
     }
 
-    public boolean resolveFirst(BnfTreeMacroCall macro, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfTreeMacroCall macro, Set<String> firstSet)
     {
         // Only add the LOOKAHEAD macro to the first set.
         if ("LOOKAHEAD".equals(macro.getName())) {

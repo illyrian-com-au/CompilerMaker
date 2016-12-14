@@ -3,9 +3,7 @@ package au.com.illyrian.bnf.ast;
 import java.util.Set;
 
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
-import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.types.Type;
-import au.com.illyrian.parser.ParserException;
 
 public class BnfTreeString <T> extends BnfTreeBase <T>
 {
@@ -31,12 +29,12 @@ public class BnfTreeString <T> extends BnfTreeBase <T>
         return false;
     }
     
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
     {
         return visitor.resolveFirst(this, firstSet);
     }
 
-    public Type resolveType(BnfMakerVisitor visitor) throws ParserException
+    public Type resolveType(BnfMakerVisitor visitor)
     {
         return visitor.resolveType(this);
     }

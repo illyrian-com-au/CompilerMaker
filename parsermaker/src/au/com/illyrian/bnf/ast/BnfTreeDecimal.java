@@ -2,8 +2,6 @@ package au.com.illyrian.bnf.ast;
 
 import java.util.Set;
 
-import au.com.illyrian.parser.ParserException;
-
 public class BnfTreeDecimal <T> extends BnfTreeBase <T>
 {
     private final Float value;
@@ -28,7 +26,7 @@ public class BnfTreeDecimal <T> extends BnfTreeBase <T>
         return false;
     }
     
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
     {
         return false;
     }

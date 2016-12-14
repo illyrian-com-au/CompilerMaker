@@ -2,8 +2,6 @@ package au.com.illyrian.bnf.ast;
 
 import java.util.Set;
 
-import au.com.illyrian.parser.ParserException;
-
 public class BnfTreeComma <T> extends BnfTreeBinary <T>
 {
     public BnfTreeComma(BnfTree left, BnfTree right)
@@ -12,7 +10,7 @@ public class BnfTreeComma <T> extends BnfTreeBinary <T>
     }
 
     @Override
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
     {
         return false;
     }

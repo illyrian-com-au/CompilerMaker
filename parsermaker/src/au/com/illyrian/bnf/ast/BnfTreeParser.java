@@ -5,7 +5,6 @@ import java.util.Set;
 
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.types.Type;
-import au.com.illyrian.parser.ParserException;
 
 public class BnfTreeParser extends BnfTreeBase <Type>
 {
@@ -35,7 +34,7 @@ public class BnfTreeParser extends BnfTreeBase <Type>
         return getRules().toRuleArray();
     }
 
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
     {
         return visitor.resolveFirst(this, firstSet);
     }
@@ -45,7 +44,7 @@ public class BnfTreeParser extends BnfTreeBase <Type>
         return visitor.resolveMerge(this);
     }
 
-    public Type resolveDeclaration(BnfMakerVisitor visitor) throws ParserException 
+    public Type resolveDeclaration(BnfMakerVisitor visitor) 
     {
         return visitor.resolveDeclaration(this);
     }

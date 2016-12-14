@@ -4,7 +4,6 @@ import java.util.Set;
 
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.ast.AstExpressionBase;
-import au.com.illyrian.parser.ParserException;
 
 public abstract class BnfTreeBase <T> extends AstExpressionBase implements BnfTree <T>
 {
@@ -20,17 +19,17 @@ public abstract class BnfTreeBase <T> extends AstExpressionBase implements BnfTr
          return visitor.resolveMerge(this);
      }
      
-     public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet) throws ParserException
+     public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
      {
          return false;
      }
      
-     public T resolveDeclaration(BnfMakerVisitor visitor) throws ParserException
+     public T resolveDeclaration(BnfMakerVisitor visitor)
      {
          throw new IllegalStateException("Cannot resolve Declaration: " + getClass().getSimpleName());
      }
 
-     public T resolveLookahead(BnfMakerVisitor visitor) throws ParserException
+     public T resolveLookahead(BnfMakerVisitor visitor)
      {
          throw new IllegalStateException("Cannot resolve Lookahead: " + getClass().getSimpleName());
      }

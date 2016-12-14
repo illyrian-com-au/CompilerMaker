@@ -4,14 +4,13 @@ import java.util.Set;
 
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.parser.ParserException;
 
 public interface BnfTree <T> extends AstExpression
 {
     // FIXME - remove checked exceptions
-    public T resolveDeclaration(BnfMakerVisitor visitor) throws ParserException;
+    public T resolveDeclaration(BnfMakerVisitor visitor);
     
-    public T resolveLookahead(BnfMakerVisitor visitor) throws ParserException;
+    public T resolveLookahead(BnfMakerVisitor visitor);
 
     public BnfTree resolveMerge(BnfMergeVisitor visitor);
     
@@ -23,7 +22,7 @@ public interface BnfTree <T> extends AstExpression
     
     public boolean isVoidType();
     
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet) throws ParserException;
+    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet);
     
     public BnfTreeRule [] toRuleArray();
     

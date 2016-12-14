@@ -2,8 +2,6 @@ package au.com.illyrian.bnf.ast;
 
 import java.util.Set;
 
-import au.com.illyrian.parser.ParserException;
-
 public class BnfTreeList <T> extends BnfTreeBinary <T>
 {
     
@@ -18,7 +16,7 @@ public class BnfTreeList <T> extends BnfTreeBinary <T>
         return new BnfTreeList(left, right);
     }
 
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet) throws ParserException
+    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
     {
         return visitor.resolveFirst(this, firstSet);
     }

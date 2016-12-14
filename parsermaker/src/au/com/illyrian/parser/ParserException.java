@@ -28,7 +28,7 @@ package au.com.illyrian.parser;
  *
  * @author strongd
  */
-public class ParserException extends Exception
+public class ParserException extends RuntimeException
 {
     private static final long serialVersionUID = 185822962641368L;
 
