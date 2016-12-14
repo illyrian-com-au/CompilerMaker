@@ -15,6 +15,7 @@ import java.util.Properties;
 
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Lexer;
+import au.com.illyrian.parser.TokenType;
 
 /**
  *
@@ -24,11 +25,10 @@ import au.com.illyrian.parser.Lexer;
  * <li>ERROR - Invalid or unrecognised character</li>
  * <li>END - End of input</li>
  * <li>IDENTIFIER - A java style identifier</li>
- * <li>DELIMITER - "`~!@#%^&*|\:;'<,.>?/+=-</li>
- * <li>OPEN_DELIM - ({[</li>
- * <li>CLOSE_DELIM - )}]</li>
- * <li>OPERATOR - Sequence of one or more delimiters</li>
- * <li>STRING - " any "</li>
+ * <li>DELIMITER - ;,({[)}]</li>
+ * <li>OPERATOR - "`~!@#%^&*|\:;'<,.>?/+=-</li>
+ * <li>STRING - " any characters "</li>
+ * <li>CHARACTER - ' a single char '</li>
  * <li>RESERVED - An Identifier with special meaning</li>
  * </ul>
  * <p>
@@ -42,7 +42,7 @@ import au.com.illyrian.parser.Lexer;
 public class Latin1Lexer implements Lexer
 {
     /** The last read token. Modified by nextToken() */
-    private int token = 0;
+    private TokenType tokenType = TokenType.END;
 
     private Input input = null;
 
@@ -114,11 +114,6 @@ public class Latin1Lexer implements Lexer
         return commentString;
     }
 
-    public int getToken()
-    {
-        return token;
-    }
-
     public void setReservedWords(Properties reservedWords)
     {
         this.reservedWords = reservedWords;
@@ -158,10 +153,12 @@ public class Latin1Lexer implements Lexer
         return null;
     }
 
+    public TokenType getTokenType()
+    {
+        return tokenType;
+    }
+
     /*
-     * (non-Javadoc)
-     * 
-     * @see au.com.illyrian.parser.Lexer#getTokenString()
      */
     public String getTokenValue()
     {
@@ -189,7 +186,7 @@ public class Latin1Lexer implements Lexer
 
     public Integer getTokenInteger()
     {
-        if (token == INTEGER) {
+        if (tokenType == TokenType.NUMBER) {
             return Integer.valueOf(input.getTokenString());
         } else {
             throw new NumberFormatException("Token is not an Integer");
@@ -198,7 +195,7 @@ public class Latin1Lexer implements Lexer
 
     public Float getTokenFloat()
     {
-        if (token == DECIMAL) {
+        if (tokenType == TokenType.DECIMAL) {
             return Float.valueOf(input.getTokenString());
         } else {
             throw new NumberFormatException("Token is not a decimal number");
@@ -212,7 +209,7 @@ public class Latin1Lexer implements Lexer
      */
     public Object getTokenOperator()
     {
-        if (token == OPERATOR) {
+        if (tokenType == TokenType.OPERATOR) {
             return getOperators().get(input.getTokenString());
         } else {
             throw new IllegalStateException("Token is not an Operator");
@@ -222,29 +219,9 @@ public class Latin1Lexer implements Lexer
     /*
      * (non-Javadoc)
      * 
-     * @see au.com.illyrian.parser.Lexer#getStart()
-     */
-    public int getStart()
-    {
-        return input.getTokenStart();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see au.com.illyrian.parser.Lexer#getFinish()
-     */
-    public int getFinish()
-    {
-        return input.getTokenFinish();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see au.com.illyrian.parser.Lexer#nextToken()
      */
-    public int nextToken()
+    public TokenType nextToken()
     {
         if (input == null)
             throw new NullPointerException("Input is null.");
@@ -254,22 +231,22 @@ public class Latin1Lexer implements Lexer
             // Move over any whitespace before the token.
             spanWhiteSpace();
             // Read the next token
-            token = spanNextToken();
+            tokenType = spanNextToken();
 
-        } while (token == COMMENT);
-        return token;
+        } while (tokenType == TokenType.COMMENT);
+        return tokenType;
     }
 
     /**
      * Read the next token.
      */
-    protected int spanNextToken()
+    protected TokenType spanNextToken()
     {
-        int token;
+        TokenType token;
         // Now examine the start character.
         char ch = input.startChar();
         if (ch == Input.NULL) {
-            token = END;
+            token = TokenType.END;
         } else if (isIdentifierStartChar(ch)) {
             token = spanIdentifier();
         } else if (isDigitChar(ch)) {
@@ -279,11 +256,7 @@ public class Latin1Lexer implements Lexer
         } else  if (peekMultiComment()) {
             token = spanMultiComment();
         } else if (isDelimiter(ch)) {
-            token = spanCharacter(DELIMITER);
-        } else if (isOpenP(ch)) {
-            token = spanCharacter(OPEN_P);
-        } else if (isCloseP(ch)) {
-            token = spanCharacter(CLOSE_P);
+            token = spanDelimiter();
         } else if (isQuote(ch)) {
             token = spanStringLiteral();
         } else if (isCharacterQuote(ch)) {
@@ -291,36 +264,45 @@ public class Latin1Lexer implements Lexer
         } else if (isOperator(ch)) {
             token = spanOperator();
         } else {
-            token = error("Unrecognised input character: \\x0" + Integer.toOctalString(ch));
+            token = error("Unrecognised input character: " + LexerInputString.encode(ch));
         }
         return token;
     }
 
     /**
-     * Step over the current character.
+     * Step over the current delimiter character.
+     * Spans a single character, e.g. <code>;</code> or <code>(</code>.
+     * The delimiter character is available from <code>getDelimiter()</code> 
+     * and <code>getTokenValue()</code>.
+     * @returns Lexer.DELIMITER
      */
-    int spanCharacter(int state)
+    TokenType spanDelimiter()
     {
-        char ch = input.startChar(); // Mark start of token
-        ch = input.nextChar();
-        return state;
+        input.startChar(); // Mark start of token
+        tokenDelimiter = input.nextChar();
+        return TokenType.DELIMITER;
     }
 
     /**
-     * Step over the current string.
+     * Step over the current quoted character token.
+     * Recognises a token of the form 'a'. 
+     * The character without quotes is available from <code>getString()</code>.
+     * The quote delimiter is available from <code>getDelimiter()</code>.
+     * The entire token including quotes is available from <code>getTokenValue()</code>.
+     * @returns Lexer.CHARACTER
      */
-    int spanCharLiteral()
+    TokenType spanCharLiteral()
     {
         char ch = input.startChar(); // Mark start of token
         if (isCharacterQuote(ch)) {
             tokenDelimiter = ch;
             ch = input.nextChar();
             if (!isCharacterQuote(ch)) {
-                tokenString = String.valueOf(ch); // Step over character
+                tokenString = String.valueOf(ch); // Store the character
                 ch = input.nextChar();
                 if (isCharacterQuote(ch) && tokenDelimiter == ch) {
                     ch = input.nextChar();
-                    return CHARACTER;
+                    return TokenType.CHARACTER;
                 }
                 return error("Missing quote at end of character: " + tokenDelimiter);
             }
@@ -330,9 +312,14 @@ public class Latin1Lexer implements Lexer
     }
 
     /**
-     * Step over the current character.
+     * Step over the current quoted string.
+     * Recognises a token of the form "Hello world". 
+     * The string without quotes is available from <code>getString()</code>.
+     * The quote delimiter is available from <code>getDelimiter()</code>.
+     * The entire token including quotes is available from <code>getTokenValue()</code>.
+     * @returns Lexer.CHARACTER
      */
-    int spanStringLiteral()
+    TokenType spanStringLiteral()
     {
         StringBuffer buf = new StringBuffer();
         char ch = input.startChar(); // Mark start of token
@@ -340,7 +327,7 @@ public class Latin1Lexer implements Lexer
             tokenDelimiter = ch;
             ch = input.nextChar();
             while (!isQuote(ch)) {
-                if (ch == END)
+                if (ch == Input.NULL)
                     break;
                 buf.append(ch);
                 ch = input.nextChar();
@@ -348,7 +335,7 @@ public class Latin1Lexer implements Lexer
             if (ch == tokenDelimiter) {
                 ch = input.nextChar();
                 tokenString = buf.toString();
-                return STRING;
+                return TokenType.STRING;
             }
             return error("Missing quote at end of String: " + tokenDelimiter);
         }
@@ -360,15 +347,10 @@ public class Latin1Lexer implements Lexer
      */
     protected void spanWhiteSpace()
     {
-        int ch = input.startChar();
-        if (isWhitespace((char) ch) || isStartComment((char) ch)) {
-            while (isWhitespace((char) ch) || isStartComment((char) ch)) {
-                if (isStartComment((char) ch)) {
-                    spanLineComment();
-                    ch = input.nextChar();
-                } else {
-                    ch = input.nextChar();
-                }
+        char ch = input.startChar();
+        if (isWhitespace(ch)) {
+            while (isWhitespace(ch)) {
+                ch = input.nextChar();
             }
             whitespace = getTokenValue();
         } else {
@@ -383,7 +365,7 @@ public class Latin1Lexer implements Lexer
      *
      * @return the code for the identifier or reserved word.
      */
-    public int spanIdentifier()
+    public TokenType spanIdentifier()
     {
         char ch = input.startChar();
         {
@@ -397,12 +379,12 @@ public class Latin1Lexer implements Lexer
             String identifier = getTokenValue();
             if (getReservedWords().getProperty(identifier) != null) {
                 if (getOperators().getProperty(identifier) != null) {
-                    return OPERATOR;
+                    return TokenType.OPERATOR;
                 }
-                return RESERVED;
+                return TokenType.RESERVED;
             }
         }
-        return IDENTIFIER;
+        return TokenType.IDENTIFIER;
     }
 
     /**
@@ -412,19 +394,20 @@ public class Latin1Lexer implements Lexer
      *
      * @return the code for the operator or delimiter.
      */
-    public int spanNumber()
+    public TokenType spanNumber()
     {
         char ch = input.startChar();
         while (isDigitChar(ch)) {
             ch = input.nextChar();
         }
-        if (ch != '.')
-            return INTEGER;
+        if (ch != '.') {
+            return TokenType.NUMBER;
+        }
         ch = input.nextChar();
         while (isDigitChar(ch)) {
             ch = input.nextChar();
         }
-        return DECIMAL;
+        return TokenType.DECIMAL;
     }
 
     /**
@@ -434,46 +417,17 @@ public class Latin1Lexer implements Lexer
      *
      * @return the code for the operator or delimiter.
      */
-    public int spanOperator()
+    public TokenType spanOperator()
     {
         char ch = input.startChar();
         while (isOperator(ch)) {
+            // Handle 1 -// \n 3; and 1 */**/ 3;
             if (peekLineComment() || peekMultiComment()) {
                 break;
             }
             ch = input.nextChar();
         }
-        return OPERATOR;
-    }
-
-    /**
-     * Span a sequence of operators in the input string. Determine whether the
-     * operator is valid. The text for the token will be available through
-     * getTokenString().
-     *
-     * @return the code for the operator or delimiter.
-     */
-    public int spanString()
-    {
-        char ch = input.startChar();
-        if (isQuote(ch)) {
-            ch = input.nextChar();
-
-            while (!isQuote(ch)) {
-                ch = input.nextChar();
-            }
-        }
-        return STRING;
-    }
-
-    boolean isStartLineComment()
-    {
-        if (input.getTokenFinish() - input.getTokenStart() == 2) {
-            if ("//".equals(input.getTokenString())) {
-                return true;
-            }
-        }
-        return false;
+        return TokenType.OPERATOR;
     }
 
     boolean peekLineComment()
@@ -487,7 +441,7 @@ public class Latin1Lexer implements Lexer
      *
      * @return the code for the operator or delimiter.
      */
-    public int spanLineComment()
+    public TokenType spanLineComment()
     {
         // Move the start pointer past the end of line.
         char ch = input.startChar();
@@ -497,22 +451,12 @@ public class Latin1Lexer implements Lexer
             ch = input.nextChar();
         }
         commentString = input.getTokenString();
-        return COMMENT;
+        return TokenType.COMMENT;
     }
 
     boolean peekMultiComment()
     {
         return ("/*".equals(input.peek(2)));
-    }
-
-    boolean isStartMultiComment()
-    {
-        if (input.getTokenFinish() - input.getTokenStart() == 2) {
-            if ("/*".equals(input.getTokenString())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -521,7 +465,7 @@ public class Latin1Lexer implements Lexer
      *
      * @return the code for the operator or delimiter.
      */
-    public int spanMultiComment()
+    public TokenType spanMultiComment()
     {
         commentString = "";
         char prev = Input.NULL;
@@ -537,28 +481,13 @@ public class Latin1Lexer implements Lexer
             ch = input.nextChar();
         }
         commentString += input.getTokenString();
-        return COMMENT;
+        return TokenType.COMMENT;
     }
 
-    /**
-     * Span a comment. The text for the token will be available through
-     * getTokenString().
-     *
-     * @return the code for the operator or delimiter.
-     */
-    public String spanToEndOfLine()
-    {
-        char ch = input.getChar();
-        while (ch != Input.NULL && ch != EOL) {
-            ch = input.nextChar();
-        }
-        return this.getTokenValue();
-    }
-
-    protected int error(String message)
+    protected TokenType error(String message)
     {
         errorMessage = message;
-        return ERROR;
+        return TokenType.ERROR;
     }
 
     // #### character tests ####
@@ -614,22 +543,19 @@ public class Latin1Lexer implements Lexer
 
     public boolean isDelimiter(char ch)
     {
-        return ch == ',' || ch == ';';
-    }
-
-    public boolean isOpenP(char ch)
-    {
-        return ch == '(' || ch == '{' || ch == '[';
-    }
-
-    public boolean isStartComment(char ch)
-    {
-        return ch == '#';
-    }
-
-    public boolean isCloseP(char ch)
-    {
-        return ch == ')' || ch == '}' || ch == ']';
+        switch (ch) {
+        case ',' :
+        case ';' :
+        case '(' :
+        case '{' :
+        case '[' :
+        case ')' :
+        case '}' :
+        case ']' :
+            return true;
+        default:
+            return false;
+        }
     }
 
     public boolean isQuote(char ch)
@@ -666,7 +592,7 @@ public class Latin1Lexer implements Lexer
             return false;
         }
     }
-
+    
     /**
      * The source file.
      * 
@@ -697,59 +623,25 @@ public class Latin1Lexer implements Lexer
         return input.getLineNumber();
     }
 
-    public String toErrorString(int token, String value)
-    {
-        switch (token) {
-        case END:
-            return "End of input expected";
-        case OPEN_P:
-        case CLOSE_P:
-        case DELIMITER:
-        case QUOTE:
-        case OPERATOR:
-            return "'" + value + "' expected";
-        case RESERVED:
-            return value + " expected";
-        case IDENTIFIER:
-            if (value == null)
-                return "Identifier expected";
-            else
-                return value + " expected";
-        case INTEGER:
-            return "Integer expected";
-        case DECIMAL:
-            return "Decimal expected";
-        }
-        return value + " expected";
-    }
-
     public String toString()
     {
-        switch (token) {
+        switch (tokenType) {
         case END:
             return "END";
         case IDENTIFIER:
-            return "IDENTIFIER=" + getTokenValue();
-        case OPEN_P:
-            return "OPEN_P='" + getTokenValue() + "'";
-        case CLOSE_P:
-            return "CLOSE_P='" + getTokenValue() + "'";
         case DELIMITER:
-            return "DELIMITER='" + getTokenValue() + "'";
         case RESERVED:
-            return "RESERVED=" + getTokenValue();
-        case QUOTE:
-            return "QUOTE='" + getTokenValue() + "'";
         case OPERATOR:
-            return "OPERATOR='" + getTokenValue() + "'";
-        case INTEGER:
-            return "INTEGER=" + getTokenValue();
+        case NUMBER:
         case DECIMAL:
-            return "DECIMAL=" + getTokenValue();
+        case CHARACTER:
         case STRING:
-            return "STRING=" + getTokenValue();
+            return tokenType + "= " + getTokenValue();
+        case COMMENT:
+            return "COMMENT= " + getCommentString();
+        case ERROR:
+            return "ERROR= " + getErrorMessage();
         }
-        return "Unknown token @ " + input + "\n" + input.getTokenStart() + ": "
-                + input.getLine().substring(input.getTokenStart());
+        return "Unknown token index : " + tokenType;
     }
 }

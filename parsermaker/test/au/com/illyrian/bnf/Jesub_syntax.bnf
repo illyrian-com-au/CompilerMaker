@@ -1,7 +1,7 @@
 {        
     goal ::= compilation_unit ;
     
-    name ::= IDENTIFIER  { ast.Name($1) }
+    name ::= IDENTIFIER  { ast.Name(getLexer()) }
         ;
         
     qualified_name ::=
@@ -27,13 +27,13 @@
             PACKAGE qualified_name SEMI { $2 }
         |   PACKAGE error("IncompletePackageName")
         |   /*EMPTY*/ 
-        |   recover(IMPORT, class_declaration)
+        |   RECOVER(IMPORT | class_declaration)
         ;
     
     import_mult ::= 
             IMPORT import_path_plus import_mult  { ast.Seq($2, $3) }
         |   /*EMPTY*/
-        |   recover(IMPORT, class_declaration)
+        |   RECOVER(IMPORT | class_declaration)
         ;
         
     import_path_plus ::= 
@@ -60,7 +60,7 @@
             EXTENDS qualified_name            {$2}
         |   EXTENDS error("ExpectedExtendedClassName")
         |   /*EMPTY*/
-        |   recover(IMPLEMENTS, BEGIN)
+        |   RECOVER(IMPLEMENTS | BEGIN)
         ;
             
     
@@ -68,7 +68,7 @@
             IMPLEMENTS implements_plus  {$2}
         |   IMPLEMENTS error("ExpectedImplementedInterfaceName")
         |   /*EMPTY*/
-        |   recover(BEGIN)
+        |   RECOVER(BEGIN)
         ;
     
     implements_plus ::=
@@ -83,7 +83,7 @@
     member_mult ::=
             member member_mult                  { ast.Seq($1, $2) }
         |   /*EMPTY*/
-        |   recover(member)
+        |   RECOVER(member)
         ;
         
     member ::=
@@ -101,7 +101,7 @@
     type ::=
             class_type
         |   class_type LBRAC RBRAC      { ast.ArrayOf($1) }
-        |   primitive_type              { ast.Name($1) }
+        |   primitive_type
         |   primitive_type LBRAC RBRAC  { ast.ArrayOf($1) }
         ;
         
@@ -149,7 +149,7 @@
         |   SEMI                                 { null }
         |   declare_statement
         |   expression_statement
-        |   recover(statement)
+        |   RECOVER(statement)
         ;
     
     labeled_statement ::=
@@ -158,7 +158,7 @@
         ;
     
     declare_label_opt ::=
-            lookahead(IDENTIFIER, COLON) name COLON             { ast.Label($1) } 
+            LOOKAHEAD(IDENTIFIER COLON) name COLON             { ast.Label($1) } 
         |   /*EMPTY*/
         ;
     
@@ -177,7 +177,7 @@
     
     for_statement ::=
             FOR LPAR expression_opt SEMI expression_opt SEMI expression_opt RPAR statement
-                                { ast.For($4, $6, $8, $10, $1) }
+                                { ast.For($3, $5, $7, $9) }
         ;
     
     try_statement ::= 

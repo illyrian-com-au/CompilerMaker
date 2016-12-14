@@ -1,7 +1,6 @@
 package au.com.illyrian.bnf.ast;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,7 +11,7 @@ public class BnfFirstVisitor
     public static final String EMPTY = "<EMPTY>";
     
     Map<String, BnfFirstSet> firstSets;
-    Map<String, BnfTreeRule>ruleSet;
+    Map<String, BnfTreeRule> ruleSet;
     
     public BnfFirstVisitor() {
         firstSets = createMap();
@@ -33,10 +32,15 @@ public class BnfFirstVisitor
     
     public void addRuleSet(BnfTreeRule rule)
     {
-        String name = rule.getTarget().toString(); // FIXME - getName() ???
+        String name = rule.getTarget().getName();
         ruleSet.put(name, rule);
     }
 
+    public boolean resolveFirst(BnfTreeParser bnfTreeParser, Set<String> firstSet) throws ParserException
+    {
+        return bnfTreeParser.getRules().resolveFirst(this, firstSet);
+    }
+    
     public boolean resolveFirst(BnfTreeList list, Set<String> firstSet) throws ParserException
     {
         BnfTreeRule [] rules = list.toRuleArray();
@@ -67,6 +71,7 @@ public class BnfFirstVisitor
                     set.add(EMPTY);
                 }
                 firstSets.put(name, set);
+                rule.setFirstSet(set);
             }
         } else {
             hasEmpty = set.contains(EMPTY);
@@ -94,7 +99,7 @@ public class BnfFirstVisitor
     public boolean resolveFirst(BnfTreeAlternative alt, Set<String> firstSet) throws ParserException {
         boolean hasEmpty = false;
         BnfTree []alternatives = alt.toAltArray();
-        for (BnfTree clause : alternatives) {
+        for (BnfTree<?> clause : alternatives) {
             // hasEmpty is true if any of the alternatives includes EMPTY.
             hasEmpty |= clause.resolveFirst(this, firstSet);
         }
@@ -130,9 +135,6 @@ public class BnfFirstVisitor
     public boolean resolveFirst(BnfTreeMethodCall call, Set<String> firstSet) throws ParserException
     {
         // Do not add method calls to the first set as these are for special processing.
-        if ("lookahead".equals(call.getName()) || "precedence".equals(call.getName())) {
-            add(firstSet, call.toString());
-        }
         return false;
     }
 
@@ -147,5 +149,13 @@ public class BnfFirstVisitor
         add(firstSet, string.toString());
         return false;
     }
-    
+
+    public boolean resolveFirst(BnfTreeMacroCall macro, Set<String> firstSet) throws ParserException
+    {
+        // Only add the LOOKAHEAD macro to the first set.
+        if ("LOOKAHEAD".equals(macro.getName())) {
+            add(firstSet, macro.toString());
+        }
+        return false;
+    }
 }

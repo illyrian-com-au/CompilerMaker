@@ -94,7 +94,7 @@ public class LexerInputString implements Input
      */
     int spanCharacter(int state)
     {
-        char ch = startChar(); // Mark start of token
+        startChar(); // Mark start of token
         incrementFinish(); // Step over character
         return state;
     }
@@ -180,16 +180,50 @@ public class LexerInputString implements Input
             return line.substring(finish, offset);
     }
     
-    public String toString()
+    public static String encode(char ch) {
+        switch(ch) {
+        case '\n' : return "\\n";
+        case '\r' : return "\\r";
+        case '\t' : return "\\t";
+        }
+        return "\\" + Integer.toOctalString(ch);
+    }
+
+    public static String encode(String str) {
+        if (str != null && str.length() > 0) {
+            StringBuffer buf = null;
+            int len = str.length();
+            for (int index=0; index<len; index++) {
+                char ch = str.charAt(index);
+                if (buf != null) {
+                    buf.append(Character.isISOControl(ch) ? encode(ch) : ch);
+                } else if (Character.isISOControl(ch)) {
+                    buf = new StringBuffer(str.substring(0, index));
+                    buf.append(encode(ch));
+                }
+            }
+            if (buf != null) {
+                return buf.toString();
+            }
+        }
+        return str;
+    }
+    
+    public String toDollarString()
     {
         if (line == null)
-            return "EOF";
+            return "$$";
         StringBuffer buf = new StringBuffer();
-        buf.append(line.substring(0, start));
+        buf.append(encode(line.substring(0, start)));
         buf.append('$');
-        buf.append(line.substring(start, finish));
+        buf.append(encode(line.substring(start, finish)));
         buf.append('$');
-        buf.append(line.substring(finish, line.length()));
+        buf.append(encode(line.substring(finish, line.length())));
         return buf.toString();
+    }
+
+    public String toString()
+    {
+        return toDollarString();
     }
 }

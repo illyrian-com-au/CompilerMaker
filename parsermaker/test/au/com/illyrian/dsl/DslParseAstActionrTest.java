@@ -9,9 +9,9 @@ import au.com.illyrian.domainparser.ModuleAction;
 import au.com.illyrian.domainparser.TestModuleAction;
 import au.com.illyrian.dsl.ast.DslActionAstFactory;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.impl.ModuleContext;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.LexerInputStream;
+import au.com.illyrian.parser.impl.ModuleContext;
 
 public class DslParseAstActionrTest extends TestCase
 {
@@ -44,7 +44,7 @@ public class DslParseAstActionrTest extends TestCase
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
         Object result = parser.parseClass(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         String output = "" + result;
         assertEquals("test ::= the, quick, brown, fox\n", output);
     }
@@ -63,7 +63,7 @@ public class DslParseAstActionrTest extends TestCase
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
         Object result = parser.parseClass(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         String output = "" + result;
         assertEquals("test ::= (the | quick | brown | fox)\n", output);
     }
@@ -82,7 +82,7 @@ public class DslParseAstActionrTest extends TestCase
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
         Object result = parser.parseClass(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         String output = "" + result;
         assertEquals("test ::= the, (quick | brown), fox\n", output);
     }
@@ -101,7 +101,7 @@ public class DslParseAstActionrTest extends TestCase
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
         Object result = parser.parseClass(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         String output = "" + result;
         assertEquals("test ::= the, \"quick\", \'brown\', fox\n", output);
     }

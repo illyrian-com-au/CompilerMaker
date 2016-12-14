@@ -5,9 +5,9 @@ import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.BinaryOperator;
 import au.com.illyrian.classmaker.ast.TerminalNumber;
 import au.com.illyrian.parser.CompilerContext;
-import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.ParserBase;
 
@@ -34,19 +34,19 @@ public class AstTokenParser extends ParserBase implements ParseClass<AstExpressi
     public AstExpression perentheses() throws ParserException
     {
     	AstExpression result = null;
-        expect(Lexer.OPEN_P, "{", "'{' expected");
+        expect(TokenType.DELIMITER, "{", "'{' expected");
     	result = expr();
-        if (getToken() == Lexer.END)
-            throw error(getInput(), "Unexpected end of input");
-        if (!match(Lexer.CLOSE_P, "}"))
-        	throw error(getInput(), "Operator or '}' expected");
+        if (getTokenType() == TokenType.END)
+            throw error("Unexpected end of input");
+        if (!match(TokenType.DELIMITER, "}"))
+        	throw error("Operator or '}' expected");
         return result;
     }
     
     public AstExpression expr() throws ParserException
     {
     	AstExpression result = value();
-    	while (getToken() == Lexer.OPERATOR)
+    	while (getTokenType() == TokenType.OPERATOR)
     	{
     		String operator = getLexer().getTokenValue();
     		nextToken();
@@ -58,14 +58,14 @@ public class AstTokenParser extends ParserBase implements ParseClass<AstExpressi
     
     public AstExpression value() throws ParserException
     {
-    	if (getToken() == Lexer.INTEGER)
+    	if (getTokenType() == TokenType.NUMBER)
     	{
     		Integer value = getLexer().getTokenInteger();
     		nextToken();
     		TerminalNumber number = new TerminalNumber(value);
     		return number;
     	} else {
-            throw error(getInput(), "A numeric value is expected");
+            throw error("A numeric value is expected");
     	}
     }
     
@@ -82,7 +82,7 @@ public class AstTokenParser extends ParserBase implements ParseClass<AstExpressi
     	} else if ("%".equals(operator)) {
     		return new BinaryOperator(BinaryOperator.REM, operand1, operand2);
     	} else {
-    		throw error(getInput(), "Unknown operator: " + operator);
+    		throw error("Unknown operator: " + operator);
     	}
     }
 }

@@ -3,9 +3,9 @@ package au.com.illyrian.domainparser;
 
 import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseModule;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.InvokeParser;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.ParserBase;
@@ -126,19 +126,19 @@ public class ModuleParser extends ParserBase implements ParseModule
    
    protected void endModule() throws ParserException
    {
-       int token = getToken();
+       TokenType token = getTokenType();
        // Ensure all tokens have been processed.
-       if (token == Lexer.ERROR)
+       if (token == TokenType.ERROR)
        {
-           throw error(getInput(), getLexer().getErrorMessage());
+           throw error(getLexer().getErrorMessage());
        }
-       else if (token == Lexer.CLOSE_P)
+       else if (token == TokenType.DELIMITER)
        {
-           throw error(getInput(), "Unbalanced perentheses - too many \')\'.");
+           throw error("Unbalanced perentheses - too many \')\'.");
        }
-       else if (token != Lexer.END)
+       else if (token != TokenType.END)
        {
-           throw error(getInput(), "End of input expected");
+           throw error("End of input expected");
        }
    }
    
@@ -154,10 +154,10 @@ public class ModuleParser extends ParserBase implements ParseModule
    /** packageStatement   ::= [ 'package' classname ';' ] */
    public Object packageStatement() throws ParserException
    {
-       if (accept(Lexer.RESERVED, "package"))
+       if (accept(TokenType.RESERVED, "package"))
        {
            String packageName = classname();
-           expect(Lexer.DELIMITER, ";", "';' expected at the end of the package name");
+           expect(TokenType.DELIMITER, ";", "';' expected at the end of the package name");
            
            return getModuleAction().Package(packageName);
        }
@@ -168,10 +168,10 @@ public class ModuleParser extends ParserBase implements ParseModule
    public Object more_imports() throws ParserException
    {
 	   Object result = null;
-       if (accept(Lexer.RESERVED, "import"))
+       if (accept(TokenType.RESERVED, "import"))
        {
            String className = classname();
-           expect(Lexer.DELIMITER, ";", "';' expected at end of fully qualified class name");
+           expect(TokenType.DELIMITER, ";", "';' expected at end of fully qualified class name");
            more_imports();
 
            this.getCompilerContext().addFullyQualifiedClassName(className);
@@ -184,26 +184,26 @@ public class ModuleParser extends ParserBase implements ParseModule
    public String classname() throws ParserException
    {
        String qualifiedClassName = null;
-       if (getToken() == Lexer.IDENTIFIER)
+       if (getTokenType() == TokenType.IDENTIFIER)
        {
            String simpleName = getLexer().getTokenValue();
            nextToken();
            qualifiedClassName = getModuleAction().Dot(qualifiedClassName, simpleName);
 
-           while (accept(Lexer.OPERATOR, "."))
+           while (accept(TokenType.OPERATOR, "."))
            {
-               if (getToken() == Lexer.IDENTIFIER)
+               if (getTokenType() == TokenType.IDENTIFIER)
                {
                    simpleName = getLexer().getTokenValue();
                    nextToken();
                    qualifiedClassName = getModuleAction().Dot(qualifiedClassName, simpleName);
                }
                else
-                   throw error(getInput(), "More package name expected.");
+                   throw error("More package name expected.");
            }
        }
        else
-           throw error(getInput(), "Class name expected.");
+           throw error("Class name expected.");
        return qualifiedClassName;
    }
 
@@ -211,9 +211,9 @@ public class ModuleParser extends ParserBase implements ParseModule
 //   public String more_classname() throws ParserException
 //   {
 //       String qualifiedClassName = null;
-//       if (accept(Lexer.OPERATOR, "."))
+//       if (accept(TokenType.OPERATOR, "."))
 //       {
-//           if (getToken() == Lexer.IDENTIFIER)
+//           if (getToken() == TokenType.IDENTIFIER)
 //           {
 //               String simpleName = getLexer().getTokenValue();
 //               lastIdentifier = simpleName;
@@ -223,7 +223,7 @@ public class ModuleParser extends ParserBase implements ParseModule
 //               qualifiedClassName = getModuleAction().addClassName(simpleName, qualifiedClassName);
 //           }
 //           else
-//               throw error(getInput(), "More package name expected.");
+//               throw error("More package name expected.");
 //       }
 //       return qualifiedClassName;
 //   }
@@ -240,32 +240,32 @@ public class ModuleParser extends ParserBase implements ParseModule
    public Object dec_class() throws ParserException
    {
 	   Object result = null;
-       if (getToken() == Lexer.IDENTIFIER)
+       if (getTokenType() == TokenType.IDENTIFIER)
        {
            Object parseName = classname();
-           if (match(Lexer.OPERATOR, "::"))
+           if (match(TokenType.OPERATOR, "::"))
            {
                String qualifiedName = getModuleAction().getParserName(parseName.toString());
                InvokeParser parser = getCompilerContext().getInvokeParser();
                Input input = getInput();
-               result = parser.invokeParseClass(qualifiedName, input);
+               result = parser.invokeParseClass(qualifiedName);
                getModuleAction().handleModule(result);
 
                nextToken();
-               if (accept(Lexer.OPERATOR, "::")) 
+               if (accept(TokenType.OPERATOR, "::")) 
                {
                    Object className = classname();
                    if (!className.equals(parseName))
-                       throw error(getInput(), "'" + parseName + "' expected at end of parser space");
+                       throw error("'" + parseName + "' expected at end of parser space");
                }
                else
-                   throw error(getInput(), ":: expected");
+                   throw error(":: expected");
            }
            else
-               throw error(getInput(), ":: expected");
+               throw error(":: expected");
        }
        else
-           throw error(getInput(), "Parser name expected");
+           throw error("Parser name expected");
        return result;
    }
 }

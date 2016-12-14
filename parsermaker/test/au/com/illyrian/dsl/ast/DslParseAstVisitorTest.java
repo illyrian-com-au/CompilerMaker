@@ -7,9 +7,9 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 import au.com.illyrian.dsl.DSL;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.impl.ModuleContext;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.LexerInputStream;
+import au.com.illyrian.parser.impl.ModuleContext;
 
 public class DslParseAstVisitorTest extends TestCase
 {
@@ -64,7 +64,7 @@ public class DslParseAstVisitorTest extends TestCase
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
         DslLanguage result = (DslLanguage)parser.parseClass(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         DslAstVisitor visitor = new DslAstVisitor();
         result.sequence(visitor);
         String output = visitor.toString();
@@ -89,7 +89,7 @@ public class DslParseAstVisitorTest extends TestCase
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
         DslLanguage result = (DslLanguage)parser.parseClass(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         DslAstVisitor visitor = new DslAstVisitor();
         result.sequence(visitor);
         String output = visitor.toString();
@@ -132,7 +132,7 @@ public class DslParseAstVisitorTest extends TestCase
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
         Object result = parser.parseClass(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         String output = "" + result;
         assertEquals("test ::= the, (quick | brown), fox\n", output);
     }
@@ -151,7 +151,7 @@ public class DslParseAstVisitorTest extends TestCase
         DslActionAstFactory action = new DslActionAstFactory();
         parser.setDslAction(action);
         Object result = parser.parseClass(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         String output = "" + result;
         assertEquals("test ::= the, \"quick\", \'brown\', fox\n", output);
     }

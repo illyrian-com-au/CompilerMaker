@@ -4,6 +4,7 @@ import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.ParserConstants;
 import au.com.illyrian.parser.opp.Operator;
@@ -98,9 +99,9 @@ public class AstExpressionPrecidenceParser
     
     protected AstExpression parentheses(Operator nudOperator) throws ParserException {
         AstExpression result = null;
-        if (accept(Lexer.OPEN_P, "(")) {
+        if (accept(TokenType.DELIMITER, "(")) {
             AstExpression firstOperand = expression();
-            expect(Lexer.CLOSE_P, ")", "\')\' expected");
+            expect(TokenType.DELIMITER, ")", "\')\' expected");
             // If an expression immediately follows a parenthesized expression
             // then the previous expression may have been a cast.
             // Eg. (java.lang.Serializable)b (long)(int)(short)d
@@ -113,7 +114,7 @@ public class AstExpressionPrecidenceParser
                 result = getPrecidenceActions().unaryAction(ParserConstants.NOP, firstOperand);
             }
         } else {
-            throw error(getInput(), "Unexpected Perenthesis");
+            throw error("Unexpected Perenthesis");
         }
 
         return result;
@@ -143,11 +144,11 @@ public class AstExpressionPrecidenceParser
    protected AstExpression reservedOperand() throws ParserException
    {
        AstExpression result = null;
-       if (match(Lexer.RESERVED, "this")) {
+       if (match(TokenType.RESERVED, "this")) {
            result = nameMethod();
-       } else if (match(Lexer.RESERVED, "super")) {
+       } else if (match(TokenType.RESERVED, "super")) {
            result = nameMethod();
-       } else if (match(Lexer.RESERVED, "new")) {
+       } else if (match(TokenType.RESERVED, "new")) {
            result = newInitialiser();
        } else {
            result = super.reservedOperand();
@@ -159,12 +160,12 @@ public class AstExpressionPrecidenceParser
    {
        AstExpression result = getPrecidenceActions().tokenAction(getLexer());
        nextToken();
-       if (accept(Lexer.OPEN_P, "(")) {
+       if (accept(TokenType.DELIMITER, "(")) {
            AstExpression parameters = null;
-           if (!match(Lexer.CLOSE_P, ")")) {
+           if (!match(TokenType.DELIMITER, ")")) {
                parameters = expression();
            }
-           expect(Lexer.CLOSE_P, ")", "\')\' expected");
+           expect(TokenType.DELIMITER, ")", "\')\' expected");
            result = actions.call(result, parameters);
        }
        return result;
@@ -182,24 +183,24 @@ public class AstExpressionPrecidenceParser
    {
        //Object a = new int[5][6][][];
        AstExpression result = null;
-       expect(Lexer.RESERVED, "new");
+       expect(TokenType.RESERVED, "new");
        AstExpression qualifiedType = qualifiedType();
-       if (accept(Lexer.OPEN_P, "(")) {
+       if (accept(TokenType.DELIMITER, "(")) {
            AstExpression parameters = null;
-           if (!match(Lexer.CLOSE_P, ")")) {
+           if (!match(TokenType.DELIMITER, ")")) {
                parameters = expression(0);
            }
-           expect(Lexer.CLOSE_P, ")", "\')\' expected");
+           expect(TokenType.DELIMITER, ")", "\')\' expected");
            AstExpression ctor = getPrecidenceActions().binaryAction(CALL, qualifiedType, parameters);
            result = getPrecidenceActions().unaryAction(NEW, ctor);
-       } else if (accept(Lexer.OPEN_P, "[")) {
+       } else if (accept(TokenType.DELIMITER, "[")) {
            AstExpression parameters = expression();
-           expect(Lexer.CLOSE_P, "]", "\']\' expected");
+           expect(TokenType.DELIMITER, "]", "\']\' expected");
            AstExpression arrayType = arrayTypeDimension(qualifiedType);
            AstExpression ctor = getPrecidenceActions().binaryAction(ARRAYOF, arrayType, parameters);
            result = getPrecidenceActions().unaryAction(NEW, ctor);
        } else {
-           throw error(getInput(), "Array dimension or constructor parameters expected");
+           throw error("Array dimension or constructor parameters expected");
        }
        return result;
    }
@@ -216,13 +217,13 @@ public class AstExpressionPrecidenceParser
     */
    protected AstExpression arrayTypeDimension(AstExpression qualifiedType) throws ParserException {
        AstExpression result = qualifiedType;
-       if (accept(Lexer.OPEN_P, "[")) {
-           if (accept(Lexer.CLOSE_P, "]")) {
+       if (accept(TokenType.DELIMITER, "[")) {
+           if (accept(TokenType.DELIMITER, "]")) {
                AstExpression arrayType = arrayTypeExtend(qualifiedType);
                result = getPrecidenceActions().unaryAction(ARRAYOF, arrayType);
            } else {
                AstExpression parameters = expression();
-               expect(Lexer.CLOSE_P, "]", "\']\' expected");
+               expect(TokenType.DELIMITER, "]", "\']\' expected");
                AstExpression arrayType = arrayTypeDimension(qualifiedType);
                result = getPrecidenceActions().binaryAction(ARRAYOF, arrayType, parameters);
            }
@@ -240,8 +241,8 @@ public class AstExpressionPrecidenceParser
     */
    protected AstExpression arrayTypeExtend(AstExpression qualifiedType) throws ParserException {
        AstExpression result = qualifiedType;
-       if (accept(Lexer.OPEN_P, "[")) {
-           expect(Lexer.CLOSE_P, "]");
+       if (accept(TokenType.DELIMITER, "[")) {
+           expect(TokenType.DELIMITER, "]");
            AstExpression arrayType = arrayTypeExtend(qualifiedType);
            result = getPrecidenceActions().unaryAction(ARRAYOF, arrayType);
        }
@@ -256,16 +257,16 @@ public class AstExpressionPrecidenceParser
     */
    protected AstExpression qualifiedType() throws ParserException
    {
-       if (match(Lexer.IDENTIFIER)) {
+       if (match(TokenType.IDENTIFIER)) {
            AstExpression result = getPrecidenceActions().tokenAction(getLexer());
            nextToken();
-           if (accept(Lexer.DELIMITER, ".")) {
+           if (accept(TokenType.DELIMITER, ".")) {
                AstExpression rightOperand = qualifiedType();
                result = actions.binaryAction(DOT, result, rightOperand);
            }
            return result;
        } else {
-           throw error(getInput(), "Identifier expected");
+           throw error("Identifier expected");
        }
    }
 
@@ -320,17 +321,18 @@ public class AstExpressionPrecidenceParser
      */
     public boolean isTokenAnOperand()
     {
-        int token = getToken();
+        TokenType token = getTokenType();
         switch (token) {
-        case Lexer.IDENTIFIER:
-        case Lexer.INTEGER:
-        case Lexer.DECIMAL:
-        case Lexer.STRING:
-        case Lexer.CHARACTER:
+        case IDENTIFIER:
+        case NUMBER:
+        case DECIMAL:
+        case STRING:
+        case CHARACTER:
             return true;
-        case Lexer.RESERVED:
+        case RESERVED:
             String operator = getLexer().getTokenValue();
             return reservedOperands.contains(operator);
+        default:
         }
         return false;
     }

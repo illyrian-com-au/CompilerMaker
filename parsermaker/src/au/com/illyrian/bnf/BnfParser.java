@@ -8,6 +8,7 @@ import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseMembers;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.expr.AstExpressionPrecidenceParser;
 
 public class BnfParser extends AstExpressionPrecidenceParser implements ParseMembers
@@ -18,20 +19,27 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     {
         factory = new BnfTreeFactory();
         this.setAstExpressionFactory(factory);
+        addReservedMacros();
+    }
+    
+    void addReservedMacros() {
+        addReserved("LOOKAHEAD");
+        addReserved("RECOVER");
+        addReserved("EMPTY");
     }
 
     protected Lexer createLexer()
     {
         return new BnfLexer();
     }
-    
 
     /*
      * class_body ::= '{' rules_plus '}' 
      * rules_plus ::= parse_rule rules_plus 
      *            | parse_rule 
      * parse_rule ::= target '::=' alt_rule action_opt ';'
-     * target     ::= name 
+     * target     ::= name() 
+     * type_opt   ::= ':' type | EMPTY 
      * alt_rule   ::= seq_rule '|' alt_rule 
      *            | seq_rule 
      * seq_rule   ::= rule_token seq_rule 
@@ -40,13 +48,10 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      *            |   name '(' param_opt ')' 
      *            |   string 
      *            |   reserved 
-     * action_opt ::= '{' expr '}' 
+     * action_opt ::= '{' expression '}' 
      *            | EMPTY 
      * param_opt  ::= name
      * name       ::= IDENTIFIER
-     * string     ::= STRING
-     * reserved   ::= RESERVED
-     * expr       ::= name
      */
     public BnfTree parseMembers(CompilerContext context) throws ParserException
     {
@@ -56,27 +61,27 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         return class_body();
     }
 
-    /* class_body ::= '{' rules_plus '}' { $2 } ; */
+    /* class_body ::= BEGIN rules_plus END { $2 } ; */
     public BnfTree class_body() throws ParserException
     {
-        BnfTree result = null;
-        expect(Lexer.OPEN_P, "{");
-        result = rules_plus();
-        if (!match(Lexer.CLOSE_P, "}")) {
+        expect(BnfToken.BEGIN);
+        BnfTree $2 = rules_plus();
+        if (!match(BnfToken.END)) {
             throw error("} expected");
         }
-        return result;
+        //return $2;
+        return factory.Parser($2);
     }
 
     /* 
-     * rules_plus ::= parse_rule lookahead(RPAR) <EMPTY>
+     * rules_plus ::= parse_rule lookahead(END)
      *            |   parse_rule rules_plus { factory.List($1, $2) }
      *            ;
      */
     public BnfTree rules_plus() throws ParserException
     {
         BnfTree $1 = parse_rule();
-        if (match(Lexer.CLOSE_P, "}")) {
+        if (match(BnfToken.END)) {
             return $1;
         } else {
             BnfTree $2 = rules_plus();
@@ -84,42 +89,57 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         }
     }
 
-    /* parse_rule ::= rule_target '::=' rule_alt ';' { factory.Rule($1, $3) } ; */
+    /* parse_rule ::= rule_target ASSIGN rule_alt SEMI { factory.Rule($1, $3) } ; */
     public BnfTree parse_rule() throws ParserException
     {
         BnfTree $1 = rule_target();
-        expect(Lexer.OPERATOR, "::=");
+        expect(BnfToken.ASSIGN);
         BnfTree $3 = rule_alt();
-        expect(Lexer.DELIMITER, ";", "'|', '=' or ';' expected");
+        expect(BnfToken.SEMI);
         return factory.Rule($1, $3);
     }
 
     /*
-     * rule_target ::= name | error("Name of rule expected") ;
+     * rule_target ::= name | name COLON name | error("Name of rule expected") ;
      */
     public BnfTree rule_target() throws ParserException
     {
-        BnfTree $1 = null;
-        if (match(Lexer.IDENTIFIER, null)) {
-            $1 = name();
+        BnfTree $$ = null;
+        if (match(BnfToken.IDENTIFIER)) {
+            BnfTree $1 = name();
+            if (accept(BnfToken.COLON))
+            {
+                BnfTree $3 = name();
+                $$ = factory.Target($1, $3);
+            } else {
+                $$ = $1;
+            }
         } else {
             throw error("Name of rule expected.");
         }
-        // String type = null;
-        // if (accept(Lexer.OPERATOR, ":"))
-        // {
-        // type = expect(Lexer.IDENTIFIER, null, "Return type expected.");
-        // }
+        return $$;
+    }
+
+    /*
+     * type_opt ::= COLON name | EMPTY ;
+     */
+    public BnfTree type_opt() throws ParserException
+    {
+        BnfTree $1 = null;
+        if (accept(BnfToken.COLON))
+        {
+            $1 = name();
+        }
         return $1;
     }
 
     /*
-     * rule_alt ::= rule_seq '|' rule_alt | rule_seq ;
+     * rule_alt ::= rule_seq ALT rule_alt | rule_seq ;
      */
     public BnfTree rule_alt() throws ParserException
     {
         BnfTree $1 = rule_seq();
-        if (accept(Lexer.OPERATOR, "|")) {
+        if (accept(BnfToken.ALT)) {
             BnfTree $3 = rule_alt();
             return factory.Alt($1, $3);
         } else {
@@ -128,62 +148,48 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     }
 
     /*
-     * seq_rule ::= rule_action | lookahead('|' | ';') EMPTY | rule_token seq_rule ;
+     * seq_rule ::= rule_action | lookahead(ALT | SEMI) EMPTY | rule_token seq_rule ;
      */
     public BnfTree rule_seq() throws ParserException
     {
         BnfTree $$;
-        if (match(Lexer.OPEN_P, "{")) {
+        if (match(BnfToken.BEGIN)) {
             $$ = rule_action();
-        } else if (match(Lexer.DELIMITER, ";") || match(Lexer.OPERATOR, "|")){
+        } else if (match(BnfToken.SEMI) || match(BnfToken.ALT)){
             $$ = factory.Empty();
-        } else /*if (first$rule_token()) */ {
+        } else {
             BnfTree $1 = rule_token();
-            BnfTree $3 = rule_seq();
-            $$ = factory.Seq($1, $3);
+            BnfTree $2 = rule_seq();
+            $$ = factory.Seq($1, $2);
         }
         return $$;
     }
 
     /*
-     * rule_action ::= '{' ... '}'
+     * rule_action ::= BEGIN expression END ;
      */
     public BnfTree rule_action() throws ParserException
     {
-        expect(Lexer.OPEN_P, "{");
-        AstExpression expr = expression(1);
-        expect(Lexer.CLOSE_P, "}");
+        expect(BnfToken.BEGIN);
+        AstExpression expr = expression();
+        expect(BnfToken.END);
         return new BnfTreeExpression(expr);
     }
 
-    boolean first$rule_token() {
-        return (match(Lexer.IDENTIFIER) || match(Lexer.STRING) || match(Lexer.RESERVED));
-    }
-    
     /*
-     * rule_token ::= name '(' actual_opt ')' = { factory.Call($1, $3) } 
-     *            |   name
-     *            |   STRING   = { factory.String(getLexer()) } 
-     *            |   RESERVED = { factory.Reserved(getLexer()) } ;
+     * rule_token ::= lookahead(IDENTIFIER) name_method
+     *            |   lookahead(RESERVED) macro 
+     *            |   error("Terminal, Non-terminal or Macro expected");
      */
     public BnfTree rule_token() throws ParserException
     {
         BnfTree $$;
-        if (match(Lexer.IDENTIFIER, null)) {
-            BnfTree $1 = name();
-            if (accept(Lexer.OPEN_P, "(")) {
-                BnfTree $3 = actual_opt();
-                expect(Lexer.CLOSE_P, ")");
-                $$ = factory.Call($1, $3);
-            } else {
-                $$ = $1;
-            }
-        } else if (match(Lexer.STRING, null)) {
-            $$ = factory.String(getLexer());
-        } else if (match(Lexer.RESERVED, null)) {
-            $$ = factory.Reserved(getLexer());
+        if (match(BnfToken.IDENTIFIER)) {
+            $$ = name_method();
+        } else if (match(BnfToken.RESERVED)) {
+            $$ = macro();
         } else {
-            throw new IllegalStateException("Rule rule_token has no option for input: " + getLexer());
+            throw error("Terminal, Non-terminal or Macro expected");
         }
         return $$;
     }
@@ -191,10 +197,10 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     /*
      * actual_opt ::= lookahead(RPAR) EMPTY | param_mult ;
      */
-    public BnfTree actual_opt() throws ParserException
+    public AstExpression actual_opt() throws ParserException
     {
-        if (match(Lexer.CLOSE_P, ")")) {
-            return null;
+        if (match(BnfToken.RPAR)) {
+            return factory.Empty();
         } else {
             return param_mult();
         }
@@ -205,47 +211,55 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      *            |   actual 
      *            ;
      */
-    public BnfTree param_mult() throws ParserException
+    public AstExpression param_mult() throws ParserException
     {
-        BnfTree $1 = actual();
-        if (accept(Lexer.DELIMITER, ",")) {
-            BnfTree $3 = param_mult();
-            return factory.Comma($1,  $3);
+        AstExpression $$; 
+        AstExpression $1 = actual();
+        if (accept(BnfToken.COMMA)) {
+            AstExpression $3 = param_mult();
+            $$ = factory.Comma($1,  $3);
         } else {
-            return $1;
-        }
-    }
-
-    /*
-     * actual ::= INTEGER { factory.Integer(getLexer()) }
-     *        |   DECIMAL { factory.Decimal(getLexer()) }
-     *        |   rule_token ;
-     */
-    public BnfTree actual() throws ParserException
-    {
-        BnfTree $$; 
-        if (match(Lexer.INTEGER, null)) {
-            $$ = factory.Integer(getLexer());
-        } else if (match(Lexer.DECIMAL, null)) {
-            $$ = factory.Decimal(getLexer());
-        } else {
-            $$ = rule_token();
+            $$ = $1;
         }
         return $$;
     }
 
     /*
-     * name ::= NONTERMINAL { factory.NonTerminal(getLexer()) }
-     *      |   error("NonterminalExpected")
-     *      ;
+     * actual ::= NUMBER  { factory.Integer(getLexer()) }
+     *        |   DECIMAL { factory.Decimal(getLexer()) }
+     *        |   STRING  { factory.String(getLexer()) }
+     *        |   error("Function parameter expected") ;
      */
-    public BnfTree nonterminal() throws ParserException
+    public AstExpression actual() throws ParserException
+    {
+        AstExpression $$; 
+        if (match(TokenType.NUMBER)) {
+            $$ = factory.Literal(getLexer().getTokenInteger());
+        } else if (match(TokenType.DECIMAL)) {
+            $$ = factory.Literal(getLexer().getTokenFloat());
+        } else if (match(TokenType.STRING)) {
+            $$ = factory.Literal(getLexer().getTokenString());
+        } else {
+            throw error("Function parameter expected");
+        }
+        nextToken();
+        return $$;
+    }
+
+    /*
+     * name_method ::=   name LPAR actual_opt RPAR = { factory.MethodCall($1, $3) } 
+     *               |   name ; 
+     */
+    public BnfTree name_method() throws ParserException
     {
         BnfTree $$;
-        if (match(Lexer.IDENTIFIER, null)) {
-            $$ = factory.Name(getLexer());
+        BnfTree $1 = name();
+        if (accept(BnfToken.LPAR)) {
+            AstExpression $3 = actual_opt();
+            expect(BnfToken.RPAR);
+            $$ = factory.MethodCall($1, $3);
         } else {
-            throw error("NameExpected");
+            $$ = $1;
         }
         return $$;
     }
@@ -258,10 +272,91 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     public BnfTree name() throws ParserException
     {
         BnfTree $$;
-        if (match(Lexer.IDENTIFIER, null)) {
-            $$ = factory.Name(getLexer());
+        if (match(BnfToken.IDENTIFIER)) {
+            $$ = factory.BnfName(getLexer());
         } else {
             throw error("NameExpected");
+        }
+        return $$;
+    }
+
+    /*
+     * macro    ::=   macro_name LPAR macro_param RPAR = { factory.MacroCall($1, $3) } 
+     *            |   macro_name ; 
+     */
+    public BnfTree macro() throws ParserException
+    {
+        BnfTree $$;
+        BnfTree $1 = macro_name();
+        if (accept(BnfToken.LPAR)) {
+            BnfTree $3 = macro_param();
+            expect(BnfToken.RPAR);
+            $$ = factory.MacroCall($1, $3);
+        } else {
+            $$ = $1;
+        }
+        return $$;
+    }
+
+    /*
+     * macro_name ::= RESERVED = { factory.Reserved(getLexer()) } ;
+     */
+    public BnfTree macro_name() throws ParserException
+    {
+        BnfTree $$;
+        if (match(BnfToken.RESERVED)) {
+            $$ = factory.Reserved(getLexer());
+        } else {
+            throw error("MacroNameExpected");
+        }
+        return $$;
+    }
+
+    /*
+     * macro_param ::=   STRING 
+     *               |   macro_alt;
+     */
+    public BnfTree macro_param() throws ParserException
+    {
+        BnfTree $$;
+        if (match(BnfToken.STRING)) {
+            $$ = factory.BnfString(getLexer());
+        } else {
+            $$ = macro_alt();
+        }
+        return $$;
+    }
+
+    /*
+     * macro_alt   ::=   macro_seq 
+     *               |   macro_seq ALT macro_alt;
+     */
+    public BnfTree macro_alt() throws ParserException
+    {
+        BnfTree $$;
+        BnfTree $1 = macro_seq();
+        if (accept(BnfToken.ALT)) {
+            BnfTree $3 = macro_alt();
+            $$ = factory.Alt($1,  $3);
+        } else {
+            $$ = $1;
+        }
+        return $$;
+    }
+
+    /*
+     * macro_seq   ::=   name 
+     *               |   name macro_seq;
+     */
+    public BnfTree macro_seq() throws ParserException
+    {
+        BnfTree $$;
+        BnfTree $1 = name();
+        if (match(BnfToken.IDENTIFIER)) {
+            BnfTree $3 = macro_seq();
+            $$ = factory.Seq($1,  $3);
+        } else {
+            $$ = $1;
         }
         return $$;
     }

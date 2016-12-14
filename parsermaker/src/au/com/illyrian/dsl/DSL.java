@@ -2,9 +2,9 @@ package au.com.illyrian.dsl;
 
 import au.com.illyrian.dsl.ast.DslActionAstFactory;
 import au.com.illyrian.parser.CompilerContext;
-import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.ParserBase;
 
@@ -70,10 +70,10 @@ public class DSL extends ParserBase implements ParseClass
     
     public Object class_body() throws ParserException
     {
-        expect(Lexer.OPEN_P, "{", "'{' expected.");
+        expect(TokenType.DELIMITER, "{", "'{' expected.");
         Object result = many_rules();
-        if (!match(Lexer.CLOSE_P, "}"))
-            throw error(getInput(), "'}' expected.");
+        if (!match(TokenType.DELIMITER, "}"))
+            throw error("'}' expected.");
         return result;
     }
 
@@ -84,9 +84,9 @@ public class DSL extends ParserBase implements ParseClass
         {
             Object rule = parse_rule();
             ruleList = dslAction.addDslRule(ruleList, rule);
-            if (match(Lexer.CLOSE_P, "}"))
+            if (match(TokenType.DELIMITER, "}"))
                 break;
-            else if (match(Lexer.END, null))
+            else if (match(TokenType.END, null))
                 break;
         }
         return ruleList;
@@ -96,22 +96,22 @@ public class DSL extends ParserBase implements ParseClass
     public Object parse_rule() throws ParserException
     {
         Object target = rule_target();
-        expect(Lexer.OPERATOR, "::=", "'::=' expected.");
+        expect(TokenType.OPERATOR, "::=", "'::=' expected.");
         Object expr = rule_expr();
-        if (accept(Lexer.OPERATOR, "="))
+        if (accept(TokenType.OPERATOR, "="))
             rule_action();
-        expect(Lexer.DELIMITER, ";", null);
+        expect(TokenType.DELIMITER, ";", null);
         return dslAction.newDslRule(target, expr);
     }
     
     /*  rule_target  ::= IDENTIFIER [ ':' IDENTIFIER ] */
     public Object rule_target() throws ParserException
     {
-        String name = expect(Lexer.IDENTIFIER, null, "Name of rule expected.");
+        String name = expect(TokenType.IDENTIFIER, null, "Name of rule expected.");
         String type = null;
-        if (accept(Lexer.OPERATOR, ":"))
+        if (accept(TokenType.OPERATOR, ":"))
         {
-            type = expect(Lexer.IDENTIFIER, null, "Return type expected.");
+            type = expect(TokenType.IDENTIFIER, null, "Return type expected.");
         }
         return dslAction.newDslTarget(name, type);
     }
@@ -122,21 +122,21 @@ public class DSL extends ParserBase implements ParseClass
         Object expr = rule_alt();
         while (true)
         {
-            if (accept(Lexer.DELIMITER, ","))
+            if (accept(TokenType.DELIMITER, ","))
             {
                 Object item = rule_alt();
                 expr = dslAction.addDslSequence(expr, item);
             }
-            else if (match(Lexer.END, null))
+            else if (match(TokenType.END, null))
                 break;
-            else if (match(Lexer.DELIMITER, ";"))
+            else if (match(TokenType.DELIMITER, ";"))
                 break;
-            else if (match(Lexer.CLOSE_P, ")"))
+            else if (match(TokenType.DELIMITER, ")"))
                 break;
-            else if (match(Lexer.CLOSE_P, "]"))
+            else if (match(TokenType.DELIMITER, "]"))
                 break;
             else
-                throw error(getInput(), ", or | expected.");
+                throw error(", or | expected.");
         }
         return expr;
     }
@@ -147,12 +147,12 @@ public class DSL extends ParserBase implements ParseClass
         Object expr = rule_elem();
         while (true)
         {
-            if (accept(Lexer.OPERATOR, "|"))
+            if (accept(TokenType.OPERATOR, "|"))
             {
                 Object item = rule_elem();
                 expr = dslAction.addDslAlternative(expr, item);
             }
-            else if (match(Lexer.END, null))
+            else if (match(TokenType.END, null))
                 break;
             else
                 break;
@@ -164,50 +164,50 @@ public class DSL extends ParserBase implements ParseClass
     public Object rule_elem() throws ParserException 
     {
         Object expr = null;
-        if (match(Lexer.IDENTIFIER, null))
+        if (match(TokenType.IDENTIFIER, null))
         {
             String name = getLexer().getTokenValue();
             nextToken();
             expr = dslAction.newDslIdentifier(name);
         }
-        else if (match(Lexer.STRING, "\""))
+        else if (match(TokenType.STRING, "\""))
         {
             String name = getLexer().getTokenString();
             nextToken();
             expr = dslAction.newDslString(name);
         }
-        else if (match(Lexer.STRING, "\'"))
+        else if (match(TokenType.STRING, "\'"))
         {
             String name = getLexer().getTokenString();
             nextToken();
             expr = dslAction.newDslDelimiter(name);
         }
-        else if (accept(Lexer.OPEN_P, "["))
+        else if (accept(TokenType.DELIMITER, "["))
         {
             expr = rule_expr();
-            expect(Lexer.CLOSE_P, "]", null);
+            expect(TokenType.DELIMITER, "]", null);
             expr = dslAction.newDslOptional(expr);
         }
-        else if (accept(Lexer.OPEN_P, "{"))
+        else if (accept(TokenType.DELIMITER, "{"))
         {
             expr = rule_expr();
-            expect(Lexer.CLOSE_P, "}", null);
+            expect(TokenType.DELIMITER, "}", null);
         }
-        else if (accept(Lexer.OPEN_P, "("))
+        else if (accept(TokenType.DELIMITER, "("))
         {
             expr = rule_expr();
-            expect(Lexer.CLOSE_P, ")", null);
+            expect(TokenType.DELIMITER, ")", null);
         }
-        else if (match(Lexer.END, null))
+        else if (match(TokenType.END))
             ;
         else
-            throw error(getInput(), "Terminal, non-terminal or rule construct expected");
+            throw error("Terminal, non-terminal or rule construct expected");
         return expr;
     }
     
     public void rule_action () throws ParserException  
     {
-        expect(Lexer.OPEN_P, "{", "'{' expected.");
-        expect(Lexer.CLOSE_P, "}", "'}' expected.");
+        expect(TokenType.DELIMITER, "{", "'{' expected.");
+        expect(TokenType.DELIMITER, "}", "'}' expected.");
     }
 }

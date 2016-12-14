@@ -7,6 +7,11 @@ public class BnfMergeVisitor
     {
     }
     
+    public BnfTree resolveMerge(BnfTreeParser goal)
+    {
+        return goal.getRules().resolveMerge(this);
+    }
+    
     public BnfTreeBase resolveMerge(BnfTreeList binary)
     {
         BnfTree head = null;
@@ -48,11 +53,16 @@ public class BnfMergeVisitor
 
     BnfTree [] groupCommonHeads(BnfTree [] original)
     {
-        // Perform a bubble sort to find matching heads and group them together.
+        // Perform a bubble sort (filter) to find matching heads and group them together.
+        // This is actually a filter because nothing will change if all heads are unique.
+        // The bubble sort algorithm retains secondary order and while not particularly efficient
+        // it is a simple algorithm and we are typically filtering less than half a dozen options.
         BnfTree [] list = clone(original);
         for (int i=0; i<list.length; i++) {
             BnfTree target = list[i];
+            // Starting at the end of the list bubble up any items that match the target.
             for (int j=list.length-1; j>i+1; j--) {
+                // Switch to another matching option if it is further up the list.
                 if (target.matches(list[j]) && !target.matches(list[j-1])) {
                     BnfTree temp = list[j];
                     list[j] = list[j-1];

@@ -8,16 +8,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Set;
 
-import au.com.illyrian.bnf.BnfParser;
+import junit.framework.TestCase;
 import au.com.illyrian.bnf.ast.BnfFirstVisitor;
 import au.com.illyrian.bnf.ast.BnfMergeVisitor;
 import au.com.illyrian.bnf.ast.BnfTree;
 import au.com.illyrian.bnf.ast.BnfTreeRule;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.impl.ModuleContext;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.LexerInputStream;
-import junit.framework.TestCase;
+import au.com.illyrian.parser.impl.ModuleContext;
 
 public class BnfParserSyntaxTest extends TestCase
 {
@@ -53,7 +52,7 @@ public class BnfParserSyntaxTest extends TestCase
         BnfParser parser = new BnfParser();
         //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
         int i = 0;
         BnfTreeRule [] rules = tree.toRuleArray();
@@ -63,28 +62,28 @@ public class BnfParserSyntaxTest extends TestCase
         assertEquals("Wrong rule", "qualified_name ::= ( name DOT qualified_name {} | name . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "modifier_mult ::= ( PUBLIC modifier_mult {} | PROTECTED modifier_mult {} | PRIVATE modifier_mult {} | ABSTRACT modifier_mult {} | FINAL modifier_mult {} | STRICTFP modifier_mult {} | . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "compilation_unit ::= package_opt import_mult class_declaration_plus {} ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "package_opt ::= ( PACKAGE qualified_name SEMI {} | PACKAGE error(\"IncompletePackageName\") . | . | recover(IMPORT, class_declaration) . ) ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "import_mult ::= ( IMPORT import_path_plus import_mult {} | . | recover(IMPORT, class_declaration) . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "package_opt ::= ( PACKAGE qualified_name SEMI {} | PACKAGE error(\"IncompletePackageName\") . | . | RECOVER(( IMPORT | class_declaration )) . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "import_mult ::= ( IMPORT import_path_plus import_mult {} | . | RECOVER(( IMPORT | class_declaration )) . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "import_path_plus ::= ( name DOT import_path_plus {} | name SEMI {} | MULT SEMI {} | error(\"IncompleteImportPath\") . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "class_declaration_plus ::= ( class_declaration class_declaration_plus {} | class_declaration . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "class_declaration ::= ( modifier_mult CLASS name extends_opt implements_opt class_body {} | modifier_mult INTERFACE name extends_opt class_body {} | error(\"ExpectedClassOrInterface\") . ) ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "extends_opt ::= ( EXTENDS qualified_name {} | EXTENDS error(\"ExpectedExtendedClassName\") . | . | recover(IMPLEMENTS, BEGIN) . ) ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "implements_opt ::= ( IMPLEMENTS implements_plus {} | IMPLEMENTS error(\"ExpectedImplementedInterfaceName\") . | . | recover(BEGIN) . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "extends_opt ::= ( EXTENDS qualified_name {} | EXTENDS error(\"ExpectedExtendedClassName\") . | . | RECOVER(( IMPLEMENTS | BEGIN )) . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "implements_opt ::= ( IMPLEMENTS implements_plus {} | IMPLEMENTS error(\"ExpectedImplementedInterfaceName\") . | . | RECOVER(BEGIN) . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "implements_plus ::= ( qualified_name COMMA implements_plus {} | qualified_name . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "class_body ::= BEGIN member_mult END {} ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "member_mult ::= ( member member_mult {} | . | recover(member) . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "member_mult ::= ( member member_mult {} | . | RECOVER(member) . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "member ::= ( modifier_mult method_type name LPAR formal_mult RPAR method_body {} | modifier_mult method_type name SEMI {} ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "method_type ::= ( type . | VOID {} ) ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "type ::= ( class_type . | class_type LBRAC RBRAC {} | primitive_type {} | primitive_type LBRAC RBRAC {} ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "type ::= ( class_type . | class_type LBRAC RBRAC {} | primitive_type . | primitive_type LBRAC RBRAC {} ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "primitive_type ::= ( BOOLEAN {} | BYTE {} | CHAR {} | SHORT {} | INT {} | LONG {} | FLOAT {} | DOUBLE {} ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "class_type ::= qualified_name . ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "formal_mult ::= modifier_mult type name {} ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "method_body ::= ( compound_statement . | SEMI . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "compound_statement ::= BEGIN statement_mult END {} ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "statement_mult ::= ( statement statement_mult {} | . ) ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "statement ::= ( compound_statement . | if_else_statement . | try_statement . | break_statement . | continue_statement . | return_statement . | declare_label_opt labeled_statement {} | SEMI {} | declare_statement . | expression_statement . | recover(statement) . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "statement ::= ( compound_statement . | if_else_statement . | try_statement . | break_statement . | continue_statement . | return_statement . | declare_label_opt labeled_statement {} | SEMI {} | declare_statement . | expression_statement . | RECOVER(statement) . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "labeled_statement ::= ( while_statement . | for_statement . ) ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "declare_label_opt ::= ( lookahead(IDENTIFIER, COLON) name COLON {} | . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "declare_label_opt ::= ( LOOKAHEAD(IDENTIFIER COLON) name COLON {} | . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "if_else_statement ::= IF LPAR expression RPAR statement else_opt {} ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "else_opt ::= ( ELSE statement {} | . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "while_statement ::= WHILE LPAR expression RPAR statement {} ;", rules[i++].toRuleString());
@@ -114,7 +113,7 @@ public class BnfParserSyntaxTest extends TestCase
         BnfParser parser = new BnfParser();
         //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
         BnfMergeVisitor merge = new BnfMergeVisitor();
         BnfTree merged = tree.resolveMerge(merge);
@@ -127,28 +126,28 @@ public class BnfParserSyntaxTest extends TestCase
         assertEquals("Wrong rule", "qualified_name ::= name ( DOT qualified_name {} | . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "modifier_mult ::= ( PUBLIC modifier_mult {} | PROTECTED modifier_mult {} | PRIVATE modifier_mult {} | ABSTRACT modifier_mult {} | FINAL modifier_mult {} | STRICTFP modifier_mult {} | . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "compilation_unit ::= package_opt import_mult class_declaration_plus {} ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "package_opt ::= ( PACKAGE ( qualified_name SEMI {} | error(\"IncompletePackageName\") . ) | . | recover(IMPORT, class_declaration) . ) ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "import_mult ::= ( IMPORT import_path_plus import_mult {} | . | recover(IMPORT, class_declaration) . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "package_opt ::= ( PACKAGE ( qualified_name SEMI {} | error(\"IncompletePackageName\") . ) | . | RECOVER(( IMPORT | class_declaration )) . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "import_mult ::= ( IMPORT import_path_plus import_mult {} | . | RECOVER(( IMPORT | class_declaration )) . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "import_path_plus ::= ( name ( DOT import_path_plus {} | SEMI {} ) | MULT SEMI {} | error(\"IncompleteImportPath\") . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "class_declaration_plus ::= class_declaration ( class_declaration_plus {} | . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "class_declaration ::= ( modifier_mult ( CLASS name extends_opt implements_opt class_body {} | INTERFACE name extends_opt class_body {} ) | error(\"ExpectedClassOrInterface\") . ) ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "extends_opt ::= ( EXTENDS ( qualified_name {} | error(\"ExpectedExtendedClassName\") . ) | . | recover(IMPLEMENTS, BEGIN) . ) ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "implements_opt ::= ( IMPLEMENTS ( implements_plus {} | error(\"ExpectedImplementedInterfaceName\") . ) | . | recover(BEGIN) . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "extends_opt ::= ( EXTENDS ( qualified_name {} | error(\"ExpectedExtendedClassName\") . ) | . | RECOVER(( IMPLEMENTS | BEGIN )) . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "implements_opt ::= ( IMPLEMENTS ( implements_plus {} | error(\"ExpectedImplementedInterfaceName\") . ) | . | RECOVER(BEGIN) . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "implements_plus ::= qualified_name ( COMMA implements_plus {} | . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "class_body ::= BEGIN member_mult END {} ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "member_mult ::= ( member member_mult {} | . | recover(member) . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "member_mult ::= ( member member_mult {} | . | RECOVER(member) . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "member ::= modifier_mult method_type name ( LPAR formal_mult RPAR method_body {} | SEMI {} ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "method_type ::= ( type . | VOID {} ) ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "type ::= ( class_type ( . | LBRAC RBRAC {} ) | primitive_type ( {} | LBRAC RBRAC {} ) ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "type ::= ( class_type ( . | LBRAC RBRAC {} ) | primitive_type ( . | LBRAC RBRAC {} ) ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "primitive_type ::= ( BOOLEAN {} | BYTE {} | CHAR {} | SHORT {} | INT {} | LONG {} | FLOAT {} | DOUBLE {} ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "class_type ::= qualified_name . ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "formal_mult ::= modifier_mult type name {} ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "method_body ::= ( compound_statement . | SEMI . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "compound_statement ::= BEGIN statement_mult END {} ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "statement_mult ::= ( statement statement_mult {} | . ) ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "statement ::= ( compound_statement . | if_else_statement . | try_statement . | break_statement . | continue_statement . | return_statement . | declare_label_opt labeled_statement {} | SEMI {} | declare_statement . | expression_statement . | recover(statement) . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "statement ::= ( compound_statement . | if_else_statement . | try_statement . | break_statement . | continue_statement . | return_statement . | declare_label_opt labeled_statement {} | SEMI {} | declare_statement . | expression_statement . | RECOVER(statement) . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "labeled_statement ::= ( while_statement . | for_statement . ) ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "declare_label_opt ::= ( lookahead(IDENTIFIER, COLON) name COLON {} | . ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "declare_label_opt ::= ( LOOKAHEAD(IDENTIFIER COLON) name COLON {} | . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "if_else_statement ::= IF LPAR expression RPAR statement else_opt {} ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "else_opt ::= ( ELSE statement {} | . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "while_statement ::= WHILE LPAR expression RPAR statement {} ;", rules[i++].toRuleString());
@@ -188,7 +187,7 @@ public class BnfParserSyntaxTest extends TestCase
         BnfParser parser = new BnfParser();
         //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
         BnfMergeVisitor merge = new BnfMergeVisitor();
         BnfTree merged = tree.resolveMerge(merge);
@@ -223,10 +222,10 @@ public class BnfParserSyntaxTest extends TestCase
         assertEquals("first(formal_mult)=[ABSTRACT, BOOLEAN, BYTE, CHAR, DOUBLE, FINAL, FLOAT, IDENTIFIER, INT, LONG, PRIVATE, PROTECTED, PUBLIC, SHORT, STRICTFP]", getSet(first, rules[i++]));
         assertEquals("first(method_body)=[BEGIN, SEMI]", getSet(first, rules[i++]));
         assertEquals("first(compound_statement)=[BEGIN]", getSet(first, rules[i++]));
-        assertEquals("first(statement_mult)=[<EMPTY>, ABSTRACT, BEGIN, BOOLEAN, BREAK, BYTE, CHAR, CONTINUE, DOUBLE, FINAL, FLOAT, FOR, IDENTIFIER, IF, INT, LONG, PRIVATE, PROTECTED, PUBLIC, RETURN, SEMI, SHORT, STRICTFP, TRY, WHILE, lookahead(IDENTIFIER, COLON), precedence(1)]", getSet(first, rules[i++]));
-        assertEquals("first(statement)=[ABSTRACT, BEGIN, BOOLEAN, BREAK, BYTE, CHAR, CONTINUE, DOUBLE, FINAL, FLOAT, FOR, IDENTIFIER, IF, INT, LONG, PRIVATE, PROTECTED, PUBLIC, RETURN, SEMI, SHORT, STRICTFP, TRY, WHILE, lookahead(IDENTIFIER, COLON), precedence(1)]", getSet(first, rules[i++]));
+        assertEquals("first(statement_mult)=[<EMPTY>, ABSTRACT, BEGIN, BOOLEAN, BREAK, BYTE, CHAR, CONTINUE, DOUBLE, FINAL, FLOAT, FOR, IDENTIFIER, IF, INT, LONG, LOOKAHEAD(IDENTIFIER COLON), PRIVATE, PROTECTED, PUBLIC, RETURN, SEMI, SHORT, STRICTFP, TRY, WHILE]", getSet(first, rules[i++]));
+        assertEquals("first(statement)=[ABSTRACT, BEGIN, BOOLEAN, BREAK, BYTE, CHAR, CONTINUE, DOUBLE, FINAL, FLOAT, FOR, IDENTIFIER, IF, INT, LONG, LOOKAHEAD(IDENTIFIER COLON), PRIVATE, PROTECTED, PUBLIC, RETURN, SEMI, SHORT, STRICTFP, TRY, WHILE]", getSet(first, rules[i++]));
         assertEquals("first(labeled_statement)=[FOR, WHILE]", getSet(first, rules[i++]));
-        assertEquals("first(declare_label_opt)=[<EMPTY>, lookahead(IDENTIFIER, COLON)]", getSet(first, rules[i++]));
+        assertEquals("first(declare_label_opt)=[<EMPTY>, LOOKAHEAD(IDENTIFIER COLON)]", getSet(first, rules[i++]));
         assertEquals("first(if_else_statement)=[IF]", getSet(first, rules[i++]));
         assertEquals("first(else_opt)=[<EMPTY>, ELSE]", getSet(first, rules[i++]));
         assertEquals("first(while_statement)=[WHILE]", getSet(first, rules[i++]));
@@ -240,10 +239,10 @@ public class BnfParserSyntaxTest extends TestCase
         assertEquals("first(label_opt)=[<EMPTY>, IDENTIFIER]", getSet(first, rules[i++]));
         assertEquals("first(return_statement)=[RETURN]", getSet(first, rules[i++]));
         assertEquals("first(declare_statement)=[ABSTRACT, BOOLEAN, BYTE, CHAR, DOUBLE, FINAL, FLOAT, IDENTIFIER, INT, LONG, PRIVATE, PROTECTED, PUBLIC, SHORT, STRICTFP]", getSet(first, rules[i++]));
-        assertEquals("first(expression_statement)=[precedence(1)]", getSet(first, rules[i++]));
-        assertEquals("first(expression_opt)=[<EMPTY>, precedence(1)]", getSet(first, rules[i++]));
-        assertEquals("first(expression)=[precedence(1)]", getSet(first, rules[i++]));
-        assertEquals("first(actual_opt)=[<EMPTY>, precedence(0)]", getSet(first, rules[i++]));
+        assertEquals("first(expression_statement)=[]", getSet(first, rules[i++]));
+        assertEquals("first(expression_opt)=[<EMPTY>]", getSet(first, rules[i++]));
+        assertEquals("first(expression)=[]", getSet(first, rules[i++]));
+        assertEquals("first(actual_opt)=[<EMPTY>]", getSet(first, rules[i++]));
         assertEquals("Wrong number of rule", rules.length, i);
     }
 }

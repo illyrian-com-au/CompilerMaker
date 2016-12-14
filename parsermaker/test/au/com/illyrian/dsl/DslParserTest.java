@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Lexer;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.ModuleContext;
 import au.com.illyrian.parser.impl.LexerInputStream;
 
@@ -69,7 +70,7 @@ public class DslParserTest extends TestCase
         DSL parser = new DSL();
         //compile.visit(parser);
         parser.parseClass(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
     }
 /*
     public void testDomainParserPackage() throws Exception

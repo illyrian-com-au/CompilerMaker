@@ -1,8 +1,8 @@
 package au.com.illyrian.domainparser;
 
 
-import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.maker.ClassActionMaker;
 
 /**
@@ -97,17 +97,17 @@ public class ClassParser extends ModuleParser
     public Object dec_class() throws ParserException
     {
         class_modifiers();
-        expect(Lexer.RESERVED, "class", "import or class expected.");
+        expect(TokenType.RESERVED, "class", "import or class expected.");
         String className = classname();
         getClassAction().setClassName(className);
         
-        if (accept(Lexer.RESERVED, "extends"))
+        if (accept(TokenType.RESERVED, "extends"))
         {
             String extendsClassName = classname();
             getClassAction().declareExtends(extendsClassName);
         }
 
-        if (accept(Lexer.RESERVED, "implements"))
+        if (accept(TokenType.RESERVED, "implements"))
         {
             implements_list();
         }
@@ -117,21 +117,21 @@ public class ClassParser extends ModuleParser
     public Object class_modifiers() throws ParserException
     {
         Object result = null;
-        if (!match(Lexer.RESERVED, "class"))
+        if (!match(TokenType.RESERVED, "class"))
         {
             while (true)
             {
-                if (accept(Lexer.RESERVED, "public"))
+                if (accept(TokenType.RESERVED, "public"))
                     result = getClassAction().addModifier("public");
-                else if (accept(Lexer.RESERVED, "protected"))
+                else if (accept(TokenType.RESERVED, "protected"))
                     result = getClassAction().addModifier("protected");
-                else if (accept(Lexer.RESERVED, "private"))
+                else if (accept(TokenType.RESERVED, "private"))
                     result = getClassAction().addModifier("private");
-                else if (accept(Lexer.RESERVED, "abstract"))
+                else if (accept(TokenType.RESERVED, "abstract"))
                     result = getClassAction().addModifier("abstract");
-                else if (accept(Lexer.RESERVED, "final"))
+                else if (accept(TokenType.RESERVED, "final"))
                     result = getClassAction().addModifier("final");
-                else if (accept(Lexer.RESERVED, "strictfp"))
+                else if (accept(TokenType.RESERVED, "strictfp"))
                     result = getClassAction().addModifier("strictfp");
                 else
                     break;
@@ -150,7 +150,7 @@ public class ClassParser extends ModuleParser
         String implementsClassName = classname();
         result = getClassAction().declareImplements(implementsClassName);
         
-        while (accept(Lexer.DELIMITER, ","))
+        while (accept(TokenType.DELIMITER, ","))
         {
             implementsClassName = classname();
             result = getClassAction().declareImplements(implementsClassName);
@@ -161,30 +161,30 @@ public class ClassParser extends ModuleParser
     public Object dec_body() throws ParserException
     {
     	Object result = null;
-       if (getToken() == Lexer.IDENTIFIER)
+       if (getTokenType() == TokenType.IDENTIFIER)
        {
            Object parseName = classname();
-           if (match(Lexer.OPERATOR, "::"))
+           if (match(TokenType.OPERATOR, "::"))
            {
                String qualifiedName = getClassAction().getParserName(parseName.toString());
-               result = getCompilerContext().getInvokeParser().invokeParseMember(qualifiedName, getInput());
+               result = getCompilerContext().getInvokeParser().invokeParseMember(qualifiedName);
                getClassAction().declareMembers(result);
 
                nextToken();
-               if (accept(Lexer.OPERATOR, "::")) 
+               if (accept(TokenType.OPERATOR, "::")) 
                {
                    Object className = classname();
                    if (!className.equals(parseName))
-                       throw error(getInput(), "'" + parseName + "' expected at end of parser space");
+                       throw error("'" + parseName + "' expected at end of parser space");
                }
                else
-                   throw error(getInput(), ":: expected");
+                   throw error(":: expected");
            }
            else
-               throw error(getInput(), ":: expected");
+               throw error(":: expected");
        }
        else
-           throw error(getInput(), "Parser name expected");
+           throw error("Parser name expected");
        return result;
    }
 }

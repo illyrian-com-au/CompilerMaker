@@ -11,7 +11,7 @@ import au.com.illyrian.bnf.ast.BnfTree;
 import au.com.illyrian.bnf.ast.BnfTreeFactory;
 import au.com.illyrian.bnf.ast.BnfTreeName;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.Lexer;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.ModuleContext;
 import au.com.illyrian.parser.impl.LexerInputStream;
 
@@ -65,7 +65,7 @@ public class AstMergeVisitorTest extends TestCase
         
         BnfParser parser = new BnfParser();
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
         BnfMergeVisitor merger = new BnfMergeVisitor();
@@ -87,9 +87,8 @@ public class AstMergeVisitorTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
         BnfMergeVisitor merger = new BnfMergeVisitor();
@@ -110,9 +109,8 @@ public class AstMergeVisitorTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
         BnfMergeVisitor merger = new BnfMergeVisitor();
@@ -134,9 +132,8 @@ public class AstMergeVisitorTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
         BnfMergeVisitor merger = new BnfMergeVisitor();
@@ -157,9 +154,8 @@ public class AstMergeVisitorTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
         BnfMergeVisitor merger = new BnfMergeVisitor();
@@ -180,9 +176,8 @@ public class AstMergeVisitorTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
         BnfMergeVisitor merger = new BnfMergeVisitor();
@@ -207,9 +202,8 @@ public class AstMergeVisitorTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
         BnfMergeVisitor merger = new BnfMergeVisitor();
@@ -234,9 +228,8 @@ public class AstMergeVisitorTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
         BnfMergeVisitor merger = new BnfMergeVisitor();
@@ -257,9 +250,8 @@ public class AstMergeVisitorTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
         BnfMergeVisitor merger = new BnfMergeVisitor();
@@ -280,9 +272,8 @@ public class AstMergeVisitorTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
         BnfMergeVisitor merger = new BnfMergeVisitor();
@@ -308,9 +299,8 @@ public class AstMergeVisitorTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
         BnfMergeVisitor merger = new BnfMergeVisitor();
@@ -326,9 +316,9 @@ public class AstMergeVisitorTest extends TestCase
         out.println("   import_path    ::= name DOT import_path");
         out.println("                  |   name SEMI");
         out.println("                  |   MULT SEMI");
-        out.println("                  |   error(\"IncpmpleteImportPath\")");
+        out.println("                  |   error(\"IncompleteImportPath\")");
         out.println("         ;");
-        out.println("name ::= IDENTIFIER;");
+        out.println("    name ::= IDENTIFIER;");
         out.println("}");
 
         Input input = new LexerInputStream(getReader(), null);
@@ -336,15 +326,14 @@ public class AstMergeVisitorTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
         BnfMergeVisitor merger = new BnfMergeVisitor();
         BnfTree newtree = tree.resolveMerge(merger);
         assertNotNull("Should not be null:", newtree);
-        String expect = "import_path ::= ( name ( DOT import_path . | SEMI . ) | MULT SEMI . | error(\"IncpmpleteImportPath\") . ) ;\n"
+        String expect = "import_path ::= ( name ( DOT import_path . | SEMI . ) | MULT SEMI . | error(\"IncompleteImportPath\") . ) ;\n"
                       + "name ::= IDENTIFIER . ;";
         assertEquals("AST", expect, newtree.toString());
     }

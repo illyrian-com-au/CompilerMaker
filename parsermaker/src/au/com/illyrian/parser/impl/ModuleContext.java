@@ -7,7 +7,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Properties;
 
-import au.com.illyrian.domainparser.ClassParser;
 import au.com.illyrian.domainparser.ModuleParser;
 import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Input;

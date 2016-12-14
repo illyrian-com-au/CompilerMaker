@@ -6,9 +6,9 @@ import java.io.StringWriter;
 
 import junit.framework.TestCase;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.impl.ModuleContext;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.LexerInputStream;
+import au.com.illyrian.parser.impl.ModuleContext;
 
 public class PCParserTest extends TestCase
 {
@@ -44,7 +44,7 @@ public class PCParserTest extends TestCase
         PC parser = new PC();
         //compile.visit(parser);
         parser.parseClass(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
     }
 /*
     public void testPCAlternative() throws Exception

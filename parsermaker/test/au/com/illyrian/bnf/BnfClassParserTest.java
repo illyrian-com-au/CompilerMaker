@@ -7,10 +7,9 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 import au.com.illyrian.domainparser.ClassAction;
 import au.com.illyrian.domainparser.ClassParser;
-import au.com.illyrian.domainparser.ModuleParser;
 import au.com.illyrian.domainparser.TestClassAction;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.Lexer;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.LexerInputStream;
 import au.com.illyrian.parser.impl.ModuleContext;
 
@@ -40,6 +39,7 @@ public class BnfClassParserTest extends TestCase
         out.println("}::BnfParser");
         Input input = new LexerInputStream(getReader(), null);
         // FIXME - use AstClassAction
+        //ClassAction action = new AstClassAction();
         ClassAction action = new TestClassAction();
 
         ModuleContext compile = new ModuleContext();
@@ -48,7 +48,7 @@ public class BnfClassParserTest extends TestCase
         compile.setModuleParser(parser);
         parser.setAction(action);
         Object output = compile.parseModule();
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
         String expect = "import au.com.illyrian.bnf.BnfParser;\n"
                 + "public class BnfParseTest {\n"

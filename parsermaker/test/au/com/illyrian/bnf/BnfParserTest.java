@@ -5,13 +5,12 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import junit.framework.TestCase;
-import au.com.illyrian.bnf.BnfParser;
 import au.com.illyrian.bnf.ast.BnfMergeVisitor;
 import au.com.illyrian.bnf.ast.BnfTree;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.impl.ModuleContext;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.LexerInputStream;
+import au.com.illyrian.parser.impl.ModuleContext;
 
 public class BnfParserTest extends TestCase
 {
@@ -33,7 +32,7 @@ public class BnfParserTest extends TestCase
     public void testSimpleSequence() throws Exception
     {
         out.println("{");
-        out.println("   test ::= the \"quick\" brown fox;");
+        out.println("   test ::= the quick brown fox;");
         out.println("}");
         Input input = new LexerInputStream(getReader(), null);
         ModuleContext compile = new ModuleContext();
@@ -43,9 +42,9 @@ public class BnfParserTest extends TestCase
         parser.addReserved("the");
         ////compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
-        String expect = "test ::= the \"quick\" brown fox . ;";
+        String expect = "test ::= the quick brown fox . ;";
         assertNotNull("Should not be null:", tree);
         assertEquals("AST", expect, tree.toString());
     }
@@ -53,7 +52,7 @@ public class BnfParserTest extends TestCase
     public void testAlternatives1() throws Exception
     {
         out.println("{");
-        out.println("   test ::= the| \"quick\" brown |fox;");
+        out.println("   test ::= the| quick brown |fox;");
         out.println("}");
         Input input = new LexerInputStream(getReader(), null);
         ModuleContext compile = new ModuleContext();
@@ -63,17 +62,17 @@ public class BnfParserTest extends TestCase
         parser.addReserved("the");
         //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
         assertNotNull("Should not be null:", tree);
-        String expect = "test ::= ( the . | \"quick\" brown . | fox . ) ;";
+        String expect = "test ::= ( the . | quick brown . | fox . ) ;";
         assertEquals("AST", expect, tree.toString());
     }
 
     public void testAlternatives2() throws Exception
     {
         out.println("{");
-        out.println("   test ::= the \"quick\" | fox(brown);");
+        out.println("   test ::= the quick | RECOVER(brown);");
         out.println("}");
         Input input = new LexerInputStream(getReader(), null);
         ModuleContext compile = new ModuleContext();
@@ -83,10 +82,10 @@ public class BnfParserTest extends TestCase
         parser.addReserved("the");
         //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
         assertNotNull("Should not be null:", tree);
-        String expect = "test ::= ( the \"quick\" . | fox(brown) . ) ;";
+        String expect = "test ::= ( the quick . | RECOVER(brown) . ) ;";
         assertEquals("AST", expect, tree.toString());
     }
 
@@ -103,7 +102,7 @@ public class BnfParserTest extends TestCase
         parser.addReserved("the");
         //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
         assertNotNull("Should not be null:", tree);
         String expect = "test ::= ( the quick . | brown fox . ) ;";
@@ -115,8 +114,8 @@ public class BnfParserTest extends TestCase
         out.println("{");
         out.println("   package_opt ::= PACKAGE qualified_name SEMI ");
         out.println("       |   PACKAGE qualified_name error(\"IncompletePackageName\") ");
-        out.println("       |   empty ");
-        out.println("       |   recover(class_declaration) ;");
+        out.println("       |   EMPTY ");
+        out.println("       |   RECOVER(class_declaration) ;");
         out.println("}");
         Input input = new LexerInputStream(getReader(), null);
         ModuleContext compile = new ModuleContext();
@@ -129,14 +128,14 @@ public class BnfParserTest extends TestCase
         parser.addReserved("IDENTIFIER");
         //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         BnfMergeVisitor merger = new BnfMergeVisitor();
         BnfTree merged = tree.resolveMerge(merger);
 
         String expect = "package_opt ::= ( PACKAGE qualified_name ( SEMI . "
                 + "| error(\"IncompletePackageName\") . ) "
-                + "| empty . | recover(class_declaration) . ) ;";
+                + "| EMPTY . | RECOVER(class_declaration) . ) ;";
         assertEquals("AST", expect, merged.toString());
     }
 
@@ -165,7 +164,7 @@ public class BnfParserTest extends TestCase
         parser.addReserved("IDENTIFIER");
         //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         BnfMergeVisitor merger = new BnfMergeVisitor();
         BnfTree newtree = tree.resolveMerge(merger);
@@ -184,7 +183,7 @@ public class BnfParserTest extends TestCase
         out.println("{");
         out.println("   member_mult ::= member member_mult");
         out.println("                 | /*EMPTY*/");
-        out.println("                 | recover(member) ; ");
+        out.println("                 | RECOVER(member) ; ");
         out.println("   member ::= modifier_mult method_type IDENTIFIER LPAR formal_mult RPAR method_body");
         out.println("            | modifier_mult method_type IDENTIFIER SEMI ;");
         out.println("}");
@@ -200,14 +199,14 @@ public class BnfParserTest extends TestCase
         parser.addReserved("IDENTIFIER");
         //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         BnfMergeVisitor merger = new BnfMergeVisitor();
         BnfTree newtree = tree.resolveMerge(merger);
 
         writer = new StringWriter() ;
         out = new PrintWriter(writer);
-        out.println("member_mult ::= ( member member_mult . | . | recover(member) . ) ;");
+        out.println("member_mult ::= ( member member_mult . | . | RECOVER(member) . ) ;");
         out.print("member ::= modifier_mult method_type IDENTIFIER ( LPAR formal_mult RPAR method_body . | SEMI . ) ;");
         assertEquals("AST", writer.toString(), newtree.toString());
     }
@@ -217,11 +216,10 @@ public class BnfParserTest extends TestCase
     {
         out.println("{");
         out.println("   function_opt ::= error(\"Got it wrong\")");
-        out.println("                 | lookahead(IDENTIFIER, COLON) ");
-        out.println("                 | lookahead() ");
-        out.println("                 | recover(member) ");
+        out.println("                 | LOOKAHEAD(IDENTIFIER COLON) ");
+        out.println("                 | LOOKAHEAD(SEMI) ");
+        out.println("                 | RECOVER(member) ");
         out.println("                 | expression(0) ");
-        out.println("                 | function(3.141) ");
         out.println("                 | /*EMPTY*/ ;");
         out.println("}");
 
@@ -230,15 +228,12 @@ public class BnfParserTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        parser.addReserved("COLON");
-        parser.addReserved("IDENTIFIER");
-        //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
 
-        String expect = "function_opt ::= ( error(\"Got it wrong\") . | lookahead(IDENTIFIER, COLON) . "
-                + "| lookahead() . | recover(member) . | expression(0) . | function(3.141) . | . ) ;";
+        String expect = "function_opt ::= ( error(\"Got it wrong\") . | LOOKAHEAD(IDENTIFIER COLON) . "
+                + "| LOOKAHEAD(SEMI) . | RECOVER(member) . | expression(0) . | . ) ;";
         assertEquals("AST", expect, tree.toString());
     }
 

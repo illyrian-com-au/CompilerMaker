@@ -4,6 +4,7 @@ import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.ParserBase;
 
@@ -14,6 +15,8 @@ import au.com.illyrian.parser.impl.ParserBase;
  */
 public class PC extends ParserBase implements ParseClass
 {
+    PCLexer pcLexer;
+    
     public PC()
     {
         setLexer(createLexer());
@@ -21,7 +24,12 @@ public class PC extends ParserBase implements ParseClass
     
     protected Latin1Lexer createLexer()
     {
-        return new PCLexer();
+        pcLexer = new PCLexer();
+        return pcLexer;
+    }
+    
+    public PCLexer getLexer() {
+        return pcLexer;
     }
    
     /**
@@ -56,11 +64,11 @@ public class PC extends ParserBase implements ParseClass
     //*  class_body  ::= '{' abilities char_attrs '}'
     public void class_body() throws ParserException
     {
-        expect(Lexer.OPEN_P, "{", "'{' expected.");
+        expect(TokenType.DELIMITER, "{", "'{' expected.");
         abilities();
         char_attrs();
         //other_attrs();
-        expect(Lexer.CLOSE_P, "}", "'}' expected.");
+        expect(TokenType.DELIMITER, "}", "'}' expected.");
     }
 
     //*  char_attr   ::= name_attr race_attr class_attr sex_attr align_attr
@@ -75,8 +83,8 @@ public class PC extends ParserBase implements ParseClass
     //*  name_attr   ::= "Name" ':' SPAN_EOLN
     public void name_attr() throws ParserException
     {
-        expect(Lexer.IDENTIFIER, "Name");
-        expect(Lexer.OPERATOR, ":");
+        expect(TokenType.IDENTIFIER, "Name");
+        expect(TokenType.OPERATOR, ":");
         String name = getLexer().spanToEndOfLine();
         nextToken();
     }
@@ -105,53 +113,53 @@ public class PC extends ParserBase implements ParseClass
     public static final String [] optionsRace = {"human", "elf", "dwarf", "halfling"};
     public void race_attr() throws ParserException
     {
-        expect(Lexer.IDENTIFIER, "Race");
-        expect(Lexer.OPERATOR, ":");
-        String value = expect(Lexer.IDENTIFIER, null);
+        expect(TokenType.IDENTIFIER, "Race");
+        expect(TokenType.OPERATOR, ":");
+        String value = expect(TokenType.IDENTIFIER, null);
         if (!listContains(value, optionsRace))
-            throw error(getInput(), "Expected: " + toString(optionsRace));
+            throw error("Expected: " + toString(optionsRace));
     }
     //*  class_attr  ::= "Class" ':' "fighter" | "magicuser" | "cleric" | "anticleric" | "thief"
     public static final String [] optionsClass = {"fighter", "magicuser", "cleric", "anticleric", "thief"};
     public void class_attr() throws ParserException
     {
-        expect(Lexer.IDENTIFIER, "Class");
-        expect(Lexer.OPERATOR, ":");
-        String value = expect(Lexer.IDENTIFIER, null);
+        expect(TokenType.IDENTIFIER, "Class");
+        expect(TokenType.OPERATOR, ":");
+        String value = expect(TokenType.IDENTIFIER, null);
         if (!listContains(value, optionsClass))
-            throw error(getInput(), "Expected one of: " + toString(optionsClass));
+            throw error("Expected one of: " + toString(optionsClass));
     }
 
     //*  sex_attr    ::= "Sex" ':' "male" | "female"
     public static final String [] optionsSex = {"male", "female"};
     public void sex_attr() throws ParserException
     {
-        expect(Lexer.IDENTIFIER, "Sex");
-        expect(Lexer.OPERATOR, ":");
-        String value = expect(Lexer.IDENTIFIER, null);
+        expect(TokenType.IDENTIFIER, "Sex");
+        expect(TokenType.OPERATOR, ":");
+        String value = expect(TokenType.IDENTIFIER, null);
         if (!listContains(value, optionsSex))
-            throw error(getInput(), "Expected one of: " + toString(optionsSex));
+            throw error("Expected one of: " + toString(optionsSex));
     }
     
     //*  align_attr  ::= "Alignment" ':' "lawful" | "neutral" | "chaotic"
     public static final String [] optionsAlign = {"lawful", "neutral", "chaotic"};
     public void align_attr() throws ParserException
     {
-        expect(Lexer.IDENTIFIER, "Alignment");
-        expect(Lexer.OPERATOR, ":");
-        String value = expect(Lexer.IDENTIFIER, null);
+        expect(TokenType.IDENTIFIER, "Alignment");
+        expect(TokenType.OPERATOR, ":");
+        String value = expect(TokenType.IDENTIFIER, null);
         if (!listContains(value, optionsAlign))
-            throw error(getInput(), "Expected one of: " + toString(optionsAlign));
+            throw error("Expected one of: " + toString(optionsAlign));
     }
     
     //*  abilities   ::= "Abilities" ':' '{' many_abilities '}'
     public void abilities() throws ParserException
     {
-        expect(Lexer.IDENTIFIER, "Abilities");
-        expect(Lexer.OPERATOR, ":");
-        expect(Lexer.OPEN_P, "{");
+        expect(TokenType.IDENTIFIER, "Abilities");
+        expect(TokenType.OPERATOR, ":");
+        expect(TokenType.DELIMITER, "{");
         many_abilities();
-        expect(Lexer.CLOSE_P, "}");
+        expect(TokenType.DELIMITER, "}");
     }
     
     //*  many_abilities ::= str_attr int_attr wis_attr dex_attr con_attr cha_attr
@@ -168,55 +176,55 @@ public class PC extends ParserBase implements ParseClass
     //*  str_attr    ::= "Strength" ':' ability_score
     public void str_attr() throws ParserException
     {
-        expect(Lexer.IDENTIFIER, "Str");
-        expect(Lexer.OPERATOR, ":");
+        expect(TokenType.IDENTIFIER, "Str");
+        expect(TokenType.OPERATOR, ":");
         int score = ability_score("Str");
     }
     
     //*  int_attr    ::= "Intelligence" ':' ability_score
     public void int_attr() throws ParserException
     {
-        expect(Lexer.IDENTIFIER, "Int");
-        expect(Lexer.OPERATOR, ":");
+        expect(TokenType.IDENTIFIER, "Int");
+        expect(TokenType.OPERATOR, ":");
         int score = ability_score("Int");
     }
     
     //*  wis_attr    ::= "Wisdom" ':' ability_score
     public void wis_attr() throws ParserException
     {
-        expect(Lexer.IDENTIFIER, "Wis");
-        expect(Lexer.OPERATOR, ":");
+        expect(TokenType.IDENTIFIER, "Wis");
+        expect(TokenType.OPERATOR, ":");
         int score = ability_score("Wis");
     }
     
     //*  dex_attr    ::= "Dexterity" ':' ability_score
     public void dex_attr() throws ParserException
     {
-        expect(Lexer.IDENTIFIER, "Dex");
-        expect(Lexer.OPERATOR, ":");
+        expect(TokenType.IDENTIFIER, "Dex");
+        expect(TokenType.OPERATOR, ":");
         int score = ability_score("Dex");
     }
     
     //*  con_attr    ::= "Constitution" ':' ability_score
     public void con_attr() throws ParserException
     {
-        expect(Lexer.IDENTIFIER, "Con");
-        expect(Lexer.OPERATOR, ":");
+        expect(TokenType.IDENTIFIER, "Con");
+        expect(TokenType.OPERATOR, ":");
         int score = ability_score("Con");
     }
     
     //*  cha_attr    ::= "Charisma" ':' ability_score
     public void cha_attr() throws ParserException
     {
-        expect(Lexer.IDENTIFIER, "Cha");
-        expect(Lexer.OPERATOR, ":");
+        expect(TokenType.IDENTIFIER, "Cha");
+        expect(TokenType.OPERATOR, ":");
         int score = ability_score("Cha");
     }
     
     int ability_score(String name) throws ParserException
     {
         int score = 0;
-        if (match(Lexer.INTEGER, null)) {
+        if (match(TokenType.NUMBER, null)) {
             score = getLexer().getTokenInteger();
             if (3 <= score && score <= 18)
             {
@@ -224,7 +232,7 @@ public class PC extends ParserBase implements ParseClass
                 return score;
             }
         }
-        throw error(getInput(), name + " must be a number in the range 3..18");
+        throw error(name + " must be a number in the range 3..18");
     }
     
 }

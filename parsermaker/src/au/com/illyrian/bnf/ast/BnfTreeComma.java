@@ -4,7 +4,7 @@ import java.util.Set;
 
 import au.com.illyrian.parser.ParserException;
 
-public class BnfTreeComma extends BnfTreeBinary
+public class BnfTreeComma <T> extends BnfTreeBinary <T>
 {
     public BnfTreeComma(BnfTree left, BnfTree right)
     {

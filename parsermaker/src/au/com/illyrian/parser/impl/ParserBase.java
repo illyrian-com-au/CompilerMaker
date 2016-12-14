@@ -4,6 +4,8 @@ import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.Token;
+import au.com.illyrian.parser.TokenType;
 
 public class ParserBase
 {
@@ -59,40 +61,51 @@ public class ParserBase
         getLexer().getReservedWords().put(word, word);
     }
     
-    public int getToken()
+    public TokenType getTokenType()
     {
-        return getLexer().getToken();
+        return getLexer().getTokenType();
     }
 
     /** Advance to the next token. */
-    public int nextToken() throws ParserException
+    public TokenType nextToken() throws ParserException
     {
-        int token = getLexer().nextToken();
-        if (token == Lexer.ERROR)
+        TokenType token = getLexer().nextToken();
+        if (token == TokenType.ERROR)
         {
-            throw error(getInput(), getLexer().getErrorMessage() );
+            throw error(getLexer().getErrorMessage() );
         }
         return token;
     }
 
-    public boolean match(int s)
+    public boolean match(Token token)
     {
-        int token = getLexer().getToken();
+        return match(token.getTokenType(), token.getTokenValue());
+    }
+
+    public boolean match(TokenType s)
+    {
+        TokenType token = getTokenType();
         return (token == s);
     }
 
-    public boolean match(int s, String value)
+    public boolean match(TokenType s, String value)
     {
-        int token = getLexer().getToken();
+        TokenType token = getTokenType();
         String tokenValue;
-        if (s == Lexer.STRING)
+        if (s == TokenType.STRING || s == TokenType.CHARACTER) {
             tokenValue = Character.toString(getLexer().getTokenDelimiter());
-        else
+        } else {
             tokenValue = getLexer().getTokenValue();
+        }
         return (token == s && (value == null || value.equals(tokenValue)));
     }
     
-    public boolean accept(int s, String value) throws ParserException
+    public boolean accept(Token token) throws ParserException
+    {
+        return accept(token.getTokenType(), token.getTokenValue());
+    }
+    
+    public boolean accept(TokenType s, String value) throws ParserException
     {
         if (match(s, value)) 
         {
@@ -102,22 +115,60 @@ public class ParserBase
         return false;
     }
 
-    public String expect(int expected, String value) throws ParserException
+    public String expect(Token token) throws ParserException
+    {
+        return expect(token.getTokenType(), token.getTokenValue());
+    }
+
+    public String expect(TokenType expected, String value) throws ParserException
     {
         return expect(expected, value, null);
     }
 
-    public String expect(int expected, String value, String message) throws ParserException
+    public String expect(TokenType expected, String value, String message) throws ParserException
     {
         if (match(expected, value)) 
         {
             String text = getLexer().getTokenValue(); 
             nextToken();
             return text;
+        } else {
+            if (message == null) {
+                message = toErrorString(expected, value);
+            }
+            throw error(message);
         }
-        if (message == null)
-            message = getLexer().toErrorString(expected, value);
-        throw error(getInput(), message);
+    }
+
+    public String toErrorString(TokenType token, String value)
+    {
+        switch (token) {
+        case END:
+            return "End of input expected";
+        case DELIMITER:
+        case OPERATOR:
+            return value + " expected";
+        case RESERVED:
+            return value + " expected";
+        case IDENTIFIER:
+            if (value == null)
+                return "Identifier expected";
+            else
+                return value + " expected";
+        case NUMBER:
+            return "Integer expected";
+        case DECIMAL:
+            return "Decimal expected";
+        case STRING:
+            return "String literal expected";
+        case CHARACTER:
+            return "Char literal expected";
+        case COMMENT:
+            return "Comment Expected";
+        case ERROR:
+            return "Lexer error";
+        }
+        return value + " expected";
     }
 
     /**
@@ -128,12 +179,11 @@ public class ParserBase
         * @throws Exception -
         *             with details of the error.
         */
-    public ParserException error(Input input, String message)
+    public ParserException error(String message)
     {
         ParserException ex =  new ParserException(message);
-        ex.setParserStatus(input);
+        ex.setParserStatus(getInput());
         return ex;
-        //return getCompileUnit().error(input, message);
     }
     
     public String toString()
@@ -141,17 +191,6 @@ public class ParserBase
         if (getInput() == null) {
             return "$$ - no input";
         }
-        String line = getInput().getLine();
-        if (line == null)
-            return "$$";
-        StringBuffer buf = new StringBuffer();
-        int start = getInput().getTokenStart();
-        int finish = getInput().getTokenFinish();
-        buf.append(line.substring(0, start));
-        buf.append('$');
-        buf.append(line.substring(start, finish));
-        buf.append('$');
-        buf.append(line.substring(finish, line.length()));
-        return buf.toString();
-    }
+        return getInput().toString();
+   }
 }

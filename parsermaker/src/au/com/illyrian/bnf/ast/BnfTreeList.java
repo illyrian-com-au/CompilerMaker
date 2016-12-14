@@ -4,7 +4,7 @@ import java.util.Set;
 
 import au.com.illyrian.parser.ParserException;
 
-public class BnfTreeList extends BnfTreeBinary
+public class BnfTreeList <T> extends BnfTreeBinary <T>
 {
     
     public BnfTreeList(BnfTree left, BnfTree right)

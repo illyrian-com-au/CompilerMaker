@@ -12,6 +12,7 @@ import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseModule;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.InvokeParser;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.ParserBase;
@@ -112,14 +113,14 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
 
     protected void endModule() throws ParserException
     {
-        int token = getToken();
+        TokenType token = getTokenType();
         // Ensure all tokens have been processed.
-        if (token == Lexer.ERROR) {
-            throw error(getInput(), getLexer().getErrorMessage());
-        } else if (token == Lexer.CLOSE_P) {
-            throw error(getInput(), "Unbalanced perentheses - too many \')\'.");
-        } else if (token != Lexer.END) {
-            throw error(getInput(), "End of input expected");
+        if (token == TokenType.ERROR) {
+            throw error(getLexer().getErrorMessage());
+        } else if (token == TokenType.DELIMITER) {
+            throw error("Unbalanced perentheses - too many \')\'.");
+        } else if (token != TokenType.END) {
+            throw error("End of input expected");
         }
     }
 
@@ -141,9 +142,9 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
      */
     public AstExpression dec_package() throws ParserException
     {
-        if (accept(Lexer.RESERVED, "package")) {
+        if (accept(TokenType.RESERVED, "package")) {
             AstExpression packageName = class_name();
-            expect(Lexer.DELIMITER, ";", "';' expected at the end of the package name");
+            expect(TokenType.DELIMITER, ";", "';' expected at the end of the package name");
 
             return packageName;
         }
@@ -157,7 +158,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
      */
     public AstExpression more_imports() throws ParserException
     {
-        if (match(Lexer.RESERVED, "import")) {
+        if (match(TokenType.RESERVED, "import")) {
             AstExpression className = declare_import();
             AstExpression more = more_imports();
             return (more == null) ? className : new AstExpressionLink(className, more);
@@ -170,7 +171,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
      */
     public AstExpression declare_import() throws ParserException
     {
-        expect(Lexer.RESERVED, "import");
+        expect(TokenType.RESERVED, "import");
         AstExpression className = class_name();
         semi();
         return className;
@@ -184,12 +185,12 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
     public AstExpression simple_name() throws ParserException
     {
         AstExpression result = null;
-        if (getToken() == Lexer.IDENTIFIER) {
+        if (getTokenType() == TokenType.IDENTIFIER) {
             String simpleName = getLexer().getTokenValue();
             nextToken();
             result = new TerminalName(simpleName);
         } else
-            throw error(getInput(), "Class name expected.");
+            throw error("Class name expected.");
         return result;
     }
 
@@ -201,7 +202,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
     public AstExpression class_name() throws ParserException
     {
         AstExpression result = simple_name();
-        if (accept(Lexer.OPERATOR, ".")) {
+        if (accept(TokenType.OPERATOR, ".")) {
             AstExpression moreClassName = class_name();
 
             result = new DotOperator(result, moreClassName);
@@ -211,7 +212,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
 
     public String semi() throws ParserException
     {
-        return expect(Lexer.DELIMITER, ";", "';' expected at end of statement");
+        return expect(TokenType.DELIMITER, ";", "';' expected at end of statement");
     }
 
     /**
@@ -222,22 +223,22 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
     public AstDeclareClass dec_class() throws ParserException
     {
         AstDeclareClass decClass = null;
-        if (getToken() == Lexer.IDENTIFIER) {
+        if (getTokenType() == TokenType.IDENTIFIER) {
             AstExpression parseName = class_name();
-            if (match(Lexer.OPERATOR, "::")) {
+            if (match(TokenType.OPERATOR, "::")) {
                 decClass = code(parseName.toString());
                 nextToken();
-                if (accept(Lexer.OPERATOR, "::")) {
+                if (accept(TokenType.OPERATOR, "::")) {
                     AstExpression className = class_name();
                     verifyParserName(parseName, className);
                     if (!className.equals(parseName))
-                        throw error(getInput(), "'" + parseName + "' expected at end of parser space");
+                        throw error("'" + parseName + "' expected at end of parser space");
                 } else
-                    throw error(getInput(), ":: expected");
+                    throw error(":: expected");
             } else
-                throw error(getInput(), ":: expected");
+                throw error(":: expected");
         } else
-            throw error(getInput(), "Parser class name expected");
+            throw error("Parser class name expected");
         return decClass;
     }
 
@@ -247,7 +248,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
         String qualifiedName = getModuleAction().getParserName(parseName);
         InvokeParser parser = getCompilerContext().getInvokeParser();
         Input input = getInput();
-        Object result = parser.invokeParseClass(qualifiedName, input);
+        Object result = parser.invokeParseClass(qualifiedName);
         if (result instanceof AstDeclareClass)
             decClass = (AstDeclareClass) result;
         return decClass;
@@ -258,6 +259,6 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
         String firstName = name1.toString();
         String secondName = name2.toString();
         if (!firstName.equals(secondName))
-            throw error(getInput(), "'" + firstName + "' expected at end of parser space");
+            throw error("'" + firstName + "' expected at end of parser space");
     }
 }

@@ -1,9 +1,11 @@
 package au.com.illyrian.bnf.ast;
 
 import au.com.illyrian.classmaker.SourceLine;
+import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.TokenType;
 
 public class BnfTreeFactory extends AstExpressionFactory
 {
@@ -13,6 +15,10 @@ public class BnfTreeFactory extends AstExpressionFactory
     public BnfTreeFactory (SourceLine source) {
         super(source);
     }
+    
+    public BnfTreeParser Parser(BnfTree list) {
+        return new BnfTreeParser(list);
+    }
 
     public BnfTreeList List(BnfTree left, BnfTree right) {
         return new BnfTreeList(left, right);
@@ -20,6 +26,10 @@ public class BnfTreeFactory extends AstExpressionFactory
     
     public BnfTreeRule Rule(BnfTree target, BnfTree body) {
         return new BnfTreeRule(target, body);
+    }
+
+    public BnfTreeTarget Target(BnfTree name, BnfTree type) {
+        return new BnfTreeTarget(name, type);
     }
 
     public BnfTree Seq(BnfTree left, BnfTree right) {
@@ -36,14 +46,18 @@ public class BnfTreeFactory extends AstExpressionFactory
         return new BnfTreeAlternative(left, right);
     }
     
-    public BnfTreeMethodCall Call(BnfTree name, BnfTree actuals) {
+    public BnfTreeMethodCall MethodCall(AstExpression name, AstExpression actuals) {
         return new BnfTreeMethodCall(name, actuals);
     }
 
-    public BnfTreeName Name(Lexer lexer) throws ParserException
+    public BnfTreeMacroCall MacroCall(AstExpression name, AstExpression pattern) {
+        return new BnfTreeMacroCall(name, pattern);
+    }
+
+    public BnfTreeName BnfName(Lexer lexer) throws ParserException
     {
-        if (lexer.getToken() == Lexer.IDENTIFIER) {
-            BnfTreeName result = new BnfTreeName(lexer.getTokenValue());
+        if (lexer.getTokenType() == TokenType.IDENTIFIER) {
+            BnfTreeName result = BnfName(lexer.getTokenValue());
             lexer.nextToken();
             return result;
         } else {
@@ -51,20 +65,32 @@ public class BnfTreeFactory extends AstExpressionFactory
         }
     }
     
-    public BnfTreeString String(Lexer lexer) {
-        if (lexer.getToken() == Lexer.STRING) {
-            BnfTreeString result = new BnfTreeString(lexer.getTokenString());
+    public BnfTreeName BnfName(String name) {
+        return new BnfTreeName(name);
+    }
+    
+    public BnfTreeReserved BnfReserved(String name) {
+        return new BnfTreeReserved(name);
+    }
+    
+    public BnfTreeString BnfString(Lexer lexer) {
+        if (lexer.getTokenType() == TokenType.STRING) {
+            BnfTreeString result = BnfString(lexer.getTokenString());
             lexer.nextToken();
             return result;
         } else {
             throw new IllegalArgumentException("String expected.");
         }
     }
-
-    public BnfTree Integer(Lexer lexer)
+    
+    public BnfTreeString BnfString(String string) {
+        return new BnfTreeString(string);
+    }
+ 
+    public AstExpression Integer(Lexer lexer)
     {
-        if (lexer.getToken() == Lexer.INTEGER) {
-            BnfTreeInteger result = new BnfTreeInteger(lexer.getTokenInteger());
+        if (lexer.getTokenType() == TokenType.NUMBER) {
+            AstExpression result = Literal(lexer.getTokenInteger());
             lexer.nextToken();
             return result;
         } else {
@@ -72,10 +98,10 @@ public class BnfTreeFactory extends AstExpressionFactory
         }
     }
 
-    public BnfTree Decimal(Lexer lexer)
+    public AstExpression Decimal(Lexer lexer)
     {
-        if (lexer.getToken() == Lexer.DECIMAL) {
-            BnfTreeDecimal result = new BnfTreeDecimal(lexer.getTokenFloat());
+        if (lexer.getTokenType() == TokenType.DECIMAL) {
+            AstExpression result = Literal(lexer.getTokenFloat());
             lexer.nextToken();
             return result;
         } else {
@@ -92,8 +118,14 @@ public class BnfTreeFactory extends AstExpressionFactory
 
     public BnfTreeNonterminal Nonterminal(Lexer lexer)
     {
-        BnfTreeNonterminal result = new BnfTreeNonterminal(lexer.getTokenValue());
+        BnfTreeNonterminal result = Nonterminal(lexer.getTokenValue());
         lexer.nextToken();
+        return result;
+    }
+
+    public BnfTreeNonterminal Nonterminal(String name)
+    {
+        BnfTreeNonterminal result = new BnfTreeNonterminal(name);
         return result;
     }
 

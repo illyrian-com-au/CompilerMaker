@@ -2,14 +2,17 @@ package au.com.illyrian.bnf.ast;
 
 import java.util.Set;
 
+import au.com.illyrian.bnf.maker.BnfMakerVisitor;
+import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.parser.ParserException;
 
-public class BnfTreeMethodCall extends BnfTreeBase
+public class BnfTreeMethodCall extends BnfTreeBase <Type>
 {
-    private final BnfTree name;
-    private final BnfTree actuals;
+    private final AstExpression name;
+    private final AstExpression actuals;
     
-    public BnfTreeMethodCall(BnfTree name, BnfTree actuals)
+    public BnfTreeMethodCall(AstExpression name, AstExpression actuals)
     {
         this.name = name;
         this.actuals = actuals;
@@ -17,10 +20,10 @@ public class BnfTreeMethodCall extends BnfTreeBase
 
     public String getName()
     {
-        return name.getName();
+        return name.toString();
     }
 
-    public BnfTree getActuals()
+    public AstExpression getActuals()
     {
         return actuals;
     }
@@ -30,6 +33,11 @@ public class BnfTreeMethodCall extends BnfTreeBase
         return visitor.resolveFirst(this, firstSet);
     }
 
+    public Type resolveDeclaration(BnfMakerVisitor visitor) throws ParserException
+    {
+        return visitor.resolveDeclaration(this);
+    }
+    
     public String toString() {
         return getName() + "(" + (actuals == null ? "" : actuals) + ")";
     }

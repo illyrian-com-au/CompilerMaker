@@ -6,10 +6,10 @@ import java.io.StringWriter;
 
 import junit.framework.TestCase;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
-import au.com.illyrian.parser.impl.ModuleContext;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.LexerInputStream;
+import au.com.illyrian.parser.impl.ModuleContext;
 
 public class ModuleParserTest extends TestCase
 {
@@ -42,7 +42,7 @@ public class ModuleParserTest extends TestCase
         TestTokenParser parser = new TestTokenParser();
         //parser.setInput(input);
         parser.parseClass(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
     }
 
     public void testNestedTokenParser() throws Exception
@@ -61,7 +61,7 @@ public class ModuleParserTest extends TestCase
         TestTokenParser parser = new TestTokenParser();
         //parser.setInput(input);
         parser.parseClass(compile);
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
     }
 
     public void testDomainParser() throws Exception
@@ -149,7 +149,7 @@ public class ModuleParserTest extends TestCase
             assertEquals("ParserException ", "Unexpected end of input", pex.getMessage());
             assertEquals("ParserException ", "Test.dat", pex.getSourceFilename());
             assertEquals("ParserException ", 2, pex.getLineNumber());
-            String expected = "Test.dat;2\nUnexpected end of input";
+            String expected = "Test.dat;2\n$$\nUnexpected end of input";
             assertEquals("ParserException", expected, pex.toString());
         }
     }
@@ -191,7 +191,7 @@ public class ModuleParserTest extends TestCase
             assertEquals("ParserException ", "'TestTokenParser' expected at end of parser space", pex.getMessage());
             assertEquals("ParserException ", "Test.dat", pex.getSourceFilename());
             assertEquals("ParserException ", 4, pex.getLineNumber());
-            String expected = "Test.dat;4\n'TestTokenParser' expected at end of parser space";
+            String expected = "Test.dat;4\n$$\n'TestTokenParser' expected at end of parser space";
             assertEquals("ParserException", expected, pex.toString());
         }
     }
@@ -214,7 +214,7 @@ public class ModuleParserTest extends TestCase
             assertEquals("ParserException ", "End of input expected", pex.getMessage());
             assertEquals("ParserException ", "Test.dat", pex.getSourceFilename());
             assertEquals("ParserException ", 5, pex.getLineNumber());
-            String expected = "Test.dat;5:3\nEnd of input expected";
+            String expected = "Test.dat;5\n   $a$ * b + c;\nEnd of input expected";
             assertEquals("ParserException", expected, pex.toString());
         }
     }

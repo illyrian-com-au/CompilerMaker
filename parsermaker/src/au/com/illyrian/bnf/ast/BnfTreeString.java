@@ -2,9 +2,12 @@ package au.com.illyrian.bnf.ast;
 
 import java.util.Set;
 
+import au.com.illyrian.bnf.maker.BnfMakerVisitor;
+import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.parser.ParserException;
 
-public class BnfTreeString extends BnfTreeBase
+public class BnfTreeString <T> extends BnfTreeBase <T>
 {
     private final String value;
     
@@ -31,6 +34,11 @@ public class BnfTreeString extends BnfTreeBase
     public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet) throws ParserException
     {
         return visitor.resolveFirst(this, firstSet);
+    }
+
+    public Type resolveType(BnfMakerVisitor visitor) throws ParserException
+    {
+        return visitor.resolveType(this);
     }
 
     public String toString() {

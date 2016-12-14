@@ -5,11 +5,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.ParserBase;
-import au.com.illyrian.parser.impl.ParserConstants;
 
 public class OperatorPrecidenceParser<Expr> extends ParserBase
 {
@@ -94,9 +92,10 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
     protected Operator getNudOperator() throws ParserException
     {
         Operator operator = null;
-        int token = getToken();
+        TokenType token = getTokenType();
         // Operators may include reserved words and brackets.
-        if (token == Lexer.OPERATOR || token == Lexer.DELIMITER || token == Lexer.RESERVED || token == Lexer.OPEN_P) {
+        if (token == TokenType.OPERATOR || token == TokenType.DELIMITER 
+                || token == TokenType.RESERVED) {
             String lookup = getLexer().getTokenValue();
             operator = nudOperators.get(lookup);
             if (operator == null) {
@@ -109,9 +108,10 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
     protected Operator getLedOperator() throws ParserException
     {
         Operator operator = null;
-        int token = getToken();
+        TokenType token = getTokenType();
         // Operators may include reserved words and brackets.
-        if (token == Lexer.OPERATOR || token == Lexer.DELIMITER || token == Lexer.RESERVED || token == Lexer.OPEN_P) {
+        if (token == TokenType.OPERATOR || token == TokenType.DELIMITER 
+                || token == TokenType.RESERVED) {
             String lookup = getLexer().getTokenValue();
             operator = ledOperators.get(lookup);
             if (operator == null) {
@@ -121,10 +121,10 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
         return operator;
     }
 
-    protected void checkOperatorImplemented(int tokenValue, String operatorName) throws ParserException
+    protected void checkOperatorImplemented(TokenType tokenValue, String operatorName) throws ParserException
     {
         // Throw an exception if this is a pure operator that we know nothing about.
-        if (tokenValue == Lexer.OPERATOR && nudOperators.get(operatorName) == null
+        if (tokenValue == TokenType.OPERATOR && nudOperators.get(operatorName) == null
                 && ledOperators.get(operatorName) == null) {
             throw new ParserException("Operator not implemented: " + getLexer().getTokenValue());
         }
@@ -193,17 +193,17 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
         case Operator.BRACKET:
         {
             Expr subExpression = expression();
-            expect(Lexer.CLOSE_P, operator.endName, null);
+            expect(TokenType.DELIMITER, operator.endName, null);
             leftOperand = getPrecidenceActions().binaryAction(operator.getIndex(), leftOperand, subExpression);
             break;
         }
         case Operator.PARAMS:
         {
-            if (accept(Lexer.CLOSE_P, operator.endName))
+            if (accept(TokenType.DELIMITER, operator.endName))
                 leftOperand = getPrecidenceActions().binaryAction(operator.getIndex(), leftOperand, null);
             else {
                 Expr subExpression = expression();
-                expect(Lexer.CLOSE_P, operator.endName, null);
+                expect(TokenType.DELIMITER, operator.endName, null);
                 leftOperand = getPrecidenceActions().binaryAction(operator.getIndex(), leftOperand, subExpression);
             }
             break;
@@ -219,7 +219,7 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
         Expr result = null;
         // Check for a prefix operator
         Operator nudOperator = getNudOperator();
-        if (match(Lexer.OPEN_P, "(")) {
+        if (match(TokenType.DELIMITER, "(")) {
             result = parentheses(nudOperator);
         } else if (nudOperator != null) {
             nextToken();
@@ -232,11 +232,11 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
     
     protected Expr parentheses(Operator nudOperator) throws ParserException {
         Expr result = null;
-        if (accept(Lexer.OPEN_P, "(")) {
+        if (accept(TokenType.DELIMITER, "(")) {
             result = expression();
-            expect(Lexer.CLOSE_P, ")", "\')\' expected");
+            expect(TokenType.DELIMITER, ")", "\')\' expected");
         } else {
-            throw error(getInput(), "Unexpected Perenthesis");
+            throw error("Unexpected Perenthesis");
         }
         return result;
     }
@@ -263,21 +263,21 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
     protected Expr operandExpression() throws ParserException
     {
         Expr result = null;
-        switch (getToken()) {
-        case Lexer.IDENTIFIER:
+        switch (getTokenType()) {
+        case IDENTIFIER:
             result = nameOperand();
             break;
-        case Lexer.RESERVED:
+        case RESERVED:
             result = reservedOperand();
             break;
-        case Lexer.CHARACTER:
-        case Lexer.INTEGER:
-        case Lexer.DECIMAL:
-        case Lexer.STRING:
+        case CHARACTER:
+        case NUMBER:
+        case DECIMAL:
+        case STRING:
             result = literalOperand();
             break;
         default:
-            throw error(getInput(), "Expression expected");
+            throw error("Expression expected");
         }
         return result;
     }

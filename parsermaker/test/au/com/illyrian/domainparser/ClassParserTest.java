@@ -254,7 +254,7 @@ public class ClassParserTest  extends TestCase
             assertEquals("ParserException ", "Unexpected end of input", pex.getMessage());
             assertEquals("ParserException ", "Test.dat", pex.getSourceFilename());
             assertEquals("ParserException ", 3, pex.getLineNumber());
-            String expected = "Test.dat;3\nUnexpected end of input";
+            String expected = "Test.dat;3\n$$\nUnexpected end of input";
             assertEquals("ParserException", expected, pex.toString());
         }
     }
@@ -280,7 +280,7 @@ public class ClassParserTest  extends TestCase
             assertEquals("ParserException ", "'TestTokenParser' expected at end of parser space", pex.getMessage());
             assertEquals("ParserException ", "Test.dat", pex.getSourceFilename());
             assertEquals("ParserException ", 5, pex.getLineNumber());
-            String expected = "Test.dat;5\n'TestTokenParser' expected at end of parser space";
+            String expected = "Test.dat;5\n$$\n'TestTokenParser' expected at end of parser space";
             assertEquals("ParserException", expected, pex.toString());
         }
     }

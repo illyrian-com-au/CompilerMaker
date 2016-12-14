@@ -2,17 +2,30 @@ package au.com.illyrian.bnf.ast;
 
 import java.util.Set;
 
+import au.com.illyrian.bnf.maker.BnfMakerVisitor;
+import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.parser.ParserException;
 
-public class BnfTreeRule extends BnfTreeBase
+public class BnfTreeRule extends BnfTreeBase <Type>
 {
     private final BnfTree target;
     private final BnfTree body;
+    private BnfFirstSet firstSet;
     
     public BnfTreeRule(BnfTree target, BnfTree body)
     {
         this.target = target;
         this.body = body;
+    }
+
+    public BnfFirstSet getFirstSet()
+    {
+        return firstSet;
+    }
+
+    public void setFirstSet(BnfFirstSet firstSet)
+    {
+        this.firstSet = firstSet;
     }
 
     public BnfTree resolveMerge(BnfMergeVisitor visitor) 
@@ -27,6 +40,16 @@ public class BnfTreeRule extends BnfTreeBase
     
     public BnfTreeRule [] toRuleArray() {
         return new BnfTreeRule [] { this };
+    }
+
+    public Type resolveDeclaration(BnfMakerVisitor visitor) throws ParserException
+    {
+        return visitor.resolveDeclaration(this);
+    }
+
+    public Type resolveLookahead(BnfMakerVisitor visitor) throws ParserException
+    {
+        return visitor.resolveLookahead(this);
     }
 
     public BnfTree getTarget()

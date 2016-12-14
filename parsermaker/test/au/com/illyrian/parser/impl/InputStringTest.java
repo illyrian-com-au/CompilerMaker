@@ -67,4 +67,10 @@ public class InputStringTest extends TestCase
         assertEquals("Finish",  3, tok.getTokenFinish());
         assertEquals("Identifier expected",  "abc", tok.getTokenString());
     }
+    
+    public void testEncode()
+    {
+        assertEquals("\\177", LexerInputString.encode((char)127));
+        assertEquals("Hella\\177", LexerInputString.encode("Hella" + (char)127));
+    }
 }

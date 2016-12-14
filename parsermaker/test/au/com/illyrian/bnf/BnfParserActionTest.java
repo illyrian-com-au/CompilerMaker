@@ -7,7 +7,7 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 import au.com.illyrian.bnf.ast.BnfTree;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.Lexer;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.LexerInputStream;
 import au.com.illyrian.parser.impl.ModuleContext;
 
@@ -41,7 +41,7 @@ public class BnfParserActionTest extends TestCase
         compile.visit(parser);
         parser.nextToken();
         BnfTree tree = parser.rule_action();
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
         String expect = "{ $2 }";
         assertNotNull("Should not be null:", tree);
@@ -61,7 +61,7 @@ public class BnfParserActionTest extends TestCase
         compile.visit(parser);
         parser.nextToken();
         BnfTree tree = parser.rule_action();
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
         String expect = "{ ast.Declare($2, $4, $6) }";
         assertNotNull("Should not be null:", tree);
@@ -81,9 +81,29 @@ public class BnfParserActionTest extends TestCase
         compile.visit(parser);
         parser.nextToken();
         BnfTree tree = parser.rule_action();
-        assertEquals("token", Lexer.END, parser.getLexer().nextToken());
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
         String expect = "{ new AstDeclareVariable($2, $4, $6) }";
+        assertNotNull("Should not be null:", tree);
+        assertEquals("AST", expect, tree.toString());
+    }
+
+    public void testSimpleNull() throws Exception
+    {
+        out.println("{");
+        out.println("   null");
+        out.println("}");
+        Input input = new LexerInputStream(getReader(), null);
+        ModuleContext compile = new ModuleContext();
+        compile.setInput(input);
+        
+        BnfParser parser = new BnfParser();
+        compile.visit(parser);
+        parser.nextToken();
+        BnfTree tree = parser.rule_action();
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
+        
+        String expect = "{ null }";
         assertNotNull("Should not be null:", tree);
         assertEquals("AST", expect, tree.toString());
     }

@@ -53,23 +53,23 @@ public class AstExpressionPrecidenceAction
     public AstExpression tokenAction(Lexer lexer) throws ParserException
     {
         AstExpression result = null;
-        switch (lexer.getToken()) {
-        case Lexer.INTEGER:
+        switch (lexer.getTokenType()) {
+        case NUMBER:
             result = factory.Literal(lexer.getTokenInteger());
             break;
-        case Lexer.DECIMAL:
+        case DECIMAL:
             result = factory.Literal(lexer.getTokenFloat());
             break;
-        case Lexer.CHARACTER:
+        case CHARACTER:
             result = factory.Literal(lexer.getTokenInteger());
             break;
-        case Lexer.STRING:
+        case STRING:
             result = factory.Literal(lexer.getTokenString());
             break;
-        case Lexer.IDENTIFIER:
+        case IDENTIFIER:
             result = factory.Name(lexer.getTokenValue());
             break;
-        case Lexer.RESERVED:
+        case RESERVED:
             result = factory.Reserved(lexer.getTokenValue());
             break;
         default:

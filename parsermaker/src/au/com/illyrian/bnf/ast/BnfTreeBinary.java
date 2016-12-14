@@ -1,6 +1,6 @@
 package au.com.illyrian.bnf.ast;
 
-public abstract class BnfTreeBinary extends BnfTreeBase
+public abstract class BnfTreeBinary <T> extends BnfTreeBase <T>
 {
     private final BnfTree left;
     private final BnfTree right;

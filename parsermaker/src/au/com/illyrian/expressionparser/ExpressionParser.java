@@ -14,15 +14,13 @@ import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.parser.CompilerContext;
-import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParseExpression;
 import au.com.illyrian.parser.ParseMembers;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.expr.AstExpressionPrecidenceAction;
 import au.com.illyrian.parser.expr.AstExpressionPrecidenceParser;
-import au.com.illyrian.parser.impl.ParserConstants;
-import au.com.illyrian.parser.opp.Operator;
 
 /**
  *
@@ -170,31 +168,31 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
 
     protected void beginFragment() throws ParserException
     {
-        expect(Lexer.OPEN_P, "{", "'{' expected at start of code fragment.");
+        expect(TokenType.DELIMITER, "{", "'{' expected at start of code fragment.");
     }
 
     protected void endFragment() throws ParserException
     {
-        int token = getToken();
-        if (match(Lexer.CLOSE_P, "}"))
+        if (match(TokenType.DELIMITER, "}"))
         	return;
         
+        TokenType token = getTokenType();
         // Ensure all tokens have been processed.
-        if (token == Lexer.ERROR)
+        if (token == TokenType.ERROR)
         {
-            throw error(getInput(), getLexer().getErrorMessage());
+            throw error(getLexer().getErrorMessage());
         }
-        else if (token == Lexer.CLOSE_P)
+        else if (token == TokenType.DELIMITER)
         {
-            throw error(getInput(), "Unbalanced perentheses - too many \')\'.");
+            throw error("Unbalanced perentheses - too many \')\'.");
         }
-        else if (token == Lexer.IDENTIFIER)
+        else if (token == TokenType.IDENTIFIER)
         {
-            throw error(getInput(), "Operator expected.");
+            throw error("Operator expected.");
         }
         else
         {
-            throw error(getInput(), "Operator or '}' expected.");
+            throw error("Operator or '}' expected.");
         }
     }
     
@@ -212,8 +210,8 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     Object dec_classname() throws ParserException
     {
         Object result = null;
-        expect(Lexer.RESERVED, "class", null);
-        if (match(Lexer.IDENTIFIER, null))
+        expect(TokenType.RESERVED, "class", null);
+        if (match(TokenType.IDENTIFIER, null))
         {
             String classname = getLexer().getTokenValue();
             nextToken();
@@ -221,7 +219,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
         }
         else
         {
-            throw error(getInput(), "Expected the name of the class.");
+            throw error("Expected the name of the class.");
         }
         return result;
     }
@@ -230,9 +228,9 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     Object dec_extends() throws ParserException
     {
         String extendClass = null;
-        if (accept(Lexer.RESERVED, "extends"))
+        if (accept(TokenType.RESERVED, "extends"))
         {
-            if (match(Lexer.IDENTIFIER, null))
+            if (match(TokenType.IDENTIFIER, null))
             {
                 extendClass = getLexer().getTokenValue();
                 nextToken();
@@ -240,7 +238,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
             }
             else
             {
-                throw error(getInput(), "Expected the name of the extended class.");
+                throw error("Expected the name of the extended class.");
             }
         }
         return null;
@@ -250,10 +248,10 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     Object dec_functions() throws ParserException
     {
         Object functionList = null;
-        expect(Lexer.OPEN_P, "{", null);
+        expect(TokenType.DELIMITER, "{", null);
         functionList = more_functions();
         
-        expect(Lexer.CLOSE_P, "}", null);
+        expect(TokenType.DELIMITER, "}", null);
         return functionList;
     }
 
@@ -261,7 +259,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     Object more_functions() throws ParserException
     {
         Object functionList = null;
-        if (match(Lexer.IDENTIFIER, null))
+        if (match(TokenType.IDENTIFIER, null))
         {
             Object function = dec_function();
             functionList = more_functions();
@@ -301,17 +299,17 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     Object dec_function() throws ParserException
     {
         Object result = null;
-        if (match(Lexer.IDENTIFIER, null))
+        if (match(TokenType.IDENTIFIER, null))
         {
             String identifier = getLexer().getTokenValue();
             Object functionName = getExpressionAction().declareFunctionName(identifier);
             nextToken();
-            expect(Lexer.OPEN_P, "(", null);
+            expect(TokenType.DELIMITER, "(", null);
             Object params = parameters();
-            expect(Lexer.CLOSE_P, ")", null);
+            expect(TokenType.DELIMITER, ")", null);
             Object ass = assign_op();
             Object exprType = expression();
-            expect(Lexer.DELIMITER, ";", null);
+            expect(TokenType.DELIMITER, ";", null);
             getExpressionAction().endMethod(exprType);
             result = getExpressionAction().declareFunction(functionName, params, exprType);
         }
@@ -320,7 +318,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     
     Object assign_op() throws ParserException
     {
-        expect(Lexer.OPERATOR, "=", null);
+        expect(TokenType.OPERATOR, "=", null);
         getExpressionAction().beginMethod();
     	return null;
     }
@@ -329,15 +327,15 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     Object parameters() throws ParserException
     {
         Object params = null;
-        if (match(Lexer.IDENTIFIER, null))
+        if (match(TokenType.IDENTIFIER, null))
         {
             String identifier = getLexer().getTokenValue();
             nextToken();
             params = getExpressionAction().addParameter(params, identifier);
 
-            while (accept(Lexer.DELIMITER, ","))
+            while (accept(TokenType.DELIMITER, ","))
             {
-                if (match(Lexer.IDENTIFIER, null))
+                if (match(TokenType.IDENTIFIER, null))
                 {
                     identifier = getLexer().getTokenValue();
                     nextToken();
@@ -345,7 +343,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
                 }
                 else
                 {
-                    throw error(getInput(), "Name of a variable expected.");
+                    throw error("Name of a variable expected.");
                 }
             }
         }

@@ -4,11 +4,11 @@ package au.com.illyrian.jesub;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.parser.CompilerContext;
-import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParseExpression;
 import au.com.illyrian.parser.ParseMembers;
 import au.com.illyrian.parser.ParserException;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.opp.OperatorPrecidenceParser;
 
 /**
@@ -147,31 +147,31 @@ public class JesubParser extends OperatorPrecidenceParser
     {
         getJesubAction();
         nextToken();
-        expect(Lexer.OPEN_P, "{", "'{' expected at start of code fragment.");
+        expect(TokenType.DELIMITER, "{", "'{' expected at start of code fragment.");
     }
 
     protected void endFragment() throws ParserException
     {
-        int token = getToken();
-        if (match(Lexer.CLOSE_P, "}"))
+        if (match(TokenType.DELIMITER, "}"))
             return;
         
+        TokenType token = getTokenType();
         // Ensure all tokens have been processed.
-        if (token == Lexer.ERROR)
+        if (token == TokenType.ERROR)
         {
-            throw error(getInput(), getLexer().getErrorMessage());
+            throw error(getLexer().getErrorMessage());
         }
-        else if (token == Lexer.CLOSE_P)
+        else if (token == TokenType.DELIMITER)
         {
-            throw error(getInput(), "Unbalanced perentheses - too many \')\'.");
+            throw error("Unbalanced perentheses - too many \')\'.");
         }
-        else if (token == Lexer.IDENTIFIER)
+        else if (token == TokenType.IDENTIFIER)
         {
-            throw error(getInput(), "Operator expected.");
+            throw error("Operator expected.");
         }
         else
         {
-            throw error(getInput(), "Operator or '}' expected.");
+            throw error("Operator or '}' expected.");
         }
     }
     
@@ -187,17 +187,17 @@ public class JesubParser extends OperatorPrecidenceParser
         Object $1 = access_modifiers();
         if ($1 != null)
             jesubAction.setClassModifiers($1);
-        expect(Lexer.RESERVED, "class", "Access modifier or class expected.");
+        expect(TokenType.RESERVED, "class", "Access modifier or class expected.");
         String className = classname();
         jesubAction.setClassName(className);
         
-        if (accept(Lexer.RESERVED, "extends"))
+        if (accept(TokenType.RESERVED, "extends"))
         {
             String extendsClassName = classname();
             jesubAction.declareExtends(extendsClassName);
         }
 
-        if (accept(Lexer.RESERVED, "implements"))
+        if (accept(TokenType.RESERVED, "implements"))
         {
             implements_list();
         }
@@ -211,23 +211,23 @@ public class JesubParser extends OperatorPrecidenceParser
         Object result = null;
         while (true)
         {
-            if (accept(Lexer.RESERVED, "public"))
+            if (accept(TokenType.RESERVED, "public"))
                 result = jesubAction.addModifier("public");
-            else if (accept(Lexer.RESERVED, "protected"))
+            else if (accept(TokenType.RESERVED, "protected"))
                 result = jesubAction.addModifier("protected");
-            else if (accept(Lexer.RESERVED, "private"))
+            else if (accept(TokenType.RESERVED, "private"))
                 result = jesubAction.addModifier("private");
-            else if (accept(Lexer.RESERVED, "abstract"))
+            else if (accept(TokenType.RESERVED, "abstract"))
                 result = jesubAction.addModifier("abstract");
-            else if (accept(Lexer.RESERVED, "final"))
+            else if (accept(TokenType.RESERVED, "final"))
                 result = jesubAction.addModifier("final");
-            else if (accept(Lexer.RESERVED, "static"))
+            else if (accept(TokenType.RESERVED, "static"))
                 result = jesubAction.addModifier("static");
-            else if (accept(Lexer.RESERVED, "strictfp"))
+            else if (accept(TokenType.RESERVED, "strictfp"))
                 result = jesubAction.addModifier("strictfp");
-            else if (accept(Lexer.RESERVED, "transient"))
+            else if (accept(TokenType.RESERVED, "transient"))
                 result = jesubAction.addModifier("transient");
-            else if (accept(Lexer.RESERVED, "volatile"))
+            else if (accept(TokenType.RESERVED, "volatile"))
                 result = jesubAction.addModifier("volatile");
             else
                 break;
@@ -246,26 +246,26 @@ public class JesubParser extends OperatorPrecidenceParser
     public String classname() throws ParserException
     {
         String qualifiedClassName = null;
-        if (getToken() == Lexer.IDENTIFIER)
+        if (getTokenType() == TokenType.IDENTIFIER)
         {
             String simpleName = getLexer().getTokenValue();
             nextToken();
             qualifiedClassName = jesubAction.Dot(qualifiedClassName, simpleName);
 
-            while (accept(Lexer.OPERATOR, "."))
+            while (accept(TokenType.OPERATOR, "."))
             {
-                if (getToken() == Lexer.IDENTIFIER)
+                if (getTokenType() == TokenType.IDENTIFIER)
                 {
                     simpleName = getLexer().getTokenValue();
                     nextToken();
                     qualifiedClassName = jesubAction.Dot(qualifiedClassName, simpleName);
                 }
                 else
-                    throw error(getInput(), "More package name expected.");
+                    throw error("More package name expected.");
             }
         }
         else
-            throw error(getInput(), "Class name expected.");
+            throw error("Class name expected.");
         return qualifiedClassName;
     }
 
@@ -278,7 +278,7 @@ public class JesubParser extends OperatorPrecidenceParser
         String implementsClassName = classname();
         result = jesubAction.declareImplements(implementsClassName);
         
-        while (accept(Lexer.DELIMITER, ","))
+        while (accept(TokenType.DELIMITER, ","))
         {
             implementsClassName = classname();
             result = jesubAction.declareImplements(implementsClassName);
@@ -289,18 +289,18 @@ public class JesubParser extends OperatorPrecidenceParser
     /** declare_body ::= '{' { declare_member } '}' */
     public Object declare_body() throws ParserException
     {
-        expect(Lexer.OPEN_P, "{");
+        expect(TokenType.DELIMITER, "{");
         Object result = null;
         while (true)
         {
-            if (match(Lexer.CLOSE_P, "}"))
+            if (match(TokenType.DELIMITER, "}"))
                 break;
-            else if (match(Lexer.END, null))
+            else if (match(TokenType.END, null))
                 break;
             result = declare_member();
             // action.addMember(...);
         }
-        expect(Lexer.CLOSE_P, "}");
+        expect(TokenType.DELIMITER, "}");
         return result;
     }
    
@@ -309,12 +309,12 @@ public class JesubParser extends OperatorPrecidenceParser
     {
         Object result = null;
         result = declare_type();
-        if (accept(Lexer.DELIMITER, ";"))
+        if (accept(TokenType.DELIMITER, ";"))
             ; // jesubAction.declareType();
-        else if (match(Lexer.OPEN_P, "("))
+        else if (match(TokenType.DELIMITER, "("))
         {
             Object formal = formal_parameters();
-            if (accept(Lexer.DELIMITER, ";"))
+            if (accept(TokenType.DELIMITER, ";"))
                 ; // jesubAction.Forward();
             //else
             }
@@ -329,12 +329,12 @@ public class JesubParser extends OperatorPrecidenceParser
         Object modifiers = access_modifiers();
         Object declared = type();
         // array bounds
-        if (getToken() == Lexer.IDENTIFIER)
+        if (getTokenType() == TokenType.IDENTIFIER)
         {
             simpleName = getLexer().getTokenValue();
             nextToken();
         } else {
-            throw error(getInput(), "Name expected.");
+            throw error("Name expected.");
         }
         //result = action.declareType(modifiers, declared, simpleName);
         return result;
@@ -344,18 +344,18 @@ public class JesubParser extends OperatorPrecidenceParser
     public Object formal_parameters() throws ParserException
     {
         Object result = null;
-        expect(Lexer.OPEN_P, "(");
-        if (match(Lexer.IDENTIFIER, null))
+        expect(TokenType.DELIMITER, "(");
+        if (match(TokenType.IDENTIFIER, null))
         {
             result = declare_type();
             // action.addFormal(result);
-            while (accept(Lexer.DELIMITER, ","))
+            while (accept(TokenType.DELIMITER, ","))
             {
                 result = declare_type();
                 // action.addFormal(result);
             }
         }
-        expect(Lexer.CLOSE_P, ")");
+        expect(TokenType.DELIMITER, ")");
         return result;
     }
 
@@ -370,23 +370,23 @@ public class JesubParser extends OperatorPrecidenceParser
     public Object primitive_type() throws ParserException
     {
         Object result = null;
-        if (accept(Lexer.RESERVED, "boolean"))
+        if (accept(TokenType.RESERVED, "boolean"))
             result = jesubAction.primitiveType("boolean");
-        else if (accept(Lexer.RESERVED, "byte"))
+        else if (accept(TokenType.RESERVED, "byte"))
             result = jesubAction.primitiveType("byte");
-        else if (accept(Lexer.RESERVED, "short"))
+        else if (accept(TokenType.RESERVED, "short"))
             result = jesubAction.primitiveType("short");
-        else if (accept(Lexer.RESERVED, "char"))
+        else if (accept(TokenType.RESERVED, "char"))
             result = jesubAction.primitiveType("char");
-        else if (accept(Lexer.RESERVED, "int"))
+        else if (accept(TokenType.RESERVED, "int"))
             result = jesubAction.primitiveType("int");
-        else if (accept(Lexer.RESERVED, "long"))
+        else if (accept(TokenType.RESERVED, "long"))
             result = jesubAction.primitiveType("long");
-        else if (accept(Lexer.RESERVED, "float"))
+        else if (accept(TokenType.RESERVED, "float"))
             result = jesubAction.primitiveType("float");
-        else if (accept(Lexer.RESERVED, "double"))
+        else if (accept(TokenType.RESERVED, "double"))
             result = jesubAction.primitiveType("double");
-        else if (accept(Lexer.RESERVED, "void"))
+        else if (accept(TokenType.RESERVED, "void"))
             result = jesubAction.primitiveType("void");
         return result;
    }

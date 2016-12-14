@@ -9,49 +9,115 @@ public class JesubParser extends PrecidenceParser
 {
     AstStructureFactory ast = new AstStructureFactory(this);
 
-    Token::{
+    enum AstToken {
     
-        SEMI       ::= token(Lexer.DELIMITER, ';');
+        SEMI    (Lexer.DELIMITER, ';'),
+        COMMA   (Lexer.DELIMITER, ','),
 
-        DOT        ::= token(Lexer.OPERATOR, '.');
-        COMMA      ::= token(Lexer.OPERATOR, ',');
-        MULT       ::= token(Lexer.OPERATOR, '*');
+        DOT     (Lexer.OPERATOR, '.'),
+        MULT    (Lexer.OPERATOR, '*'),
+        DIV     (Lexer.OPERATOR, '/'),
+        REM     (Lexer.OPERATOR, '%'),
+        PLUS    (Lexer.OPERATOR, '+'),
+        MINUS   (Lexer.OPERATOR, '-'),
+        INC     (Lexer.OPERATOR, '++'),
+        DEC     (Lexer.OPERATOR, '--'),
+        NOT     (Lexer.OPERATOR, '!'),
+        INV     (Lexer.OPERATOR, '~'),
+        XOR     (Lexer.OPERATOR, '^'),
+        SHL     (Lexer.OPERATOR, '<<'),
+        SHR     (Lexer.OPERATOR, '>>'),
+        USHR    (Lexer.OPERATOR, '>>>'),
+        LT      (Lexer.OPERATOR, '<'),
+        GT      (Lexer.OPERATOR, '>'),
+        LE      (Lexer.OPERATOR, '<='),
+        GE      (Lexer.OPERATOR, '<='),
+        EQ      (Lexer.OPERATOR, '=='),
+        NE      (Lexer.OPERATOR, '!='),
+        AND     (Lexer.OPERATOR, '&'),
+        OR      (Lexer.OPERATOR, '|'),
+        ANDAND  (Lexer.OPERATOR, '&&'),
+        OROR    (Lexer.OPERATOR, '||'),
+        ASSIGN  (Lexer.OPERATOR, '='),
         
-        BEGIN      ::= token(Lexer.OPEN_P, '{');
-        END        ::= token(Lexer.CLOSE_P, '}');
-        LPAR       ::= token(Lexer.OPEN_P, '(');
-        RPAR       ::= token(Lexer.CLOSE_P, ')');
-        LBRA       ::= token(Lexer.OPEN_P, '[');
-        RBRA       ::= token(Lexer.CLOSE_P, ']');
+        BEGIN   (Lexer.OPEN_P, '{'),
+        END     (Lexer.CLOSE_P, '}'),
+        LPAR    (Lexer.OPEN_P, '('),
+        RPAR    (Lexer.CLOSE_P, ')'),
+        LBRA    (Lexer.OPEN_P, '['),
+        RBRA    (Lexer.CLOSE_P, ']'),
         
-        PACKAGE    ::= token(Lexer.RESERVED, "package");
-        IMPORT     ::= token(Lexer.RESERVED, "import");
-        CLASS      ::= token(Lexer.RESERVED, "class");
-        INTERFACE  ::= token(Lexer.RESERVED, "interface");
-        PUBLIC     ::= token(Lexer.RESERVED, "public");
-        PROTECTED  ::= token(Lexer.RESERVED, "protected");
-        PRIVATE    ::= token(Lexer.RESERVED, "private");
-        ABSTRACT   ::= token(Lexer.RESERVED, "abstract");
-        FINAL      ::= token(Lexer.RESERVED, "final");
-        STRICTFP   ::= token(Lexer.RESERVED, "strictfp");
-        EXTENDS    ::= token(Lexer.RESERVED, "exends");
-        IMPLEMENTS ::= token(Lexer.RESERVED, "implements");
-        VOID       ::= token(Lexer.RESERVED, "void");
-        BOOLEAN    ::= token(Lexer.RESERVED, "boolean");
-        BYTE       ::= token(Lexer.RESERVED, "byte");
-        CHAR       ::= token(Lexer.RESERVED, "char");
-        INT        ::= token(Lexer.RESERVED, "int");
-        LONG       ::= token(Lexer.RESERVED, "long");
-        FLOAT      ::= token(Lexer.RESERVED, "float");
-        DOUBLE     ::= token(Lexer.RESERVED, "double");
+        PACKAGE (Lexer.RESERVED, "package"),
+        IMPORT  (Lexer.RESERVED, "import"),
+        CLASS   (Lexer.RESERVED, "class"),
+        INTERFACE(Lexer.RESERVED, "interface"),
+        PUBLIC  (Lexer.RESERVED, "public"),
+        PROTECTED(Lexer.RESERVED, "protected"),
+        PRIVATE (Lexer.RESERVED, "private"),
+        ABSTRACT(Lexer.RESERVED, "abstract"),
+        FINAL   (Lexer.RESERVED, "final"),
+        STRICTFP(Lexer.RESERVED, "strictfp"),
+        EXTENDS (Lexer.RESERVED, "exends"),
+        IMPLEMENTS(Lexer.RESERVED, "implements"),
+        VOID    (Lexer.RESERVED, "void"),
+        BOOLEAN (Lexer.RESERVED, "boolean"),
+        BYTE    (Lexer.RESERVED, "byte"),
+        CHAR    (Lexer.RESERVED, "char"),
+        INT     (Lexer.RESERVED, "int"),
+        LONG    (Lexer.RESERVED, "long"),
+        FLOAT   (Lexer.RESERVED, "float"),
+        DOUBLE  (Lexer.RESERVED, "double"),
+        NEW     (Lexer.RESERVED, "new"),
+        INSTANCEOF(Lexer.RESERVED, "instanceof"),
+        THIS    (Lexer.RESERVED, "this"),
+        SUPER   (Lexer.RESERVED, "super"),
 
         
-        IDENTIFIER ::= token(Lexer.IDENTIFIER) = { ast.Name(getLexer()) };
-        STRING     ::= token(Lexer.STRING)     = { ast.String(getLexer()) };
-        INTEGER    ::= token(Lexer.INTEGER)    = { ast.Integer(getLexer()) };
-        DECIMAL    ::= token(Lexer.DECIMAL)    = { ast.Decimal(getLexer()) };
-        CHARACTER  ::= token(Lexer.CHARACTER)  = { ast.Character(getLexer()) };
-    }::Token;
+        IDENTIFIER(Lexer.IDENTIFIER),
+        STRING  (Lexer.STRING),
+        INTEGER (Lexer.INTEGER),
+        DECIMAL (Lexer.DECIMAL),
+        CHARACTER(Lexer.CHARACTER);
+    };
+    
+    precedence(int minPrecedence) ::= OperatorParser::{
+        operator(DOT, 17, BINARY) =             { ast.Dot($1, $2) }
+        bracket(LPAR, RPAR, 16, POSTFIX) =      { ast.Call($1, $2) }
+        bracket(LBRA, RBRA, 16, POSTFIX) =      { ast.ArrayIndex($1, $2) }
+        operator(DEC, 15, POSTFIX) =            { ast.PostDec($1) }
+        operator(INC, 15, POSTFIX) =            { ast.PostInc($1) }
+        operator(MINUS, 14, PREFIX) =           { ast.Neg($1) }
+        operator(DEC, 14, PREFIX) =             { ast.Dec($1) }
+        operator(INC, 14, PREFIX) =             { ast.Inc($1) }
+        operator(PLUS, 14, PREFIX) =            { $1 }
+        operator(INV, 14, PREFIX) =             { ast.Inv($1) }
+        operator(NOT, 14, PREFIX) =             { ast.Not($1) }
+        //bracket(LPAR, RPAR 13, PREFIX) =        { ast.Cast($1, $2) }
+        //reserved(NEW, 13, PREFIX) =             { ast.New($1) } 
+        operator(MULT, 12, BINARY) =            { ast.Mult($1, $2) }
+        operator(DIV, 12, BINARY) =             { ast.Div($1, $2) }
+        operator(REM, 12, BINARY) =             { ast.Rem($1, $2) }
+        operator(PLUS, 11, BINARY) =            { ast.Add($1, $2) }
+        operator(MINUS, 11, BINARY) =           { ast.Subt($1, $2) }
+        operator(SHL, 10, BINARY) =             { ast.SHL($1, $2) }
+        operator(SHR, 10, BINARY) =             { ast.SHR($1, $2) }
+        operator(USHR, 10, BINARY) =            { ast.USHR($1, $2) }
+        operator(LT, 9, BINARY) =               { ast.LT($1, $2) }
+        operator(GT, 9, BINARY) =               { ast.GT($1, $2) }
+        operator(LE, 9, BINARY) =               { ast.LE($1, $2) }
+        operator(GE, 9, BINARY) =               { ast.GE($1, $2) }
+        operator(EQ, 8, BINARY) =               { ast.EQ($1, $2) }
+        operator(NE, 8, BINARY) =               { ast.NE($1, $2) }
+        reserved(INSTANCEOF, 8, BINARY) =       { ast.InstanceOf($1, $2) }
+        operator(AND, 7, BINARY) =              { ast.And($1, $2) }
+        operator(XOR, 6, BINARY) =              { ast.Xor($1, $2) }
+        operator(OR, 5, BINARY) =               { ast.Or($1, $2) }
+        operator(ANDAND, 4, BINARY) =           { ast.AndThen($1, $2) }
+        operator(OROR, 3, BINARY) =             { ast.OrElse($1, $2) }
+        //operator("?", ":", 2, TERNARY) =        { ast.Cond($1, $2) }
+        operator(ASSIGN, 1, BINARYR) =          { ast.Assign($1, $2) }
+        operator(COMMA, 0, BINARY) =            { ast.Comma($1, $2) }
+        }::OperatorParser;
     
     RecursiveParser::{
         
@@ -157,7 +223,7 @@ public class JesubParser extends PrecidenceParser
         |   array_type
         ;
         
-    primitive_type ::=
+    primitive_type:BnfToken ::=
             BOOLEAN | BYTE | CHAR | SHORT | INT | LONG | FLOAT | DOUBLE ;
     
     array_type ::=
@@ -194,35 +260,34 @@ public class JesubParser extends PrecidenceParser
         |   break_statement
         |   continue_statement
         |   return_statement
-        |   SEMICOLON                           { null }
+        |   SEMI                               { null }
         |   expression_statement
-        |   recover(statement)
+        |   recover(SEMI)
         ;
     
     declare_label_opt ::=
-            lookahead(IDENTIFIER, COLON)
-            name COLON                                          { ast.Label($1) } 
+            lookahead(IDENTIFIER, COLON) name COLON           { ast.Label($1) } 
     
     if_else_statement ::=
-            'if' LPAR expression RPAR statement else_opt        { ast.If($3, $5, $6) }
+            IF LPAR expression RPAR statement else_opt        { ast.If($3, $5, $6) }
         ;
         
     else_opt ::=
-            'else' statement                                    { $2 }
+            ELSE statement                                    { $2 }
         |   /*EMPTY*/
         ;
     
     while_statement ::=
-            'while' LPAR expression RPAR statement              { ast.While($3, $5) }
+            WHILE LPAR expression RPAR statement              { ast.While($3, $5) }
         ;
     
     for_statement ::=
-            'for' LPAR expression_opt SEMICOLON expression_opt SEMICOLON expression_opt RPAR statement
+            FOR LPAR expression_opt SEMI expression_opt SEMI expression_opt RPAR statement
                                 { ast.For($3, $5, $7, $9) }
         ;
     
     try_statement ::= 
-            'try' compound_statement catch_plus                 { ast.Try($1, $2) }
+            TRY compound_statement catch_plus                 { ast.Try($2, $3) }
         ;
     
     catch_plus ::=
@@ -232,19 +297,19 @@ public class JesubParser extends PrecidenceParser
         ;
     
     catch_clause ::=
-            'catch' LPAR class_type name RPAR compound_statement catch_mult   
+            CATCH LPAR class_type name RPAR compound_statement   
                                                                 { ast.Catch($3, $4, $6) }
         ;
     
     finally_clause ::=
-            'finally' compound_statement                        { ast.Finally($2) }
+            FINALLY compound_statement                        { ast.Finally($2) }
     
     break_statement ::=
-            'break' label_opt SEMICOLON                         { ast.Break($2) }
+            BREAK label_opt SEMICOLON                         { ast.Break($2) }
         ;
     
     continue_statement ::=
-            'continue' label_opt SEMICOLON                      { ast.Continue($2) }
+            CONTINUE label_opt SEMICOLON                      { ast.Continue($2) }
         ;
     
     label_opt ::=
@@ -253,8 +318,8 @@ public class JesubParser extends PrecidenceParser
         ;
     
     return_statement ::=
-            'return' expression_opt SEMICOLON   { ast.Return($2) }
-        |   'return' SEMICOLON                  { ast.Return() }
+            RETURN expression_opt SEMICOLON   { ast.Return($2) }
+        |   RETURN SEMICOLON                  { ast.Return() }
         ;
     
     expression_statement ::=
@@ -276,41 +341,5 @@ public class JesubParser extends PrecidenceParser
         ;
     
     }::RecursiveParser;
-    
-    precedence(int minPrecedence) ::= OperatorParser::{
-        operator(".", 17, BINARY) =             { ast.Dot($1, $2) }
-        bracket("(", ")", 16, POSTFIX) =        { ast.Call($1, actual_opt) }
-        bracket("[", "]", 16, POSTFIX) =        { ast.ArrayIndex($1, expression) }
-        operator("--", 15, POSTFIX) =           { ast.PostDec($1) }
-        operator("++", 15, POSTFIX) =           { ast.PostInc($1) }
-        operator("-", 14, PREFIX) =             { ast.Neg($1) }
-        operator("--", 14, PREFIX) =            { ast.Dec($1) }
-        operator("++", 14, PREFIX) =            { ast.Inc($1) }
-        operator("+", 14, PREFIX) =             { $1 }
-        operator("~", 14, PREFIX) =             { ast.Inv($1) }
-        operator("!", 14, PREFIX) =             { ast.Not($1) }
-        bracket("(", ")" 13, PREFIX) =          { ast.Cast($1, $2) }
-        reserved("new", 13, PREFIX) =           { ast.New($1) } 
-        operator("*", 12, BINARY) =             { ast.Mult($1, $2) }
-        operator("/", 12, BINARY) =             { ast.Div($1, $2) }
-        operator("%", 12, BINARY) =             { ast.Rem($1, $2) }
-        operator("+", 11, BINARY) =             { ast.Add($1, $2) }
-        operator("-", 11, BINARY) =             { ast.Subt($1, $2) }
-        operator("<<", 10, BINARY) =            { ast.SHL($1, $2) }
-        operator(">>", 10, BINARY) =            { ast.SHR($1, $2) }
-        operator(">>>", 10, BINARY) =           { ast.USHR($1, $2) }
-        operator("<", 9, BINARY) =              { ast.LT($1, $2) }
-        operator(">", 9, BINARY) =              { ast.GT($1, $2) }
-        operator("<=", 9, BINARY) =             { ast.LE($1, $2) }
-        operator(">=", 9, BINARY) =             { ast.GE($1, $2) }
-        operator("==", 8, BINARY) =             { ast.EQ($1, $2) }
-        operator("!=", 8, BINARY) =             { ast.NE($1, $2) }
-        reserved("instanceof", 8, BINARY) =     { ast.InstanceOf($1, $2) }
-        operator("&", 7, BINARY) =              { ast.And($1, $2) }
-        operator("^", 6, BINARY) =              { ast.Xor($1, $2) }
-        operator("|", 5, BINARY) =              { ast.Or($1, $2) }
-        operator("=", 2, BINARYR) =             { ast.Assign($1, $2) }
-        operator(",", 0, BINARY) =              { ast.Comma($1, $2) }
-        }::OperatorParser;
     
 }

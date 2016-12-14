@@ -32,14 +32,8 @@ public class ParserException extends Exception
 {
     private static final long serialVersionUID = 185822962641368L;
 
-    /** The line of input. */
-    private String line;
-
-    /** The start of the errant token */
-    private int    start  = 0;
-
-    /** Just past the end of the errant token. */
-    private int    finish = 0;
+    /** A description of the location of the error. */
+    private String locationString;
     
     /** The line number of input. */
     private int lineNumber = 0;
@@ -75,43 +69,11 @@ public class ParserException extends Exception
      */
     public void setParserStatus(Input input)
     {
-        this.line = input.getLine();
-        this.start = input.getTokenStart();
-        this.finish = input.getTokenFinish();
+        this.locationString = input.toString();
         this.sourceFilename = input.getSourceFilename();
-        this.lineNumber = input.getLineNumber();
+        this.lineNumber     = input.getLineNumber();
     }
 
-    /**
-     * Get the input string that was being parsed.
-     *
-     * @return the input text.
-     */
-    public String getLine()
-    {
-        return this.line;
-    }
-
-    /**
-     * Get the start of the errant token.
-     *
-     * @return the offset to the start of the token.
-     */
-    public int getStart()
-    {
-        return this.start;
-    }
-
-    /**
-     * Get the start of the errant token.
-     *
-     * @return the offset to the finish of the token.
-     */
-    public int getFinish()
-    {
-        return this.finish;
-    }
-    
     /**
      * The line number in the current source file.
      * 
@@ -134,31 +96,6 @@ public class ParserException extends Exception
     
     public String toString()
     {
-        StringBuffer buf = new StringBuffer();
-        if (getSourceFilename() != null && !"".equals(getSourceFilename()))
-        {
-            buf.append(getSourceFilename());
-            buf.append(';');
-            buf.append(getLineNumber());
-            if (getStart() > 0)
-            {
-                buf.append(':');
-                buf.append(getStart());
-            }
-            buf.append("\n");
-        } else if (getLine() != null)
-        {
-            String line = getLine();
-            buf.append(line.substring(0, getStart()));
-            buf.append("$");
-            buf.append(line.substring(getStart(), getFinish()));
-            buf.append("$");
-            buf.append(line.substring(getFinish()));
-            buf.append("\nLine ");
-            buf.append(getLineNumber());
-            buf.append(": ");
-        }
-        buf.append(getMessage());
-        return buf.toString();
+        return locationString + "\n" + getMessage();
     }
 }

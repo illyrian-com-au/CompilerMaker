@@ -4,7 +4,7 @@ import java.util.Set;
 
 import au.com.illyrian.parser.ParserException;
 
-public class BnfTreeDecimal extends BnfTreeBase
+public class BnfTreeDecimal <T> extends BnfTreeBase <T>
 {
     private final Float value;
     

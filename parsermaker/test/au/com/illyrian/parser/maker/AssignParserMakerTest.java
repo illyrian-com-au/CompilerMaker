@@ -60,11 +60,11 @@ public class AssignParserMakerTest extends ClassMakerTestCase
         maker.End();
     }
 
-    private Type parseExpression(String input) throws ParserException
+    private Type parseExpression(String string) throws ParserException
     {
-        Input lexer = new LexerInputString(input);
+        Input input = new LexerInputString(string);
         OperatorPrecidenceParser parser = createIncrementParser();
-        parser.setInput(lexer);
+        parser.setInput(input);
         parser.nextToken();
         AstExpression expr = (AstExpression)parser.expression();
     	AstStructureVisitor visitor = new AstStructureVisitor(maker);

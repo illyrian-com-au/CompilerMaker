@@ -4,7 +4,7 @@ import java.util.Set;
 
 import au.com.illyrian.parser.ParserException;
 
-public class BnfTreeInteger extends BnfTreeBase
+public class BnfTreeInteger <T> extends BnfTreeBase <T>
 {
     private final Integer value;
     

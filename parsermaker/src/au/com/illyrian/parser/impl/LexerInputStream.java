@@ -102,6 +102,6 @@ public class LexerInputStream extends LexerInputString implements Input
     
     public String toString()
     {
-        return getSourceFilename() + ':' + getLineNumber() + " " + super.toString();
+        return getSourceFilename() + ';' + getLineNumber() + "\n" + super.toString();
     }
 }

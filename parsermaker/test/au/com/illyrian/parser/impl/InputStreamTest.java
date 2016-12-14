@@ -6,9 +6,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import au.com.illyrian.parser.Lexer;
+import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.LexerInputStream;
-
 import junit.framework.TestCase;
 
 public class InputStreamTest extends TestCase
@@ -35,15 +35,15 @@ public class InputStreamTest extends TestCase
         out.println("package;");
         out.println("import;");
         Latin1Lexer tokeniser = new Latin1Lexer(new LexerInputStream(getReader(), null));
-        assertEquals("token", Lexer.IDENTIFIER, tokeniser.nextToken());
+        assertEquals("token", TokenType.IDENTIFIER, tokeniser.nextToken());
         assertEquals("String", "package", tokeniser.getTokenValue());
-        assertEquals("token", Lexer.DELIMITER, tokeniser.nextToken());
+        assertEquals("token", TokenType.DELIMITER, tokeniser.nextToken());
         assertEquals("String", ";", tokeniser.getTokenValue());
-        assertEquals("token", Lexer.IDENTIFIER, tokeniser.nextToken());
+        assertEquals("token", TokenType.IDENTIFIER, tokeniser.nextToken());
         assertEquals("String", "import", tokeniser.getTokenValue());
-        assertEquals("token", Lexer.DELIMITER, tokeniser.nextToken());
+        assertEquals("token", TokenType.DELIMITER, tokeniser.nextToken());
         assertEquals("String", ";", tokeniser.getTokenValue());
-        assertEquals("token", Lexer.END, tokeniser.nextToken());
+        assertEquals("token", TokenType.END, tokeniser.nextToken());
     }
     
     public void testSimpleTokeniser() throws Exception
@@ -51,11 +51,11 @@ public class InputStreamTest extends TestCase
         out.println("package;");
         out.println("import;");
         Latin1Lexer tokeniser = new Latin1Lexer(new LexerInputStream(getReader(), null));
-        expect(tokeniser, Lexer.IDENTIFIER, "package");
-        expect(tokeniser, Lexer.DELIMITER, ";");
-        expect(tokeniser, Lexer.IDENTIFIER, "import");
-        expect(tokeniser, Lexer.DELIMITER, ";");
-        expect(tokeniser, Lexer.END, null);
+        expect(tokeniser, TokenType.IDENTIFIER, "package");
+        expect(tokeniser, TokenType.DELIMITER, ";");
+        expect(tokeniser, TokenType.IDENTIFIER, "import");
+        expect(tokeniser, TokenType.DELIMITER, ";");
+        expect(tokeniser, TokenType.END, null);
     }
     
     public void testSpacedTokeniser() throws Exception
@@ -67,11 +67,11 @@ public class InputStreamTest extends TestCase
         out.println("import; ");
         out.println();
         Latin1Lexer tokeniser = new Latin1Lexer(new LexerInputStream(getReader(), null));
-        expect(tokeniser, Lexer.IDENTIFIER, "package");
-        expect(tokeniser, Lexer.DELIMITER, ";");
-        expect(tokeniser, Lexer.IDENTIFIER, "import");
-        expect(tokeniser, Lexer.DELIMITER, ";");
-        expect(tokeniser, Lexer.END, null);
+        expect(tokeniser, TokenType.IDENTIFIER, "package");
+        expect(tokeniser, TokenType.DELIMITER, ";");
+        expect(tokeniser, TokenType.IDENTIFIER, "import");
+        expect(tokeniser, TokenType.DELIMITER, ";");
+        expect(tokeniser, TokenType.END, null);
     }
     
     public void testFileLoad() throws Exception
@@ -80,29 +80,29 @@ public class InputStreamTest extends TestCase
         System.out.println(file.getAbsolutePath());
         LexerInputStream input = new LexerInputStream(file);
         Latin1Lexer tokeniser = new Latin1Lexer(input);
-        assertEquals("token", Lexer.IDENTIFIER, tokeniser.nextToken());
+        assertEquals("token", TokenType.IDENTIFIER, tokeniser.nextToken());
         assertEquals("String", "package", tokeniser.getTokenValue());
-        expect(tokeniser, Lexer.IDENTIFIER, "au");
-        expect(tokeniser, Lexer.OPERATOR, ".");
-        expect(tokeniser, Lexer.IDENTIFIER, "com");
-        expect(tokeniser, Lexer.OPERATOR, ".");
-        expect(tokeniser, Lexer.IDENTIFIER, "illyrian");
-        expect(tokeniser, Lexer.OPERATOR, ".");
-        expect(tokeniser, Lexer.IDENTIFIER, "parser");
-        expect(tokeniser, Lexer.OPERATOR, ".");
-        expect(tokeniser, Lexer.IDENTIFIER, "impl");
-        expect(tokeniser, Lexer.DELIMITER, ";");
-        expect(tokeniser, Lexer.IDENTIFIER, "import");
-        expect(tokeniser, Lexer.IDENTIFIER, "java");
-        expect(tokeniser, Lexer.OPERATOR, ".");
-        expect(tokeniser, Lexer.IDENTIFIER, "io");
-        expect(tokeniser, Lexer.OPERATOR, ".");
-        expect(tokeniser, Lexer.IDENTIFIER, "File");
-        expect(tokeniser, Lexer.DELIMITER, ";");
+        expect(tokeniser, TokenType.IDENTIFIER, "au");
+        expect(tokeniser, TokenType.OPERATOR, ".");
+        expect(tokeniser, TokenType.IDENTIFIER, "com");
+        expect(tokeniser, TokenType.OPERATOR, ".");
+        expect(tokeniser, TokenType.IDENTIFIER, "illyrian");
+        expect(tokeniser, TokenType.OPERATOR, ".");
+        expect(tokeniser, TokenType.IDENTIFIER, "parser");
+        expect(tokeniser, TokenType.OPERATOR, ".");
+        expect(tokeniser, TokenType.IDENTIFIER, "impl");
+        expect(tokeniser, TokenType.DELIMITER, ";");
+        expect(tokeniser, TokenType.IDENTIFIER, "import");
+        expect(tokeniser, TokenType.IDENTIFIER, "java");
+        expect(tokeniser, TokenType.OPERATOR, ".");
+        expect(tokeniser, TokenType.IDENTIFIER, "io");
+        expect(tokeniser, TokenType.OPERATOR, ".");
+        expect(tokeniser, TokenType.IDENTIFIER, "File");
+        expect(tokeniser, TokenType.DELIMITER, ";");
         input.close();
     }
     
-    void expect(Lexer tok, int token, String value)
+    void expect(Lexer tok, TokenType token, String value)
     {
         assertEquals("Token", token, tok.nextToken());
         assertEquals("String", value, tok.getTokenValue());
