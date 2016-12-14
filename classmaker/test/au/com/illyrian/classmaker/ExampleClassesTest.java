@@ -154,6 +154,7 @@ public class ExampleClassesTest extends TestCase
     {
         int eval(int a, int b);
     }
+    
     public void testSimpleMath() throws Exception
     {
         // Use separate factories to avoid duplicates in class loaded.

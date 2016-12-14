@@ -9,7 +9,6 @@ import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.ClassMaker.ForWhile;
 import au.com.illyrian.classmaker.ClassMaker.Initialiser;
 import au.com.illyrian.classmaker.ClassMaker.Labelled;
-
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
@@ -329,7 +328,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     @Override
     public void Method(String methodName, String returnType, int methodModifiers)
             throws ClassMakerException {
-        String modifiers = ClassMaker.toModifierString(methodModifiers);
+        String modifiers = toModifierString(methodModifiers);
         println("Method(\"" + methodName + "\", \"" + returnType + "\", "
                 + modifiers + ")");
     }
@@ -348,27 +347,58 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     @Override
     public void Declare(String name, Class javaClass, int modifiers)
             throws ClassMakerException {
-        String modStr = ClassMaker.toModifierString(modifiers);
+        String modStr = toModifierString(modifiers);
         String returnType = javaClass.getName();
-        println("Declare(\"" + name + "\", " + returnType + ", " + modStr + ")");
+        println("  Declare(\"" + name + "\", " + returnType + ", " + modStr + ");");
     }
 
     @Override
     public void Declare(String name, String typeName, int modifiers)
             throws ClassMakerException {
-        String modStr = ClassMaker.toModifierString(modifiers);
-        println("Declare(\"" + name + "\", \"" + typeName + "\", " + modStr
-                + ")");
+        String modStr = toModifierString(modifiers);
+        println("  Declare(\"" + name + "\", \"" + typeName + "\", " + modStr
+                + ");");
     }
 
     @Override
     public void Declare(String name, Type type, int modifiers)
             throws ClassMakerException {
-        String modStr = ClassMaker.toModifierString(modifiers);
+        String modStr = toModifierString(modifiers);
         String returnType = type.getName();
-        println("Method(\"" + name + "\", " + returnType + ", " + modStr + ")");
+        println("  Declare(\"" + name + "\", " + returnType + ", " + modStr + ");");
+    }
+    
+    String toModifierString(int modifiers) {
+        if (modifiers == 0) {
+            return "0";
+        }
+        StringBuffer buf = new StringBuffer();
+        appendModifier(buf, modifiers, ClassMaker.ACC_PUBLIC, "ACC_PUBLIC");
+        appendModifier(buf, modifiers, ClassMaker.ACC_PROTECTED, "ACC_PROTECTED");
+        appendModifier(buf, modifiers, ClassMaker.ACC_PRIVATE, "ACC_PRIVATE");
+        appendModifier(buf, modifiers, ClassMaker.ACC_STATIC, "ACC_STATIC");
+        appendModifier(buf, modifiers, ClassMaker.ACC_FINAL, "ACC_FINAL");
+        appendModifier(buf, modifiers, ClassMaker.ACC_SYNCHRONIZED, "ACC_SYNCHRONIZED");
+        appendModifier(buf, modifiers, ClassMaker.ACC_VOLATILE, "ACC_VOLATILE");
+        appendModifier(buf, modifiers, ClassMaker.ACC_TRANSIENT, "ACC_TRANSIENT");
+        appendModifier(buf, modifiers, ClassMaker.ACC_NATIVE, "ACC_NATIVE");
+        appendModifier(buf, modifiers, ClassMaker.ACC_ABSTRACT, "ACC_ABSTRACT");
+        appendModifier(buf, modifiers, ClassMaker.ACC_STRICTFP, "ACC_STRICTFP");
+        return buf.toString();
+
     }
 
+    /* Appends a modifier to a StringBuffer. */
+    private static void appendModifier(StringBuffer buf, int modifiers, int expected, String name)
+    {
+        if ((modifiers & expected) != 0)
+        {
+            if (buf.length() > 0)
+                buf.append(" | ");
+            buf.append(name);
+        }
+    }
+    
     @Override
     public Type Cast(Type source, String target) throws ClassMakerException {
         String ref = stack.pop();
