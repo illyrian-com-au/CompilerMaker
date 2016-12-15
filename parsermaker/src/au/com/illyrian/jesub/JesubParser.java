@@ -7,7 +7,6 @@ import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParseExpression;
 import au.com.illyrian.parser.ParseMembers;
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.opp.OperatorPrecidenceParser;
 
@@ -116,7 +115,7 @@ public class JesubParser extends OperatorPrecidenceParser
         return classMaker;
     }
 
-    public Object parseExpression(CompilerContext context) throws ParserException
+    public Object parseExpression(CompilerContext context)
     {
         setCompilerContext(context);
         beginFragment();
@@ -125,7 +124,7 @@ public class JesubParser extends OperatorPrecidenceParser
         return result;
     }
 
-    public Object parseMembers(CompilerContext context) throws ParserException
+    public Object parseMembers(CompilerContext context)
     {
         setCompilerContext(context);
         beginFragment();
@@ -134,7 +133,7 @@ public class JesubParser extends OperatorPrecidenceParser
         return result;
     }
 
-    public Object parseClass(CompilerContext context) throws ParserException
+    public Object parseClass(CompilerContext context)
     {
         setCompilerContext(context);
         beginFragment();
@@ -143,14 +142,14 @@ public class JesubParser extends OperatorPrecidenceParser
         return getJesubAction().getModule();
     }
 
-    protected void beginFragment() throws ParserException
+    protected void beginFragment()
     {
         getJesubAction();
         nextToken();
         expect(TokenType.DELIMITER, "{", "'{' expected at start of code fragment.");
     }
 
-    protected void endFragment() throws ParserException
+    protected void endFragment()
     {
         if (match(TokenType.DELIMITER, "}"))
             return;
@@ -182,7 +181,7 @@ public class JesubParser extends OperatorPrecidenceParser
      *                   case 5 : { action.setExtends($5); }
      *                  }
      */
-    public Object dec_class() throws ParserException
+    public Object dec_class()
     {
         Object $1 = access_modifiers();
         if ($1 != null)
@@ -206,7 +205,7 @@ public class JesubParser extends OperatorPrecidenceParser
 
     /** access_modifiers :== { "public" | "protected" | "private" | "abstract" | "final" 
      *                                  | "static" | "strictfp" | "transient" | "volatile" */
-    public Object access_modifiers() throws ParserException
+    public Object access_modifiers()
     {
         Object result = null;
         while (true)
@@ -243,7 +242,7 @@ public class JesubParser extends OperatorPrecidenceParser
      *                when $$ : { return className; }
      *                } 
      */
-    public String classname() throws ParserException
+    public String classname()
     {
         String qualifiedClassName = null;
         if (getTokenType() == TokenType.IDENTIFIER)
@@ -272,7 +271,7 @@ public class JesubParser extends OperatorPrecidenceParser
     /** 
      * implements_list ::= classname { ',' classname }
      */
-    public Object implements_list() throws ParserException
+    public Object implements_list()
     {
         Object result = null;
         String implementsClassName = classname();
@@ -287,7 +286,7 @@ public class JesubParser extends OperatorPrecidenceParser
     }
    
     /** declare_body ::= '{' { declare_member } '}' */
-    public Object declare_body() throws ParserException
+    public Object declare_body()
     {
         expect(TokenType.DELIMITER, "{");
         Object result = null;
@@ -305,7 +304,7 @@ public class JesubParser extends OperatorPrecidenceParser
     }
    
     /** declare_member ::= declare_type [ formal_parameters | semicolon ] */
-    public Object declare_member() throws ParserException
+    public Object declare_member()
     {
         Object result = null;
         result = declare_type();
@@ -322,7 +321,7 @@ public class JesubParser extends OperatorPrecidenceParser
     }
    
     /** declare_type ::= [ access_modifiers ] type [ array_bounds ] IDENTIFIER */
-    public Object declare_type() throws ParserException
+    public Object declare_type()
     {
         String simpleName = null;
         Object result = null;
@@ -341,7 +340,7 @@ public class JesubParser extends OperatorPrecidenceParser
    }
 
     /** formal_parameters ::= '(' [ declare_type { ',' declare_type ] ')'*/
-    public Object formal_parameters() throws ParserException
+    public Object formal_parameters()
     {
         Object result = null;
         expect(TokenType.DELIMITER, "(");
@@ -359,7 +358,7 @@ public class JesubParser extends OperatorPrecidenceParser
         return result;
     }
 
-    public Object type() throws ParserException
+    public Object type()
     {
         Object result = null;
         result = primitive_type();
@@ -367,7 +366,7 @@ public class JesubParser extends OperatorPrecidenceParser
    }
     
     /** primitive_type ::= "boolean" | "byte" | "short" | "char" | "int" | "long" | "float" | "double" | "void" */
-    public Object primitive_type() throws ParserException
+    public Object primitive_type()
     {
         Object result = null;
         if (accept(TokenType.RESERVED, "boolean"))

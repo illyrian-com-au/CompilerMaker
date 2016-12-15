@@ -6,7 +6,6 @@ import au.com.illyrian.classmaker.ast.BinaryOperator;
 import au.com.illyrian.classmaker.ast.TerminalNumber;
 import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.ParseClass;
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.ParserBase;
@@ -23,7 +22,7 @@ public class AstTokenParser extends ParserBase implements ParseClass<AstExpressi
         return new Latin1Lexer();
     }
     
-    public AstExpression parseClass(CompilerContext context) throws ParserException
+    public AstExpression parseClass(CompilerContext context)
     {
         setCompilerContext(context);
         
@@ -31,7 +30,7 @@ public class AstTokenParser extends ParserBase implements ParseClass<AstExpressi
         return perentheses();
     }
     
-    public AstExpression perentheses() throws ParserException
+    public AstExpression perentheses()
     {
     	AstExpression result = null;
         expect(TokenType.DELIMITER, "{", "'{' expected");
@@ -43,7 +42,7 @@ public class AstTokenParser extends ParserBase implements ParseClass<AstExpressi
         return result;
     }
     
-    public AstExpression expr() throws ParserException
+    public AstExpression expr()
     {
     	AstExpression result = value();
     	while (getTokenType() == TokenType.OPERATOR)
@@ -56,7 +55,7 @@ public class AstTokenParser extends ParserBase implements ParseClass<AstExpressi
     	return result;
     }
     
-    public AstExpression value() throws ParserException
+    public AstExpression value()
     {
     	if (getTokenType() == TokenType.NUMBER)
     	{
@@ -69,7 +68,7 @@ public class AstTokenParser extends ParserBase implements ParseClass<AstExpressi
     	}
     }
     
-    AstExpression createOperator(String operator, AstExpression operand1, AstExpression operand2) throws ParserException
+    AstExpression createOperator(String operator, AstExpression operand1, AstExpression operand2)
     {
     	if ("+".equals(operator)) {
     		return new BinaryOperator(BinaryOperator.ADD, operand1, operand2);

@@ -9,7 +9,6 @@ import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.expr.AstExpressionPrecidenceParser;
 import au.com.illyrian.parser.impl.LexerInputString;
 import au.com.illyrian.parser.opp.OperatorPrecidenceParser;
@@ -101,7 +100,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
         maker.End();
     }
 
-    private Type parseExpression(String input) throws ParserException
+    private Type parseExpression(String input)
     {
         Input lexer = new LexerInputString(input);
         OperatorPrecidenceParser parser = createParser();

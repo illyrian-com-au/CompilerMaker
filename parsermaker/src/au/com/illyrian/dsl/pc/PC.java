@@ -1,9 +1,7 @@
 package au.com.illyrian.dsl.pc;
 
 import au.com.illyrian.parser.CompilerContext;
-import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseClass;
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.ParserBase;
@@ -52,7 +50,7 @@ public class PC extends ParserBase implements ParseClass
      *  cha_attr    ::= "Charisma" ':' ability_score
      *  ability_score ::= int {3..18}
      */
-    public Object parseClass(CompilerContext context) throws ParserException
+    public Object parseClass(CompilerContext context)
     {
         setCompilerContext(context);
         nextToken();
@@ -62,7 +60,7 @@ public class PC extends ParserBase implements ParseClass
     }
     
     //*  class_body  ::= '{' abilities char_attrs '}'
-    public void class_body() throws ParserException
+    public void class_body()
     {
         expect(TokenType.DELIMITER, "{", "'{' expected.");
         abilities();
@@ -72,7 +70,7 @@ public class PC extends ParserBase implements ParseClass
     }
 
     //*  char_attr   ::= name_attr race_attr class_attr sex_attr align_attr
-    public void char_attrs() throws ParserException
+    public void char_attrs()
     {
         name_attr();
         race_attr();
@@ -81,7 +79,7 @@ public class PC extends ParserBase implements ParseClass
         align_attr();
     }
     //*  name_attr   ::= "Name" ':' SPAN_EOLN
-    public void name_attr() throws ParserException
+    public void name_attr()
     {
         expect(TokenType.IDENTIFIER, "Name");
         expect(TokenType.OPERATOR, ":");
@@ -111,7 +109,7 @@ public class PC extends ParserBase implements ParseClass
     
     //*  race_attr   ::= "Race" ':' "human" | "elf" | "dwarf" | "halfling"
     public static final String [] optionsRace = {"human", "elf", "dwarf", "halfling"};
-    public void race_attr() throws ParserException
+    public void race_attr()
     {
         expect(TokenType.IDENTIFIER, "Race");
         expect(TokenType.OPERATOR, ":");
@@ -121,7 +119,7 @@ public class PC extends ParserBase implements ParseClass
     }
     //*  class_attr  ::= "Class" ':' "fighter" | "magicuser" | "cleric" | "anticleric" | "thief"
     public static final String [] optionsClass = {"fighter", "magicuser", "cleric", "anticleric", "thief"};
-    public void class_attr() throws ParserException
+    public void class_attr()
     {
         expect(TokenType.IDENTIFIER, "Class");
         expect(TokenType.OPERATOR, ":");
@@ -132,7 +130,7 @@ public class PC extends ParserBase implements ParseClass
 
     //*  sex_attr    ::= "Sex" ':' "male" | "female"
     public static final String [] optionsSex = {"male", "female"};
-    public void sex_attr() throws ParserException
+    public void sex_attr()
     {
         expect(TokenType.IDENTIFIER, "Sex");
         expect(TokenType.OPERATOR, ":");
@@ -143,7 +141,7 @@ public class PC extends ParserBase implements ParseClass
     
     //*  align_attr  ::= "Alignment" ':' "lawful" | "neutral" | "chaotic"
     public static final String [] optionsAlign = {"lawful", "neutral", "chaotic"};
-    public void align_attr() throws ParserException
+    public void align_attr()
     {
         expect(TokenType.IDENTIFIER, "Alignment");
         expect(TokenType.OPERATOR, ":");
@@ -153,7 +151,7 @@ public class PC extends ParserBase implements ParseClass
     }
     
     //*  abilities   ::= "Abilities" ':' '{' many_abilities '}'
-    public void abilities() throws ParserException
+    public void abilities()
     {
         expect(TokenType.IDENTIFIER, "Abilities");
         expect(TokenType.OPERATOR, ":");
@@ -163,7 +161,7 @@ public class PC extends ParserBase implements ParseClass
     }
     
     //*  many_abilities ::= str_attr int_attr wis_attr dex_attr con_attr cha_attr
-    public void many_abilities() throws ParserException
+    public void many_abilities()
     {
         str_attr();
         int_attr();
@@ -174,7 +172,7 @@ public class PC extends ParserBase implements ParseClass
     }
     
     //*  str_attr    ::= "Strength" ':' ability_score
-    public void str_attr() throws ParserException
+    public void str_attr()
     {
         expect(TokenType.IDENTIFIER, "Str");
         expect(TokenType.OPERATOR, ":");
@@ -182,7 +180,7 @@ public class PC extends ParserBase implements ParseClass
     }
     
     //*  int_attr    ::= "Intelligence" ':' ability_score
-    public void int_attr() throws ParserException
+    public void int_attr()
     {
         expect(TokenType.IDENTIFIER, "Int");
         expect(TokenType.OPERATOR, ":");
@@ -190,7 +188,7 @@ public class PC extends ParserBase implements ParseClass
     }
     
     //*  wis_attr    ::= "Wisdom" ':' ability_score
-    public void wis_attr() throws ParserException
+    public void wis_attr()
     {
         expect(TokenType.IDENTIFIER, "Wis");
         expect(TokenType.OPERATOR, ":");
@@ -198,7 +196,7 @@ public class PC extends ParserBase implements ParseClass
     }
     
     //*  dex_attr    ::= "Dexterity" ':' ability_score
-    public void dex_attr() throws ParserException
+    public void dex_attr()
     {
         expect(TokenType.IDENTIFIER, "Dex");
         expect(TokenType.OPERATOR, ":");
@@ -206,7 +204,7 @@ public class PC extends ParserBase implements ParseClass
     }
     
     //*  con_attr    ::= "Constitution" ':' ability_score
-    public void con_attr() throws ParserException
+    public void con_attr()
     {
         expect(TokenType.IDENTIFIER, "Con");
         expect(TokenType.OPERATOR, ":");
@@ -214,14 +212,14 @@ public class PC extends ParserBase implements ParseClass
     }
     
     //*  cha_attr    ::= "Charisma" ':' ability_score
-    public void cha_attr() throws ParserException
+    public void cha_attr()
     {
         expect(TokenType.IDENTIFIER, "Cha");
         expect(TokenType.OPERATOR, ":");
         int score = ability_score("Cha");
     }
     
-    int ability_score(String name) throws ParserException
+    int ability_score(String name)
     {
         int score = 0;
         if (match(TokenType.NUMBER, null)) {

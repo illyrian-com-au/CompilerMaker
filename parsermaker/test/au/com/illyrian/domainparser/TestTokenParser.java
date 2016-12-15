@@ -3,7 +3,6 @@ package au.com.illyrian.domainparser;
 import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParseMembers;
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.ParserBase;
@@ -25,7 +24,7 @@ public class TestTokenParser extends ParserBase implements ParseClass, ParseMemb
     /* (non-Javadoc)
      * @see au.com.illyrian.classparser.Parser#parse()
      */
-    public void perentheses() throws ParserException
+    public void perentheses()
     {
         expect(TokenType.DELIMITER, "{", "'{' expected");
         while (getTokenType() != TokenType.END)
@@ -44,7 +43,7 @@ public class TestTokenParser extends ParserBase implements ParseClass, ParseMemb
     /* (non-Javadoc)
      * @see au.com.illyrian.classparser.Parser#parse()
      */
-    public Object parseClass(CompilerContext context) throws ParserException
+    public Object parseClass(CompilerContext context)
     {
         setCompilerContext(context);
         nextToken();
@@ -52,7 +51,7 @@ public class TestTokenParser extends ParserBase implements ParseClass, ParseMemb
         return buf.toString();
     }
     
-    public Object parseMembers(CompilerContext context) throws ParserException
+    public Object parseMembers(CompilerContext context)
     {
         setCompilerContext(context);
         nextToken();

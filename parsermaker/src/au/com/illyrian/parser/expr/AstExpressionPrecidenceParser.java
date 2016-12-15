@@ -3,7 +3,6 @@ package au.com.illyrian.parser.expr;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.ParserConstants;
@@ -97,7 +96,7 @@ public class AstExpressionPrecidenceParser
         addLedOperator(",", ParserConstants.COMMA, 0, Operator.BINARY);
     }
     
-    protected AstExpression parentheses(Operator nudOperator) throws ParserException {
+    protected AstExpression parentheses(Operator nudOperator) {
         AstExpression result = null;
         if (accept(TokenType.DELIMITER, "(")) {
             AstExpression firstOperand = expression();
@@ -125,9 +124,8 @@ public class AstExpressionPrecidenceParser
      *                    | IDENTIFIER ( )
      *                    | IDENTIFIER ( expression )
     * @return
-    * @throws ParserException
     */
-   protected AstExpression nameOperand() throws ParserException
+   protected AstExpression nameOperand()
    {
        return nameMethod();
    }
@@ -141,7 +139,7 @@ public class AstExpressionPrecidenceParser
      *                    | SUPER ( expression ) 
      *                    | NEW newInitialiser
     */
-   protected AstExpression reservedOperand() throws ParserException
+   protected AstExpression reservedOperand()
    {
        AstExpression result = null;
        if (match(TokenType.RESERVED, "this")) {
@@ -156,7 +154,7 @@ public class AstExpressionPrecidenceParser
        return result;
    }
    
-   protected AstExpression nameMethod() throws ParserException
+   protected AstExpression nameMethod()
    {
        AstExpression result = getPrecidenceActions().tokenAction(getLexer());
        nextToken();
@@ -177,9 +175,8 @@ public class AstExpressionPrecidenceParser
     *                   | NEW qualifiedType [ expression ]
     *                   | NEW qualifiedType [ expression ] arrayTypeExtend
     * @return
-    * @throws ParserException
     */
-   protected AstExpression newInitialiser() throws ParserException
+   protected AstExpression newInitialiser()
    {
        //Object a = new int[5][6][][];
        AstExpression result = null;
@@ -213,9 +210,8 @@ public class AstExpressionPrecidenceParser
     * 
     * @param qualifiedType
     * @return
-    * @throws ParserException
     */
-   protected AstExpression arrayTypeDimension(AstExpression qualifiedType) throws ParserException {
+   protected AstExpression arrayTypeDimension(AstExpression qualifiedType) {
        AstExpression result = qualifiedType;
        if (accept(TokenType.DELIMITER, "[")) {
            if (accept(TokenType.DELIMITER, "]")) {
@@ -237,9 +233,8 @@ public class AstExpressionPrecidenceParser
     * 
     * @param qualifiedType
     * @return
-    * @throws ParserException
     */
-   protected AstExpression arrayTypeExtend(AstExpression qualifiedType) throws ParserException {
+   protected AstExpression arrayTypeExtend(AstExpression qualifiedType) {
        AstExpression result = qualifiedType;
        if (accept(TokenType.DELIMITER, "[")) {
            expect(TokenType.DELIMITER, "]");
@@ -253,9 +248,8 @@ public class AstExpressionPrecidenceParser
     * qualifiedType   ::= IDENTIFIER
     *                   | IDENTIFIER . qualifiedType
     * @return
-    * @throws ParserException
     */
-   protected AstExpression qualifiedType() throws ParserException
+   protected AstExpression qualifiedType()
    {
        if (match(TokenType.IDENTIFIER)) {
            AstExpression result = getPrecidenceActions().tokenAction(getLexer());
@@ -279,9 +273,8 @@ public class AstExpressionPrecidenceParser
      * Eg. (value)-2 (a.b.c)+5 <br/>
      * @param firstOperand the expression that may be a type
      * @return true if the parenthesized expression represents a cast
-     * @throws ParserException if the operator being parsed is unknown
      */
-    public boolean isCastExpression(AstExpression firstOperand) throws ParserException
+    public boolean isCastExpression(AstExpression firstOperand)
     {
         if (isTokenAnOperand()) {
             // if the next token is an operand then the parenthesized expression MUST be a cast

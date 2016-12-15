@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.ast.BinaryOperator;
-import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.expr.AstExpressionPrecidenceAction;
 import au.com.illyrian.parser.impl.LexerInputString;
@@ -27,7 +26,7 @@ public class ExpressionParserTest extends TestCase
 
         @Override
         public AstExpression binaryAction(int operator, AstExpression leftOperand, AstExpression rightOperand)
-                throws ParserException
+               
         {
             if (operator == ParserConstants.POW) {
                 AstExpression left = (AstExpression) leftOperand;

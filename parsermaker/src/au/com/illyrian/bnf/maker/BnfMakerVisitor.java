@@ -40,12 +40,12 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         return null;
     }
 
-    public Type resolveDeclaration(BnfTreeList list) throws ParserException
+    public Type resolveDeclaration(BnfTreeList list)
     {
         return ClassMaker.VOID_TYPE;
     }
 
-    public Type resolveDeclaration(BnfTreeRule rule) throws ParserException
+    public Type resolveDeclaration(BnfTreeRule rule)
     {
         String methodName = rule.getTarget().getName();
         Type returnType = ClassMaker.OBJECT_TYPE; // FIXME
@@ -55,11 +55,11 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         return returnType;
     }
     
-    public Type resolveDeclaration(BnfTreeAlternative alt) throws ParserException {
+    public Type resolveDeclaration(BnfTreeAlternative alt) {
         return resolveAlternatives(alt.toAltArray(), 1, 1);
     }
  
-    Type resolveAlternatives(BnfTree [] alternatives, int offset, int variable) throws ParserException {
+    Type resolveAlternatives(BnfTree [] alternatives, int offset, int variable) {
         BnfTree left = alternatives[offset-1];
         if (offset < alternatives.length) {
             Type cond = (Type)left.resolveLookahead(this);
@@ -82,17 +82,17 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         return ClassMaker.VOID_TYPE;
     }
 
-    public Type resolveLookahead(BnfTreeAlternative alt) throws ParserException {
+    public Type resolveLookahead(BnfTreeAlternative alt) {
         Type cond = (Type)alt.getLeft().resolveLookahead(this);
         return cond;
     }
 
-    public Type resolveDeclaration(BnfTreeSequence seq) throws ParserException
+    public Type resolveDeclaration(BnfTreeSequence seq)
     {
         return resolveSequence(seq.toSeqArray(), 0, 1);
     }
     
-    Type resolveSequence(BnfTree [] sequence, int offset, int variable) throws ParserException {
+    Type resolveSequence(BnfTree [] sequence, int offset, int variable) {
         while (offset < sequence.length) {
             BnfTree tree = sequence[offset];
             if (tree.isVoidType()) {
@@ -108,7 +108,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         return ClassMaker.VOID_TYPE;
     }
 
-    public Type resolveLookahead(BnfTreeSequence seq) throws ParserException
+    public Type resolveLookahead(BnfTreeSequence seq)
     {
         Type cond = (Type)seq.getLeft().resolveLookahead(this);
         return cond;
@@ -119,29 +119,29 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         return null; // empty();
     }
 
-    public Type resolveDeclaration(BnfTreeMethodCall call) throws ParserException
+    public Type resolveDeclaration(BnfTreeMethodCall call)
     {
         getMaker().Eval(resolveType(call));
         return ClassMaker.VOID_TYPE;
     }
 
-    public Type resolveDeclaration(BnfTreeMacroCall call) throws ParserException
+    public Type resolveDeclaration(BnfTreeMacroCall call)
     {
         return ClassMaker.BOOLEAN_TYPE;
     }
 
-    public Type resolveDeclaration(BnfTreeReserved reserved) throws ParserException
+    public Type resolveDeclaration(BnfTreeReserved reserved)
     {
         expect(reserved.getName());
         return ClassMaker.VOID_TYPE;
     }
 
-    public Type resolveLookahead(BnfTreeReserved reserved) throws ParserException
+    public Type resolveLookahead(BnfTreeReserved reserved)
     {
         return match(reserved.getName());
     }
 
-    public Type resolveDeclaration(BnfTreeNonterminal nonterm) throws ParserException
+    public Type resolveDeclaration(BnfTreeNonterminal nonterm)
     {
         String name = nonterm.getName();
         return getMaker().Call(getMaker().This(), name, getMaker().Push());
@@ -181,18 +181,18 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         return result;
     }
 
-    public Type resolveLookahead(BnfTreeNonterminal reserved) throws ParserException
+    public Type resolveLookahead(BnfTreeNonterminal reserved)
     {
         return getMaker().Literal(true);
     }
 
-    public Type resolveDeclaration(BnfTreeName term) throws ParserException
+    public Type resolveDeclaration(BnfTreeName term)
     {
         expect(term.getName());
         return null;
     }
 
-    public Type resolveLookahead(BnfTreeName term) throws ParserException
+    public Type resolveLookahead(BnfTreeName term)
     {
         return match(term.getName());
     }

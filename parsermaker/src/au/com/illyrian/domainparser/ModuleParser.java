@@ -108,9 +108,8 @@ public class ModuleParser extends ParserBase implements ParseModule
     *
     * @param input - shared input for the parser
     * @return the result of parsing the input and applying actions from ExpressionAction.
-    * @throws ParserException - if an error occurs.
     */
-   public Object parseModule(CompilerContext context) throws ParserException
+   public Object parseModule(CompilerContext context)
    {
        setCompilerContext(context);
        // Read the first token from input.
@@ -124,7 +123,7 @@ public class ModuleParser extends ParserBase implements ParseModule
        return module;
    }
    
-   protected void endModule() throws ParserException
+   protected void endModule()
    {
        TokenType token = getTokenType();
        // Ensure all tokens have been processed.
@@ -143,7 +142,7 @@ public class ModuleParser extends ParserBase implements ParseModule
    }
    
    /** dec_module ::= dec_package more_imports dec_class */
-   public Object dec_module() throws ParserException
+   public Object dec_module()
    {
        Object decModule = packageStatement();
        decModule = more_imports();
@@ -152,7 +151,7 @@ public class ModuleParser extends ParserBase implements ParseModule
    }
    
    /** packageStatement   ::= [ 'package' classname ';' ] */
-   public Object packageStatement() throws ParserException
+   public Object packageStatement()
    {
        if (accept(TokenType.RESERVED, "package"))
        {
@@ -165,7 +164,7 @@ public class ModuleParser extends ParserBase implements ParseModule
    }
 
    /** more_imports ::= { 'import' classname ';' } */
-   public Object more_imports() throws ParserException
+   public Object more_imports()
    {
 	   Object result = null;
        if (accept(TokenType.RESERVED, "import"))
@@ -181,7 +180,7 @@ public class ModuleParser extends ParserBase implements ParseModule
    }
 
    /** classname ::= IDENTIFIER { '.' IDENTIFIER } */
-   public String classname() throws ParserException
+   public String classname()
    {
        String qualifiedClassName = null;
        if (getTokenType() == TokenType.IDENTIFIER)
@@ -208,7 +207,7 @@ public class ModuleParser extends ParserBase implements ParseModule
    }
 
    /** more_classname :== { '.' IDENTIFIER } */
-//   public String more_classname() throws ParserException
+//   public String more_classname()
 //   {
 //       String qualifiedClassName = null;
 //       if (accept(TokenType.OPERATOR, "."))
@@ -237,7 +236,7 @@ public class ModuleParser extends ParserBase implements ParseModule
     * @throws Exception -
     *             if an error occurs.
     */
-   public Object dec_class() throws ParserException
+   public Object dec_class()
    {
 	   Object result = null;
        if (getTokenType() == TokenType.IDENTIFIER)

@@ -50,7 +50,7 @@ public class AstExpressionPrecidenceAction
         return factory;
     }
 
-    public AstExpression tokenAction(Lexer lexer) throws ParserException
+    public AstExpression tokenAction(Lexer lexer)
     {
         AstExpression result = null;
         switch (lexer.getTokenType()) {
@@ -79,7 +79,7 @@ public class AstExpressionPrecidenceAction
     }
 
     public AstExpression binaryAction(int operator, AstExpression leftOperand, AstExpression rightOperand)
-            throws ParserException
+           
     {
         AstExpression result = null;
         switch (operator) {
@@ -171,7 +171,7 @@ public class AstExpressionPrecidenceAction
         return result;
     }
 
-    public AstExpression unaryAction(int operator, AstExpression operand) throws ParserException
+    public AstExpression unaryAction(int operator, AstExpression operand)
     {
         AstExpression result = null;
         switch (operator) {

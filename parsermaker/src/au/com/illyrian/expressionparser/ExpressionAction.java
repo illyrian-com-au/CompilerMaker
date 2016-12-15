@@ -10,7 +10,6 @@
 
 package au.com.illyrian.expressionparser;
 
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.opp.OperatorPrecidenceAction;
 
 /**
@@ -21,23 +20,23 @@ import au.com.illyrian.parser.opp.OperatorPrecidenceAction;
  */
 public interface ExpressionAction <T> extends OperatorPrecidenceAction <T>
 {
-    public Object declareFunctionName(String identifier) throws ParserException;
+    public Object declareFunctionName(String identifier);
 
-    public Object addParameter(Object params, String identifier) throws ParserException;
+    public Object addParameter(Object params, String identifier);
 
-    public Object declareFunction(Object name, Object params, Object body) throws ParserException;
+    public Object declareFunction(Object name, Object params, Object body);
 
-    public Object addFunction(Object function, Object functionList) throws ParserException;
+    public Object addFunction(Object function, Object functionList);
 
-    public Object declareClassname(String identifier) throws ParserException;
+    public Object declareClassname(String identifier);
 
-    public Object declareExtends(String extendClass) throws ParserException;
+    public Object declareExtends(String extendClass);
 
-    public Object declareClass(Object classname, Object extendClass, Object functionList) throws ParserException;
+    public Object declareClass(Object classname, Object extendClass, Object functionList);
 
-    public void beginMethod() throws ParserException;
+    public void beginMethod();
 
-    public Object endMethod(Object type) throws ParserException;
+    public Object endMethod(Object type);
 
-    public Object getModule() throws ParserException;
+    public Object getModule();
 }

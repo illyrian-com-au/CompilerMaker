@@ -10,7 +10,6 @@ import au.com.illyrian.expressionparser.FuncA;
 import au.com.illyrian.expressionparser.FuncABC;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.expr.AstExpressionPrecidenceParser;
 import au.com.illyrian.parser.impl.LexerInputString;
 import au.com.illyrian.parser.opp.OperatorPrecidenceParser;
@@ -60,7 +59,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
         maker.End();
     }
 
-    private Type parseExpression(String string) throws ParserException
+    private Type parseExpression(String string)
     {
         Input input = new LexerInputString(string);
         OperatorPrecidenceParser parser = createIncrementParser();

@@ -11,7 +11,6 @@ import au.com.illyrian.bnf.ast.BnfTreeRule;
 import au.com.illyrian.bnf.ast.BnfTreeString;
 import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.ClassMakerText;
-import au.com.illyrian.parser.ParserException;
 
 public class BnfMakerTextVisitorTest extends TestCase
 {
@@ -19,35 +18,35 @@ public class BnfMakerTextVisitorTest extends TestCase
     BnfMakerVisitor visitor = new BnfMakerVisitor(maker);
     BnfTreeFactory ast = new BnfTreeFactory();
 
-    public void testStringLiteral() throws ParserException {
+    public void testStringLiteral() {
         BnfTreeString tree = new BnfTreeString("Hello World");
         visitor.resolveType(tree);
         String expected = "[Literal(\"Hello World\")]";
         assertEquals(expected, maker.toString());
     }
 
-    public void testTerminalName() throws ParserException {
+    public void testTerminalName() {
         BnfTreeName tree = new BnfTreeName("IDENTIFIER");
         visitor.resolveType(tree);
         String expected = "[Get(\"IDENTIFIER\")]";
         assertEquals(expected, maker.toString());
     }
 
-    public void testMethodParams0() throws ParserException {
+    public void testMethodParams0() {
         BnfTreeMethodCall tree = ast.MethodCall(ast.BnfName("expression"), null);
         visitor.resolveType(tree);
         String expected = "[Call(This(), \"expression\", Push())]";
         assertEquals(expected, maker.toString());
     }
 
-    public void testMethodParams1() throws ParserException {
+    public void testMethodParams1() {
         BnfTreeMethodCall tree = ast.MethodCall(ast.BnfName("error"), ast.Literal("; expected"));
         visitor.resolveType(tree);
         String expected = "[Call(This(), \"error\", Push(Literal(\"; expected\")))]";
         assertEquals(expected, maker.toString());
     }
 
-    public void testMethodParams2() throws ParserException {
+    public void testMethodParams2() {
         BnfTreeMethodCall tree = ast.MethodCall(ast.BnfName("error"), 
                 ast.Comma(ast.Literal("Hello"), ast.Literal("World")));
         visitor.resolveType(tree);
@@ -55,14 +54,14 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals(expected, maker.toString());
     }
 
-    public void testResolveMethod() throws ParserException {
+    public void testResolveMethod() {
         BnfTreeMethodCall tree = ast.MethodCall(ast.BnfName("error"), ast.Literal("; expected"));
         visitor.resolveDeclaration(tree);
         String expected = error("; expected");
         assertEquals(expected, maker.toString());
     }
 
-    public void testSimpleToken() throws ParserException {
+    public void testSimpleToken() {
         BnfTree tree = ast.Seq(ast.BnfReserved("RETURN"), ast.Empty());
         assertEquals("RETURN .", tree.toString());
         tree.resolveDeclaration(visitor);
@@ -70,7 +69,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals(expected, maker.toString());
     }
 
-    public void testSimpleNonTerminal() throws ParserException {
+    public void testSimpleNonTerminal() {
         BnfTree tree = new BnfTreeNonterminal("parameters");
         assertEquals("parameters()", tree.toString());
         tree.resolveDeclaration(visitor);
@@ -78,7 +77,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals(expected, maker.toString());
     }
 
-    public void testAlternative1() throws ParserException {
+    public void testAlternative1() {
         BnfTree ret = ast.Seq(ast.BnfReserved("RETURN"), ast.Empty());
         BnfTree tree = ast.Alt(ret, ast.Empty());
         assertEquals("( RETURN . | . )", tree.toString());
@@ -88,7 +87,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals(expect, maker.toString());
     }
 
-    public void testAlternative2() throws ParserException {
+    public void testAlternative2() {
         BnfTree ret = ast.Seq(ast.BnfReserved("RETURN"), ast.Empty());
         BnfTree brk = ast.Seq(ast.BnfReserved("BREAK"), ast.Empty());
         BnfTree tree = ast.Alt(ret, brk);
@@ -100,7 +99,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals(expect, maker.toString());
     }
 
-    public void testReturnOptional1() throws ParserException {
+    public void testReturnOptional1() {
         BnfTree num = ast.Seq(ast.BnfReserved("INTEGER"), ast.Empty());
         BnfTree alt = ast.Alt(num, ast.Empty());
         BnfTree tree = ast.Seq(ast.BnfReserved("RETURN"), alt);
@@ -117,7 +116,7 @@ public class BnfMakerTextVisitorTest extends TestCase
     //         RETURN    alt
     //                 /     \
     //            BREAK      CONTINUE
-    public void testAlternative3Right() throws ParserException {
+    public void testAlternative3Right() {
         BnfTree ret  = ast.BnfReserved("RETURN");
         BnfTree brk  = ast.BnfReserved("BREAK");
         BnfTree cont = ast.BnfReserved("CONTINUE");
@@ -138,7 +137,7 @@ public class BnfMakerTextVisitorTest extends TestCase
     //         alt     CONTINUE
     //       /     \
     //   RETURN   BREAK 
-    public void testAlternative3Left() throws ParserException {
+    public void testAlternative3Left() {
         BnfTree ret  = ast.BnfReserved("RETURN");
         BnfTree brk  = ast.BnfReserved("BREAK");
         BnfTree cont = ast.BnfReserved("CONTINUE");
@@ -161,7 +160,7 @@ public class BnfMakerTextVisitorTest extends TestCase
     //         alt     CONTINUE
     //       /     \
     //   RETURN   BREAK 
-    public void testAlternativeOpt3() throws ParserException {
+    public void testAlternativeOpt3() {
         BnfTree ret  = ast.BnfReserved("RETURN");
         BnfTree brk  = ast.BnfReserved("BREAK");
         BnfTree cont = ast.BnfReserved("CONTINUE");
@@ -186,7 +185,7 @@ public class BnfMakerTextVisitorTest extends TestCase
     //         alt     CONTINUE
     //       /     \
     //   RETURN   BREAK 
-    public void testAlternativeError3() throws ParserException {
+    public void testAlternativeError3() {
         BnfTree ret  = ast.BnfReserved("RETURN");
         BnfTree brk  = ast.BnfReserved("BREAK");
         BnfTree cont = ast.BnfReserved("CONTINUE");
@@ -207,7 +206,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals(expect, maker.toString());
     }
     
-    public void testVariableAssign() throws ParserException {
+    public void testVariableAssign() {
         BnfTree result = ast.Seq(ast.Nonterminal("expression"), ast.Empty());
         BnfTree tree = ast.Seq(ast.BnfReserved("RETURN"), result);
         assertEquals("RETURN expression() .", tree.toString());
@@ -219,7 +218,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals(expect, maker.toString());
     }
     
-    public void testVariableAssign2() throws ParserException {
+    public void testVariableAssign2() {
         BnfTree for_9 = ast.Seq(ast.Nonterminal("statement"), ast.Empty());
         BnfTree for_8 = ast.Seq(ast.BnfReserved("RPAR"), for_9);
         BnfTree for_7 = ast.Seq(ast.Nonterminal("expression"), for_8);
@@ -253,7 +252,7 @@ public class BnfMakerTextVisitorTest extends TestCase
     //    qualified_name ::=
     //            name DOT qualified_name
     //        |   name  ;
-    public void testVariableAssign3() throws ParserException {
+    public void testVariableAssign3() {
         BnfTree seq3 = ast.Seq(ast.Nonterminal("qualified_name"), ast.Empty());
         BnfTree seq2 = ast.Seq(ast.BnfReserved("DOT"), seq3);
         BnfTree alt2 = ast.Alt(seq2, ast.Empty());
@@ -274,7 +273,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals(expect, maker.toString());
     }
 
-    public void testLookaheadAlt1() throws ParserException {
+    public void testLookaheadAlt1() {
         BnfTreeRule rule = ast.Rule(null, null);
         BnfFirstSet firstSet = new BnfFirstSet("jump");
         firstSet.add("RETURN");
@@ -287,7 +286,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals(expect, maker.toString());
     }
     
-    public void testLookaheadAlt2() throws ParserException {
+    public void testLookaheadAlt2() {
         BnfTreeRule rule = ast.Rule(null, null);
         BnfFirstSet firstSet = new BnfFirstSet("jump");
         firstSet.add("BREAK");
@@ -301,7 +300,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals(expect, maker.toString());
     }
     
-    public void testLookaheadAlt3() throws ParserException {
+    public void testLookaheadAlt3() {
         BnfTreeRule rule = ast.Rule(null, null);
         BnfFirstSet firstSet = new BnfFirstSet("jump");
         firstSet.add("BREAK");
@@ -319,7 +318,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals(expect, maker.toString());
     }
     
-    public void testLookaheadAlt4() throws ParserException {
+    public void testLookaheadAlt4() {
         BnfTreeRule rule = ast.Rule(null, null);
         BnfFirstSet firstSet = new BnfFirstSet("jump");
         firstSet.add("BREAK");

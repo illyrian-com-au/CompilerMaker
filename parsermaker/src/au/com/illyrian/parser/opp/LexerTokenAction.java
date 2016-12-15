@@ -11,7 +11,6 @@
 package au.com.illyrian.parser.opp;
 
 import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.ParserException;
 
 /**
  *
@@ -26,8 +25,7 @@ public interface LexerTokenAction<Expr>
      *
      * @param lexer -  the lexer containing the token.
      * @return an object representing the token.
-     * @throws ParserException - if an error occurs.
      */
-    public Expr tokenAction(Lexer lexer) throws ParserException;
+    public Expr tokenAction(Lexer lexer);
 
 }

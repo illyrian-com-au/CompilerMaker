@@ -67,7 +67,7 @@ public class ParserBase
     }
 
     /** Advance to the next token. */
-    public TokenType nextToken() throws ParserException
+    public TokenType nextToken()
     {
         TokenType token = getLexer().nextToken();
         if (token == TokenType.ERROR)
@@ -100,12 +100,12 @@ public class ParserBase
         return (token == s && (value == null || value.equals(tokenValue)));
     }
     
-    public boolean accept(Token token) throws ParserException
+    public boolean accept(Token token)
     {
         return accept(token.getTokenType(), token.getTokenValue());
     }
     
-    public boolean accept(TokenType s, String value) throws ParserException
+    public boolean accept(TokenType s, String value)
     {
         if (match(s, value)) 
         {
@@ -115,17 +115,17 @@ public class ParserBase
         return false;
     }
 
-    public String expect(Token token) throws ParserException
+    public String expect(Token token)
     {
         return expect(token.getTokenType(), token.getTokenValue());
     }
 
-    public String expect(TokenType expected, String value) throws ParserException
+    public String expect(TokenType expected, String value)
     {
         return expect(expected, value, null);
     }
 
-    public String expect(TokenType expected, String value, String message) throws ParserException
+    public String expect(TokenType expected, String value, String message)
     {
         if (match(expected, value)) 
         {

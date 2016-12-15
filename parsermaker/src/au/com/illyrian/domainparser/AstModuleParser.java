@@ -93,10 +93,8 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
      *            - shared input for the parser
      * @return the result of parsing the input and applying actions from
      *         ExpressionAction.
-     * @throws ParserException
-     *             - if an error occurs.
      */
-    public AstStructure parseModule(CompilerContext context) throws ParserException
+    public AstStructure parseModule(CompilerContext context)
     {
         setCompilerContext(context);
         // Read the first token from input.
@@ -110,7 +108,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
         return module;
     }
 
-    protected void endModule() throws ParserException
+    protected void endModule()
     {
         TokenType token = getTokenType();
         // Ensure all tokens have been processed.
@@ -127,7 +125,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
      * dec_module:AstStructure ::= dec_package more_imports dec_class { return
      * new AstDeclareModule($1, $2, $3); };
      */
-    public AstStructure dec_module() throws ParserException
+    public AstStructure dec_module()
     {
         AstExpression packageExpr = dec_package();
         AstExpression importsExpr = more_imports();
@@ -139,7 +137,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
      * packageStatement ::= 'package' class_name ';' { return $2; }
      * | EMPTY ;
      */
-    public AstExpression dec_package() throws ParserException
+    public AstExpression dec_package()
     {
         if (accept(TokenType.RESERVED, "package")) {
             AstExpression packageName = class_name();
@@ -155,7 +153,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
      * { return ($2==null) ? S1 : new AstExpressionLink($1, $2); }
      * | EMPTY
      */
-    public AstExpression more_imports() throws ParserException
+    public AstExpression more_imports()
     {
         if (match(TokenType.RESERVED, "import")) {
             AstExpression className = declare_import();
@@ -168,7 +166,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
     /**
      * declare_import:AstExpression ::= 'import' class_name ';' { return $2; } ;
      */
-    public AstExpression declare_import() throws ParserException
+    public AstExpression declare_import()
     {
         expect(TokenType.RESERVED, "import");
         AstExpression className = class_name();
@@ -181,7 +179,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
      * TerminalName(value); }
      * | error("Class name expected") ;
      */
-    public AstExpression simple_name() throws ParserException
+    public AstExpression simple_name()
     {
         AstExpression result = null;
         if (getTokenType() == TokenType.IDENTIFIER) {
@@ -198,7 +196,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
      * DotOperator($1, $2); }
      * | simple_name ;
      */
-    public AstExpression class_name() throws ParserException
+    public AstExpression class_name()
     {
         AstExpression result = simple_name();
         if (accept(TokenType.OPERATOR, ".")) {
@@ -209,7 +207,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
         return result;
     }
 
-    public String semi() throws ParserException
+    public String semi()
     {
         return expect(TokenType.DELIMITER, ";", "';' expected at end of statement");
     }
@@ -219,7 +217,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
      * verifyParserName($1, $5); return $3; }
      * | error("Parser class name expected") ;
      */
-    public AstDeclareClass dec_class() throws ParserException
+    public AstDeclareClass dec_class()
     {
         AstDeclareClass decClass = null;
         if (getTokenType() == TokenType.IDENTIFIER) {
@@ -241,7 +239,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
         return decClass;
     }
 
-    public AstDeclareClass code(String parseName) throws ParserException
+    public AstDeclareClass code(String parseName)
     {
         AstDeclareClass decClass = null;
         String qualifiedName = getModuleAction().getParserName(parseName);
@@ -253,7 +251,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
         return decClass;
     }
 
-    public void verifyParserName(AstExpression name1, AstExpression name2) throws ParserException
+    public void verifyParserName(AstExpression name1, AstExpression name2)
     {
         String firstName = name1.toString();
         String secondName = name2.toString();

@@ -89,7 +89,7 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
         return operator;
     }
 
-    protected Operator getNudOperator() throws ParserException
+    protected Operator getNudOperator()
     {
         Operator operator = null;
         TokenType token = getTokenType();
@@ -105,7 +105,7 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
         return operator;
     }
 
-    protected Operator getLedOperator() throws ParserException
+    protected Operator getLedOperator()
     {
         Operator operator = null;
         TokenType token = getTokenType();
@@ -121,7 +121,7 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
         return operator;
     }
 
-    protected void checkOperatorImplemented(TokenType tokenValue, String operatorName) throws ParserException
+    protected void checkOperatorImplemented(TokenType tokenValue, String operatorName)
     {
         // Throw an exception if this is a pure operator that we know nothing about.
         if (tokenValue == TokenType.OPERATOR && nudOperators.get(operatorName) == null
@@ -152,14 +152,14 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
         this.defaultPrecidence = defaultPrecidence;
     }
 
-    public Expr expression() throws ParserException
+    public Expr expression()
     {
         int minPrecidence = getDefaultPrecidence();
         Expr result = expression(minPrecidence);
         return result;
     }
 
-    protected Expr expression(int minPrecidence) throws ParserException
+    protected Expr expression(int minPrecidence)
     {
         Expr leftOperand = unaryExpression(minPrecidence);
         Operator operator = null;
@@ -170,7 +170,7 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
         return leftOperand;
     }
 
-    protected Expr ledExpression(Expr leftOperand, Operator operator, int minPrecidence) throws ParserException
+    protected Expr ledExpression(Expr leftOperand, Operator operator, int minPrecidence)
     {
         switch (operator.mode) {
         case Operator.BINARY:
@@ -214,7 +214,7 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
         return leftOperand;
     }
 
-    protected Expr unaryExpression(int minPrecidence) throws ParserException
+    protected Expr unaryExpression(int minPrecidence)
     {
         Expr result = null;
         // Check for a prefix operator
@@ -230,7 +230,7 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
         return result;
     }
     
-    protected Expr parentheses(Operator nudOperator) throws ParserException {
+    protected Expr parentheses(Operator nudOperator) {
         Expr result = null;
         if (accept(TokenType.DELIMITER, "(")) {
             result = expression();
@@ -247,9 +247,8 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
      * @param nudOperator the Nud operator that has just been recognized
      * @param minPrecedence the minimum precedence of the operator
      * @return an object of type Expr that represents the parsed expression
-     * @throws ParserException if the expression has an invalid syntax
      */
-    protected Expr nudExpression(Operator nudOperator, int minPrecedence) throws ParserException
+    protected Expr nudExpression(Operator nudOperator, int minPrecedence)
     {
         Expr result = null;
         if (nudOperator.mode == Operator.PREFIX) {
@@ -260,7 +259,7 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
         return result;
     }
 
-    protected Expr operandExpression() throws ParserException
+    protected Expr operandExpression()
     {
         Expr result = null;
         switch (getTokenType()) {
@@ -282,19 +281,19 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
         return result;
     }
     
-    protected Expr literalOperand() throws ParserException {
+    protected Expr literalOperand() {
         Expr result = getPrecidenceActions().tokenAction(getLexer());
         nextToken();
         return result;
     }
 
-    protected Expr nameOperand() throws ParserException {
+    protected Expr nameOperand() {
         Expr result = getPrecidenceActions().tokenAction(getLexer());
         nextToken();
         return result;
     }
 
-    protected Expr reservedOperand() throws ParserException {
+    protected Expr reservedOperand() {
         Expr result = getPrecidenceActions().tokenAction(getLexer());
         nextToken();
         return result;

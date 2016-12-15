@@ -10,7 +10,6 @@
 
 package au.com.illyrian.parser.opp;
 
-import au.com.illyrian.parser.ParserException;
 
 /**
  *
@@ -27,9 +26,8 @@ public interface OperatorPrecidenceAction<Expr> extends LexerTokenAction<Expr>
      * @param leftOperand - the expression on the left of the operand
      * @param rightOperand - the expression on the right of the operand
      * @return an object representing the operation
-     * @throws ParserException - if an error occurs
      */
-    public Expr binaryAction(int operator, Expr leftOperand, Expr rightOperand) throws ParserException;
+    public Expr binaryAction(int operator, Expr leftOperand, Expr rightOperand);
 
     /**
      * Perform an action to process a unary operator.
@@ -37,7 +35,6 @@ public interface OperatorPrecidenceAction<Expr> extends LexerTokenAction<Expr>
      * @param operator - information about the operator
      * @param operand - the expression on the right of the operand
      * @return an object representing the operation
-     * @throws ParserException - if an error occurs
      */
-    public Expr unaryAction(int operator, Expr operand) throws ParserException;
+    public Expr unaryAction(int operator, Expr operand);
 }

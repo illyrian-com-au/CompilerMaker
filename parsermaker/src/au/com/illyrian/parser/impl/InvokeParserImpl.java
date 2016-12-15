@@ -31,7 +31,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
         return getCompilerContext().getInput();
     }
     
-    protected Object loadParser(String parseName) throws ParserException
+    protected Object loadParser(String parseName)
     {
         Object objectInstance = null;
         try {
@@ -50,7 +50,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
     /* (non-Javadoc)
      * @see au.com.illyrian.parser.impl.InvokeParser#invokeParseModule(java.lang.String, au.com.illyrian.parser.Input)
      */
-    public T invokeParseModule(String parseName) throws ParserException
+    public T invokeParseModule(String parseName)
     {
         ParseModule<T> parserInstance = null;
         try {
@@ -71,7 +71,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
     /* (non-Javadoc)
      * @see au.com.illyrian.parser.impl.InvokeParser#invokeParseClass(java.lang.String, au.com.illyrian.parser.Input)
      */
-    public T invokeParseClass(String parseName) throws ParserException
+    public T invokeParseClass(String parseName)
     {
         ParseClass<T> parserInstance = null;
         try {
@@ -92,7 +92,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
     /* (non-Javadoc)
      * @see au.com.illyrian.parser.impl.InvokeParser#invokeParseMember(java.lang.String, au.com.illyrian.parser.Input)
      */
-    public T invokeParseMember(String parseName) throws ParserException
+    public T invokeParseMember(String parseName)
     {
         ParseMembers<T> parserInstance = null;
         try {
@@ -113,7 +113,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
     /* (non-Javadoc)
      * @see au.com.illyrian.parser.impl.InvokeParser#invokeParseStatement(java.lang.String, au.com.illyrian.parser.Input)
      */
-    public T invokeParseStatement(String parseName) throws ParserException
+    public T invokeParseStatement(String parseName)
     {
         ParseStatement<T> parserInstance = null;
         try {
@@ -134,7 +134,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
     /* (non-Javadoc)
      * @see au.com.illyrian.parser.impl.InvokeParser#invokeParseExpression(java.lang.String, au.com.illyrian.parser.Input)
      */
-    public T invokeParseExpression(String parseName) throws ParserException
+    public T invokeParseExpression(String parseName)
     {
         ParseExpression<T> parserInstance = null;
         try {

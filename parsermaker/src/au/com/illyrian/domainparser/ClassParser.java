@@ -1,7 +1,6 @@
 package au.com.illyrian.domainparser;
 
 
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.maker.ClassActionMaker;
 
@@ -94,7 +93,7 @@ public class ClassParser extends ModuleParser
     */
 
     /** dec_class   ::= class_modifiers "class" classname ["extends" classname] ["implements" implements_list] dec_body */
-    public Object dec_class() throws ParserException
+    public Object dec_class()
     {
         class_modifiers();
         expect(TokenType.RESERVED, "class", "import or class expected.");
@@ -114,7 +113,7 @@ public class ClassParser extends ModuleParser
         return dec_body();
     }
     
-    public Object class_modifiers() throws ParserException
+    public Object class_modifiers()
     {
         Object result = null;
         if (!match(TokenType.RESERVED, "class"))
@@ -144,7 +143,7 @@ public class ClassParser extends ModuleParser
     /** 
      * implements_list ::= classname { ',' classname }
      */
-    public Object implements_list() throws ParserException
+    public Object implements_list()
     {
         Object result = null;
         String implementsClassName = classname();
@@ -158,7 +157,7 @@ public class ClassParser extends ModuleParser
         return result;
     }
    
-    public Object dec_body() throws ParserException
+    public Object dec_body()
     {
     	Object result = null;
        if (getTokenType() == TokenType.IDENTIFIER)

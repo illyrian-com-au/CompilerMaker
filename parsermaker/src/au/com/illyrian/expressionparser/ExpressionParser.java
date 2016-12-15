@@ -17,7 +17,6 @@ import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.ParseClass;
 import au.com.illyrian.parser.ParseExpression;
 import au.com.illyrian.parser.ParseMembers;
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.expr.AstExpressionPrecidenceAction;
 import au.com.illyrian.parser.expr.AstExpressionPrecidenceParser;
@@ -151,7 +150,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
         return maker;
     }
 
-    public Object parseClass(CompilerContext context) throws ParserException
+    public Object parseClass(CompilerContext context)
     {
         setCompilerContext(context);
         // Read the first token from input.
@@ -166,12 +165,12 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
         return result;
     }
 
-    protected void beginFragment() throws ParserException
+    protected void beginFragment()
     {
         expect(TokenType.DELIMITER, "{", "'{' expected at start of code fragment.");
     }
 
-    protected void endFragment() throws ParserException
+    protected void endFragment()
     {
         if (match(TokenType.DELIMITER, "}"))
         	return;
@@ -197,7 +196,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     }
     
     /** dec_class ::= dec_classname dec_extends dec_functions */
-    public Object dec_class() throws ParserException
+    public Object dec_class()
     {
         Object classname = dec_classname();
         Object extendClass = dec_extends();
@@ -207,7 +206,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     }
 
     /** dec_classname ::= 'class' IDENTIFIER */
-    Object dec_classname() throws ParserException
+    Object dec_classname()
     {
         Object result = null;
         expect(TokenType.RESERVED, "class", null);
@@ -225,7 +224,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     }
 
     /** dec_extends ::= [ 'extends' IDENTIFIER ] */
-    Object dec_extends() throws ParserException
+    Object dec_extends()
     {
         String extendClass = null;
         if (accept(TokenType.RESERVED, "extends"))
@@ -245,7 +244,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     }
 
     /** dec_functions ::= '{' more_functions '}'  */
-    Object dec_functions() throws ParserException
+    Object dec_functions()
     {
         Object functionList = null;
         expect(TokenType.DELIMITER, "{", null);
@@ -256,7 +255,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     }
 
     /** more_functions ::= { dec_function } */
-    Object more_functions() throws ParserException
+    Object more_functions()
     {
         Object functionList = null;
         if (match(TokenType.IDENTIFIER, null))
@@ -280,7 +279,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
      * @throws Exception -
      *             if an error occurs.
      */
-    public Object parseMembers(CompilerContext context) throws ParserException
+    public Object parseMembers(CompilerContext context)
     {
         setCompilerContext(context);
         // Read the first token from input.
@@ -296,7 +295,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     }
 
     /** dec_function ::= IDENTIFIER '(' parameters ')' assign mult_expr ';' */
-    Object dec_function() throws ParserException
+    Object dec_function()
     {
         Object result = null;
         if (match(TokenType.IDENTIFIER, null))
@@ -316,7 +315,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
         return result;
     }
     
-    Object assign_op() throws ParserException
+    Object assign_op()
     {
         expect(TokenType.OPERATOR, "=", null);
         getExpressionAction().beginMethod();
@@ -324,7 +323,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
     }
 
     /** parameters ::= [ IDENTIFIER { ',' IDENTIFIER } ] */
-    Object parameters() throws ParserException
+    Object parameters()
     {
         Object params = null;
         if (match(TokenType.IDENTIFIER, null))
@@ -373,7 +372,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
      * @throws Exception -
      *             if an error occurs.
      */
-    public Object parseExpression(CompilerContext context) throws ParserException
+    public Object parseExpression(CompilerContext context)
     {
         setCompilerContext(context);
         context.visitParser(this);

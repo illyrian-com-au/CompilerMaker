@@ -53,7 +53,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      * param_opt  ::= name
      * name       ::= IDENTIFIER
      */
-    public BnfTree parseMembers(CompilerContext context) throws ParserException
+    public BnfTree parseMembers(CompilerContext context)
     {
         setCompilerContext(context);
 
@@ -62,7 +62,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     }
 
     /* class_body ::= BEGIN rules_plus END { $2 } ; */
-    public BnfTree class_body() throws ParserException
+    public BnfTree class_body()
     {
         expect(BnfToken.BEGIN);
         BnfTree $2 = rules_plus();
@@ -78,7 +78,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      *            |   parse_rule rules_plus { factory.List($1, $2) }
      *            ;
      */
-    public BnfTree rules_plus() throws ParserException
+    public BnfTree rules_plus()
     {
         BnfTree $1 = parse_rule();
         if (match(BnfToken.END)) {
@@ -90,7 +90,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     }
 
     /* parse_rule ::= rule_target ASSIGN rule_alt SEMI { factory.Rule($1, $3) } ; */
-    public BnfTree parse_rule() throws ParserException
+    public BnfTree parse_rule()
     {
         BnfTree $1 = rule_target();
         expect(BnfToken.ASSIGN);
@@ -102,7 +102,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     /*
      * rule_target ::= name | name COLON name | error("Name of rule expected") ;
      */
-    public BnfTree rule_target() throws ParserException
+    public BnfTree rule_target()
     {
         BnfTree $$ = null;
         if (match(BnfToken.IDENTIFIER)) {
@@ -123,7 +123,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     /*
      * type_opt ::= COLON name | EMPTY ;
      */
-    public BnfTree type_opt() throws ParserException
+    public BnfTree type_opt()
     {
         BnfTree $1 = null;
         if (accept(BnfToken.COLON))
@@ -136,7 +136,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     /*
      * rule_alt ::= rule_seq ALT rule_alt | rule_seq ;
      */
-    public BnfTree rule_alt() throws ParserException
+    public BnfTree rule_alt()
     {
         BnfTree $1 = rule_seq();
         if (accept(BnfToken.ALT)) {
@@ -150,7 +150,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     /*
      * seq_rule ::= rule_action | lookahead(ALT | SEMI) EMPTY | rule_token seq_rule ;
      */
-    public BnfTree rule_seq() throws ParserException
+    public BnfTree rule_seq()
     {
         BnfTree $$;
         if (match(BnfToken.BEGIN)) {
@@ -168,7 +168,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     /*
      * rule_action ::= BEGIN expression END ;
      */
-    public BnfTree rule_action() throws ParserException
+    public BnfTree rule_action()
     {
         expect(BnfToken.BEGIN);
         AstExpression expr = expression();
@@ -181,7 +181,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      *            |   lookahead(RESERVED) macro 
      *            |   error("Terminal, Non-terminal or Macro expected");
      */
-    public BnfTree rule_token() throws ParserException
+    public BnfTree rule_token()
     {
         BnfTree $$;
         if (match(BnfToken.IDENTIFIER)) {
@@ -197,7 +197,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     /*
      * actual_opt ::= lookahead(RPAR) EMPTY | param_mult ;
      */
-    public AstExpression actual_opt() throws ParserException
+    public AstExpression actual_opt()
     {
         if (match(BnfToken.RPAR)) {
             return factory.Empty();
@@ -211,7 +211,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      *            |   actual 
      *            ;
      */
-    public AstExpression param_mult() throws ParserException
+    public AstExpression param_mult()
     {
         AstExpression $$; 
         AstExpression $1 = actual();
@@ -230,7 +230,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      *        |   STRING  { factory.String(getLexer()) }
      *        |   error("Function parameter expected") ;
      */
-    public AstExpression actual() throws ParserException
+    public AstExpression actual()
     {
         AstExpression $$; 
         if (match(TokenType.NUMBER)) {
@@ -250,7 +250,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      * name_method ::=   name LPAR actual_opt RPAR = { factory.MethodCall($1, $3) } 
      *               |   name ; 
      */
-    public BnfTree name_method() throws ParserException
+    public BnfTree name_method()
     {
         BnfTree $$;
         BnfTree $1 = name();
@@ -269,7 +269,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      *      |   error("NameExpected")
      *      ;
      */
-    public BnfTree name() throws ParserException
+    public BnfTree name()
     {
         BnfTree $$;
         if (match(BnfToken.IDENTIFIER)) {
@@ -284,7 +284,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      * macro    ::=   macro_name LPAR macro_param RPAR = { factory.MacroCall($1, $3) } 
      *            |   macro_name ; 
      */
-    public BnfTree macro() throws ParserException
+    public BnfTree macro()
     {
         BnfTree $$;
         BnfTree $1 = macro_name();
@@ -301,7 +301,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     /*
      * macro_name ::= RESERVED = { factory.Reserved(getLexer()) } ;
      */
-    public BnfTree macro_name() throws ParserException
+    public BnfTree macro_name()
     {
         BnfTree $$;
         if (match(BnfToken.RESERVED)) {
@@ -316,7 +316,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      * macro_param ::=   STRING 
      *               |   macro_alt;
      */
-    public BnfTree macro_param() throws ParserException
+    public BnfTree macro_param()
     {
         BnfTree $$;
         if (match(BnfToken.STRING)) {
@@ -331,7 +331,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      * macro_alt   ::=   macro_seq 
      *               |   macro_seq ALT macro_alt;
      */
-    public BnfTree macro_alt() throws ParserException
+    public BnfTree macro_alt()
     {
         BnfTree $$;
         BnfTree $1 = macro_seq();
@@ -348,7 +348,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      * macro_seq   ::=   name 
      *               |   name macro_seq;
      */
-    public BnfTree macro_seq() throws ParserException
+    public BnfTree macro_seq()
     {
         BnfTree $$;
         BnfTree $1 = name();

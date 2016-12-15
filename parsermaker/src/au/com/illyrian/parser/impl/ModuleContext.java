@@ -128,7 +128,7 @@ public class ModuleContext implements CompilerContext
         return getClass().getClassLoader();
     }
 
-    public Object parseModule() throws ParserException
+    public Object parseModule()
     {
         ModuleParser parser = getModuleParser();
         visitParser(parser);

@@ -3,7 +3,6 @@ package au.com.illyrian.dsl;
 import au.com.illyrian.dsl.ast.DslActionAstFactory;
 import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.ParseClass;
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.Latin1Lexer;
 import au.com.illyrian.parser.impl.ParserBase;
@@ -59,7 +58,7 @@ public class DSL extends ParserBase implements ParseClass
      *  sub_action  ::= { qualifier '(' java_expr ')' } 
      *  java_expr   ::= 
      */
-    public Object parseClass(CompilerContext context) throws ParserException
+    public Object parseClass(CompilerContext context)
     {
         setCompilerContext(context);
         getDslAction();
@@ -68,7 +67,7 @@ public class DSL extends ParserBase implements ParseClass
         return class_body();
     }
     
-    public Object class_body() throws ParserException
+    public Object class_body()
     {
         expect(TokenType.DELIMITER, "{", "'{' expected.");
         Object result = many_rules();
@@ -77,7 +76,7 @@ public class DSL extends ParserBase implements ParseClass
         return result;
     }
 
-    public Object many_rules() throws ParserException
+    public Object many_rules()
     {
         Object ruleList = dslAction.newDslLanguage(null);
         while (true)
@@ -93,7 +92,7 @@ public class DSL extends ParserBase implements ParseClass
     }
 
     /*  parse_rule  ::= rule_target '::=' rule_expr [ '=' rule_action ] */
-    public Object parse_rule() throws ParserException
+    public Object parse_rule()
     {
         Object target = rule_target();
         expect(TokenType.OPERATOR, "::=", "'::=' expected.");
@@ -105,7 +104,7 @@ public class DSL extends ParserBase implements ParseClass
     }
     
     /*  rule_target  ::= IDENTIFIER [ ':' IDENTIFIER ] */
-    public Object rule_target() throws ParserException
+    public Object rule_target()
     {
         String name = expect(TokenType.IDENTIFIER, null, "Name of rule expected.");
         String type = null;
@@ -117,7 +116,7 @@ public class DSL extends ParserBase implements ParseClass
     }
 
     /*  rule_expr  ::= rule_alt { ',' rule_alt } ';' */
-    public Object rule_expr() throws ParserException 
+    public Object rule_expr() 
     {
         Object expr = rule_alt();
         while (true)
@@ -142,7 +141,7 @@ public class DSL extends ParserBase implements ParseClass
     }
 
     /*  rule_alt    ::= rule_elem { '|' rule_elem } */
-    public Object rule_alt() throws ParserException 
+    public Object rule_alt() 
     {
         Object expr = rule_elem();
         while (true)
@@ -161,7 +160,7 @@ public class DSL extends ParserBase implements ParseClass
     }
 
     /*  rule_elem   ::= IDENTIFIER | STRING | '[' rule_expr ']' | '{' rule_expr '}' | '(' rule_expr ')' */ 
-    public Object rule_elem() throws ParserException 
+    public Object rule_elem() 
     {
         Object expr = null;
         if (match(TokenType.IDENTIFIER, null))
@@ -205,7 +204,7 @@ public class DSL extends ParserBase implements ParseClass
         return expr;
     }
     
-    public void rule_action () throws ParserException  
+    public void rule_action ()  
     {
         expect(TokenType.DELIMITER, "{", "'{' expected.");
         expect(TokenType.DELIMITER, "}", "'}' expected.");

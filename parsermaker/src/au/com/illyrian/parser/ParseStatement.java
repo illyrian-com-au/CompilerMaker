@@ -6,7 +6,6 @@ public interface ParseStatement<T>
     /**
      * Parse a code fragment for a Domain Specific Language.
      * @return the result of parsing the input.
-     * @throws Exception - if an error occurs.
      */
-    public T parseStatement(CompilerContext context) throws ParserException;
+    public T parseStatement(CompilerContext context);
 }
