@@ -1,5 +1,6 @@
 package au.com.illyrian.bnf.ast;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,10 +10,11 @@ import au.com.illyrian.classmaker.types.Type;
 public class BnfTreeParser extends BnfTreeBase <Type>
 {
     private final BnfTree rules;
-    private Map<String, BnfTreeRule> ruleSet;
+    private final Map<String, BnfTreeRule> ruleSet;
     
     public BnfTreeParser(BnfTree rules) {
         this.rules = rules;
+        ruleSet = createRuleSet(rules.toRuleArray());
     }
     
     public Map<String, BnfTreeRule> getRuleSet()
@@ -20,9 +22,13 @@ public class BnfTreeParser extends BnfTreeBase <Type>
         return ruleSet;
     }
 
-    public void setRuleSet(Map<String, BnfTreeRule> ruleSet)
+    Map<String, BnfTreeRule> createRuleSet(BnfTreeRule [] ruleList)
     {
-        this.ruleSet = ruleSet;
+        Map<String, BnfTreeRule> set = new HashMap<String, BnfTreeRule>();
+        for (BnfTreeRule rule : ruleList) {
+            set.put(rule.getName(), rule);
+        }
+        return set;
     }
 
     public BnfTree getRules()
@@ -34,6 +40,12 @@ public class BnfTreeParser extends BnfTreeBase <Type>
         return getRules().toRuleArray();
     }
 
+    public BnfTreeParser replace(BnfTree rules) {
+        if (rules == this.rules)
+            return this;
+        return new BnfTreeParser(rules);
+    }
+    
     public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
     {
         return visitor.resolveFirst(this, firstSet);

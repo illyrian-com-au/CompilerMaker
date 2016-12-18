@@ -3,6 +3,7 @@ package au.com.illyrian.bnf.ast;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import au.com.illyrian.bnf.BnfParser;
@@ -14,6 +15,7 @@ import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.ModuleContext;
 import au.com.illyrian.parser.impl.LexerInputStream;
+import au.com.illyrian.test.StringReadWriter;
 
 public class AstMergeVisitorTest extends TestCase
 {
@@ -336,6 +338,77 @@ public class AstMergeVisitorTest extends TestCase
         String expect = "import_path ::= ( name ( DOT import_path . | SEMI . ) | MULT SEMI . | error(\"IncompleteImportPath\") . ) ;\n"
                       + "name ::= IDENTIFIER . ;";
         assertEquals("AST", expect, newtree.toString());
+    }
+    
+    public void testRuleLookup() throws Exception
+    {
+        StringReadWriter out = new StringReadWriter();
+        out.println("{");
+        out.println("   direction ::= north");
+        out.println("               | east");
+        out.println("               | south");
+        out.println("               | west");
+        out.println("               | error(\"WrongDirection\")");
+        out.println("         ;");
+        out.println("    north ::= NORTH | NORTH EAST | NORTH WEST;");
+        out.println("    east  ::= EAST;");
+        out.println("    south ::= SOUTH | SOUTH EAST | SOUTH WEST;");
+        out.println("    west  ::= WEST;");
+        out.println("}");
+        out.close();
+
+        Input input = new LexerInputStream(out.getReader(), null);
+        ModuleContext compile = new ModuleContext();
+        compile.setInput(input);
+        
+        BnfParser parser = new BnfParser();
+        BnfTree tree = parser.parseMembers(compile);
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
+        assertNotNull("Should not be null:", tree);
+        
+        BnfMergeVisitor merger = new BnfMergeVisitor();
+        BnfTree merged = tree.resolveMerge(merger);
+        assertNotNull("Should not be null:", merged);
+
+        BnfFirstVisitor first = new BnfFirstVisitor();
+        merged.resolveFirst(first, null);
+        
+        assertTrue("merged must be a BnfTreeParser", merged instanceof BnfTreeParser);
+        BnfTreeParser root = (BnfTreeParser)merged;
+
+        Map<String, BnfTreeRule> lookup = root.getRuleSet();
+        assertNotNull("Cannot find first set for north", lookup.get("north"));
+        BnfTreeRule north = lookup.get("north");
+        assertEquals("north ::= NORTH ( . | EAST . | WEST . ) ;",  north.toString());
+        assertNotNull("Cannot find first set for north", north.getFirstSet());
+        assertEquals("first(north)=[NORTH]",  north.getFirstSet().toString());
+
+        assertNotNull("Cannot find first set for east", lookup.get("east"));
+        BnfTreeRule east = lookup.get("east");
+        assertEquals("east ::= EAST . ;",  east.toString());
+        assertNotNull("Cannot find first set for east",  east.getFirstSet());
+        assertEquals("first(east)=[EAST]",  east.getFirstSet().toString());
+        
+        assertNotNull("Cannot find first set for south", lookup.get("south"));
+        BnfTreeRule south = lookup.get("south");
+        assertEquals("south ::= SOUTH ( . | EAST . | WEST . ) ;",  south.toString());
+        assertNotNull("Cannot find first set for south", south.getFirstSet());
+        assertEquals("first(south)=[SOUTH]",  south.getFirstSet().toString());
+        
+        assertNotNull("Cannot find first set for west", lookup.get("west"));
+        BnfTreeRule west = lookup.get("west");
+        assertEquals("west ::= WEST . ;",  west.toString());
+        assertNotNull("Cannot find first set for west",  west.getFirstSet());
+        assertEquals("first(west)=[WEST]",  west.getFirstSet().toString());
+        
+        assertNotNull("Cannot find first set for direction", lookup.get("direction"));
+        BnfTreeRule direction = lookup.get("direction");
+        String expected = "direction ::= ( north . | east . | south . | west . "
+                + "| error(\"WrongDirection\") . ) ;";
+        assertEquals(expected, direction.toString());
+        assertNotNull("Cannot find first set for direction", direction.getFirstSet());
+        assertEquals("first(direction)=[EAST, NORTH, SOUTH, WEST]",  direction.getFirstSet().toString());
+
     }
     
 }

@@ -18,8 +18,8 @@ import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
+import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Type;
-import au.com.illyrian.parser.ParserException;
 
 public class BnfMakerVisitor extends AstExpressionVisitor
 {
@@ -35,21 +35,25 @@ public class BnfMakerVisitor extends AstExpressionVisitor
     }
 
 
-    public Type resolveDeclaration(BnfTreeParser bnfTreeParser)
+    public Type resolveDeclaration(BnfTreeParser tree)
     {
-        return null;
+        tree.getRules().resolveDeclaration(this);
+        return ClassMaker.VOID_TYPE;
     }
 
     public Type resolveDeclaration(BnfTreeList list)
     {
+        BnfTreeRule [] rules = list.toRuleArray();
+        for (BnfTree rule : rules) {
+            rule.resolveDeclaration(this);
+        }
         return ClassMaker.VOID_TYPE;
     }
 
     public Type resolveDeclaration(BnfTreeRule rule)
     {
         String methodName = rule.getTarget().getName();
-        Type returnType = ClassMaker.OBJECT_TYPE; // FIXME
-        methodBegin(methodName, returnType);
+        Type returnType = methodBegin(methodName, "Object");
         rule.getBody().resolveDeclaration(this);
         methodEnd();
         return returnType;
@@ -238,10 +242,12 @@ public class BnfMakerVisitor extends AstExpressionVisitor
 
     /************* Convenience Methods **************/
     
-    void methodBegin(String methodName, Type returnType) {
-        getMaker().Method(methodName, returnType.getName(), ClassMaker.ACC_PUBLIC);
+    Type methodBegin(String methodName, String returnType) {
+        DeclaredType declared = getMaker().findDeclaredType(returnType);
+        getMaker().Method(methodName, declared.getName(), ClassMaker.ACC_PUBLIC);
         getMaker().Begin();
-        getMaker().Declare("$$", returnType, 0);
+        getMaker().Declare("$$", declared.getType(), 0);
+        return declared.getType();
     }
     
     void methodEnd() {

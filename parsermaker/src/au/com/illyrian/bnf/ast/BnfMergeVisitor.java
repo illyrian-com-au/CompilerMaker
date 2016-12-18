@@ -9,22 +9,10 @@ public class BnfMergeVisitor
     
     public BnfTree resolveMerge(BnfTreeParser goal)
     {
-        return goal.getRules().resolveMerge(this);
+        BnfTree list = goal.getRules().resolveMerge(this);
+        return goal.replace(list);
     }
     
-    public BnfTreeBase resolveMerge(BnfTreeList binary)
-    {
-        BnfTree head = null;
-        if (binary.getLeft() != null) {
-            head = binary.getLeft().resolveMerge(this);
-        }
-        BnfTree tail = null;
-        if (binary.getRight() != null) {
-            tail = binary.getRight().resolveMerge(this);
-        }
-        return binary.replace(head, tail);
-    }
-
     public BnfTree resolveMerge(BnfTreeRule rule)
     {
         BnfTree newBody = rule.getBody().resolveMerge(this);

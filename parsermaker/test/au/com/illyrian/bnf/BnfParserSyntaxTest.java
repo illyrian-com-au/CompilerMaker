@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.util.Set;
 
 import junit.framework.TestCase;
+import au.com.illyrian.bnf.ast.BnfFirstSet;
 import au.com.illyrian.bnf.ast.BnfFirstVisitor;
 import au.com.illyrian.bnf.ast.BnfMergeVisitor;
 import au.com.illyrian.bnf.ast.BnfTree;
@@ -168,14 +169,9 @@ public class BnfParserSyntaxTest extends TestCase
         assertEquals("Wrong number of rule", rules.length, i);
     }
     
-    private String getRuleName(BnfTreeRule rule) {
-        return rule.getTarget().toString();
-    }
-    
-    private String getSet(BnfFirstVisitor first, BnfTreeRule rule) {
-        String name = getRuleName(rule);
-        Set<String> set = first.getSet(name);
-        return (set == null ? "first(" + name + ")= null" : set.toString());
+    private String getSet(BnfTreeRule rule) {
+        BnfFirstSet set = rule.getFirstSet();
+        return set.toString();
     }
 
     public void testFirstJesubSyntax() throws Exception {
@@ -199,50 +195,50 @@ public class BnfParserSyntaxTest extends TestCase
         int i = 0;
         BnfTreeRule [] rules = merged.toRuleArray();
         
-        assertEquals("first(goal)=[ABSTRACT, CLASS, FINAL, IMPORT, INTERFACE, PACKAGE, PRIVATE, PROTECTED, PUBLIC, STRICTFP]", getSet(first, rules[i++]));
-        assertEquals("first(name)=[IDENTIFIER]", getSet(first, rules[i++]));
-        assertEquals("first(qualified_name)=[IDENTIFIER]", getSet(first, rules[i++]));
-        assertEquals("first(modifier_mult)=[<EMPTY>, ABSTRACT, FINAL, PRIVATE, PROTECTED, PUBLIC, STRICTFP]", getSet(first, rules[i++]));
-        assertEquals("first(compilation_unit)=[ABSTRACT, CLASS, FINAL, IMPORT, INTERFACE, PACKAGE, PRIVATE, PROTECTED, PUBLIC, STRICTFP]", getSet(first, rules[i++]));
-        assertEquals("first(package_opt)=[<EMPTY>, PACKAGE]", getSet(first, rules[i++]));
-        assertEquals("first(import_mult)=[<EMPTY>, IMPORT]", getSet(first, rules[i++]));
-        assertEquals("first(import_path_plus)=[IDENTIFIER, MULT]", getSet(first, rules[i++]));
-        assertEquals("first(class_declaration_plus)=[ABSTRACT, CLASS, FINAL, INTERFACE, PRIVATE, PROTECTED, PUBLIC, STRICTFP]", getSet(first, rules[i++]));
-        assertEquals("first(class_declaration)=[ABSTRACT, CLASS, FINAL, INTERFACE, PRIVATE, PROTECTED, PUBLIC, STRICTFP]", getSet(first, rules[i++]));
-        assertEquals("first(extends_opt)=[<EMPTY>, EXTENDS]", getSet(first, rules[i++]));
-        assertEquals("first(implements_opt)=[<EMPTY>, IMPLEMENTS]", getSet(first, rules[i++]));
-        assertEquals("first(implements_plus)=[IDENTIFIER]", getSet(first, rules[i++]));
-        assertEquals("first(class_body)=[BEGIN]", getSet(first, rules[i++]));
-        assertEquals("first(member_mult)=[<EMPTY>, ABSTRACT, BOOLEAN, BYTE, CHAR, DOUBLE, FINAL, FLOAT, IDENTIFIER, INT, LONG, PRIVATE, PROTECTED, PUBLIC, SHORT, STRICTFP, VOID]", getSet(first, rules[i++]));
-        assertEquals("first(member)=[ABSTRACT, BOOLEAN, BYTE, CHAR, DOUBLE, FINAL, FLOAT, IDENTIFIER, INT, LONG, PRIVATE, PROTECTED, PUBLIC, SHORT, STRICTFP, VOID]", getSet(first, rules[i++]));
-        assertEquals("first(method_type)=[BOOLEAN, BYTE, CHAR, DOUBLE, FLOAT, IDENTIFIER, INT, LONG, SHORT, VOID]", getSet(first, rules[i++]));
-        assertEquals("first(type)=[BOOLEAN, BYTE, CHAR, DOUBLE, FLOAT, IDENTIFIER, INT, LONG, SHORT]", getSet(first, rules[i++]));
-        assertEquals("first(primitive_type)=[BOOLEAN, BYTE, CHAR, DOUBLE, FLOAT, INT, LONG, SHORT]", getSet(first, rules[i++]));
-        assertEquals("first(class_type)=[IDENTIFIER]", getSet(first, rules[i++]));
-        assertEquals("first(formal_mult)=[ABSTRACT, BOOLEAN, BYTE, CHAR, DOUBLE, FINAL, FLOAT, IDENTIFIER, INT, LONG, PRIVATE, PROTECTED, PUBLIC, SHORT, STRICTFP]", getSet(first, rules[i++]));
-        assertEquals("first(method_body)=[BEGIN, SEMI]", getSet(first, rules[i++]));
-        assertEquals("first(compound_statement)=[BEGIN]", getSet(first, rules[i++]));
-        assertEquals("first(statement_mult)=[<EMPTY>, ABSTRACT, BEGIN, BOOLEAN, BREAK, BYTE, CHAR, CONTINUE, DOUBLE, FINAL, FLOAT, FOR, IDENTIFIER, IF, INT, LONG, LOOKAHEAD(IDENTIFIER COLON), PRIVATE, PROTECTED, PUBLIC, RETURN, SEMI, SHORT, STRICTFP, TRY, WHILE]", getSet(first, rules[i++]));
-        assertEquals("first(statement)=[ABSTRACT, BEGIN, BOOLEAN, BREAK, BYTE, CHAR, CONTINUE, DOUBLE, FINAL, FLOAT, FOR, IDENTIFIER, IF, INT, LONG, LOOKAHEAD(IDENTIFIER COLON), PRIVATE, PROTECTED, PUBLIC, RETURN, SEMI, SHORT, STRICTFP, TRY, WHILE]", getSet(first, rules[i++]));
-        assertEquals("first(labeled_statement)=[FOR, WHILE]", getSet(first, rules[i++]));
-        assertEquals("first(declare_label_opt)=[<EMPTY>, LOOKAHEAD(IDENTIFIER COLON)]", getSet(first, rules[i++]));
-        assertEquals("first(if_else_statement)=[IF]", getSet(first, rules[i++]));
-        assertEquals("first(else_opt)=[<EMPTY>, ELSE]", getSet(first, rules[i++]));
-        assertEquals("first(while_statement)=[WHILE]", getSet(first, rules[i++]));
-        assertEquals("first(for_statement)=[FOR]", getSet(first, rules[i++]));
-        assertEquals("first(try_statement)=[TRY]", getSet(first, rules[i++]));
-        assertEquals("first(catch_plus)=[CATCH, FINALLY]", getSet(first, rules[i++]));
-        assertEquals("first(catch_clause)=[CATCH]", getSet(first, rules[i++]));
-        assertEquals("first(finally_clause)=[FINALLY]", getSet(first, rules[i++]));
-        assertEquals("first(break_statement)=[BREAK]", getSet(first, rules[i++]));
-        assertEquals("first(continue_statement)=[CONTINUE]", getSet(first, rules[i++]));
-        assertEquals("first(label_opt)=[<EMPTY>, IDENTIFIER]", getSet(first, rules[i++]));
-        assertEquals("first(return_statement)=[RETURN]", getSet(first, rules[i++]));
-        assertEquals("first(declare_statement)=[ABSTRACT, BOOLEAN, BYTE, CHAR, DOUBLE, FINAL, FLOAT, IDENTIFIER, INT, LONG, PRIVATE, PROTECTED, PUBLIC, SHORT, STRICTFP]", getSet(first, rules[i++]));
-        assertEquals("first(expression_statement)=[]", getSet(first, rules[i++]));
-        assertEquals("first(expression_opt)=[<EMPTY>]", getSet(first, rules[i++]));
-        assertEquals("first(expression)=[]", getSet(first, rules[i++]));
-        assertEquals("first(actual_opt)=[<EMPTY>]", getSet(first, rules[i++]));
+        assertEquals("first(goal)=[ABSTRACT, CLASS, FINAL, IMPORT, INTERFACE, PACKAGE, PRIVATE, PROTECTED, PUBLIC, STRICTFP]", getSet(rules[i++]));
+        assertEquals("first(name)=[IDENTIFIER]", getSet(rules[i++]));
+        assertEquals("first(qualified_name)=[IDENTIFIER]", getSet(rules[i++]));
+        assertEquals("first(modifier_mult)=[<EMPTY>, ABSTRACT, FINAL, PRIVATE, PROTECTED, PUBLIC, STRICTFP]", getSet(rules[i++]));
+        assertEquals("first(compilation_unit)=[ABSTRACT, CLASS, FINAL, IMPORT, INTERFACE, PACKAGE, PRIVATE, PROTECTED, PUBLIC, STRICTFP]", getSet(rules[i++]));
+        assertEquals("first(package_opt)=[<EMPTY>, PACKAGE]", getSet(rules[i++]));
+        assertEquals("first(import_mult)=[<EMPTY>, IMPORT]", getSet(rules[i++]));
+        assertEquals("first(import_path_plus)=[IDENTIFIER, MULT]", getSet(rules[i++]));
+        assertEquals("first(class_declaration_plus)=[ABSTRACT, CLASS, FINAL, INTERFACE, PRIVATE, PROTECTED, PUBLIC, STRICTFP]", getSet(rules[i++]));
+        assertEquals("first(class_declaration)=[ABSTRACT, CLASS, FINAL, INTERFACE, PRIVATE, PROTECTED, PUBLIC, STRICTFP]", getSet(rules[i++]));
+        assertEquals("first(extends_opt)=[<EMPTY>, EXTENDS]", getSet(rules[i++]));
+        assertEquals("first(implements_opt)=[<EMPTY>, IMPLEMENTS]", getSet(rules[i++]));
+        assertEquals("first(implements_plus)=[IDENTIFIER]", getSet(rules[i++]));
+        assertEquals("first(class_body)=[BEGIN]", getSet(rules[i++]));
+        assertEquals("first(member_mult)=[<EMPTY>, ABSTRACT, BOOLEAN, BYTE, CHAR, DOUBLE, FINAL, FLOAT, IDENTIFIER, INT, LONG, PRIVATE, PROTECTED, PUBLIC, SHORT, STRICTFP, VOID]", getSet(rules[i++]));
+        assertEquals("first(member)=[ABSTRACT, BOOLEAN, BYTE, CHAR, DOUBLE, FINAL, FLOAT, IDENTIFIER, INT, LONG, PRIVATE, PROTECTED, PUBLIC, SHORT, STRICTFP, VOID]", getSet(rules[i++]));
+        assertEquals("first(method_type)=[BOOLEAN, BYTE, CHAR, DOUBLE, FLOAT, IDENTIFIER, INT, LONG, SHORT, VOID]", getSet(rules[i++]));
+        assertEquals("first(type)=[BOOLEAN, BYTE, CHAR, DOUBLE, FLOAT, IDENTIFIER, INT, LONG, SHORT]", getSet(rules[i++]));
+        assertEquals("first(primitive_type)=[BOOLEAN, BYTE, CHAR, DOUBLE, FLOAT, INT, LONG, SHORT]", getSet(rules[i++]));
+        assertEquals("first(class_type)=[IDENTIFIER]", getSet(rules[i++]));
+        assertEquals("first(formal_mult)=[ABSTRACT, BOOLEAN, BYTE, CHAR, DOUBLE, FINAL, FLOAT, IDENTIFIER, INT, LONG, PRIVATE, PROTECTED, PUBLIC, SHORT, STRICTFP]", getSet(rules[i++]));
+        assertEquals("first(method_body)=[BEGIN, SEMI]", getSet(rules[i++]));
+        assertEquals("first(compound_statement)=[BEGIN]", getSet(rules[i++]));
+        assertEquals("first(statement_mult)=[<EMPTY>, ABSTRACT, BEGIN, BOOLEAN, BREAK, BYTE, CHAR, CONTINUE, DOUBLE, FINAL, FLOAT, FOR, IDENTIFIER, IF, INT, LONG, LOOKAHEAD(IDENTIFIER COLON), PRIVATE, PROTECTED, PUBLIC, RETURN, SEMI, SHORT, STRICTFP, TRY, WHILE]", getSet(rules[i++]));
+        assertEquals("first(statement)=[ABSTRACT, BEGIN, BOOLEAN, BREAK, BYTE, CHAR, CONTINUE, DOUBLE, FINAL, FLOAT, FOR, IDENTIFIER, IF, INT, LONG, LOOKAHEAD(IDENTIFIER COLON), PRIVATE, PROTECTED, PUBLIC, RETURN, SEMI, SHORT, STRICTFP, TRY, WHILE]", getSet(rules[i++]));
+        assertEquals("first(labeled_statement)=[FOR, WHILE]", getSet(rules[i++]));
+        assertEquals("first(declare_label_opt)=[<EMPTY>, LOOKAHEAD(IDENTIFIER COLON)]", getSet(rules[i++]));
+        assertEquals("first(if_else_statement)=[IF]", getSet(rules[i++]));
+        assertEquals("first(else_opt)=[<EMPTY>, ELSE]", getSet(rules[i++]));
+        assertEquals("first(while_statement)=[WHILE]", getSet(rules[i++]));
+        assertEquals("first(for_statement)=[FOR]", getSet(rules[i++]));
+        assertEquals("first(try_statement)=[TRY]", getSet(rules[i++]));
+        assertEquals("first(catch_plus)=[CATCH, FINALLY]", getSet(rules[i++]));
+        assertEquals("first(catch_clause)=[CATCH]", getSet(rules[i++]));
+        assertEquals("first(finally_clause)=[FINALLY]", getSet(rules[i++]));
+        assertEquals("first(break_statement)=[BREAK]", getSet(rules[i++]));
+        assertEquals("first(continue_statement)=[CONTINUE]", getSet(rules[i++]));
+        assertEquals("first(label_opt)=[<EMPTY>, IDENTIFIER]", getSet(rules[i++]));
+        assertEquals("first(return_statement)=[RETURN]", getSet(rules[i++]));
+        assertEquals("first(declare_statement)=[ABSTRACT, BOOLEAN, BYTE, CHAR, DOUBLE, FINAL, FLOAT, IDENTIFIER, INT, LONG, PRIVATE, PROTECTED, PUBLIC, SHORT, STRICTFP]", getSet(rules[i++]));
+        assertEquals("first(expression_statement)=[]", getSet(rules[i++]));
+        assertEquals("first(expression_opt)=[<EMPTY>]", getSet(rules[i++]));
+        assertEquals("first(expression)=[]", getSet(rules[i++]));
+        assertEquals("first(actual_opt)=[<EMPTY>]", getSet(rules[i++]));
         assertEquals("Wrong number of rule", rules.length, i);
     }
 }

@@ -14,14 +14,20 @@ public class BnfFirstVisitor
     Map<String, BnfTreeRule> ruleSet;
     
     public BnfFirstVisitor() {
-        firstSets = createMap();
+        firstSets = new HashMap<String, BnfFirstSet>();
         ruleSet = new HashMap<String, BnfTreeRule>();
     }
     
-    Map<String, BnfFirstSet> createMap() {
-        return new HashMap<String, BnfFirstSet>();
+    public Map<String, BnfFirstSet> getFirstSets()
+    {
+        return firstSets;
     }
-    
+
+    public Map<String, BnfTreeRule> getRuleSet()
+    {
+        return ruleSet;
+    }
+
     BnfFirstSet createSet(String name) {
         return new BnfFirstSet(name);
     }
