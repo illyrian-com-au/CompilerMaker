@@ -19,6 +19,10 @@ public class StringReadWriter extends PrintWriter
     {
         return new StringReader(toString());
     }
+    
+    public void close() {
+        // Do nothing otherwise the string gets reset.
+    }
 
     public String toString() {
         return out.toString();
