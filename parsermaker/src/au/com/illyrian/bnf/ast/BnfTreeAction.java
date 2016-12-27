@@ -3,11 +3,11 @@ package au.com.illyrian.bnf.ast;
 import au.com.illyrian.classmaker.ast.AstExpression;
 
 
-public class BnfTreeExpression extends BnfTreeBase
+public class BnfTreeAction extends BnfTreeBase
 {
     AstExpression expr;
     
-    public BnfTreeExpression(AstExpression expr) {
+    public BnfTreeAction(AstExpression expr) {
         this.expr = expr;
     }
     

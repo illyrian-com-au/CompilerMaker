@@ -1,8 +1,11 @@
 package au.com.illyrian.bnf;
 
+import au.com.illyrian.bnf.ast.BnfFirstVisitor;
+import au.com.illyrian.bnf.ast.BnfMergeVisitor;
 import au.com.illyrian.bnf.ast.BnfTree;
-import au.com.illyrian.bnf.ast.BnfTreeExpression;
+import au.com.illyrian.bnf.ast.BnfTreeAction;
 import au.com.illyrian.bnf.ast.BnfTreeFactory;
+import au.com.illyrian.bnf.ast.BnfTreeParser;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Lexer;
@@ -11,7 +14,7 @@ import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.expr.AstExpressionPrecidenceParser;
 
-public class BnfParser extends AstExpressionPrecidenceParser implements ParseMembers
+public class BnfParser extends AstExpressionPrecidenceParser implements ParseMembers<BnfTreeParser>
 {
     BnfTreeFactory factory;
 
@@ -53,23 +56,30 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      * param_opt  ::= name
      * name       ::= IDENTIFIER
      */
-    public BnfTree parseMembers(CompilerContext context)
+    public BnfTreeParser parseMembers(CompilerContext context)
     {
         setCompilerContext(context);
 
         nextToken();
-        return class_body();
+        BnfTreeParser tree = class_body();
+
+        BnfMergeVisitor merger = new BnfMergeVisitor();
+        BnfTreeParser merged = tree.resolveMerge(merger);
+    
+        BnfFirstVisitor first = new BnfFirstVisitor();
+        merged.resolveFirst(first, null);
+        
+        return merged;
     }
 
     /* class_body ::= BEGIN rules_plus END { $2 } ; */
-    public BnfTree class_body()
+    public BnfTreeParser class_body()
     {
         expect(BnfToken.BEGIN);
         BnfTree $2 = rules_plus();
         if (!match(BnfToken.END)) {
             throw error("} expected");
         }
-        //return $2;
         return factory.Parser($2);
     }
 
@@ -173,7 +183,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         expect(BnfToken.BEGIN);
         AstExpression expr = expression();
         expect(BnfToken.END);
-        return new BnfTreeExpression(expr);
+        return new BnfTreeAction(expr);
     }
 
     /*
@@ -289,7 +299,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         BnfTree $$;
         BnfTree $1 = macro_name();
         if (accept(BnfToken.LPAR)) {
-            BnfTree $3 = macro_param();
+            BnfTree $3 = macro_alt();
             expect(BnfToken.RPAR);
             $$ = factory.MacroCall($1, $3);
         } else {
@@ -308,21 +318,6 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
             $$ = factory.Reserved(getLexer());
         } else {
             throw error("MacroNameExpected");
-        }
-        return $$;
-    }
-
-    /*
-     * macro_param ::=   STRING 
-     *               |   macro_alt;
-     */
-    public BnfTree macro_param()
-    {
-        BnfTree $$;
-        if (match(BnfToken.STRING)) {
-            $$ = factory.BnfString(getLexer());
-        } else {
-            $$ = macro_alt();
         }
         return $$;
     }

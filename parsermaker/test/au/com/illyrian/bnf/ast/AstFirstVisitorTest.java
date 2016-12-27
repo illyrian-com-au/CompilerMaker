@@ -37,7 +37,10 @@ public class AstFirstVisitorTest extends TestCase
         context.setInput(input);
         
         BnfParser parser = new BnfParser();
-        BnfTree tree = parser.parseMembers(context);
+        //BnfTree tree = parser.parseMembers(context);
+        parser.setCompilerContext(context);
+        parser.nextToken();
+        BnfTreeParser tree = parser.class_body();
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         return tree;
     }

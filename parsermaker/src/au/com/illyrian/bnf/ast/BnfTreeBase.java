@@ -4,6 +4,8 @@ import java.util.Set;
 
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.ast.AstExpressionBase;
+import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
+import au.com.illyrian.classmaker.types.Type;
 
 public abstract class BnfTreeBase <T> extends AstExpressionBase implements BnfTree <T>
 {
@@ -34,6 +36,11 @@ public abstract class BnfTreeBase <T> extends AstExpressionBase implements BnfTr
          throw new IllegalStateException("Cannot resolve Lookahead: " + getClass().getSimpleName());
      }
 
+     public Type resolveType(BnfMakerVisitor visitor)
+     {
+         throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveType(visitor)");
+     }
+     
      public boolean matches(BnfTree other) {
          return false;
      }

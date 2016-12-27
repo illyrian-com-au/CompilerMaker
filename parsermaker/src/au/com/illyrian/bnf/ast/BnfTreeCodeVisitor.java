@@ -30,10 +30,6 @@ public class BnfTreeCodeVisitor
     {
     }
 
-    public void resolveRule(BnfTreeString string)
-    {
-    }
-
     public void resolveRule(BnfTreeReserved reserved)
     {
     }
@@ -42,7 +38,7 @@ public class BnfTreeCodeVisitor
     {
     }
 
-    public void resolveRule(BnfTreeExpression astParserExpr)
+    public void resolveRule(BnfTreeAction astParserExpr)
     {
     }
 }

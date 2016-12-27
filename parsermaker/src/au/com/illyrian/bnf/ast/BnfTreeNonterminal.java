@@ -38,10 +38,9 @@ public class BnfTreeNonterminal extends BnfTreeName
         return visitor.resolveLookahead(this);
     }
 
-    public Type resolveType(AstExpressionVisitor visitor)
+    public Type resolveType(BnfMakerVisitor visitor)
     {
-        BnfMakerVisitor mVisitor = (BnfMakerVisitor)visitor;
-        return mVisitor.resolveType(this);
+        return visitor.resolveType(this);
     }
 
     public String toString() {

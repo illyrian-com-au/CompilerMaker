@@ -7,19 +7,19 @@ public class BnfMergeVisitor
     {
     }
     
-    public BnfTree resolveMerge(BnfTreeParser goal)
+    public BnfTreeParser resolveMerge(BnfTreeParser goal)
     {
         BnfTree list = goal.getRules().resolveMerge(this);
         return goal.replace(list);
     }
     
-    public BnfTree resolveMerge(BnfTreeRule rule)
+    public BnfTreeRule resolveMerge(BnfTreeRule rule)
     {
         BnfTree newBody = rule.getBody().resolveMerge(this);
         return rule.replace(rule.getTarget(), newBody);
     }
 
-    public BnfTreeBase resolveMerge(BnfTreeBinary binary)
+    public BnfTreeBinary resolveMerge(BnfTreeBinary binary)
     {
         BnfTree head = null;
         if (binary.getLeft() != null) {

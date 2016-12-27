@@ -3,6 +3,7 @@ package au.com.illyrian.bnf.ast;
 import java.util.Set;
 
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
+import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
 import au.com.illyrian.classmaker.types.Type;
 
 public class BnfTreeName extends BnfTreeBase <Type>
@@ -47,6 +48,11 @@ public class BnfTreeName extends BnfTreeBase <Type>
     public Type resolveLookahead(BnfMakerVisitor visitor)
     {
         return visitor.resolveLookahead(this);
+    }
+
+    public Type resolveType(BnfMakerVisitor visitor)
+    {
+        return visitor.resolveType(this);
     }
 
     public String toString() {

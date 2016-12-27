@@ -1,16 +1,24 @@
 package au.com.illyrian.bnf.maker;
 
+import java.util.Map;
+
 import junit.framework.TestCase;
+import au.com.illyrian.bnf.BnfParser;
 import au.com.illyrian.bnf.ast.BnfFirstSet;
 import au.com.illyrian.bnf.ast.BnfTree;
 import au.com.illyrian.bnf.ast.BnfTreeFactory;
 import au.com.illyrian.bnf.ast.BnfTreeMethodCall;
 import au.com.illyrian.bnf.ast.BnfTreeName;
 import au.com.illyrian.bnf.ast.BnfTreeNonterminal;
+import au.com.illyrian.bnf.ast.BnfTreeParser;
 import au.com.illyrian.bnf.ast.BnfTreeRule;
-import au.com.illyrian.bnf.ast.BnfTreeString;
 import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.ClassMakerText;
+import au.com.illyrian.parser.Input;
+import au.com.illyrian.parser.TokenType;
+import au.com.illyrian.parser.impl.LexerInputStream;
+import au.com.illyrian.parser.impl.ModuleContext;
+import au.com.illyrian.test.StringReadWriter;
 
 public class BnfMakerTextVisitorTest extends TestCase
 {
@@ -18,24 +26,17 @@ public class BnfMakerTextVisitorTest extends TestCase
     BnfMakerVisitor visitor = new BnfMakerVisitor(maker);
     BnfTreeFactory ast = new BnfTreeFactory();
 
-    public void testStringLiteral() {
-        BnfTreeString tree = new BnfTreeString("Hello World");
-        visitor.resolveType(tree);
-        String expected = "[Literal(\"Hello World\")]";
-        assertEquals(expected, maker.toString());
-    }
-
     public void testTerminalName() {
         BnfTreeName tree = new BnfTreeName("IDENTIFIER");
         visitor.resolveType(tree);
-        String expected = "[Get(\"IDENTIFIER\")]";
+        String expected = "[" + match("IDENTIFIER") + "]";
         assertEquals(expected, maker.toString());
     }
 
     public void testMethodParams0() {
         BnfTreeMethodCall tree = ast.MethodCall(ast.BnfName("expression"), null);
         visitor.resolveType(tree);
-        String expected = "[Call(This(), \"expression\", Push())]";
+        String expected = "[" + call("expression") + "]";
         assertEquals(expected, maker.toString());
     }
 
@@ -266,8 +267,8 @@ public class BnfMakerTextVisitorTest extends TestCase
         + declare("$1") 
         + assign("$1", call("name"))
         + ifThen("DOT", expect("DOT") 
-                + declare("$3") 
-                + assign("$3", call("qualified_name"))
+                + declare("$2") 
+                + assign("$2", call("qualified_name"))
                 )
         + endMethod();
         assertEquals(expect, maker.toString());
@@ -335,6 +336,64 @@ public class BnfMakerTextVisitorTest extends TestCase
                 match("CONTINUE")), 
                 match("RETURN")), 
                 match("STOP")) + "]"; 
+        assertEquals(expect, maker.toString());
+    }
+    
+    BnfTreeParser parseCompassTree() throws Exception 
+    {
+        StringReadWriter out = new StringReadWriter();
+        out.println("{");
+        out.println("    direction ::= north");
+        out.println("               | east");
+        out.println("               | south");
+        out.println("               | west");
+        out.println("               | error(\"WrongDirection\")");
+        out.println("         ;");
+        out.println("    north ::= NORTH | NORTH EAST | NORTH WEST;");
+        out.println("    east  ::= EAST;");
+        out.println("    south ::= SOUTH | SOUTH EAST | SOUTH WEST;");
+        out.println("    west  ::= WEST;");
+        out.println("}");
+        out.close();
+    
+        Input input = new LexerInputStream(out.getReader(), null);
+        ModuleContext compile = new ModuleContext();
+        compile.setInput(input);
+        
+        BnfParser parser = new BnfParser();
+        BnfTreeParser tree = parser.parseMembers(compile);
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
+        assertNotNull("Should not be null:", tree);
+        
+        return tree;
+    }
+    
+    public void testLooaheadForAlt1() throws Exception 
+    {
+        BnfTreeParser tree = parseCompassTree();
+        
+        Map<String, BnfTreeRule> lookup = tree.getRuleSet();
+        visitor.setRuleSet(lookup);
+
+        BnfTreeRule eastRule = lookup.get("direction");
+        eastRule.resolveDeclaration(visitor);
+        String expect 
+        = beginMethod("direction", "java.lang.Object")
+        + ifThenElse("NORTH", 
+            declare("$1")
+            + assign("$1", call("north")),
+            ifThenElse("EAST",
+               declare("$1")
+               + assign("$1", call("east")),
+            ifThenElse("SOUTH",
+               declare("$1")
+               + assign("$1", call("south")),
+            ifThenElse("WEST",
+               declare("$1")
+               + assign("$1", call("west")),
+               error("WrongDirection")
+        ))))
+        + endMethod();
         assertEquals(expect, maker.toString());
     }
     

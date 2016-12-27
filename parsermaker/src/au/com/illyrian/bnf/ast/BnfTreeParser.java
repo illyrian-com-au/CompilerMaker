@@ -51,7 +51,7 @@ public class BnfTreeParser extends BnfTreeBase <Type>
         return visitor.resolveFirst(this, firstSet);
     }
 
-    public BnfTree resolveMerge(BnfMergeVisitor visitor) 
+    public BnfTreeParser resolveMerge(BnfMergeVisitor visitor) 
     {
         return visitor.resolveMerge(this);
     }

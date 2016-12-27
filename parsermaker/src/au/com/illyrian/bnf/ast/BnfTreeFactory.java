@@ -71,21 +71,7 @@ public class BnfTreeFactory extends AstExpressionFactory
     public BnfTreeReserved BnfReserved(String name) {
         return new BnfTreeReserved(name);
     }
-    
-    public BnfTreeString BnfString(Lexer lexer) {
-        if (lexer.getTokenType() == TokenType.STRING) {
-            BnfTreeString result = BnfString(lexer.getTokenString());
-            lexer.nextToken();
-            return result;
-        } else {
-            throw new IllegalArgumentException("String expected.");
-        }
-    }
-    
-    public BnfTreeString BnfString(String string) {
-        return new BnfTreeString(string);
-    }
- 
+     
     public AstExpression Integer(Lexer lexer)
     {
         if (lexer.getTokenType() == TokenType.NUMBER) {
@@ -131,11 +117,6 @@ public class BnfTreeFactory extends AstExpressionFactory
     public BnfTree Empty()
     {
         return new BnfTreeEmpty();
-    }
-
-    public BnfTree Comma(BnfTree left, BnfTree right)
-    {
-        return new BnfTreeComma(left, right);
     }
 
 }

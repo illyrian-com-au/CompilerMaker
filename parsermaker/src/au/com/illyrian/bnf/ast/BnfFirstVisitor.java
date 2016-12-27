@@ -150,12 +150,6 @@ public class BnfFirstVisitor
         return  false;
     }
 
-    public boolean resolveFirst(BnfTreeString string, Set<String> firstSet)
-    {
-        add(firstSet, string.toString());
-        return false;
-    }
-
     public boolean resolveFirst(BnfTreeMacroCall macro, Set<String> firstSet)
     {
         // Only add the LOOKAHEAD macro to the first set.

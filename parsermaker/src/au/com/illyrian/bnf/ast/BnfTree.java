@@ -4,13 +4,15 @@ import java.util.Set;
 
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.types.Type;
 
 public interface BnfTree <T> extends AstExpression
 {
-    // FIXME - remove checked exceptions
     public T resolveDeclaration(BnfMakerVisitor visitor);
     
     public T resolveLookahead(BnfMakerVisitor visitor);
+
+    public Type resolveType(BnfMakerVisitor visitor);
 
     public BnfTree resolveMerge(BnfMergeVisitor visitor);
     

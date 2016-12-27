@@ -6,13 +6,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Set;
 
 import junit.framework.TestCase;
 import au.com.illyrian.bnf.ast.BnfFirstSet;
-import au.com.illyrian.bnf.ast.BnfFirstVisitor;
-import au.com.illyrian.bnf.ast.BnfMergeVisitor;
 import au.com.illyrian.bnf.ast.BnfTree;
+import au.com.illyrian.bnf.ast.BnfTreeParser;
 import au.com.illyrian.bnf.ast.BnfTreeRule;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.TokenType;
@@ -51,8 +49,12 @@ public class BnfParserSyntaxTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
-        BnfTree tree = parser.parseMembers(compile);
+        // Avoid parseMembers(ModuleContext) as it includes merging of common states.
+        parser.setCompilerContext(compile);
+        parser.nextToken();
+        BnfTreeParser tree = parser.class_body();
+        
+        // Verify that all input has been parsed.
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
         int i = 0;
@@ -112,15 +114,10 @@ public class BnfParserSyntaxTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
         BnfTree tree = parser.parseMembers(compile);
-        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
-        BnfMergeVisitor merge = new BnfMergeVisitor();
-        BnfTree merged = tree.resolveMerge(merge);
-
         int i = 0;
-        BnfTreeRule [] rules = merged.toRuleArray();
+        BnfTreeRule [] rules = tree.toRuleArray();
         
         assertEquals("Wrong rule", "goal ::= compilation_unit . ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "name ::= IDENTIFIER {} ;", rules[i++].toRuleString());
@@ -181,19 +178,11 @@ public class BnfParserSyntaxTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        //compile.visit(parser);
-        BnfTree tree = parser.parseMembers(compile);
+        BnfTreeParser tree = parser.parseMembers(compile);
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
-        BnfMergeVisitor merge = new BnfMergeVisitor();
-        BnfTree merged = tree.resolveMerge(merge);
-
-        BnfFirstVisitor first = new BnfFirstVisitor();
-        merged.resolveFirst(first, null);
-
-        assertNotNull("Cannot find first set for goal", first.getSet("goal"));
         int i = 0;
-        BnfTreeRule [] rules = merged.toRuleArray();
+        BnfTreeRule [] rules = tree.toRuleArray();
         
         assertEquals("first(goal)=[ABSTRACT, CLASS, FINAL, IMPORT, INTERFACE, PACKAGE, PRIVATE, PROTECTED, PUBLIC, STRICTFP]", getSet(rules[i++]));
         assertEquals("first(name)=[IDENTIFIER]", getSet(rules[i++]));
@@ -239,7 +228,7 @@ public class BnfParserSyntaxTest extends TestCase
         assertEquals("first(expression_opt)=[<EMPTY>]", getSet(rules[i++]));
         assertEquals("first(expression)=[]", getSet(rules[i++]));
         assertEquals("first(actual_opt)=[<EMPTY>]", getSet(rules[i++]));
-        assertEquals("Wrong number of rule", rules.length, i);
+        assertEquals("Wrong number of rules", rules.length, i);
     }
 }
 

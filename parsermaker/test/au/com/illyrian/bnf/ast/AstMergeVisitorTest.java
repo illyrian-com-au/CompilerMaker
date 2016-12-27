@@ -70,11 +70,8 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        BnfMergeVisitor merger = new BnfMergeVisitor();
-        BnfTree newtree = tree.resolveMerge(merger);
-        assertNotNull("Should not be null:", newtree);
         String expect = "rhyme ::= the ( fox . | dog . ) ;";
-        assertEquals("AST", expect, newtree.toString());
+        assertEquals("AST", expect, tree.toString());
     }
 
 
@@ -93,11 +90,8 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        BnfMergeVisitor merger = new BnfMergeVisitor();
-        BnfTree newtree = tree.resolveMerge(merger);
-        assertNotNull("Should not be null:", newtree);
         String expect = "rhyme ::= the brown ( fox . | dog . ) ;";
-        assertEquals("AST", expect, newtree.toString());
+        assertEquals("AST", expect, tree.toString());
     }
 
     public void testMergeThreeAlternativeStates() throws Exception
@@ -115,11 +109,8 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        BnfMergeVisitor merger = new BnfMergeVisitor();
-        BnfTree newtree = tree.resolveMerge(merger);
-        assertNotNull("Should not be null:", newtree);
         String expect = "rhyme ::= the ( fox . | dog . | squirrel . ) ;";
-        assertEquals("AST", expect, newtree.toString());
+        assertEquals("AST", expect, tree.toString());
     }
 
    
@@ -138,11 +129,8 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        BnfMergeVisitor merger = new BnfMergeVisitor();
-        BnfTree newtree = tree.resolveMerge(merger);
-        assertNotNull("Should not be null:", newtree);
         String expect = "rhyme ::= ( quick ( fox . | dog . ) | nutty squirrel . ) ;";
-        assertEquals("AST", expect, newtree.toString());
+        assertEquals("AST", expect, tree.toString());
     }
 
     public void testMergeOneTwoStates() throws Exception
@@ -160,11 +148,8 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        BnfMergeVisitor merger = new BnfMergeVisitor();
-        BnfTree newtree = tree.resolveMerge(merger);
-        assertNotNull("Should not be null:", newtree);
         String expect = "rhyme ::= ( nutty squirrel . | quick ( fox . | dog . ) ) ;";
-        assertEquals("AST", expect, newtree.toString());
+        assertEquals("AST", expect, tree.toString());
     }
 
     public void testMergeTreeOneTwoStates() throws Exception
@@ -182,11 +167,8 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        BnfMergeVisitor merger = new BnfMergeVisitor();
-        BnfTree newtree = tree.resolveMerge(merger);
-        assertNotNull("Should not be null:", newtree);
         String expect = "rhyme ::= the ( nutty squirrel . | quick ( fox . | dog . ) ) ;";
-        assertEquals("AST", expect, newtree.toString());
+        assertEquals("AST", expect, tree.toString());
     }
 
     public void testMergeManyStates() throws Exception
@@ -208,11 +190,8 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        BnfMergeVisitor merger = new BnfMergeVisitor();
-        BnfTree newtree = tree.resolveMerge(merger);
-        assertNotNull("Should not be null:", newtree);
         String expect = "rhyme ::= the ( quick ( brown ( fox . | dog . ) | red squirrel . ) | slow moving snail . ) ;";
-        assertEquals("AST", expect, newtree.toString());
+        assertEquals("AST", expect, tree.toString());
     }
 
     public void testMergeManyStates2() throws Exception
@@ -234,11 +213,8 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        BnfMergeVisitor merger = new BnfMergeVisitor();
-        BnfTree newtree = tree.resolveMerge(merger);
-        assertNotNull("Should not be null:", newtree);
         String expect = "rhyme ::= the ( slow moving snail . | quick ( red squirrel . | brown ( dog . | fox . ) ) ) ;";
-        assertEquals("AST", expect, newtree.toString());
+        assertEquals("AST", expect, tree.toString());
     }
 
     public void testMergeShortStates() throws Exception
@@ -256,11 +232,8 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        BnfMergeVisitor merger = new BnfMergeVisitor();
-        BnfTree newtree = tree.resolveMerge(merger);
-        assertNotNull("Should not be null:", newtree);
         String expect = "rhyme ::= squirrel ( . | eating . ) ;";
-        assertEquals("AST", expect, newtree.toString());
+        assertEquals("AST", expect, tree.toString());
     }
     
     public void testMergeOptionalStates() throws Exception
@@ -278,11 +251,8 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        BnfMergeVisitor merger = new BnfMergeVisitor();
-        BnfTree newtree = tree.resolveMerge(merger);
-        assertNotNull("Should not be null:", newtree);
         String expect = "rhyme ::= ( squirrel eating . | . ) ;";
-        assertEquals("AST", expect, newtree.toString());
+        assertEquals("AST", expect, tree.toString());
     }
     
     public void testMergeManyStates3() throws Exception
@@ -305,11 +275,8 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        BnfMergeVisitor merger = new BnfMergeVisitor();
-        BnfTree newtree = tree.resolveMerge(merger);
-        assertNotNull("Should not be null:", newtree);
         String expect = "rhyme ::= the ( slow snail ( sleeping . | . | moving . ) | squirrel ( climbing . | . ) ) ;";
-        assertEquals("AST", expect, newtree.toString());
+        assertEquals("AST", expect, tree.toString());
     }
     
     public void testMergeImportStates() throws Exception
@@ -328,16 +295,13 @@ public class AstMergeVisitorTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        BnfTree tree = parser.parseMembers(compile);
+        BnfTreeParser tree = parser.parseMembers(compile);
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        BnfMergeVisitor merger = new BnfMergeVisitor();
-        BnfTree newtree = tree.resolveMerge(merger);
-        assertNotNull("Should not be null:", newtree);
         String expect = "import_path ::= ( name ( DOT import_path . | SEMI . ) | MULT SEMI . | error(\"IncompleteImportPath\") . ) ;\n"
                       + "name ::= IDENTIFIER . ;";
-        assertEquals("AST", expect, newtree.toString());
+        assertEquals("AST", expect, tree.toString());
     }
     
     public void testRuleLookup() throws Exception
@@ -362,21 +326,11 @@ public class AstMergeVisitorTest extends TestCase
         compile.setInput(input);
         
         BnfParser parser = new BnfParser();
-        BnfTree tree = parser.parseMembers(compile);
+        BnfTreeParser tree = parser.parseMembers(compile);
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
-        
-        BnfMergeVisitor merger = new BnfMergeVisitor();
-        BnfTree merged = tree.resolveMerge(merger);
-        assertNotNull("Should not be null:", merged);
 
-        BnfFirstVisitor first = new BnfFirstVisitor();
-        merged.resolveFirst(first, null);
-        
-        assertTrue("merged must be a BnfTreeParser", merged instanceof BnfTreeParser);
-        BnfTreeParser root = (BnfTreeParser)merged;
-
-        Map<String, BnfTreeRule> lookup = root.getRuleSet();
+        Map<String, BnfTreeRule> lookup = tree.getRuleSet();
         assertNotNull("Cannot find first set for north", lookup.get("north"));
         BnfTreeRule north = lookup.get("north");
         assertEquals("north ::= NORTH ( . | EAST . | WEST . ) ;",  north.toString());
