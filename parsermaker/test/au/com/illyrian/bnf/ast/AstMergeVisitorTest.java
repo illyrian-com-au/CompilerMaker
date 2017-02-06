@@ -232,7 +232,8 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        String expect = "rhyme ::= squirrel ( . | eating . ) ;";
+        // FIXME short option must appear last.
+        String expect = "rhyme ::= squirrel ( eating . | . ) ;";
         assertEquals("AST", expect, tree.toString());
     }
     
@@ -275,7 +276,7 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        String expect = "rhyme ::= the ( slow snail ( sleeping . | . | moving . ) | squirrel ( climbing . | . ) ) ;";
+        String expect = "rhyme ::= the ( slow snail ( sleeping . | moving . | . ) | squirrel ( climbing . | . ) ) ;";
         assertEquals("AST", expect, tree.toString());
     }
     
@@ -333,7 +334,7 @@ public class AstMergeVisitorTest extends TestCase
         Map<String, BnfTreeRule> lookup = tree.getRuleSet();
         assertNotNull("Cannot find first set for north", lookup.get("north"));
         BnfTreeRule north = lookup.get("north");
-        assertEquals("north ::= NORTH ( . | EAST . | WEST . ) ;",  north.toString());
+        assertEquals("north ::= NORTH ( EAST . | WEST . | . ) ;",  north.toString());
         assertNotNull("Cannot find first set for north", north.getFirstSet());
         assertEquals("first(north)=[NORTH]",  north.getFirstSet().toString());
 
@@ -345,7 +346,7 @@ public class AstMergeVisitorTest extends TestCase
         
         assertNotNull("Cannot find first set for south", lookup.get("south"));
         BnfTreeRule south = lookup.get("south");
-        assertEquals("south ::= SOUTH ( . | EAST . | WEST . ) ;",  south.toString());
+        assertEquals("south ::= SOUTH ( EAST . | WEST . | . ) ;",  south.toString());
         assertNotNull("Cannot find first set for south", south.getFirstSet());
         assertEquals("first(south)=[SOUTH]",  south.getFirstSet().toString());
         

@@ -28,6 +28,10 @@ public class BnfTreeAlternative extends BnfTreeBinary <Type>
         return new BnfTreeAlternative(left, right);
     }
 
+    public BnfTreeAlternative toAlternative() {
+        return this;
+    }
+    
     public BnfTree [] toAltArray() {
         return altArray;
     }
@@ -42,9 +46,9 @@ public class BnfTreeAlternative extends BnfTreeBinary <Type>
         return visitor.resolveDeclaration(this);
     }
 
-    public Type resolveLookahead(BnfMakerVisitor visitor)
+    public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)
     {
-        return visitor.resolveLookahead(this);
+        return visitor.resolveLookahead(this, howFar);
     }
 
     public String toRuleString() {

@@ -33,9 +33,9 @@ public class BnfTreeNonterminal extends BnfTreeName
         return visitor.resolveDeclaration(this);
     }
 
-    public Type resolveLookahead(BnfMakerVisitor visitor)
+    public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)
     {
-        return visitor.resolveLookahead(this);
+        return visitor.resolveLookahead(this, howFar);
     }
 
     public Type resolveType(BnfMakerVisitor visitor)

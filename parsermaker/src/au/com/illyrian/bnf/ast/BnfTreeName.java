@@ -40,14 +40,9 @@ public class BnfTreeName extends BnfTreeBase <Type>
         return visitor.resolveFirst(this, firstSet);
     }
 
-    public Type resolveDeclaration(BnfMakerVisitor visitor) 
+    public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)
     {
-        return visitor.resolveDeclaration(this);
-    }
-
-    public Type resolveLookahead(BnfMakerVisitor visitor)
-    {
-        return visitor.resolveLookahead(this);
+        return visitor.resolveLookahead(this, howFar);
     }
 
     public Type resolveType(BnfMakerVisitor visitor)

@@ -49,8 +49,12 @@ public class BnfTreeFactory extends AstExpressionFactory
         return new BnfTreeMethodCall(name, actuals);
     }
 
-    public BnfTreeMacroCall MacroCall(AstExpression name, AstExpression pattern) {
-        return new BnfTreeMacroCall(name, pattern);
+    public BnfTreeLookahead Lookahead(BnfTree pattern) {
+        return new BnfTreeLookahead(pattern);
+    }
+
+    public BnfTreeRecover Recover(BnfTree pattern) {
+        return new BnfTreeRecover(pattern);
     }
 
     public BnfTreeName BnfName(Lexer lexer)
@@ -72,28 +76,6 @@ public class BnfTreeFactory extends AstExpressionFactory
         return new BnfTreeReserved(name);
     }
      
-    public AstExpression Integer(Lexer lexer)
-    {
-        if (lexer.getTokenType() == TokenType.NUMBER) {
-            AstExpression result = Literal(lexer.getTokenInteger());
-            lexer.nextToken();
-            return result;
-        } else {
-            throw new IllegalArgumentException("Integer expected.");
-        }
-    }
-
-    public AstExpression Decimal(Lexer lexer)
-    {
-        if (lexer.getTokenType() == TokenType.DECIMAL) {
-            AstExpression result = Literal(lexer.getTokenFloat());
-            lexer.nextToken();
-            return result;
-        } else {
-            throw new IllegalArgumentException("Integer expected.");
-        }
-    }
-
     public BnfTreeReserved Reserved(Lexer lexer)
     {
         BnfTreeReserved result = new BnfTreeReserved(lexer.getTokenValue());
@@ -101,13 +83,7 @@ public class BnfTreeFactory extends AstExpressionFactory
         return result;
     }
 
-    public BnfTreeNonterminal Nonterminal(Lexer lexer)
-    {
-        BnfTreeNonterminal result = Nonterminal(lexer.getTokenValue());
-        lexer.nextToken();
-        return result;
-    }
-
+    // FIXME don't think this is necessary
     public BnfTreeNonterminal Nonterminal(String name)
     {
         BnfTreeNonterminal result = new BnfTreeNonterminal(name);

@@ -136,7 +136,7 @@ public class BnfParserSyntaxTest extends TestCase
         assertEquals("Wrong rule", "member_mult ::= ( member member_mult {} | . | RECOVER(member) . ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "member ::= modifier_mult method_type name ( LPAR formal_mult RPAR method_body {} | SEMI {} ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "method_type ::= ( type . | VOID {} ) ;", rules[i++].toRuleString());
-        assertEquals("Wrong rule", "type ::= ( class_type ( . | LBRAC RBRAC {} ) | primitive_type ( . | LBRAC RBRAC {} ) ) ;", rules[i++].toRuleString());
+        assertEquals("Wrong rule", "type ::= ( class_type ( LBRAC RBRAC {} | . ) | primitive_type ( LBRAC RBRAC {} | . ) ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "primitive_type ::= ( BOOLEAN {} | BYTE {} | CHAR {} | SHORT {} | INT {} | LONG {} | FLOAT {} | DOUBLE {} ) ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "class_type ::= qualified_name . ;", rules[i++].toRuleString());
         assertEquals("Wrong rule", "formal_mult ::= modifier_mult type name {} ;", rules[i++].toRuleString());

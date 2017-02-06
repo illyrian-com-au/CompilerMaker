@@ -5,11 +5,11 @@ import java.util.Set;
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.types.Type;
 
-public class BnfTreeLookahead extends BnfTreeBase<Type>
+public class BnfTreeRecover extends BnfTreeBase<Type>
 {
     private final BnfTree pattern;
 
-    public BnfTreeLookahead(BnfTree<Type> pattern)
+    public BnfTreeRecover(BnfTree pattern)
     {
         this.pattern = pattern;
     }
@@ -19,7 +19,7 @@ public class BnfTreeLookahead extends BnfTreeBase<Type>
         return "LOOKAHEAD";
     }
 
-    public BnfTree<Type> getPattern()
+    public BnfTree getPattern()
     {
         return pattern;
     }
@@ -41,6 +41,6 @@ public class BnfTreeLookahead extends BnfTreeBase<Type>
 
     public String toString()
     {
-        return "LOOKAHEAD(" + pattern + ")";
+        return "RECOVER(" + pattern + ")";
     }
 }

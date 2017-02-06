@@ -31,7 +31,7 @@ public abstract class BnfTreeBase <T> extends AstExpressionBase implements BnfTr
          throw new IllegalStateException("Cannot resolve Declaration: " + getClass().getSimpleName());
      }
 
-     public T resolveLookahead(BnfMakerVisitor visitor)
+     public T resolveLookahead(BnfMakerVisitor visitor, int howFar)
      {
          throw new IllegalStateException("Cannot resolve Lookahead: " + getClass().getSimpleName());
      }
@@ -51,7 +51,19 @@ public abstract class BnfTreeBase <T> extends AstExpressionBase implements BnfTr
      
      public boolean isVoidType()
      {
-         return true;
+         return false;
+     }
+     
+    public boolean isMacro() {
+        return false;
+    }
+    
+    public BnfTreeAlternative toAlternative() {
+         return null;
+     }
+     
+     public BnfTreeSequence toSequence() {
+         return null;
      }
      
      public BnfTree [] toAltArray() {

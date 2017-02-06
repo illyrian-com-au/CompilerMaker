@@ -291,21 +291,36 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     }
 
     /*
-     * macro    ::=   macro_name LPAR macro_param RPAR = { factory.MacroCall($1, $3) } 
-     *            |   macro_name ; 
+     * macro    ::=   LOOKAHEAD macro_param = { factory.Lookahead($2) } 
+     *            |   RECOVER macro_param = { factory.Lookahead($2) } 
+     *            |   RESERVED ; 
      */
     public BnfTree macro()
     {
         BnfTree $$;
-        BnfTree $1 = macro_name();
-        if (accept(BnfToken.LPAR)) {
-            BnfTree $3 = macro_alt();
-            expect(BnfToken.RPAR);
-            $$ = factory.MacroCall($1, $3);
+        if (accept(BnfToken.LOOKAHEAD)) {
+            BnfTree $2 = macro_param();
+            $$ = factory.Lookahead($2);
+        } else if (accept(BnfToken.RECOVER)) {
+            BnfTree $2 = macro_param();
+            $$ = factory.Recover($2);
+        } else if (match(BnfToken.RESERVED)) {
+            $$ = factory.Reserved(getLexer());
         } else {
-            $$ = $1;
+            throw error("MacroNameExpected");
         }
         return $$;
+    }
+
+    /*
+     * macro_param  ::=   LPAR macro_alt RPAR = { $2 } 
+     */
+    public BnfTree macro_param()
+    {
+        expect(BnfToken.LPAR);
+        BnfTree $2 = macro_alt();
+        expect(BnfToken.RPAR);
+        return $2;
     }
 
     /*

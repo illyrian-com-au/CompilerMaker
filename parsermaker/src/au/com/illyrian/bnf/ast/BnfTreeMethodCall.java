@@ -37,6 +37,15 @@ public class BnfTreeMethodCall extends BnfTreeBase <Type>
         return visitor.resolveDeclaration(this);
     }
     
+    public Type resolveType(BnfMakerVisitor visitor)
+    {
+        return visitor.resolveType(this);
+    }
+    
+    public boolean isVoidType() {
+        return true;
+    }
+    
     public String toString() {
         return getName() + "(" + (actuals == null ? "" : actuals) + ")";
     }

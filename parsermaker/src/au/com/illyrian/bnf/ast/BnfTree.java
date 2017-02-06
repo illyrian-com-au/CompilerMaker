@@ -10,7 +10,7 @@ public interface BnfTree <T> extends AstExpression
 {
     public T resolveDeclaration(BnfMakerVisitor visitor);
     
-    public T resolveLookahead(BnfMakerVisitor visitor);
+    public T resolveLookahead(BnfMakerVisitor visitor, int howFar);
 
     public Type resolveType(BnfMakerVisitor visitor);
 
@@ -23,6 +23,12 @@ public interface BnfTree <T> extends AstExpression
     public boolean isEmpty();
     
     public boolean isVoidType();
+    
+    public boolean isMacro();
+    
+    public BnfTreeAlternative toAlternative();
+    
+    public BnfTreeSequence toSequence();
     
     public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet);
     

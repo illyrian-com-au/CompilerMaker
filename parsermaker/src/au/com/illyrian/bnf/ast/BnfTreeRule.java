@@ -46,9 +46,9 @@ public class BnfTreeRule extends BnfTreeBase <Type>
         return visitor.resolveDeclaration(this);
     }
 
-    public Type resolveLookahead(BnfMakerVisitor visitor)
+    public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)
     {
-        return visitor.resolveLookahead(this);
+        return visitor.resolveLookahead(this, howFar);
     }
 
     public BnfTree getTarget()

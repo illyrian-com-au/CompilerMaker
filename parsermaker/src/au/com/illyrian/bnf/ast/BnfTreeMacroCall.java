@@ -1,10 +1,10 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
-
 import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.types.Type;
 
-public class BnfTreeMacroCall <T> extends BnfTreeBase <T>
+@Deprecated
+public class BnfTreeMacroCall extends BnfTreeBase <Type>
 {
     private final AstExpression name;
     private final AstExpression pattern;
@@ -25,9 +25,18 @@ public class BnfTreeMacroCall <T> extends BnfTreeBase <T>
         return pattern;
     }
 
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
-    {
-        return visitor.resolveFirst(this, firstSet);
+//    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
+//    {
+//        return visitor.resolveFirst(this, firstSet);
+//    }
+//
+//    public Type resolveLookahead(BnfMakerVisitor visitor)
+//    {
+//        return visitor.resolveLookahead(this);
+//    }
+
+    public boolean isMacro() {
+        return true;
     }
 
     public String toString() {

@@ -29,7 +29,7 @@ public class BnfMakerTextVisitorTest extends TestCase
     public void testTerminalName() {
         BnfTreeName tree = new BnfTreeName("IDENTIFIER");
         visitor.resolveType(tree);
-        String expected = "[" + match("IDENTIFIER") + "]";
+        String expected = "[" + expect("IDENTIFIER") + "]";
         assertEquals(expected, maker.toString());
     }
 
@@ -66,7 +66,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         BnfTree tree = ast.Seq(ast.BnfReserved("RETURN"), ast.Empty());
         assertEquals("RETURN .", tree.toString());
         tree.resolveDeclaration(visitor);
-        String expected = expect("RETURN");
+        String expected = set("$1", expect("RETURN"));
         assertEquals(expected, maker.toString());
     }
 
@@ -84,7 +84,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals("( RETURN . | . )", tree.toString());
         tree.resolveDeclaration(visitor);
         
-        String expect = ifThen( "RETURN", expect("RETURN"));
+        String expect = ifMatchThen( "RETURN", set("$1", expect("RETURN")));
         assertEquals(expect, maker.toString());
     }
 
@@ -96,7 +96,9 @@ public class BnfMakerTextVisitorTest extends TestCase
         tree.resolveDeclaration(visitor);
         
         String expect = 
-                ifThenElse( "RETURN", expect("RETURN"), expect("BREAK"));
+                ifMatchThenElse( "RETURN", 
+                        set("$1", expect("RETURN")), 
+                        set("$1", expect("BREAK")));
         assertEquals(expect, maker.toString());
     }
 
@@ -107,8 +109,9 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals("RETURN ( INTEGER . | . )", tree.toString());
         tree.resolveDeclaration(visitor);
         
-        // FIXME Read Integer value
-        String expect = expect("RETURN") + ifThen( "INTEGER", expect("INTEGER"));
+        String expect 
+        = set("$1", expect("RETURN")) 
+        + ifMatchThen( "INTEGER", set("$2", expect("INTEGER")));
         assertEquals(expect, maker.toString());
     }
 
@@ -127,9 +130,9 @@ public class BnfMakerTextVisitorTest extends TestCase
         tree2.resolveDeclaration(visitor);
         
         String expect = 
-                ifThenElse( "RETURN", expect("RETURN"),
-                        ifThenElse( "BREAK", expect("BREAK"),
-                                expect("CONTINUE")));
+                ifMatchThenElse( "RETURN", set("$1", expect("RETURN")),
+                        ifMatchThenElse( "BREAK", set("$1", expect("BREAK")),
+                                set("$1", expect("CONTINUE"))));
         assertEquals(expect, maker.toString());
     }
 
@@ -149,8 +152,10 @@ public class BnfMakerTextVisitorTest extends TestCase
         
         // Should get the same result as previous test
         String expect = 
-                ifThenElse( "RETURN", expect("RETURN"),
-                        ifThenElse( "BREAK", expect("BREAK"), expect("CONTINUE")));
+                ifMatchThenElse( "RETURN", set("$1", expect("RETURN")),
+                        ifMatchThenElse( "BREAK", 
+                                set("$1", expect("BREAK")), 
+                                        set("$1", expect("CONTINUE"))));
         assertEquals(expect, maker.toString());
     }
     
@@ -173,9 +178,12 @@ public class BnfMakerTextVisitorTest extends TestCase
         
         // Tokens should be optional, i.e. no error if nothing matches.
         String expect = 
-                ifThenElse( "RETURN", expect("RETURN"),
-                        ifThenElse( "BREAK", expect("BREAK"),
-                                ifThen( "CONTINUE", expect("CONTINUE"))));
+                ifMatchThenElse( "RETURN", 
+                        set("$1", expect("RETURN")),
+                        ifMatchThenElse( "BREAK", 
+                                set("$1", expect("BREAK")),
+                                ifMatchThen( "CONTINUE", 
+                                        set("$1", expect("CONTINUE")))));
         assertEquals(expect, maker.toString());
     }
     
@@ -200,9 +208,9 @@ public class BnfMakerTextVisitorTest extends TestCase
         
         // Error if no token is matched.
         String expect = 
-                ifThenElse( "RETURN", expect("RETURN"),
-                        ifThenElse( "BREAK", expect("BREAK"),
-                                ifThenElse( "CONTINUE", expect("CONTINUE"),
+                ifMatchThenElse( "RETURN", set("$1", expect("RETURN")),
+                        ifMatchThenElse( "BREAK", set("$1", expect("BREAK")),
+                                ifMatchThenElse( "CONTINUE", set("$1", expect("CONTINUE")),
                                         error("return, break or continue expected"))));
         assertEquals(expect, maker.toString());
     }
@@ -213,9 +221,9 @@ public class BnfMakerTextVisitorTest extends TestCase
         assertEquals("RETURN expression() .", tree.toString());
         tree.resolveDeclaration(visitor);
         
-        String expect = expect("RETURN") 
-                + declare("$2") 
-                + assign("$2", call("expression"));
+        String expect = 
+                set("$1", expect("RETURN")) 
+                + set("$2", call("expression"));
         assertEquals(expect, maker.toString());
     }
     
@@ -234,19 +242,15 @@ public class BnfMakerTextVisitorTest extends TestCase
         for_1.resolveDeclaration(visitor);
         
         String expect 
-                = expect("FOR") 
-                + expect("LPAR") 
-                + declare("$3") 
-                + assign("$3", call("expression"))
-                + expect("SEMI") 
-                + declare("$5") 
-                + assign("$5", call("expression"))
-                + expect("SEMI") 
-                + declare("$7") 
-                + assign("$7", call("expression"))
-                + expect("RPAR") 
-                + declare("$9") 
-                + assign("$9", call("statement"));
+                = set("$1", expect("FOR")) 
+                + set("$2", expect("LPAR")) 
+                + set("$3", call("expression"))
+                + set("$4", expect("SEMI"))
+                + set("$5", call("expression"))
+                + set("$6", expect("SEMI"))
+                + set("$7", call("expression"))
+                + set("$8", expect("RPAR")) 
+                + set("$9", call("statement"));
         assertEquals(expect, maker.toString());
     }
     
@@ -264,11 +268,10 @@ public class BnfMakerTextVisitorTest extends TestCase
         
         String expect 
         = beginMethod("qualified_name", "java.lang.Object")
-        + declare("$1") 
-        + assign("$1", call("name"))
-        + ifThen("DOT", expect("DOT") 
-                + declare("$2") 
-                + assign("$2", call("qualified_name"))
+        + set("$1", call("name"))
+        + ifMatchThen("DOT", 
+                set("$2", expect("DOT")) 
+                + set("$3", call("qualified_name"))
                 )
         + endMethod();
         assertEquals(expect, maker.toString());
@@ -281,7 +284,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         rule.setFirstSet(firstSet);
         assertEquals("First set", "first(jump)=[RETURN]", firstSet.toString());
         
-        rule.resolveLookahead(visitor);
+        rule.resolveLookahead(visitor, 1);
         
         String expect = "[" + match("RETURN") + "]"; 
         assertEquals(expect, maker.toString());
@@ -295,7 +298,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         rule.setFirstSet(firstSet);
         assertEquals("First set", "first(jump)=[BREAK, CONTINUE]", firstSet.toString());
         
-        rule.resolveLookahead(visitor);
+        rule.resolveLookahead(visitor, 1);
         
         String expect = "[" + logic(orElse(match("BREAK")), match("CONTINUE")) + "]"; 
         assertEquals(expect, maker.toString());
@@ -310,7 +313,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         rule.setFirstSet(firstSet);
         assertEquals("First set", "first(jump)=[BREAK, CONTINUE, RETURN]", firstSet.toString());
         
-        rule.resolveLookahead(visitor);
+        rule.resolveLookahead(visitor, 1);
         
         String expect = "[" + logic(orElse(orElse(
                 match("BREAK")), 
@@ -329,7 +332,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         rule.setFirstSet(firstSet);
         assertEquals("First set", "first(jump)=[BREAK, CONTINUE, RETURN, STOP]", firstSet.toString());
         
-        rule.resolveLookahead(visitor);
+        rule.resolveLookahead(visitor, 1);
         
         String expect = "[" + logic(orElse(orElse(orElse(
                 match("BREAK")), 
@@ -349,7 +352,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         out.println("               | west");
         out.println("               | error(\"WrongDirection\")");
         out.println("         ;");
-        out.println("    north ::= NORTH | NORTH EAST | NORTH WEST;");
+        out.println("    north ::= NORTH EAST | NORTH WEST | NORTH ;");
         out.println("    east  ::= EAST;");
         out.println("    south ::= SOUTH | SOUTH EAST | SOUTH WEST;");
         out.println("    west  ::= WEST;");
@@ -368,7 +371,63 @@ public class BnfMakerTextVisitorTest extends TestCase
         return tree;
     }
     
-    public void testLooaheadForAlt1() throws Exception 
+    public void testGenMethodSouth() throws Exception 
+    {
+        BnfTreeParser tree = parseCompassTree();
+        
+        Map<String, BnfTreeRule> lookup = tree.getRuleSet();
+        visitor.setRuleSet(lookup);
+
+        BnfTreeRule eastRule = lookup.get("south");
+        eastRule.resolveDeclaration(visitor);
+        String expect 
+        = beginMethod("south", "java.lang.Object")
+        + set("$1", expect("SOUTH"))
+        + ifMatchThenElse("EAST",
+                set("$2", expect("EAST")),
+                ifMatchThen("WEST",
+                        set("$2", expect("WEST"))))
+        + endMethod();
+        assertEquals(expect, maker.toString());
+    }
+    
+    public void testGenMethodNorth() throws Exception 
+    {
+        BnfTreeParser tree = parseCompassTree();
+        
+        Map<String, BnfTreeRule> lookup = tree.getRuleSet();
+        visitor.setRuleSet(lookup);
+
+        BnfTreeRule eastRule = lookup.get("north");
+        eastRule.resolveDeclaration(visitor);
+        String expect 
+        = beginMethod("north", "java.lang.Object")
+        + set("$1", expect("NORTH"))
+        + ifMatchThenElse("EAST",
+                set("$2", expect("EAST")),
+                ifMatchThen("WEST",
+                        set("$2", expect("WEST"))))
+        + endMethod();
+        assertEquals(expect, maker.toString());
+    }
+    
+    public void testGenMethodEast() throws Exception 
+    {
+        BnfTreeParser tree = parseCompassTree();
+        
+        Map<String, BnfTreeRule> lookup = tree.getRuleSet();
+        visitor.setRuleSet(lookup);
+
+        BnfTreeRule eastRule = lookup.get("east");
+        eastRule.resolveDeclaration(visitor);
+        String expect 
+            = beginMethod("east", "java.lang.Object")
+            + set("$1", expect("EAST"))
+            + endMethod();
+        assertEquals(expect, maker.toString());
+    }
+    
+    public void testGenMethodDirection() throws Exception 
     {
         BnfTreeParser tree = parseCompassTree();
         
@@ -379,35 +438,157 @@ public class BnfMakerTextVisitorTest extends TestCase
         eastRule.resolveDeclaration(visitor);
         String expect 
         = beginMethod("direction", "java.lang.Object")
-        + ifThenElse("NORTH", 
-            declare("$1")
-            + assign("$1", call("north")),
-            ifThenElse("EAST",
-               declare("$1")
-               + assign("$1", call("east")),
-            ifThenElse("SOUTH",
-               declare("$1")
-               + assign("$1", call("south")),
-            ifThenElse("WEST",
-               declare("$1")
-               + assign("$1", call("west")),
+        + ifMatchThenElse("NORTH", 
+            set("$1", call("north")),
+            ifMatchThenElse("EAST",
+               set("$1", call("east")),
+            ifMatchThenElse("SOUTH",
+               set("$1", call("south")),
+            ifMatchThenElse("WEST",
+               set("$1", call("west")),
                error("WrongDirection")
         ))))
         + endMethod();
         assertEquals(expect, maker.toString());
     }
     
+    public void testGenMethodDirectionLookahead() throws Exception 
+    {
+        StringReadWriter out = new StringReadWriter();
+        out.println("{");
+        out.println("    direction ::= northsouth");
+        out.println("               | eastwest");
+        out.println("               | error(\"WrongDirection\");");
+        out.println("    northsouth ::= north");
+        out.println("               | south;");
+        out.println("    eastwest ::= east");
+        out.println("               | west;");
+        out.println("    north ::= NORTH;");
+        out.println("    east  ::= EAST;");
+        out.println("    south ::= SOUTH;");
+        out.println("    west  ::= WEST;");
+        out.println("}");
+        out.close();
+    
+        Input input = new LexerInputStream(out.getReader(), null);
+        ModuleContext compile = new ModuleContext();
+        compile.setInput(input);
+        
+        BnfParser parser = new BnfParser();
+        BnfTreeParser tree = parser.parseMembers(compile);
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
+        assertNotNull("Should not be null:", tree);
+        
+        Map<String, BnfTreeRule> lookup = tree.getRuleSet();
+        visitor.setRuleSet(lookup);
+
+        BnfTreeRule dirRule = lookup.get("direction");
+        dirRule.resolveDeclaration(visitor);
+        String expectDirection 
+        = beginMethod("direction", "java.lang.Object")
+        + ifThenElse(logic(orElse(match("NORTH")), match("SOUTH")), 
+            set("$1", call("northsouth")),
+            ifThenElse(logic(orElse(match("EAST")), match("WEST")),
+               set("$1", call("eastwest")),
+               error("WrongDirection")
+          ))
+        + endMethod();
+        assertEquals(expectDirection, maker.toString());
+    }
+
+    public void testGenMethodNorthEastWestLookahead() throws Exception 
+    {
+        StringReadWriter out = new StringReadWriter();
+        out.println("{");
+        out.println("    direction ::= LOOKAHEAD(NORTH EAST) northeast");
+        out.println("               | LOOKAHEAD(NORTH WEST) northwest");
+        out.println("               | north");
+        out.println("               | error(\"WrongDirection\");");
+        out.println("    north ::= NORTH;");
+        out.println("    northeast  ::= NORTH EAST;");
+        out.println("    northwest  ::= NORTH WEST;");
+        out.println("}");
+        out.close();
+    
+        Input input = new LexerInputStream(out.getReader(), null);
+        ModuleContext compile = new ModuleContext();
+        compile.setInput(input);
+        
+        BnfParser parser = new BnfParser();
+        BnfTreeParser tree = parser.parseMembers(compile);
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
+        assertNotNull("Should not be null:", tree);
+        
+        Map<String, BnfTreeRule> lookup = tree.getRuleSet();
+        visitor.setRuleSet(lookup);
+
+        BnfTreeRule dirRule = lookup.get("direction");
+        dirRule.resolveDeclaration(visitor);
+        String expectDirection 
+        = beginMethod("direction", "java.lang.Object")
+        + ifThenElse(logic(andThen(match("NORTH")),match("EAST", 1)), 
+            set("$1", call("northeast")),
+            ifThenElse(logic(andThen(match("NORTH")),match("WEST", 1)),
+               set("$1", call("northwest")),
+               ifThenElse(match("NORTH"),
+                       set("$1", call("north")),
+                       error("WrongDirection")
+          )))
+        + endMethod();
+        assertEquals(expectDirection, maker.toString());
+    }
+
+    public void testGenLabelLookahead() throws Exception 
+    {
+        StringReadWriter out = new StringReadWriter();
+        out.println("{");
+        out.println("    label       ::= LOOKAHEAD(IDENTIFIER COLON) label_name COLON");
+        out.println("                  | /* EMPTY */;");
+        out.println("    label_name  ::= IDENTIFIER;");
+        out.println("}");
+        out.close();
+    
+        Input input = new LexerInputStream(out.getReader(), null);
+        ModuleContext compile = new ModuleContext();
+        compile.setInput(input);
+        
+        BnfParser parser = new BnfParser();
+        BnfTreeParser tree = parser.parseMembers(compile);
+        assertEquals("token", TokenType.END, parser.getLexer().nextToken());
+        assertNotNull("Should not be null:", tree);
+        
+        Map<String, BnfTreeRule> lookup = tree.getRuleSet();
+        visitor.setRuleSet(lookup);
+
+        BnfTreeRule dirRule = lookup.get("label");
+        dirRule.resolveDeclaration(visitor);
+        String expectDirection 
+        = beginMethod("label", "java.lang.Object")
+        + ifThen(logic(andThen(match("IDENTIFIER")),match("COLON", 1)), 
+            set("$1", call("label_name"))
+            + set("$2", expect("COLON"))
+          )
+        + endMethod();
+        assertEquals(expectDirection, maker.toString());
+    }
+
     String match(String token) {
         return "Call(This(), \"match\", Push(Get(\"" + token + "\")))";
     }
+    String match(String token, int ahead) {
+        return "Call(This(), \"match\", Push(Get(\"" + token + "\")).Push(Literal(" + ahead + ")))";
+    }
     String expect(String token) {
-        return "  Eval(Call(This(), \"expect\", Push(Get(\"" + token + "\"))));\n";
+        return "Call(This(), \"expect\", Push(Get(\"" + token + "\")))";
     }
     String error(String message) {
         return "  Eval(Call(This(), \"error\", Push(Literal(\"" + message + "\"))));\n";
     }
     String assign(String name, String value) {
         return "  Eval(Assign(\"" + name + "\", " + value + "));\n";
+    }
+    String set(String name, String value) {
+        return declare(name) + assign(name, value);
     }
     String call(String name) {
         return call(name, "Push()");
@@ -418,17 +599,29 @@ public class BnfMakerTextVisitorTest extends TestCase
     String declare(String name) {
         return "  Declare(\"" + name + "\", java.lang.Object, 0);\n";
     }
-    String ifThen(String token, String thenCode) {
-        return "  If(" + match(token) + ");\n" + thenCode + "  EndIf();\n";
+    String ifMatchThen(String token, String thenCode) {
+        return ifThen(match(token), thenCode);
     }
-    String ifThenElse(String token, String thenCode, String elseCode) {
-        return "  If(" + match(token) + ");\n" + thenCode + "  Else();\n" + elseCode + "  EndIf();\n";
+    String ifThen(String cond, String thenCode) {
+        return "  If(" + cond + ");\n" + thenCode + "  EndIf();\n";
+    }
+    String ifMatchThenElse(String token, String thenCode, String elseCode) {
+        return ifThenElse(match(token), thenCode, elseCode);
+    }
+    String ifThenElse(String cond, String thenCode, String elseCode) {
+        return "  If(" + cond + ");\n" + thenCode + "  Else();\n" + elseCode + "  EndIf();\n";
     }
     String orElse(String cond) {
         return "OrElse(" + cond + ")";
     }
     String orElse(String prev, String cond) {
         return "OrElse(" + prev + ", " + cond + ")";
+    }
+    String andThen(String cond) {
+        return "AndThen(" + cond + ")";
+    }
+    String andThen(String prev, String cond) {
+        return "AndThen(" + prev + ", " + cond + ")";
     }
     String logic(String prev, String cond) {
         return "Logic(" + prev + ", " + cond + ")";

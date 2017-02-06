@@ -33,8 +33,16 @@ public class BnfTreeSequence extends BnfTreeBinary <Type>
         return new BnfTreeSequence(head, tail);
     }
 
+    public BnfTreeSequence toSequence() {
+        return this;
+    }
+    
     public BnfTree [] toSeqArray() {
         return seqArray;
+    }
+    
+    public boolean isMacro() {
+        return getHead().isMacro();
     }
     
     public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
@@ -47,9 +55,9 @@ public class BnfTreeSequence extends BnfTreeBinary <Type>
         return visitor.resolveDeclaration(this);
     }
 
-    public Type resolveLookahead(BnfMakerVisitor visitor)
+    public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)
     {
-        return visitor.resolveLookahead(this);
+        return visitor.resolveLookahead(this, howFar);
     }
 
     public String toString() {

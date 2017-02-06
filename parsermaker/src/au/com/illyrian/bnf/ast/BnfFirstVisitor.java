@@ -150,12 +150,14 @@ public class BnfFirstVisitor
         return  false;
     }
 
-    public boolean resolveFirst(BnfTreeMacroCall macro, Set<String> firstSet)
+    public boolean resolveFirst(BnfTreeLookahead macro, Set<String> firstSet)
     {
-        // Only add the LOOKAHEAD macro to the first set.
-        if ("LOOKAHEAD".equals(macro.getName())) {
-            add(firstSet, macro.toString());
-        }
+        add(firstSet, macro.toString());
+        return false;
+    }
+
+    public boolean resolveFirst(BnfTreeRecover bnfTreeRecover, Set<String> firstSet)
+    {
         return false;
     }
 }

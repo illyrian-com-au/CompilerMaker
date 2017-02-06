@@ -14,6 +14,8 @@ public enum BnfToken implements Token
     COLON  (TokenType.OPERATOR,  ":"),
     COMMA  (TokenType.DELIMITER, ","),
     SEMI   (TokenType.DELIMITER, ";"),
+    LOOKAHEAD(TokenType.RESERVED, "LOOKAHEAD"),
+    RECOVER(TokenType.RESERVED, "RECOVER"),
     
     IDENTIFIER (TokenType.IDENTIFIER),
     RESERVED   (TokenType.RESERVED),

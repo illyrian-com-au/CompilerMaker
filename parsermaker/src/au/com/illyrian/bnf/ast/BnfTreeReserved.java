@@ -24,7 +24,7 @@ public class BnfTreeReserved extends BnfTreeName
     
     public boolean isVoidType()
     {
-        return true;
+        return false;
     }
     
     public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
@@ -37,9 +37,9 @@ public class BnfTreeReserved extends BnfTreeName
         return visitor.resolveDeclaration(this);
     }
 
-    public Type resolveLookahead(BnfMakerVisitor visitor)
+    public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)
     {
-        return visitor.resolveLookahead(this);
+        return visitor.resolveLookahead(this, howFar);
     }
 
    public String toString() {
