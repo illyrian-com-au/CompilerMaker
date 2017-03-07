@@ -22,6 +22,10 @@ public class BnfTreeAlternative extends BnfTreeBinary <Type>
         return visitor.resolveMerge(this);
     }
 
+    public Type resolveSequence(BnfMakerVisitor visitor, int variable) {
+        return visitor.resolveSequence(this, variable);
+    }
+
     public BnfTreeAlternative replace(BnfTree left, BnfTree right) {
         if (left == this.getHead() && right == this.getTail())
             return this;
@@ -36,7 +40,7 @@ public class BnfTreeAlternative extends BnfTreeBinary <Type>
         return altArray;
     }
     
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
+    public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet)
     {
         return visitor.resolveFirst(this, firstSet);
     }

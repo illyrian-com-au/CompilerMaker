@@ -1,9 +1,6 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
-
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
-import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
 import au.com.illyrian.classmaker.types.Type;
 
 public class BnfTreeNonterminal extends BnfTreeName
@@ -23,19 +20,9 @@ public class BnfTreeNonterminal extends BnfTreeName
         return false;
     }
     
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
+    public Type resolveSequence(BnfMakerVisitor visitor, int variable) 
     {
-        return visitor.resolveFirst(this, firstSet);
-    }
-
-    public Type resolveDeclaration(BnfMakerVisitor visitor)
-    {
-        return visitor.resolveDeclaration(this);
-    }
-
-    public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)
-    {
-        return visitor.resolveLookahead(this, howFar);
+        return visitor.resolveSequence(this, variable);
     }
 
     public Type resolveType(BnfMakerVisitor visitor)

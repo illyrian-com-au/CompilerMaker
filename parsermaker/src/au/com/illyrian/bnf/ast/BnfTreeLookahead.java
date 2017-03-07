@@ -1,7 +1,5 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
-
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.types.Type;
 
@@ -16,7 +14,7 @@ public class BnfTreeLookahead extends BnfTreeBase<Type>
 
     public String getName()
     {
-        return "LOOKAHEAD";
+        return toString();
     }
 
     public BnfTree<Type> getPattern()
@@ -24,9 +22,14 @@ public class BnfTreeLookahead extends BnfTreeBase<Type>
         return pattern;
     }
 
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
+    public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet)
     {
         return visitor.resolveFirst(this, firstSet);
+    }
+
+    public BnfTree resolveMerge(BnfMergeVisitor visitor) 
+    {
+        return visitor.resolveMerge(this);
     }
 
     public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)
@@ -37,6 +40,13 @@ public class BnfTreeLookahead extends BnfTreeBase<Type>
     public boolean isMacro()
     {
         return true;
+    }
+
+    public BnfTreeLookahead replace(BnfTree pattern) {
+        if (pattern != this.pattern) {
+            return new BnfTreeLookahead(pattern);
+        }
+        return this;
     }
 
     public String toString()

@@ -171,8 +171,8 @@ public class BnfParserTest extends TestCase
 
         writer = new StringWriter() ;
         out = new PrintWriter(writer);
-        out.println("import_mult ::= ( IMPORT import_path import_mult . | . ) ;");
-        out.println("import_path ::= ( name ( DOT import_path . | SEMI . ) | MULT SEMI . | error(\"IncpmpleteImportPath\") . ) ;");
+        out.println("import_mult ::= ( IMPORT import_path() import_mult() . | . ) ;");
+        out.println("import_path ::= ( name() ( DOT import_path() . | SEMI . ) | MULT SEMI . | error(\"IncpmpleteImportPath\") . ) ;");
         out.print("name ::= IDENTIFIER . ;");
         assertEquals("AST", writer.toString(), newtree.toString());
     }
@@ -206,7 +206,7 @@ public class BnfParserTest extends TestCase
 
         writer = new StringWriter() ;
         out = new PrintWriter(writer);
-        out.println("member_mult ::= ( member member_mult . | . | RECOVER(member) . ) ;");
+        out.println("member_mult ::= ( member() member_mult() . | . | RECOVER(member) . ) ;");
         out.print("member ::= modifier_mult method_type IDENTIFIER ( LPAR formal_mult RPAR method_body . | SEMI . ) ;");
         assertEquals("AST", writer.toString(), newtree.toString());
     }

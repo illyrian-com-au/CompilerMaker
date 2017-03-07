@@ -68,6 +68,10 @@ public class MethodCall extends AstExpressionBase
     {
         return null;
     }
+    
+    public MethodCall toMethodCall() {
+        return this;
+    }
 
     public AstExpression getParams()
     {

@@ -32,7 +32,8 @@ public class BnfTreeRule extends BnfTreeBase <Type>
         return visitor.resolveMerge(this);
     }
 
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
+    // FIXME - BnfFirstSet
+    public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet)
     {
         return visitor.resolveFirst(this, firstSet);
     }

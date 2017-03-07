@@ -60,4 +60,7 @@ public interface AstExpression extends ResolvePath, SourceLine
     public void resolveImplements(AstStructureVisitor visitor);
 
     public DeclaredType resolveDeclaredType(AstExpressionVisitor visitor);
+    
+    public MethodCall toMethodCall();
+
 }

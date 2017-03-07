@@ -115,6 +115,10 @@ public abstract class AstExpressionBase implements AstExpression, SourceLine
         throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveArraySize(visitor)");
     }
     
+    public MethodCall toMethodCall() {
+        return null;
+    }
+
     public void setSourceLine(SourceLine sourceLine)
     {
         filename = sourceLine.getFilename();

@@ -8,29 +8,33 @@ import au.com.illyrian.classmaker.types.Type;
 
 public interface BnfTree <T> extends AstExpression
 {
-    public T resolveDeclaration(BnfMakerVisitor visitor);
+    // BnfMakerVisitor methods
+    public Type resolveDeclaration(BnfMakerVisitor visitor);
     
-    public T resolveLookahead(BnfMakerVisitor visitor, int howFar);
+    public Type resolveLookahead(BnfMakerVisitor visitor, int howFar);
+
+    public Type resolveSequence(BnfMakerVisitor visitor, int variable);
 
     public Type resolveType(BnfMakerVisitor visitor);
 
+    // BnfMergeVisitor methods
     public BnfTree resolveMerge(BnfMergeVisitor visitor);
     
     public BnfTree resolveAlternatives(BnfMergeVisitor visitor);
 
     public boolean matches(BnfTree other);
 
-    public boolean isEmpty();
+    // BnfFirstVisitor methods
+    public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet);
     
-    public boolean isVoidType();
+    public boolean isEmpty();
     
     public boolean isMacro();
     
+    // General methods
     public BnfTreeAlternative toAlternative();
     
     public BnfTreeSequence toSequence();
-    
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet);
     
     public BnfTreeRule [] toRuleArray();
     

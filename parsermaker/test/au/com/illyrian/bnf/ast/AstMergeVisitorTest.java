@@ -300,7 +300,7 @@ public class AstMergeVisitorTest extends TestCase
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         assertNotNull("Should not be null:", tree);
         
-        String expect = "import_path ::= ( name ( DOT import_path . | SEMI . ) | MULT SEMI . | error(\"IncompleteImportPath\") . ) ;\n"
+        String expect = "import_path ::= ( name() ( DOT import_path() . | SEMI . ) | MULT SEMI . | error(\"IncompleteImportPath\") . ) ;\n"
                       + "name ::= IDENTIFIER . ;";
         assertEquals("AST", expect, tree.toString());
     }
@@ -358,7 +358,7 @@ public class AstMergeVisitorTest extends TestCase
         
         assertNotNull("Cannot find first set for direction", lookup.get("direction"));
         BnfTreeRule direction = lookup.get("direction");
-        String expected = "direction ::= ( north . | east . | south . | west . "
+        String expected = "direction ::= ( north() . | east() . | south() . | west() . "
                 + "| error(\"WrongDirection\") . ) ;";
         assertEquals(expected, direction.toString());
         assertNotNull("Cannot find first set for direction", direction.getFirstSet());

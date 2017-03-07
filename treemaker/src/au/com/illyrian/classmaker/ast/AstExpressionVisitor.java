@@ -332,8 +332,9 @@ public class AstExpressionVisitor implements SourceLine
                     return maker.Length(reference);
                 else
                     return maker.Get(reference, name);
-            } else {
-                CallStack callStack = tree.getRightOperand().resolveCallStack(this);
+            } else if (tree.getRightOperand().toMethodCall() != null) {
+                MethodCall call = tree.getRightOperand().toMethodCall();
+                CallStack callStack = resolveMethodCall(call);
                 sourceLine = tree;
                 return maker.Call(reference, callStack.getMethodName(), callStack);
             }
@@ -343,14 +344,24 @@ public class AstExpressionVisitor implements SourceLine
             if (name != null) {
                 sourceLine = tree;
                 return maker.Get(path, name);
-            } else {
-                CallStack callStack = tree.getRightOperand().resolveCallStack(this);
+            } else if (tree.getRightOperand().toMethodCall() != null) {
+                MethodCall call = tree.getRightOperand().toMethodCall();
+                CallStack callStack = resolveMethodCall(call);
                 sourceLine = tree;
                 return maker.Call(path, callStack.getMethodName(), callStack);
             }
         }
+        throw new IllegalStateException("Cannot resolveType(" + tree + ")");
     }
     
+    public Type resolveType(MethodCall call)
+    {
+        Type reference = maker.This();
+        CallStack callStack = resolveMethodCall(call);
+        sourceLine = call;
+        return maker.Call(reference, callStack.getMethodName(), callStack);
+    }
+
     public Type resolveType(IncrementOperator tree)
     {
     	if (tree.getOperand() instanceof ArrayIndex)
@@ -450,14 +461,6 @@ public class AstExpressionVisitor implements SourceLine
         return maker.Logic(expr, cond);
     }
     
-    public Type resolveType(MethodCall call)
-    {
-        Type reference = maker.This();
-        CallStack callStack = resolveCallStack(call);
-        sourceLine = call;
-        return maker.Call(reference, callStack.getMethodName(), callStack);
-    }
-
     public Type resolveType(AstStatementReserved term)
     {
         // sourceLine = term;
@@ -502,8 +505,9 @@ public class AstExpressionVisitor implements SourceLine
             {
                 sourceLine = tree;
                 return maker.Get(reference, name);
-            } else {
-                CallStack callStack = tree.getRightOperand().resolveCallStack(this);
+            } else if (tree.getRightOperand().toMethodCall() != null) {
+                MethodCall call = tree.getRightOperand().toMethodCall();
+                CallStack callStack = resolveMethodCall(call);
                 sourceLine = tree;
                 return maker.Call(reference, callStack.getMethodName(), callStack);
             }
@@ -519,38 +523,7 @@ public class AstExpressionVisitor implements SourceLine
         }
         return null;
     }
-/*    
-    public Type resolveType(DotOperator tree)
-    {
-        Type reference = tree.getLeftOperand().resolveTypeOrNull(this);
-        if (reference != null)
-        {
-            String name = tree.getRightOperand().resolvePath(this);
-            if (name != null) {
-                sourceLine = tree;
-                if (ClassMaker.isArray(reference) && "length".equals(name))
-                    return maker.Length(reference);
-                else
-                    return maker.Get(reference, name);
-            } else {
-                CallStack callStack = tree.getRightOperand().resolveCallStack(this);
-                sourceLine = tree;
-                return maker.Call(reference, callStack.getMethodName(), callStack);
-            }
-        } else {
-            String path = tree.getLeftOperand().resolvePath(this);
-            String name = tree.getRightOperand().resolvePath(this);
-            if (name != null) {
-                sourceLine = tree;
-                return maker.Get(path, name);
-            } else {
-                CallStack callStack = tree.getRightOperand().resolveCallStack(this);
-                sourceLine = tree;
-                return maker.Call(path, callStack.getMethodName(), callStack);
-            }
-        }
-    }
-*/
+
     // resolveMakerField(...)
     public MakerField resolveMakerField(TerminalName term)
     {
@@ -623,8 +596,7 @@ public class AstExpressionVisitor implements SourceLine
         return maker.ArrayOf(type);
     }
 
-	// resolveCallStack(...)
-    public CallStack resolveCallStack(MethodCall call)
+    public CallStack resolveMethodCall(MethodCall call)
     {
         String methodName = call.getName().resolvePath(this);
         CallStack actualParameters = null;
@@ -637,6 +609,8 @@ public class AstExpressionVisitor implements SourceLine
         return actualParameters;
     }
     
+    // resolveCallStack(...)
+
     //             tree
     //            /    \
     //        tree    3rd param
@@ -646,7 +620,6 @@ public class AstExpressionVisitor implements SourceLine
     //      1st param
     public CallStack resolveCallStack(CommaOperator tree)
     {
-        // FIXME - Just call resolveCallStack on left and right parameters.
         if (tree.getLeftExpression() == null)
         {
             Type reference = tree.getRightExpression().resolveType(this);

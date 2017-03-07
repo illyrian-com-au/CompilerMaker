@@ -4,7 +4,6 @@ import java.util.Set;
 
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.ast.AstExpressionBase;
-import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
 import au.com.illyrian.classmaker.types.Type;
 
 public abstract class BnfTreeBase <T> extends AstExpressionBase implements BnfTree <T>
@@ -21,17 +20,21 @@ public abstract class BnfTreeBase <T> extends AstExpressionBase implements BnfTr
          return visitor.resolveMerge(this);
      }
      
-     public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
+     public Type resolveSequence(BnfMakerVisitor visitor, int variable) {
+         return visitor.resolveSequence(this, variable);
+     }
+
+     public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet)
      {
          return false;
      }
      
-     public T resolveDeclaration(BnfMakerVisitor visitor)
+     public Type resolveDeclaration(BnfMakerVisitor visitor)
      {
          throw new IllegalStateException("Cannot resolve Declaration: " + getClass().getSimpleName());
      }
 
-     public T resolveLookahead(BnfMakerVisitor visitor, int howFar)
+     public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)
      {
          throw new IllegalStateException("Cannot resolve Lookahead: " + getClass().getSimpleName());
      }
@@ -46,11 +49,6 @@ public abstract class BnfTreeBase <T> extends AstExpressionBase implements BnfTr
      }
      
      public boolean isEmpty() {
-         return false;
-     }
-     
-     public boolean isVoidType()
-     {
          return false;
      }
      

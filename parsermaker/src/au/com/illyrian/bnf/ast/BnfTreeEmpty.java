@@ -10,14 +10,14 @@ public class BnfTreeEmpty extends BnfTreeBase <Type>
     public BnfTreeEmpty() {
     }
     
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
+    public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet)
     {
         return visitor.resolveFirst(this, firstSet);
     }
 
-    public Type resolveDeclaration(BnfMakerVisitor visitor) 
+    public Type resolveSequence(BnfMakerVisitor visitor, int variable) 
     {
-        return visitor.resolveDeclaration(this);
+        return visitor.resolveSequence(this, variable);
     }
 
     public boolean isEmpty() {

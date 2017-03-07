@@ -30,19 +30,23 @@ public class BnfTreeName extends BnfTreeBase <Type>
         return false;
     }
     
-    public boolean isVoidType()
-    {
-        return false;
-    }
-    
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
+    public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet)
     {
         return visitor.resolveFirst(this, firstSet);
+    }
+
+    public BnfTree resolveMerge(BnfMergeVisitor visitor) {
+        return visitor.resolveMerge(this);
     }
 
     public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)
     {
         return visitor.resolveLookahead(this, howFar);
+    }
+
+    public Type resolveSequence(BnfMakerVisitor visitor, int variable) 
+    {
+        return visitor.resolveSequence(this, variable);
     }
 
     public Type resolveType(BnfMakerVisitor visitor)

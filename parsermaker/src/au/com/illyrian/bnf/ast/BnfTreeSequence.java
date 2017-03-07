@@ -19,6 +19,10 @@ public class BnfTreeSequence extends BnfTreeBinary <Type>
         return visitor.resolveMerge(this);
     }
     
+    public Type resolveSequence(BnfMakerVisitor visitor, int variable) {
+        return visitor.resolveSequence(this, variable);
+    }
+
     public boolean matches(BnfTree other) {
         if (other instanceof BnfTreeSequence) {
             BnfTreeSequence otherSeq = (BnfTreeSequence)other;
@@ -45,7 +49,7 @@ public class BnfTreeSequence extends BnfTreeBinary <Type>
         return getHead().isMacro();
     }
     
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
+    public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet)
     {
         return visitor.resolveFirst(this, firstSet);
     }

@@ -186,4 +186,24 @@ public class ExpresssionMethodCallTest extends TestCase
         assertEquals("Wrong output", "[Call(Call(Get(\"x\"), \"y\", Push()), \"z\", Push())]", buf.toString());
     }
 
+    public void testCallParamCall()
+    {
+        // y(z())
+        AstExpression ast = build.Call(build.Name("y"), build.Call(build.Name("z"), null));
+        assertEquals("Wrong toString()", "y(z())", ast.toString());
+        Type type = ast.resolveType(visitor);
+        assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
+        assertEquals("Wrong output", "[Call(This(), \"y\", Push(Call(This(), \"z\", Push())))]", buf.toString());
+    }
+
+    public void testDotCallParamCall()
+    {
+        // x.y(z())
+        AstExpression ast = build.Dot(build.Name("x"), 
+                build.Call(build.Name("y"), build.Call(build.Name("z"), null)));
+        assertEquals("Wrong toString()", "x.y(z())", ast.toString());
+        Type type = ast.resolveType(visitor);
+        assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
+        assertEquals("Wrong output", "[Call(Get(\"x\"), \"y\", Push(Call(This(), \"z\", Push())))]", buf.toString());
+    }
 }

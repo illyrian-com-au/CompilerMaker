@@ -21,20 +21,15 @@ public class BnfTreeReserved extends BnfTreeName
         }
         return false;
     }
-    
-    public boolean isVoidType()
-    {
-        return false;
-    }
-    
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
+        
+    public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet)
     {
         return visitor.resolveFirst(this, firstSet);
     }
     
-    public Type resolveDeclaration(BnfMakerVisitor visitor) 
+    public Type resolveSequence(BnfMakerVisitor visitor, int variable) 
     {
-        return visitor.resolveDeclaration(this);
+        return visitor.resolveSequence(this, variable);
     }
 
     public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)

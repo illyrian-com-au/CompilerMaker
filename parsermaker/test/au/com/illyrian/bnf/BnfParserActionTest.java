@@ -39,6 +39,7 @@ public class BnfParserActionTest extends TestCase
         
         BnfParser parser = new BnfParser();
         compile.visit(parser);
+        parser.getFactory();  // FIXME parser does not call getFactory()
         parser.nextToken();
         BnfTree tree = parser.rule_action();
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());

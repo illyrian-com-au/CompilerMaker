@@ -1,13 +1,14 @@
 package au.com.illyrian.bnf.maker;
 
 import java.util.Map;
+import java.util.Vector;
 
 import au.com.illyrian.bnf.ast.BnfTree;
+import au.com.illyrian.bnf.ast.BnfTreeAction;
 import au.com.illyrian.bnf.ast.BnfTreeAlternative;
 import au.com.illyrian.bnf.ast.BnfTreeEmpty;
 import au.com.illyrian.bnf.ast.BnfTreeList;
 import au.com.illyrian.bnf.ast.BnfTreeLookahead;
-import au.com.illyrian.bnf.ast.BnfTreeMacroCall;
 import au.com.illyrian.bnf.ast.BnfTreeMethodCall;
 import au.com.illyrian.bnf.ast.BnfTreeName;
 import au.com.illyrian.bnf.ast.BnfTreeNonterminal;
@@ -28,9 +29,11 @@ import au.com.illyrian.parser.ParserException;
 
 public class BnfMakerVisitor extends AstExpressionVisitor
 {
-//    Type ruleType = null;
+    //    Type ruleType = null;
 //    Type defaultRuleType = null;
+    private boolean actionRequired = false;
     private Map<String, BnfTreeRule> ruleSet = null;
+    private final Vector<Type>localVariables = new Vector<Type>();
     
     public BnfMakerVisitor() {
     }
@@ -45,6 +48,16 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         return ruleSet;
     }
 
+    public boolean isActionRequired()
+    {
+        return actionRequired;
+    }
+
+    public void setActionRequired(boolean actionRequired)
+    {
+        this.actionRequired = actionRequired;
+    }
+
     public void setRuleSet(Map<String, BnfTreeRule> ruleSet)
     {
         this.ruleSet = ruleSet;
@@ -57,7 +70,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
     public BnfTreeRule findRule(String name) {
         return (isRule(name)) ? ruleSet.get(name) : null;
     }
-
+    
     public Type resolveDeclaration(BnfTreeParser tree)
     {
         setRuleSet(tree.getRuleSet());
@@ -96,79 +109,113 @@ public class BnfMakerVisitor extends AstExpressionVisitor
             Type cond = (Type)left.getHead().resolveLookahead(this, 0);
             getMaker().If(cond);
             {
-                resolveSequence(left.toSeqArray(), 0, variable);
+                left.resolveSequence(this, variable);
             }
             BnfTree right = alternatives[offset];
             // If the right hand side is EMPTY then this is an optional 
             // clause so no need for an else part.
-            if (!right.isEmpty()) {
+            if (!right.isEmpty() || isActionRequired()) {
                 getMaker().Else();
                 resolveAlternatives(alternatives, offset+1, variable);
             }
             getMaker().EndIf();
         } else {
-            resolveSequence(left.toSeqArray(), 0, variable);
+            left.resolveSequence(this, variable);
         }
         return ClassMaker.VOID_TYPE;
     }
 
-    public Type resolveLookahead(BnfTreeAlternative alt, int howFar) {
-        Type cond = (Type)alt.getLeft().resolveLookahead(this, howFar);
-        return cond;
-    }
-
-    public Type resolveDeclaration(BnfTreeSequence seq)
-    {
-        return resolveSequence(seq.toSeqArray(), 0, 1);
+    public Type resolveDeclaration(BnfTreeSequence seq) {
+        return resolveSequence(seq, 1);
     }
     
-    Type resolveSequence(BnfTree [] sequence, int offset, int variable) {
+    public Type resolveSequence(BnfTreeSequence seq, int variable) {
+        BnfTree [] sequence = seq.toSeqArray();
+        int scopeSize = variable-1;
+        int offset = 0;
         while (offset < sequence.length) {
             BnfTree tree = sequence[offset];
-            if (tree.isEmpty() || tree.isVoidType()) {
-                tree.resolveDeclaration(this);
-            } else if (tree.toAlternative() != null) {
-                resolveAlternatives(tree.toAltArray(), 1, variable);
-            } else if (tree.isMacro()) {
-                offset++;
-                continue;
-            } else {
-                declare(variable, ClassMaker.OBJECT_TYPE);
-                Type type = (Type)tree.resolveType(this);
-                assign(variable, type);
+            if (!tree.isMacro()) {
+                Type type = tree.resolveSequence(this, variable);
+                localVariables.add(type);
+                variable++;
             }
             offset++;
-            variable++;
         }
+        // Clear local variables going out of scope.
+        localVariables.setSize(scopeSize);
         return ClassMaker.VOID_TYPE;
     }
-
-    public Type resolveDeclaration(BnfTreeEmpty empty)
-    {
-        return null; // empty();
+    
+    public Type resolveSequence(BnfTreeAlternative tree, int variable) {
+        return resolveAlternatives(tree.toAltArray(), 1, variable);
+    }
+    
+    public Type resolveSequence(BnfTreeAction tree, int variable) {
+        Type type = (Type)tree.resolveType(this);
+        assign(0, type);
+        return type;
     }
 
-    public Type resolveDeclaration(BnfTreeMethodCall call)
+    public Type resolveSequence(BnfTree tree, int variable) {
+        declare(variable, ClassMaker.OBJECT_TYPE);
+        Type type = (Type)tree.resolveType(this);
+        assign(variable, type);
+        return type;
+    }
+
+    public Type resolveSequence(BnfTreeName tree, int variable) {
+        declare(variable, ClassMaker.STRING_TYPE);
+        Type type = (Type)tree.resolveType(this);
+        assign(variable, type);
+        return type;
+    }
+
+    public Type resolveSequence(BnfTreeEmpty empty, int variable)
+    {
+        // Automatically return $1 if that is the only option.
+        if (isOnlyOneOption()) {
+            getMaker().Eval(getMaker().Assign("$0", getMaker().Get("$1")));
+        }
+        return null; // empty();
+    }
+    
+    boolean isOnlyOneOption() {
+        return (isActionRequired() 
+                && localVariables.size() == 1
+                && localVariables.lastElement() != ClassMaker.VOID_TYPE);
+    }
+
+    public Type resolveSequence(BnfTreeMethodCall call, int variable)
     {
         getMaker().Eval(resolveType(call));
         return ClassMaker.VOID_TYPE;
     }
 
-    public Type resolveDeclaration(BnfTreeReserved reserved)
+    public Type resolveSequence(BnfTreeReserved reserved, int variable)
     {
-        expect(reserved.getName());
+        declare(variable, ClassMaker.STRING_TYPE);
+        Type type = expect(reserved.getName());
+        assign(variable, type);
         return ClassMaker.VOID_TYPE;
     }
 
-    public Type resolveDeclaration(BnfTreeNonterminal nonterm)
+    public Type resolveSequence(BnfTreeNonterminal nonterm, int variable)
     {
+        declare(variable, ClassMaker.OBJECT_TYPE);
         String name = nonterm.getName();
-        return getMaker().Call(getMaker().This(), name, getMaker().Push());
+        Type type =  getMaker().Call(getMaker().This(), name, getMaker().Push());
+        assign(variable, type);
+        return type;
+    }
+
+    public Type resolveLookahead(BnfTreeAlternative alt, int howFar) {
+        return alt.getLeft().resolveLookahead(this, howFar);
     }
 
     public Type resolveLookahead(BnfTreeSequence seq, int howFar)
     {
-        BnfTree<Type> [] list = seq.toSeqArray();
+        BnfTree [] list = seq.toSeqArray();
         if (list.length < 2) {
             throw new IllegalArgumentException("Array length must be more than 2 but was " + list.length);
         }
@@ -194,10 +241,11 @@ public class BnfMakerVisitor extends AstExpressionVisitor
 
     public Type resolveLookahead(BnfTreeRule  rule, int howFar)
     {
-        String [] list = rule.getFirstSet().toArray();
+        BnfTree [] list = rule.getFirstSet().toArray();
         Type result = null;
         if (list.length == 1) { 
-            result = match(list[0]);
+            result = list[0].resolveLookahead(this, howFar);
+            //result = match(list[0]);
         } else if (list.length > 1) {
             result = resolveLookahead(list);
         } else {
@@ -212,6 +260,26 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         return pattern.resolveLookahead(this, howFar);
     }
     
+    Type resolveLookahead(BnfTree [] list)
+    {
+        if (list.length < 2) {
+            throw new IllegalArgumentException("Array length must be more than 2 but was " + list.length);
+        }
+        Type result = null;
+        AndOrExpression orElse = null;
+        for (int i=0; i<list.length; i++) {
+            Type cond = list[i].resolveLookahead(this, 0);
+            if (i == 0) { 
+                orElse = getMaker().OrElse(cond);
+            } else if (i < list.length-1) {
+                orElse = getMaker().OrElse(orElse, cond);
+            } else {
+                result = getMaker().Logic(orElse, cond);
+            }
+        }
+        return result;
+    }
+
     Type resolveLookahead(String [] list)
     {
         if (list.length < 2) {
@@ -237,14 +305,16 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         return null;
     }
 
-    public Type resolveLookahead(BnfTreeNonterminal reserved, int howFar)
+    public Type resolveLookahead(BnfTreeNonterminal ruleName, int howFar)
     {
-        return getMaker().Literal(true);
+        BnfTreeRule rule = ruleSet.get(ruleName);
+        return resolveLookahead(rule, howFar);
     }
 
     public Type resolveLookahead(BnfTreeName term, int howFar)
     {
         String name = term.getName();
+        // Names in lookahead clauses are not converted to BnfTreeNonterminal
         if (isRule(name)) {
             BnfTreeRule rule = ruleSet.get(name);
             return resolveLookahead(rule, howFar);
@@ -264,21 +334,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
     public Type resolveType(BnfTreeName tree)
     {
         String name = tree.getName();
-        if (isRule(name)) {
-            BnfTreeRule rule = ruleSet.get(name);
-            return callMethod(rule);
-        } else {
-            return expect(name);
-        }
-    }
-
-    Type callMethod(BnfTreeRule rule)
-    {
-        String methodName = rule.getName();
-        Type reference = getMaker().This();
-        CallStack callStack = getMaker().Push();
-        sourceLine = rule;
-        return getMaker().Call(reference, methodName, callStack);
+        return expect(name);
     }
 
     public Type resolveType(BnfTreeMethodCall call)
@@ -289,6 +345,11 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         return getMaker().Call(reference, callStack.getMethodName(), callStack);
     }
     
+    public Type resolveType(BnfTreeAction tree)
+    {
+        return tree.getExpression().resolveType(this);
+    }
+
     public Type resolveType(AstExpression tree)
     {
         throw new IllegalStateException("No special case for ExpressionTree type: " 
@@ -314,12 +375,12 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         DeclaredType declared = getMaker().findDeclaredType(returnType);
         getMaker().Method(methodName, declared.getName(), ClassMaker.ACC_PUBLIC);
         getMaker().Begin();
-        getMaker().Declare("$$", declared.getType(), 0);
+        getMaker().Declare("$0", declared.getType(), 0);
         return declared.getType();
     }
     
     void methodEnd() {
-        getMaker().Return(getMaker().Get("$$"));
+        getMaker().Return(getMaker().Get("$0"));
         getMaker().End();
     }
     

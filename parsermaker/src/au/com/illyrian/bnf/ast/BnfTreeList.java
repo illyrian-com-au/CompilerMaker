@@ -16,7 +16,7 @@ public class BnfTreeList <T> extends BnfTreeBinary <T>
         return new BnfTreeList(left, right);
     }
 
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
+    public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet)
     {
         return visitor.resolveFirst(this, firstSet);
     }

@@ -46,7 +46,7 @@ public class BnfTreeParser extends BnfTreeBase <Type>
         return new BnfTreeParser(rules);
     }
     
-    public boolean resolveFirst(BnfFirstVisitor visitor, Set<String> firstSet)
+    public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet)
     {
         return visitor.resolveFirst(this, firstSet);
     }

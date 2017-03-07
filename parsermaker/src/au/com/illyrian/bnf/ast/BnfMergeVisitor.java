@@ -1,14 +1,19 @@
 package au.com.illyrian.bnf.ast;
 
+import java.util.Map;
+
 
 public class BnfMergeVisitor
 {
+    private Map<String, BnfTreeRule> ruleSet;
+
     public BnfMergeVisitor()
     {
     }
     
     public BnfTreeParser resolveMerge(BnfTreeParser goal)
     {
+        ruleSet = goal.getRuleSet();
         BnfTree list = goal.getRules().resolveMerge(this);
         return goal.replace(list);
     }
@@ -48,14 +53,11 @@ public class BnfMergeVisitor
         BnfTree [] list = clone(original);
         for (int i=0; i<list.length; i++) {
             BnfTree target = list[i];
-            // Starting at the end of the list bubble up any items that match the target.
+            // Starting at the end of the list and bubble up any items that match the target.
             for (int j=list.length-1; j>i; j--) {
                 // Switch to another matching option if it is further up the list.
                 if (target.matches(list[j]) && !target.matches(list[j-1])) {
                     swap(list, j, j-1);
-//                    BnfTree temp = list[j];
-//                    list[j] = list[j-1];
-//                    list[j-1] = temp;
                 } else if (list[j-1].isEmpty() && !list[j].isMacro()) {
                     swap(list, j, j-1);
                 }
@@ -64,7 +66,7 @@ public class BnfMergeVisitor
         return list;
     }
     
-    void swap(BnfTree [] list, int i, int j) {
+    private void swap(BnfTree [] list, int i, int j) {
         BnfTree temp = list[i];
         list[i] = list[j];
         list[j] = temp;
@@ -114,6 +116,21 @@ public class BnfMergeVisitor
 
     }
     
+    public BnfTree resolveMerge(BnfTreeName item)
+    {
+        if (ruleSet.containsKey(item.getName())) {
+            return new BnfTreeNonterminal(item.getName());
+        } else {
+            return item;
+        }
+    }
+    
+    public BnfTree resolveMerge(BnfTreeLookahead item)
+    {
+        // This may only be used in the RECOVER macro.
+        return item.replace(item.getPattern().resolveMerge(this));
+    }
+
     public BnfTreeBase resolveMerge(BnfTreeBase item)
     {
         return item;

@@ -16,12 +16,12 @@ import au.com.illyrian.parser.expr.AstExpressionPrecidenceParser;
 
 public class BnfParser extends AstExpressionPrecidenceParser implements ParseMembers<BnfTreeParser>
 {
-    BnfTreeFactory factory;
+    private BnfTreeFactory factory;
+    private BnfMergeVisitor merger;
+    private BnfFirstVisitor first;
 
     public BnfParser()
     {
-        factory = new BnfTreeFactory();
-        this.setAstExpressionFactory(factory);
         addReservedMacros();
     }
     
@@ -29,6 +29,46 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         addReserved("LOOKAHEAD");
         addReserved("RECOVER");
         addReserved("EMPTY");
+    }
+
+    public BnfTreeFactory getFactory()
+    {
+        if (factory == null) {
+            factory = new BnfTreeFactory();
+            this.setAstExpressionFactory(factory);
+        }
+        return factory;
+    }
+
+    public void setFactory(BnfTreeFactory factory)
+    {
+        this.factory = factory;
+    }
+
+    public BnfMergeVisitor getMerger()
+    {
+        if (merger == null) {
+            merger = new BnfMergeVisitor();
+        }
+        return merger;
+    }
+
+    public void setMerger(BnfMergeVisitor merger)
+    {
+        this.merger = merger;
+    }
+
+    public BnfFirstVisitor getFirst()
+    {
+        if (first == null) {
+            first = new BnfFirstVisitor();
+        }
+        return first;
+    }
+
+    public void setFirst(BnfFirstVisitor first)
+    {
+        this.first = first;
     }
 
     protected Lexer createLexer()
@@ -75,12 +115,13 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     /* class_body ::= BEGIN rules_plus END { $2 } ; */
     public BnfTreeParser class_body()
     {
+        getFactory();
         expect(BnfToken.BEGIN);
         BnfTree $2 = rules_plus();
         if (!match(BnfToken.END)) {
             throw error("} expected");
         }
-        return factory.Parser($2);
+        return getFactory().Parser($2);
     }
 
     /* 
@@ -95,18 +136,18 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
             return $1;
         } else {
             BnfTree $2 = rules_plus();
-            return factory.List($1, $2);
+            return getFactory().List($1, $2);
         }
     }
 
-    /* parse_rule ::= rule_target ASSIGN rule_alt SEMI { factory.Rule($1, $3) } ; */
+    /* parse_rule ::= rule_target ASSIGN rule_alt SEMI { factogetFactory().$1, $3) } ; */
     public BnfTree parse_rule()
     {
         BnfTree $1 = rule_target();
         expect(BnfToken.ASSIGN);
         BnfTree $3 = rule_alt();
         expect(BnfToken.SEMI);
-        return factory.Rule($1, $3);
+        return getFactory().Rule($1, $3);
     }
 
     /*
@@ -120,7 +161,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
             if (accept(BnfToken.COLON))
             {
                 BnfTree $3 = name();
-                $$ = factory.Target($1, $3);
+                $$ = getFactory().Target($1, $3);
             } else {
                 $$ = $1;
             }
@@ -151,7 +192,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         BnfTree $1 = rule_seq();
         if (accept(BnfToken.ALT)) {
             BnfTree $3 = rule_alt();
-            return factory.Alt($1, $3);
+            return getFactory().Alt($1, $3);
         } else {
             return $1;
         }
@@ -166,11 +207,11 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         if (match(BnfToken.BEGIN)) {
             $$ = rule_action();
         } else if (match(BnfToken.SEMI) || match(BnfToken.ALT)){
-            $$ = factory.Empty();
+            $$ = getFactory().Empty();
         } else {
             BnfTree $1 = rule_token();
             BnfTree $2 = rule_seq();
-            $$ = factory.Seq($1, $2);
+            $$ = getFactory().Seq($1, $2);
         }
         return $$;
     }
@@ -180,6 +221,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
      */
     public BnfTree rule_action()
     {
+        getFactory();
         expect(BnfToken.BEGIN);
         AstExpression expr = expression();
         expect(BnfToken.END);
@@ -210,7 +252,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     public AstExpression actual_opt()
     {
         if (match(BnfToken.RPAR)) {
-            return factory.Empty();
+            return getFactory().Empty();
         } else {
             return param_mult();
         }
@@ -227,7 +269,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         AstExpression $1 = actual();
         if (accept(BnfToken.COMMA)) {
             AstExpression $3 = param_mult();
-            $$ = factory.Comma($1,  $3);
+            $$ = getFactory().Comma($1,  $3);
         } else {
             $$ = $1;
         }
@@ -244,11 +286,11 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     {
         AstExpression $$; 
         if (match(TokenType.NUMBER)) {
-            $$ = factory.Literal(getLexer().getTokenInteger());
+            $$ = getFactory().Literal(getLexer().getTokenInteger());
         } else if (match(TokenType.DECIMAL)) {
-            $$ = factory.Literal(getLexer().getTokenFloat());
+            $$ = getFactory().Literal(getLexer().getTokenFloat());
         } else if (match(TokenType.STRING)) {
-            $$ = factory.Literal(getLexer().getTokenString());
+            $$ = getFactory().Literal(getLexer().getTokenString());
         } else {
             throw error("Function parameter expected");
         }
@@ -267,7 +309,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         if (accept(BnfToken.LPAR)) {
             AstExpression $3 = actual_opt();
             expect(BnfToken.RPAR);
-            $$ = factory.MethodCall($1, $3);
+            $$ = getFactory().MethodCall($1, $3);
         } else {
             $$ = $1;
         }
@@ -283,9 +325,9 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     {
         BnfTree $$;
         if (match(BnfToken.IDENTIFIER)) {
-            $$ = factory.BnfName(getLexer());
+            $$ = getFactory().BnfName(getLexer());
         } else {
-            throw error("NameExpected");
+            throw error("TokenNameExpected");
         }
         return $$;
     }
@@ -300,12 +342,12 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         BnfTree $$;
         if (accept(BnfToken.LOOKAHEAD)) {
             BnfTree $2 = macro_param();
-            $$ = factory.Lookahead($2);
+            $$ = getFactory().Lookahead($2);
         } else if (accept(BnfToken.RECOVER)) {
             BnfTree $2 = macro_param();
-            $$ = factory.Recover($2);
+            $$ = getFactory().Recover($2);
         } else if (match(BnfToken.RESERVED)) {
-            $$ = factory.Reserved(getLexer());
+            $$ = getFactory().Reserved(getLexer());
         } else {
             throw error("MacroNameExpected");
         }
@@ -330,7 +372,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     {
         BnfTree $$;
         if (match(BnfToken.RESERVED)) {
-            $$ = factory.Reserved(getLexer());
+            $$ = getFactory().Reserved(getLexer());
         } else {
             throw error("MacroNameExpected");
         }
@@ -347,7 +389,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         BnfTree $1 = macro_seq();
         if (accept(BnfToken.ALT)) {
             BnfTree $3 = macro_alt();
-            $$ = factory.Alt($1,  $3);
+            $$ = getFactory().Alt($1,  $3);
         } else {
             $$ = $1;
         }
@@ -364,7 +406,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         BnfTree $1 = name();
         if (match(BnfToken.IDENTIFIER)) {
             BnfTree $3 = macro_seq();
-            $$ = factory.Seq($1,  $3);
+            $$ = getFactory().Seq($1,  $3);
         } else {
             $$ = $1;
         }

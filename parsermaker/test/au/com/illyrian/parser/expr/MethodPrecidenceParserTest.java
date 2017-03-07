@@ -34,21 +34,6 @@ public class MethodPrecidenceParserTest extends TestCase
         AstExpressionFactory factory = new AstExpressionFactory();
         parser.setAstExpressionFactory(factory);
         return parser;
-//        OperatorPrecidenceParser<AstExpression> parser = new OperatorPrecidenceParser<AstExpression>();
-//        AstExpressionFactory factory = new AstExpressionFactory();
-//        AstExpressionPrecidenceAction actions = new AstExpressionPrecidenceAction(factory);
-//        parser.setPrecidenceActions(actions);
-//        parser.addLedOperator("(", ")", ParserConstants.CALL, 17, Operator.PARAMS);
-//        parser.addLedOperator(".", ParserConstants.DOT, 16, Operator.BINARY);
-//        parser.addLedOperator("[", "]", ParserConstants.INDEX, 16, Operator.BRACKET);
-//        parser.addNudOperator("-", ParserConstants.NEG, 4, Operator.PREFIX);
-//        parser.addLedOperator("*", ParserConstants.MULT, 2, Operator.BINARY);
-//        parser.addLedOperator("/", ParserConstants.DIV, 2, Operator.BINARY);
-//        parser.addLedOperator("%", ParserConstants.REM, 2, Operator.BINARY);
-//        parser.addLedOperator("+", ParserConstants.ADD, 1, Operator.BINARY);
-//        parser.addLedOperator("-", ParserConstants.SUBT, 1, Operator.BINARY);
-//        parser.addLedOperator(",", ParserConstants.COMMA, 0, Operator.BINARY);
-//        return parser;
     }
 
     public void testMethodParser1() throws Exception
@@ -94,6 +79,28 @@ public class MethodPrecidenceParserTest extends TestCase
 
         assertNotNull("Parser result is null", result);
         assertEquals("setZ(a)", result.toString());
+    }
+
+    public void testSetxGety() throws Exception
+    {
+        OperatorPrecidenceParser parser = createMethodParser();
+        createCompileModule("setX(getY())", parser);
+        parser.nextToken();
+        Object result = parser.expression();
+
+        assertNotNull("Parser result is null", result);
+        assertEquals("setX(getY())", result.toString());
+    }
+
+    public void testOtherSetxGety() throws Exception
+    {
+        OperatorPrecidenceParser parser = createMethodParser();
+        createCompileModule("other.setX(getY())", parser);
+        parser.nextToken();
+        Object result = parser.expression();
+
+        assertNotNull("Parser result is null", result);
+        assertEquals("other.setX(getY())", result.toString());
     }
 
     public void testSetABC() throws Exception

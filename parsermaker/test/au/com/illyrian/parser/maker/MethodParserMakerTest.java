@@ -57,7 +57,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
         public int getA() {return a;}
         public int getB() {return b;}
         public int getC() {return c;}
-        public void setA(int value) {a = value;}
+        public int setA(int value) {a = value; return a;}
         public void setB(int value) {b = value;}
         public void setC(int value) {c = value;}
         public void set(int a, int b, int c) 
@@ -170,6 +170,48 @@ public class MethodParserMakerTest extends ClassMakerTestCase
         assertEquals("Wrong z value", 1, getIntField(parserClass, instance, "z"));
         assertEquals("Wrong result", 3, func.f(3));
         assertEquals("Wrong z value", 3, getIntField(parserClass, instance, "z"));
+    }
+
+    public void testGetY() throws Exception
+    {
+        methodFuncA(maker);
+        Type result = parseExpression("getY()");
+        endMethod(maker, result);
+
+        Class parserClass = maker.defineClass();
+        Object instance = parserClass.newInstance();
+        FuncA func = (FuncA)instance;
+        assertEquals("Wrong result", 100, func.f(0));
+    }
+
+
+    public void testSetxGety() throws Exception
+    {
+        methodFuncA(maker);
+        Type result = parseExpression("setZ(getY())");
+        endMethod(maker, result);
+        
+        Class parserClass = maker.defineClass();
+        Object instance = parserClass.newInstance();
+        FuncA func = (FuncA)instance;
+        assertEquals("Wrong result", 100, func.f(1));
+        assertEquals("Wrong z value", 100, getIntField(parserClass, instance, "z"));
+    }
+
+    public void testOtherSetxGety() throws Exception
+    {
+        methodFuncA(maker);
+        Type result = parseExpression("other.setA(getY())");
+        endMethod(maker, result);
+
+        Class parserClass = maker.defineClass();
+        Object instance = parserClass.newInstance();
+        Other other = new Other();
+        setField(parserClass, instance, "other", other);
+        setField(parserClass, instance, "self", instance);
+        FuncA func = (FuncA)instance;
+        assertEquals("Wrong result", 100, func.f(0));
+        assertEquals("Wrong other.a value", 100, getIntField(Other.class, other, "a"));
     }
 
     public void testSetABC() throws Exception

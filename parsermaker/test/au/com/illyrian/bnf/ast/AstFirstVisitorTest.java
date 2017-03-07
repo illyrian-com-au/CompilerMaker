@@ -53,7 +53,7 @@ public class AstFirstVisitorTest extends TestCase
         
         boolean hasEmpty = tree.resolveFirst(visitor, null);
         assertFalse("hasEmpty should be false", hasEmpty);
-        Set<String>rhymeSet = visitor.getSet("rhyme");
+        BnfFirstSet rhymeSet = visitor.getSet("rhyme");
         assertNotNull("set(rhyme) should not be null", rhymeSet);
         assertEquals("first(rhyme)=[the]", rhymeSet.toString());
     }
@@ -67,7 +67,7 @@ public class AstFirstVisitorTest extends TestCase
         
         boolean hasEmpty = tree.resolveFirst(visitor, null);
         assertTrue("hasEmpty should be false", hasEmpty);
-        Set<String>rhymeSet = visitor.getSet("rhyme");
+        BnfFirstSet rhymeSet = visitor.getSet("rhyme");
         assertNotNull("set(rhyme) should not be null", rhymeSet);
         assertEquals("first(rhyme)=[<EMPTY>]", rhymeSet.toString());
     }
@@ -80,7 +80,7 @@ public class AstFirstVisitorTest extends TestCase
         
         boolean hasEmpty = tree.resolveFirst(visitor, null);
         assertFalse("hasEmpty should be false", hasEmpty);
-        Set<String>rhymeSet = visitor.getSet("rhyme");
+        BnfFirstSet rhymeSet = visitor.getSet("rhyme");
         assertNotNull("set(rhyme) should not be null", rhymeSet);
         assertEquals("first(rhyme)=[cat, dog, fox]", rhymeSet.toString());
     }
@@ -99,7 +99,7 @@ public class AstFirstVisitorTest extends TestCase
         
         boolean hasEmpty = tree.resolveFirst(visitor, null);
         assertFalse("hasEmpty should be false", hasEmpty);
-        Set<String>rhymeSet = visitor.getSet("rhyme");
+        BnfFirstSet rhymeSet = visitor.getSet("rhyme");
         assertNotNull("set(rhyme) should not be null", rhymeSet);
         assertEquals("first(rhyme)=[cat, dogy, foxy]", rhymeSet.toString());
     }
@@ -192,7 +192,7 @@ public class AstFirstVisitorTest extends TestCase
         
         boolean hasEmpty = tree.resolveFirst(visitor, null);
         assertFalse("hasEmpty should be false", hasEmpty);
-        Set<String>firstSet = visitor.getSet("label_opt");
+        BnfFirstSet firstSet = visitor.getSet("label_opt");
         assertNotNull("set(label_opt) should not be null", firstSet);
         assertEquals("first(label_opt)=[<EMPTY>, LOOKAHEAD(IDENTIFIER COLON)]", firstSet.toString());
     }

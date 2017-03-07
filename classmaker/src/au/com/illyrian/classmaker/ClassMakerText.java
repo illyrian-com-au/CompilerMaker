@@ -365,7 +365,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
             throws ClassMakerException {
         String modStr = toModifierString(modifiers);
         String returnType = type.getName();
-        println("  Declare(\"" + name + "\", " + returnType + ", " + modStr + ");");
+        println("  Declare(\"" + name + "\", \"" + returnType + "\", " + modStr + ");");
     }
     
     String toModifierString(int modifiers) {
