@@ -381,7 +381,7 @@ public class ExpresssionBasicTest extends TestCase
         AstExpression call = ast.Call(ast.Name("Foo"), null);
         assertEquals("Wrong toString()", "Foo()", call.toString());
         Type type = call.resolveType(visitor);
-        assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
+        assertEquals("Wrong type", "ClassType(java.lang.Object)", type.toString());
         assertEquals("Wrong output", "[Call(This(), \"Foo\", Push())]", buf.toString());
     }
 
@@ -390,7 +390,7 @@ public class ExpresssionBasicTest extends TestCase
         AstExpression call = ast.Call(ast.Name("Foo"), ast.Name("x"));
         assertEquals("Wrong toString()", "Foo(x)", call.toString());
         Type type = call.resolveType(visitor);
-        assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
+        assertEquals("Wrong type", "ClassType(java.lang.Object)", type.toString());
         assertEquals("Wrong output", "[Call(This(), \"Foo\", Push(Get(\"x\")))]", buf.toString());
     }
 
@@ -399,7 +399,7 @@ public class ExpresssionBasicTest extends TestCase
         AstExpression call = ast.Call(ast.Name("Foo"), ast.Comma(ast.Name("x"), ast.Literal("Hi")));
         assertEquals("Wrong toString()", "Foo(x, \"Hi\")", call.toString());
         Type type = call.resolveType(visitor);
-        assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
+        assertEquals("Wrong type", "ClassType(java.lang.Object)", type.toString());
         assertEquals("Wrong output", "[Call(This(), \"Foo\", Push(Get(\"x\")).Push(Literal(\"Hi\")))]", buf.toString());
     }
     
@@ -408,7 +408,7 @@ public class ExpresssionBasicTest extends TestCase
         AstExpression expr = ast.Dot(ast.Name("x"), ast.Call(ast.Name("Foo"), null));
         assertEquals("Wrong toString()", "x.Foo()", expr.toString());
         Type type = expr.resolveType(visitor);
-        assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
+        assertEquals("Wrong type", "ClassType(java.lang.Object)", type.toString());
         assertEquals("Wrong output", "[Call(Get(\"x\"), \"Foo\", Push())]", buf.toString());
     }
 
@@ -417,7 +417,7 @@ public class ExpresssionBasicTest extends TestCase
         AstExpression expr = ast.Dot(ast.Name("Object"), ast.Call(ast.Name("Foo"), null));
         assertEquals("Wrong toString()", "Object.Foo()", expr.toString());
         Type type = expr.resolveType(visitor);
-        assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
+        assertEquals("Wrong type", "ClassType(java.lang.Object)", type.toString());
         assertEquals("Wrong output", "[Call(\"Object\", \"Foo\", Push())]", buf.toString());
     }
 

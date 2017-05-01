@@ -35,7 +35,7 @@ import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
-public abstract class AstExpressionBase implements AstExpression, SourceLine
+public abstract class AstExpressionBase implements AstExpression, LineNumber
 {
     private String filename = null;
     private int    lineNumber = 0;
@@ -46,8 +46,7 @@ public abstract class AstExpressionBase implements AstExpression, SourceLine
     
     public AstExpressionBase(SourceLine sourceLine)
     {
-        if (sourceLine != null)
-            setSourceLine(sourceLine);
+        setSourceLine(sourceLine);
     }
     
     public Type resolveType(AstExpressionVisitor visitor)
@@ -121,8 +120,14 @@ public abstract class AstExpressionBase implements AstExpression, SourceLine
 
     public void setSourceLine(SourceLine sourceLine)
     {
-        filename = sourceLine.getFilename();
-        lineNumber = sourceLine.getLineNumber();
+        if (sourceLine != null) {
+            filename = sourceLine.getFilename();
+            lineNumber = sourceLine.getLineNumber();
+        }
+    }
+    
+    public void setLineNumber(int number) {
+        lineNumber = number;
     }
     
     public String getFilename()

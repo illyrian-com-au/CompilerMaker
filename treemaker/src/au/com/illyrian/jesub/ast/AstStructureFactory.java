@@ -27,10 +27,9 @@
 
 package au.com.illyrian.jesub.ast;
 
-import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
-import au.com.illyrian.classmaker.ast.AstExpressionLink;
+import au.com.illyrian.classmaker.ast.LineNumber;
 import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.classmaker.ast.TerminalNumber;
 
@@ -38,17 +37,48 @@ public class AstStructureFactory extends AstExpressionFactory {
     public AstStructureFactory() {
     }
 
-    public AstStructureFactory(SourceLine sourceLine) {
-        super(sourceLine);
+    public AstStructureFactory(LineNumber source) {
+        super(source);
     }
 
-    AstDeclareModule Module(AstExpression packageName,
-            AstExpressionLink importsList, AstDeclareClass declaredClass) {
-        return new AstDeclareModule(packageName, importsList, declaredClass);
+    public AstModule Module(AstExpression packageName,
+            AstExpression [] importsList, AstClass declaredClass) {
+        AstModule module = new AstModule();
+        module.setPackage(Package(packageName));
+        if (importsList != null) {
+            for (AstExpression expr : importsList) {
+                module.addImportsList(Import(expr));
+            }
+        }
+        module.add(declaredClass);
+        return module;
+    }
+    
+    public AstModule Module(AstStructure packageDec,
+            AstStructure importsList, AstStructure declaredClass) {
+        return new AstModule(packageDec, importsList, declaredClass);
+    }
+    
+    public AstPackage Package(AstExpression tree) {
+        AstPackage result = new AstPackage(tree);
+        result.setLineNumber(getLineNumber());
+        return result;
     }
 
-    public AstStructureLink Seq(AstStructure left, AstStructure right) {
-        return new AstStructureLink(left, right);
+    public AstImport Import(AstExpression tree) {
+        AstImport result = new AstImport(tree);
+        result.setLineNumber(getLineNumber());
+        return result;
+    }
+
+    public AstStructure Seq(AstStructure left, AstStructure right) {
+        if (right == null) {
+            return left;
+        } else if (left == null) {
+            return right;
+        } else {
+            return new AstStructureLink(left, right);
+        }
     }
 
     public AstModifiers Modifier(String modifier, AstModifiers next) {
@@ -59,21 +89,19 @@ public class AstStructureFactory extends AstExpressionFactory {
         return new AstModifiers(modifier, null);
     }
 
-    public AstDeclareClass DeclareClass(AstModifiers modifiers,
-            TerminalName name, AstExpression baseClass,
-            AstExpression implementsList, AstStructure membersList) {
-        AstDeclareClass declareClass = new AstDeclareClass(modifiers, name,
-                baseClass, implementsList, membersList);
-        declareClass.setSourceLine(getSourceLine());
-        return declareClass;
+    public AstInterface DeclareInterface(AstModifiers modifiers,
+            TerminalName name, AstExpression baseClass, AstStructure membersList) {
+        AstInterface declared = new AstInterface(modifiers, name, baseClass, membersList);
+        declared.setLineNumber(getLineNumber());
+        return declared;
     }
 
-    public AstDeclareClass DeclareClass(AstModifiers modifiers,
+    public AstClass DeclareClass(AstModifiers modifiers,
             TerminalName name, AstExpression baseClass,
-            AstExpression implementsList) {
-        AstDeclareClass declareClass = new AstDeclareClass(modifiers, name,
-                baseClass, implementsList, null);
-        declareClass.setSourceLine(getSourceLine());
+            AstExpression implementsList, AstStructure membersList) {
+        AstClass declareClass = new AstClass(modifiers, name,
+                baseClass, implementsList, membersList);
+        declareClass.setLineNumber(getLineNumber());
         return declareClass;
     }
 
@@ -86,25 +114,25 @@ public class AstStructureFactory extends AstExpressionFactory {
             TerminalName name, AstStructure params, AstStructure code) {
         AstDeclareMethod declareMethod = new AstDeclareMethod(modifiers, type,
                 name, params, code);
-        declareMethod.setSourceLine(getSourceLine());
+        declareMethod.setLineNumber(getLineNumber());
         return declareMethod;
     }
 
     public AstStatementReturn Return(AstExpression value) {
         AstStatementReturn stmt = new AstStatementReturn(value);
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
     public AstStatementEval Eval(AstExpression value) {
         AstStatementEval stmt = new AstStatementEval(value);
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
     public AstStatementCompound Compound() {
         AstStatementCompound stmt = new AstStatementCompound();
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
@@ -112,45 +140,45 @@ public class AstStructureFactory extends AstExpressionFactory {
             AstStructure thenStatement, AstStructure elseStatement) {
         AstStatementIf stmt = new AstStatementIf(condition, thenStatement,
                 elseStatement);
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
     public AstStatementWhile While(AstExpression condition,
             AstStructure bodyStatement) {
         AstStatementWhile stmt = new AstStatementWhile(condition, bodyStatement);
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
     public AstStatementFor For(AstExpression init, AstExpression cond,
             AstExpression step, AstStructure code) {
         AstStatementFor stmt = new AstStatementFor(init, cond, step, code);
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
     public AstStatementBreak Break() {
         AstStatementBreak stmt = new AstStatementBreak();
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
     public AstStructure Break(TerminalName name) {
         AstStatementBreak stmt = new AstStatementBreak(name);
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
     public AstStatementContinue Continue() {
         AstStatementContinue stmt = new AstStatementContinue();
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
     public AstStructure Continue(TerminalName name) {
         AstStatementContinue stmt = new AstStatementContinue(name);
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
@@ -166,19 +194,19 @@ public class AstStructureFactory extends AstExpressionFactory {
 
     public AstStatementSwitch Switch(AstExpression expression, AstStructure code) {
         AstStatementSwitch stmt = new AstStatementSwitch(expression, code);
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
     public AstStatementCase Case(TerminalNumber value) {
         AstStatementCase stmt = new AstStatementCase(value);
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
     public AstStatementDefault Default() {
         AstStatementDefault stmt = new AstStatementDefault();
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
@@ -186,20 +214,20 @@ public class AstStructureFactory extends AstExpressionFactory {
             AstStatementFinally finallyCode) {
         AstStatementTry stmt = new AstStatementTry(tryCode, catchCode,
                 finallyCode);
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
     public AstStatementCatch Catch(AstDeclareVariable exception,
             AstStructure catchCode) {
         AstStatementCatch stmt = new AstStatementCatch(exception, catchCode);
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 
     public AstStatementFinally Finally(AstStructure code) {
         AstStatementFinally stmt = new AstStatementFinally(code);
-        stmt.setSourceLine(getSourceLine());
+        stmt.setLineNumber(getLineNumber());
         return stmt;
     }
 

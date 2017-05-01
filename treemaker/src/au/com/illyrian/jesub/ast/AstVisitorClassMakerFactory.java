@@ -4,16 +4,15 @@ import java.util.Vector;
 
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
-import au.com.illyrian.classmaker.ast.AstExpression;
 
 public class AstVisitorClassMakerFactory extends AstStructureVisitor
 {
     static final ClassMaker [] CLASSES_PROTO = new ClassMaker[0]; 
     final ClassMakerFactory factory;
-    String        packageName;
-    AstExpression importsList;
+    AstStructure  packageDec;
+    AstStructure  importsList;
     Vector <ClassMaker>      classMakers = new Vector<ClassMaker>(); 
-    Vector <AstDeclareClass> declareClasses = new Vector<AstDeclareClass>(); 
+    Vector <AstClass> declareClasses = new Vector<AstClass>(); 
 
     public AstVisitorClassMakerFactory(ClassMakerFactory factory)
     {
@@ -25,12 +24,12 @@ public class AstVisitorClassMakerFactory extends AstStructureVisitor
         return factory;
     }
 
-    public String getPackageName()
+    public AstStructure getPackageDec()
     {
-        return packageName;
+        return packageDec;
     }
 
-    public AstExpression getImportsList()
+    public AstStructure getImportsList()
     {
         return importsList;
     }
@@ -61,11 +60,10 @@ public class AstVisitorClassMakerFactory extends AstStructureVisitor
         return classes[0];
     }
 
-    public void resolveDeclaration(AstDeclareModule unit)
+    public void resolveDeclaration(AstModule unit)
     {
         // Store the package and imports to be added to each generated class.
-        if (unit.getPackageName() != null)
-            packageName = unit.getPackageName().resolvePath(this);
+        packageDec = unit.getPackage();
         importsList = unit.getImportsList();
         
         if (unit.getClassList() != null)
@@ -82,31 +80,35 @@ public class AstVisitorClassMakerFactory extends AstStructureVisitor
         }
     }
 
-    public void resolveDeclaration(AstDeclareClass unit)
+    public void resolveDeclaration(AstClass unit)
     {
-        // Add to list of AstDeclareClass instances
+        // Add to list of AstClass instances
         declareClasses.add(unit);
         String className = unit.getClassName().getName();
         
         // Add to list of ClassMaker instances
         ClassMaker maker = factory.createClassMaker(this);
         addClassMaker(maker);
-        maker.setPackageName(packageName);
         maker.setSimpleClassName(className);
         maker.getFullyQualifiedClassName();
     }
+    
+    public void resolveDeclaration(AstPackage unit)
+    {
+        String packageName = unit.getExpression().resolvePath(this);
+        getMaker().setPackageName(packageName);
+    }
 
-    public void firstPass(AstDeclareClass unit, ClassMaker maker)
+    public void firstPass(AstClass unit, ClassMaker maker)
     {
         setMaker(maker);
 
-        if (getPackageName() != null)
-        {
-            getMaker().setPackageName(packageName);
+        if (getPackageDec() != null) {
+            getPackageDec().resolveDeclaration(this);
         }
-        if (getImportsList() != null)
+        if (getImportsList() != null) {
             getImportsList().resolveImport(this);
-
+        }
         // FIXME - modifiers should be added incrementally
         int modifiers = resolveModifiers(unit.getModifiers());
         getMaker().setClassModifiers(modifiers);
@@ -120,7 +122,7 @@ public class AstVisitorClassMakerFactory extends AstStructureVisitor
         getMaker().EndClass();
     }
     
-    public void secondPass(AstDeclareClass unit, ClassMaker maker)
+    public void secondPass(AstClass unit, ClassMaker maker)
     {
         setMaker(maker);
 

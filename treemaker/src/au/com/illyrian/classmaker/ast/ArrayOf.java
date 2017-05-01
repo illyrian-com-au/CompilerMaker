@@ -15,16 +15,8 @@ public class ArrayOf extends AstExpressionBase
         this.dimension = dimension;
     }
     
-    public ArrayOf(AstExpression type, AstExpression dimension, SourceLine sourceLine)
+    public ArrayOf(AstExpression type)
     {
-        super(sourceLine);
-        this.type = type;
-        this.dimension = dimension;
-    }
-    
-    public ArrayOf(AstExpression type, SourceLine sourceLine)
-    {
-        super(sourceLine);
         this.type = type;
         this.dimension = null;
     }

@@ -20,28 +20,29 @@ public class AstStructureTreeTest extends ClassMakerTestCase
         AstStructureFactory build = new AstStructureFactory();
         AstExpression auCom = build.Dot(build.Name("au"), build.Name("com"));
         assertEquals("Wrong resolvePath", "au.com", auCom.toString());
-        AstExpression packageName = build.Dot(auCom, build.Name("illyrian"));
-        assertEquals("Wrong resolvePath", "au.com.illyrian", packageName.toString());
-        AstExpression AstStructure = 
+        AstPackage package1 = build.Package(build.Dot(auCom, build.Name("illyrian")));
+        assertEquals("Wrong resolvePath", "package au.com.illyrian;", package1.toString());
+        AstImport import1 = build.Import(
                 build.Dot(
                         build.Dot(
-                                build.Dot(packageName, build.Name("jesub")), 
+                                build.Dot(package1.getExpression(), build.Name("jesub")), 
                                 build.Name("ast")), 
-                                build.Name("AstStructure"));
-        assertEquals("Wrong resolvePath", "au.com.illyrian.jesub.ast.AstStructure", AstStructure.toString());
-        AstExpression fileImport = build.Name("java.io.File"); 
-        AstExpressionLink importsList = build.Link(AstStructure, fileImport);
+                                build.Name("AstStructure")));
+        assertEquals("Wrong resolvePath", "import au.com.illyrian.jesub.ast.AstStructure;", import1.toString());
+        AstImport import2 = build.Import(build.Name("java.io.File")); 
+        AstStructure importsList = build.Seq(import1, import2);
         
         // Declare Class
         AstModifiers modifiers = build.Modifier("public"); // FIXME
         TerminalName name = build.Name("Test");
-        AstDeclareClass declaredClass = build.DeclareClass(modifiers, name, null, null, null);
+        AstClass declaredClass = build.DeclareClass(modifiers, name, null, null, null);
         
-        AstDeclareModule module = build.Module(packageName, importsList, declaredClass);
+        AstModule module = build.Module(package1, importsList, declaredClass);
         
         String expected = "package au.com.illyrian;\n"
-      		+ "import au.com.illyrian.jesub.ast.AstStructure, java.io.File;\n"
-      		+ "public class Test";
+      		+ "import au.com.illyrian.jesub.ast.AstStructure;\n"
+                + "import java.io.File;\n"
+      		+ "public class Test\n";
         assertEquals("Wrong AstModule.toString", expected, module.toString());
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);
@@ -61,26 +62,26 @@ public class AstStructureTreeTest extends ClassMakerTestCase
     public void testDeclareClass() throws Exception
     {
         AstStructureFactory build = new AstStructureFactory();
-        AstExpression packageName = build.Dot(build.Dot(
+        AstPackage package1 = build.Package(build.Dot(build.Dot(
         		build.Dot(build.Dot(build.Name("au"), build.Name("com")), build.Name("illyrian")),
-        		build.Name("jesub")), build.Name("ast"));
+        		build.Name("jesub")), build.Name("ast")));
         
         // Imports
-        AstExpression import1 = build.Dot(packageName, build.Name("AstStructure"));
-        AstExpression import2 = build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Runnable"));
-        AstExpressionLink imports = build.Link(import1, import2);
+        AstImport import1 = build.Import(build.Dot(package1.getExpression(), build.Name("AstStructure")));
+        AstImport import2 = build.Import(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Runnable")));
+        AstStructure imports = build.Seq(import1, import2);
         
         AstExpression baseClass = build.Name("AstStructureBase");
 
         // Implements
-        AstExpressionLink implementsList = build.Link(build.Name("AstStructure"), build.Name("Runnable"));
+        AstExpression implementsList = build.Link(build.Name("AstStructure"), build.Name("Runnable"));
 
         // Declare Class
         AstModifiers modifiers = build.Modifier("public");
         TerminalName name = build.Name("Test");
-        AstDeclareClass declareClass = build.DeclareClass(modifiers, name, baseClass, implementsList, null);
+        AstClass declareClass = build.DeclareClass(modifiers, name, baseClass, implementsList, null);
         
-        AstDeclareModule module = build.Module(packageName, imports, declareClass);
+        AstModule module = build.Module(package1, imports, declareClass);
 
         String expected = "public class Test extends AstStructureBase"
     		  + " implements AstStructure, Runnable {\n"
@@ -139,13 +140,13 @@ public class AstStructureTreeTest extends ClassMakerTestCase
         TerminalName name = build.Name("Test");
         TerminalName base = build.Name("au.com.illyrian.jesub.ast.FuncABC");
         
-        AstDeclareClass declareClass = build.DeclareClass(modifiers, name, base, null, null);
+        AstClass declareClass = build.DeclareClass(modifiers, name, base, null, null);
         declareClass.add(var1);
         declareClass.add(var2);
         declareClass.add(var3);
         declareClass.add(var4);
         
-        AstDeclareModule module = build.Module(packageName, null, declareClass);
+        AstModule module = build.Module(packageName, null, declareClass);
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);
         module.resolveDeclaration(visitor);
@@ -182,7 +183,7 @@ public class AstStructureTreeTest extends ClassMakerTestCase
         AstStructure paramA = build.Declare(null, type, build.Name("a")); 
         AstStructure paramB = build.Declare(null, type, build.Name("b")); 
         AstStructure paramC = build.Declare(null, type, build.Name("c")); 
-        AstStructureLink params = build.Seq(build.Seq(paramA, paramB), paramC);
+        AstStructure params = build.Seq(build.Seq(paramA, paramB), paramC);
         AstStatementReturn body = build.Return(build.Div(build.Div(build.Name("a"), build.Name("b")), build.Name("c")));
         AstDeclareMethod method = build.Method(astPublic, type, build.Name("f"), params, body);
 
@@ -190,11 +191,11 @@ public class AstStructureTreeTest extends ClassMakerTestCase
         AstModifiers modifiers = build.Modifier("public");
         TerminalName name = build.Name("Test");
         TerminalName base = build.Name("au.com.illyrian.jesub.ast.FuncABC");
-        AstDeclareClass declareClass = build.DeclareClass(modifiers, name, base, null, null);
+        AstClass declareClass = build.DeclareClass(modifiers, name, base, null, null);
         declareClass.add(method);
         
         // Declare Module
-        AstDeclareModule module = build.Module(packageName, null, declareClass);
+        AstModule module = build.Module(packageName, null, declareClass);
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);
         module.resolveDeclaration(visitor);

@@ -27,7 +27,9 @@
 
 package au.com.illyrian.jesub.ast;
 
-public interface AstStructure
+import au.com.illyrian.classmaker.ast.LineNumber;
+
+public interface AstStructure extends LineNumber
 {
     public void resolveImport(AstStructureVisitor visitor);
 

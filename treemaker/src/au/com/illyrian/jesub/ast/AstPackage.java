@@ -28,60 +28,19 @@
 package au.com.illyrian.jesub.ast;
 
 import au.com.illyrian.classmaker.ast.AstExpression;
-import au.com.illyrian.classmaker.ast.AstExpressionLink;
-import au.com.illyrian.classmaker.ast.ResolvePath;
 
-
-public class AstDeclareModule extends AstStructureBase
+public class AstPackage extends AstStructureBase
 {
-    private AstExpression packageName;
-    private AstExpression importsList = null;
-    private AstStructure classList;
+    private final AstExpression expression;
     
-    public AstDeclareModule()
+    public AstPackage(AstExpression expression)
     {
-    }
-    
-    public AstDeclareModule(AstExpression packageName, AstExpression importsList, AstDeclareClass declaredClass)
-    {
-    	this.packageName = packageName;
-    	this.importsList = importsList;
-    	add(declaredClass);
+        this.expression = expression;
     }
     
-    public ResolvePath getPackageName()
+    public AstExpression getExpression()
     {
-        return packageName;
-    }
-
-    public void setPackageName(AstExpression packageName)
-    {
-        this.packageName = packageName;
-    }
-
-    public AstExpression getImportsList()
-    {
-        return importsList;
-    }
-
-    public void addImportsList(AstExpression className)
-    {
-        AstExpressionLink link = new AstExpressionLink(importsList, className);
-        importsList = link;
-    }
-
-    public AstStructure getClassList()
-    {
-        return classList;
-    }
-
-    public AstDeclareModule add(AstDeclareClass declareClass)
-    {
-        if (classList == null)
-            classList = declareClass;
-        else
-            classList = new AstStructureLink(classList, declareClass);
-        return this;
+        return expression;
     }
 
     public void resolveDeclaration(AstStructureVisitor visitor)
@@ -91,15 +50,6 @@ public class AstDeclareModule extends AstStructureBase
     
     public String toString()
     {
-    	StringBuffer buf = new StringBuffer();
-    	if (packageName != null)
-    		buf.append("package " + packageName + ";\n");
-    	if (importsList != null)
-    		buf.append("import " + importsList + ";\n");
-    	
-    	if (classList != null)
-    	    buf.append(classList.toSignature());
-    	
-    	return buf.toString();
+    	return "package " + expression + ";";
     }
 }

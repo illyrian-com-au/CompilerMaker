@@ -27,52 +27,29 @@
 
 package au.com.illyrian.jesub.ast;
 
-public class AstStructureLink extends AstStructureBase
+import au.com.illyrian.classmaker.ast.AstExpression;
+
+public class AstImport extends AstStructureBase
 {
-    public final AstStructure left;
-    public final AstStructure right;
-
-    public AstStructureLink(AstStructure left, AstStructure right)
+    private final AstExpression expression;
+    
+    public AstImport(AstExpression expression)
     {
-        if (left == null && right == null)
-            throw new IllegalArgumentException("Both left and right structures must not be null");
-
-        this.left = left;
-        this.right = right;
+        this.expression = expression;
+    }
+    
+    public AstExpression getExpression()
+    {
+        return expression;
     }
 
     public void resolveDeclaration(AstStructureVisitor visitor)
     {
         visitor.resolveDeclaration(this);
     }
-
-    public void resolveStatement(AstStructureVisitor visitor)
-    {
-        visitor.resolveStatement(this);
-    }
-
-    public int size()
-    {
-        return (left == null ? 0 : left.size()) + (right == null ? 0 : right.size());
-    }
-
-    public String toSignature()
-    {
-        if (left == null)
-            return right.toSignature();
-        else if (right == null)
-            return left.toSignature();
-        else
-            return left.toSignature() + "\n" + right.toSignature();
-    }
-
+    
     public String toString()
     {
-        if (left == null)
-            return "" + right;
-        else if (right == null)
-            return "" + left;
-        else
-            return left + "\n" + right;
+    	return "import " + expression + ";";
     }
 }

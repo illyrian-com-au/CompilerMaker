@@ -27,52 +27,77 @@
 
 package au.com.illyrian.jesub.ast;
 
-public class AstStructureLink extends AstStructureBase
+
+
+public class AstModule extends AstStructureBase
 {
-    public final AstStructure left;
-    public final AstStructure right;
-
-    public AstStructureLink(AstStructure left, AstStructure right)
+    private AstStructure packageDec;
+    private AstStructure importsList = null;
+    private AstStructure classList;
+    
+    public AstModule()
     {
-        if (left == null && right == null)
-            throw new IllegalArgumentException("Both left and right structures must not be null");
+    }
+    
+    public AstModule(AstStructure packageDeclare, AstStructure importsList, AstStructure declaredClass)
+    {
+    	this.packageDec = packageDeclare;
+    	this.importsList = importsList;
+    	add(declaredClass);
+    }
 
-        this.left = left;
-        this.right = right;
+    public AstStructure getPackage()
+    {
+        return packageDec;
+    }
+
+    public void setPackage(AstStructure packageDeclare)
+    {
+        this.packageDec = packageDeclare;
+    }
+
+    public AstStructure getImportsList()
+    {
+        return importsList;
+    }
+
+    public void addImportsList(AstImport className)
+    {
+        AstStructureLink link = new AstStructureLink(importsList, className);
+        importsList = link;
+    }
+
+    public AstStructure getClassList()
+    {
+        return classList;
+    }
+
+    public AstModule add(AstStructure declareClass)
+    {
+        if (classList == null)
+            classList = declareClass;
+        else
+            classList = new AstStructureLink(classList, declareClass);
+        return this;
     }
 
     public void resolveDeclaration(AstStructureVisitor visitor)
     {
         visitor.resolveDeclaration(this);
     }
-
-    public void resolveStatement(AstStructureVisitor visitor)
-    {
-        visitor.resolveStatement(this);
-    }
-
-    public int size()
-    {
-        return (left == null ? 0 : left.size()) + (right == null ? 0 : right.size());
-    }
-
-    public String toSignature()
-    {
-        if (left == null)
-            return right.toSignature();
-        else if (right == null)
-            return left.toSignature();
-        else
-            return left.toSignature() + "\n" + right.toSignature();
-    }
-
+    
     public String toString()
     {
-        if (left == null)
-            return "" + right;
-        else if (right == null)
-            return "" + left;
-        else
-            return left + "\n" + right;
+    	StringBuffer buf = new StringBuffer();
+    	if (packageDec != null) {
+    	    buf.append(packageDec.toString()).append('\n');
+    	}
+    	if (importsList != null) {
+    	    buf.append(importsList.toString()).append('\n');
+    	}
+    	if (classList != null) {
+    	    buf.append(classList.toSignature()).append('\n');
+    	}
+    	return buf.toString();
     }
 }

@@ -79,7 +79,7 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         // Declare method
         AstStructure formal1 = build.Declare(null, type, build.Name("x")); 
         AstStructure formal2 = build.Declare(null, type, build.Name("y")); 
-        AstStructureLink params = build.Seq(formal1, formal2);
+        AstStructure params = build.Seq(formal1, formal2);
         AstStatementReturn body = build.Return(build.Div(build.Name("x"), build.Name("y")));
         AstDeclareMethod method = build.Method(astPublic, type, build.Name("binary"), params, body);
 
@@ -87,12 +87,12 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         AstModifiers modifiers = build.Modifier("public");
         TerminalName name = build.Name("Test");
         TerminalName impl = build.Name(Binary.class.getName());
-        AstDeclareClass declareClass = build.DeclareClass(modifiers, name, null, null, null);
+        AstClass declareClass = build.DeclareClass(modifiers, name, null, null, null);
         declareClass.addImplements(impl);
         declareClass.add(method);
         
         // Declare Module
-        AstDeclareModule module = build.Module(packageName, null, declareClass);
+        AstModule module = build.Module(packageName, null, declareClass);
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);
         module.resolveDeclaration(visitor);
@@ -121,24 +121,24 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         AstStructure stmt2 = build.Eval(build.Assign(build.Name("id"), build.Literal(2)));
         AstStructure stmt3 = build.If(cond1, stmt2, null);
         AstStructure stmt4 = build.Return(build.Name("id"));
-        AstStructureLink body = build.Seq(build.Seq(stmt1, stmt3), stmt4);
+        AstStructure body = build.Seq(build.Seq(stmt1, stmt3), stmt4);
         
         AstStructure formal1 = build.Declare(null, type, build.Name("x")); 
         AstStructure formal2 = build.Declare(null, type, build.Name("y")); 
-        AstStructureLink params = build.Seq(formal1, formal2);
+        AstStructure params = build.Seq(formal1, formal2);
         AstDeclareMethod method = build.Method(astPublic, type, build.Name("binary"), params, body);
 
         // Declare Class
         AstModifiers modifiers = build.Modifier("public");
         TerminalName name = build.Name("Test");
         TerminalName impl = build.Name(Binary.class.getName());
-        AstDeclareClass declareClass = build.DeclareClass(modifiers, name, null, null, null);
+        AstClass declareClass = build.DeclareClass(modifiers, name, null, null, null);
         declareClass.addImplements(impl);
         declareClass.add(var1);
         declareClass.add(method);
         
         // Declare Module
-        AstDeclareModule module = build.Module(packageName, null, declareClass);
+        AstModule module = build.Module(packageName, null, declareClass);
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);
         module.resolveDeclaration(visitor);
@@ -169,24 +169,24 @@ public class AstStatementTreeTest extends ClassMakerTestCase
 		AstStructure stmt2b = build.Eval(build.Assign(build.Name("id"), build.Literal(3)));
         AstStructure stmt3 = build.If(cond1, stmt2a, stmt2b);
         AstStructure stmt4 = build.Return(build.Div(build.Name("x"), build.Name("y")));
-        AstStructureLink body = build.Seq(build.Seq(stmt1, stmt3), stmt4);
+        AstStructure body = build.Seq(build.Seq(stmt1, stmt3), stmt4);
         
         AstStructure formal1 = build.Declare(null, type, build.Name("x")); 
         AstStructure formal2 = build.Declare(null, type, build.Name("y")); 
-        AstStructureLink params = build.Seq(formal1, formal2);
+        AstStructure params = build.Seq(formal1, formal2);
         AstDeclareMethod method = build.Method(astPublic, type, build.Name("binary"), params, body);
 
         // Declare Class
         AstModifiers modifiers = build.Modifier("public");
         TerminalName name = build.Name("Test");
         TerminalName impl = build.Name(Binary.class.getName());
-        AstDeclareClass declareClass = build.DeclareClass(modifiers, name, null, null, null);
+        AstClass declareClass = build.DeclareClass(modifiers, name, null, null, null);
         declareClass.addImplements(impl);
         declareClass.add(var1);
         declareClass.add(method);
         
         // Declare Module
-        AstDeclareModule module = build.Module(packageName, null, declareClass);
+        AstModule module = build.Module(packageName, null, declareClass);
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);
         module.resolveDeclaration(visitor);
@@ -227,7 +227,7 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         AstStructure stmt3b = build.Eval(build.Dec(build.Name("n")));
         AstStructure stmt3 = build.While(cond1, build.Seq(stmt3a,  stmt3b));
         AstStructure stmt4 = build.Return(build.Name("x"));
-        AstStructureLink body = build.Seq(build.Seq(build.Seq(stmt1, stmt2), stmt3), stmt4);
+        AstStructure body = build.Seq(build.Seq(build.Seq(stmt1, stmt2), stmt3), stmt4);
         
         AstStructure formal1 = build.Declare(null, type, build.Name("n")); 
         AstDeclareMethod method = build.Method(astPublic, type, build.Name("unary"), formal1, body);
@@ -237,11 +237,11 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         TerminalName name = build.Name("Test");
         TerminalName base = build.Name("Object");
         TerminalName impl = build.Name(Unary.class.getName());
-        AstStructureLink members = build.Seq(var1, method);
-        AstDeclareClass declareClass = build.DeclareClass(modifiers, name, base, impl, members);
+        AstStructure members = build.Seq(var1, method);
+        AstClass declareClass = build.DeclareClass(modifiers, name, base, impl, members);
         
         // Declare Module
-        AstDeclareModule module = build.Module(packageName, null, declareClass);
+        AstModule module = build.Module(packageName, null, declareClass);
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);
         module.resolveDeclaration(visitor);
@@ -274,7 +274,7 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         AstStructure stmt3 = build.Eval(build.Assign(build.Name("x"), build.Mult(build.Name("x"), build.Name("n"))));
         AstStructure stmt2 = build.For(expr2a, cond2b, expr2c, stmt3);
         AstStructure stmt4 = build.Return(build.Name("x"));
-        AstStructureLink body = build.Seq(build.Seq(stmt1, stmt2), stmt4);
+        AstStructure body = build.Seq(build.Seq(stmt1, stmt2), stmt4);
         
         AstStructure formal1 = build.Declare(null, type, build.Name("n")); 
         AstDeclareMethod method = build.Method(astPublic, type, build.Name("unary"), formal1, body);
@@ -284,11 +284,11 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         TerminalName name = build.Name("Test");
         TerminalName base = build.Name("Object");
         TerminalName impl = build.Name(Unary.class.getName());
-        AstStructureLink members = build.Seq(var1, method);
-        AstDeclareClass declareClass = build.DeclareClass(modifiers, name, base, impl, members);
+        AstStructure members = build.Seq(var1, method);
+        AstClass declareClass = build.DeclareClass(modifiers, name, base, impl, members);
         
         // Declare Module
-        AstDeclareModule module = build.Module(packageName, null, declareClass);
+        AstModule module = build.Module(packageName, null, declareClass);
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);
         module.resolveDeclaration(visitor);
@@ -351,12 +351,12 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         AstModifiers modifiers = build.Modifier("public");
         TerminalName name = build.Name("Test");
         TerminalName impl = build.Name(Unary.class.getName());
-        AstDeclareClass declareClass = build.DeclareClass(modifiers, name, null, null, null);
+        AstClass declareClass = build.DeclareClass(modifiers, name, null, null, null);
         declareClass.addImplements(impl);
         declareClass.add(method);
         
         // Declare Module
-        AstDeclareModule module = build.Module(packageName, null, declareClass);
+        AstModule module = build.Module(packageName, null, declareClass);
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);
         module.resolveDeclaration(visitor);
@@ -435,10 +435,10 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         AstModifiers modifiers = build.Modifier("public");
         TerminalName name = build.Name("Test");
         TerminalName impl = build.Name(Unary.class.getName());
-        AstDeclareClass declareClass = build.DeclareClass(modifiers, name, null, impl, method);
+        AstClass declareClass = build.DeclareClass(modifiers, name, null, impl, method);
         
         // Declare Module
-        AstDeclareModule module = build.Module(packageName, null, declareClass);
+        AstModule module = build.Module(packageName, null, declareClass);
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);
         module.resolveDeclaration(visitor);
@@ -508,12 +508,12 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         TerminalName name = build.Name("Test");
         TerminalName ext = build.Name(Unreliable.class.getName());
         TerminalName impl = build.Name(Unary.class.getName());
-        AstDeclareClass declareClass = build.DeclareClass(modifiers, name, ext, null, null);
+        AstClass declareClass = build.DeclareClass(modifiers, name, ext, null, null);
         declareClass.addImplements(impl);
         declareClass.add(method);
         
         // Declare Module
-        AstDeclareModule module = build.Module(packageName, null, declareClass);
+        AstModule module = build.Module(packageName, null, declareClass);
 
         AstStructureVisitor visitor = new AstStructureVisitor(maker);
         module.resolveDeclaration(visitor);
@@ -611,11 +611,11 @@ public class AstStatementTreeTest extends ClassMakerTestCase
         // Declare Class
         TerminalName name = build.Name("Test");
         TerminalName impl = build.Name(BreakContinueIface.class.getName());
-        AstDeclareClass declareClass = build.DeclareClass(astPublic, name, null, impl, method);
+        AstClass declareClass = build.DeclareClass(astPublic, name, null, impl, method);
 
         // Declare Module
         AstExpression packageName = build.Name("au.com.illyrian.jesub.ast");
-        AstDeclareModule module = build.Module(packageName, null, declareClass);
+        AstModule module = build.Module(packageName, null, declareClass);
         
         //System.out.println(module.getDeclareClass().getMembers().toString());
 

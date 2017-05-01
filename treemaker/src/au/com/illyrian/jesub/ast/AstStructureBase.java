@@ -27,12 +27,11 @@
 
 package au.com.illyrian.jesub.ast;
 
-import au.com.illyrian.classmaker.SourceLine;
+import au.com.illyrian.classmaker.ast.LineNumber;
 
 
-public class AstStructureBase /*extends AstExpressionBase*/ implements AstStructure, SourceLine
+public class AstStructureBase implements AstStructure, LineNumber
 {
-    private String filename = null;
     private int    lineNumber = 0;
     
     public AstStructureBase() {
@@ -78,22 +77,12 @@ public class AstStructureBase /*extends AstExpressionBase*/ implements AstStruct
     	return 1;
     }
     
-    public void setSourceLine(SourceLine sourceLine)
-    {
-        if (sourceLine != null)
-        {
-            filename = sourceLine.getFilename();
-            lineNumber = sourceLine.getLineNumber();
-        }
-    }
-    
-    public String getFilename()
-    {
-        return filename;
-    }
-
     public int getLineNumber()
     {
         return lineNumber;
+    }
+    
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
     }
 }

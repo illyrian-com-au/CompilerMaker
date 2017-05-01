@@ -33,32 +33,30 @@ import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.ast.TerminalName;
 
 
-public class AstDeclareClass extends AstStructureBase
+public class AstInterface extends AstStructureBase
 {
     private AstModifiers modifiers = null;
     private TerminalName className = null;
     private AstExpression baseClass = null;
-    private AstExpression implementsList = null;
     private AstStructure  membersList = null;
     
-    public AstDeclareClass()
+    public AstInterface()
     {
     }
     
-    public AstDeclareClass(AstModifiers modifiers, TerminalName className)
+    public AstInterface(AstModifiers modifiers, TerminalName className)
     {
         this();
         setModifiers(modifiers);
         setClassName(className);
     }
     
-    public AstDeclareClass(AstModifiers modifiers, TerminalName className, AstExpression baseClass, 
-    		AstExpression implementsList, AstStructure membersList)
+    public AstInterface(AstModifiers modifiers, TerminalName className, AstExpression baseClass, 
+    		AstStructure membersList)
     {
         setModifiers(modifiers);
         setClassName(className);
         setExtends(baseClass);
-        setImplementsList(implementsList);
         setMembers(membersList);
     }
     
@@ -92,24 +90,6 @@ public class AstDeclareClass extends AstStructureBase
         return baseClass;
     }
 
-    public AstExpression getImplementsList()
-    {
-        return implementsList;
-    }
-
-    public void setImplementsList(AstExpression implementsList)
-    {
-        this.implementsList = implementsList;
-    }
-
-    public void addImplements(AstExpression className)
-    {
-    	if (implementsList == null)
-    		implementsList = className;
-    	else
-    		implementsList = new AstExpressionLink(implementsList, className);
-    }
-
     public AstStructure getMembers()
     {
         return membersList;
@@ -120,7 +100,7 @@ public class AstDeclareClass extends AstStructureBase
         this.membersList = membersList;
     }
 
-    public AstDeclareClass add(AstStructure member)
+    public AstInterface add(AstStructure member)
     {
     	if (membersList == null)
     		membersList = member;
@@ -139,11 +119,9 @@ public class AstDeclareClass extends AstStructureBase
     	StringBuffer buf = new StringBuffer();
     	if (modifiers != null)
     		buf.append(modifiers + " ");
-    	buf.append("class " + className + "");
+    	buf.append("interface " + className + "");
     	if (baseClass != null)
     		buf.append(" extends " + baseClass);
-    	if (implementsList != null)
-    		buf.append(" implements " + implementsList );
     	return buf.toString();
     }
 

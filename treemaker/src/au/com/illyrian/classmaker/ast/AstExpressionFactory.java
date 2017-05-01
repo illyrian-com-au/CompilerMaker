@@ -28,269 +28,372 @@
 package au.com.illyrian.classmaker.ast;
 
 import au.com.illyrian.classmaker.SourceLine;
+import au.com.illyrian.jesub.ast.AstStructureLink;
 
 public class AstExpressionFactory 
 {
-    private final SourceLine sourceLine;
+    private final LineNumber source;
     
     public AstExpressionFactory()
     {
-        sourceLine = null;
+        source = null;
     }
 
-    public AstExpressionFactory(SourceLine sourceLine)
+    public AstExpressionFactory(LineNumber source)
     {
-        this.sourceLine = sourceLine;
+        this.source = source;
     }
     
-    public SourceLine getSourceLine() 
-    {
-        return sourceLine;
+    public int getLineNumber() {
+        return source == null ? 0 : source.getLineNumber();
     }
 
     public TerminalName Name(String name)
     {
-        return new TerminalName(name, sourceLine);
+        TerminalName expr = new TerminalName(name);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public TerminalString Literal(String string)
     {
-        return new TerminalString(string, sourceLine);
+        TerminalString expr =  new TerminalString(string);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public TerminalNumber Literal(long value)
     {
-        return new TerminalNumber(value, sourceLine);
+        TerminalNumber expr =  new TerminalNumber(value);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public TerminalNumber Literal(int value)
     {
-        return new TerminalNumber(value, sourceLine);
+        TerminalNumber expr =  new TerminalNumber(value);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public TerminalNumber Literal(short value)
     {
-        return new TerminalNumber(value, sourceLine);
+        TerminalNumber expr =  new TerminalNumber(value);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public TerminalNumber Literal(byte value)
     {
-        return new TerminalNumber(value, sourceLine);
+        TerminalNumber expr =  new TerminalNumber(value);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public TerminalNumber Literal(char ch)
     {
-        return new TerminalNumber(ch, sourceLine);
+        TerminalNumber expr =  new TerminalNumber(ch);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public TerminalDecimal Literal(double value)
     {
-        return new TerminalDecimal(value, sourceLine);
+        TerminalDecimal expr =  new TerminalDecimal(value);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public TerminalDecimal Literal(float value)
     {
-        return new TerminalDecimal(value, sourceLine);
+        TerminalDecimal expr =  new TerminalDecimal(value);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public TerminalBoolean Literal(boolean value)
     {
-        return new TerminalBoolean(value, sourceLine);
+        TerminalBoolean expr =  new TerminalBoolean(value);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public DotOperator Dot(AstExpression left, AstExpression right)
     {
-        return new DotOperator(left, right, sourceLine);
+        DotOperator expr =  new DotOperator(left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public AssignmentOperator Assign(AstExpression left, AstExpression right)
     {
-        return new AssignmentOperator(left, right, sourceLine);
+        AssignmentOperator expr =  new AssignmentOperator(left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public BinaryOperator Add(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.ADD, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.ADD, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public BinaryOperator Subt(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.SUBT, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.SUBT, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public BinaryOperator Mult(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.MULT, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.MULT, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public BinaryOperator Div(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.DIV, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.DIV, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public BinaryOperator Rem(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.REM, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.REM, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public BinaryOperator SHL(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.SHL, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.SHL, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public BinaryOperator SHR(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.SHR, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.SHR, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public BinaryOperator USHR(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.USHR, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.USHR, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public BinaryOperator And(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.AND, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.AND, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public BinaryOperator Or(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.OR, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.OR, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public BinaryOperator Xor(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.XOR, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.XOR, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public UnaryOperator Neg(AstExpression expr)
     {
-        return new UnaryOperator(UnaryOperator.NEG, expr, sourceLine);
+        UnaryOperator operator = new UnaryOperator(UnaryOperator.NEG, expr);
+        operator.setLineNumber(getLineNumber());
+        return operator;
     }
     
     public BinaryOperator GT(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.GT, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.GT, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public BinaryOperator LT(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.LT, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.LT, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public BinaryOperator GE(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.GE, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.GE, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public BinaryOperator LE(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.LE, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.LE, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public BinaryOperator EQ(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.EQ, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.EQ, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public BinaryOperator NE(AstExpression left, AstExpression right)
     {
-        return new BinaryOperator(BinaryOperator.NE, left, right, sourceLine);
+        BinaryOperator expr = new BinaryOperator(BinaryOperator.NE, left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public UnaryOperator Not(AstExpression expr)
     {
-        return new UnaryOperator(UnaryOperator.NOT, expr, sourceLine);
+        UnaryOperator operator = new UnaryOperator(UnaryOperator.NOT, expr);
+        operator.setLineNumber(getLineNumber());
+        return operator;
     }
     
     public UnaryOperator Inv(AstExpression expr)
     {
-        return new UnaryOperator(UnaryOperator.INV, expr, sourceLine);
+        UnaryOperator operator = new UnaryOperator(UnaryOperator.INV, expr);
+        operator.setLineNumber(getLineNumber());
+        return operator;
     }
     
     public IncrementOperator Inc(AstExpression expr)
     {
-        return new IncrementOperator(expr, sourceLine);
+        IncrementOperator operator = new IncrementOperator(expr);
+        operator.setLineNumber(getLineNumber());
+        return operator;
     }
     
     public DecrementOperator Dec(AstExpression expr)
     {
-        return new DecrementOperator(expr, sourceLine);
+        DecrementOperator operator = new DecrementOperator(expr);
+        operator.setLineNumber(getLineNumber());
+        return operator;
     }
 
     public PostIncrementOperator PostInc(AstExpression expr)
     {
-        return new PostIncrementOperator(expr, sourceLine);
+        PostIncrementOperator operator = new PostIncrementOperator(expr);
+        operator.setLineNumber(getLineNumber());
+        return operator;
     }
 
     public PostDecrementOperator PostDec(AstExpression expr)
     {
-        return new PostDecrementOperator(expr, sourceLine);
+        PostDecrementOperator operator = new PostDecrementOperator(expr);
+        operator.setLineNumber(getLineNumber());
+        return operator;
     }
     
     public AndThenOperator AndThen(AstExpression left, AstExpression right)
     {
-        return new AndThenOperator(left, right, sourceLine);
+        AndThenOperator expr = new AndThenOperator(left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public OrElseOperator OrElse(AstExpression left, AstExpression right)
     {
-        return new OrElseOperator(left, right, sourceLine);
+        OrElseOperator expr = new OrElseOperator(left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public CastOperator Cast(AstExpression left, AstExpression right)
     {
-        return new CastOperator(left, right, sourceLine);
+        CastOperator expr = new CastOperator(left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public ArrayIndex ArrayIndex(AstExpression left, AstExpression right)
     {
-        return new ArrayIndex(left, right, sourceLine);
+        ArrayIndex expr = new ArrayIndex(left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public AstExpression ArrayOf(AstExpression type) 
     {
-        return new ArrayOf(type, sourceLine);
+        ArrayOf expr = new ArrayOf(type);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public AstExpression ArrayOf(AstExpression type, AstExpression dimension) 
     {
-        return new ArrayOf(type, dimension, sourceLine);
+        ArrayOf expr = new ArrayOf(type, dimension);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public InstanceOfOperator InstanceOf(AstExpression left, AstExpression right)
     {
-        return new InstanceOfOperator(left, right, sourceLine);
+        InstanceOfOperator expr = new InstanceOfOperator(left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public CommaOperator Comma(AstExpression left, AstExpression right)
     {
-        return new CommaOperator(left, right, sourceLine);
+        CommaOperator expr = new CommaOperator(left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
     
     public MethodCall Call(AstExpression left, AstExpression right)
     {
-        return new MethodCall(left, right, sourceLine);
+        MethodCall expr = new MethodCall(left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public NewOperator New(AstExpression constructor)
     {
-        return new NewOperator(constructor, sourceLine);
+        NewOperator expr = new NewOperator(constructor);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public NewArrayOperator NewArray(AstExpression left, AstExpression right)
     {
-        return new NewArrayOperator(left, right, sourceLine);
+        NewArrayOperator expr = new NewArrayOperator(left, right);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
-    public AstExpressionLink Link(AstExpression left, AstExpression right)
+    public AstExpression Link(AstExpression left, AstExpression right)
     {
-        return new AstExpressionLink(left, right);
+        if (right == null) {
+            return left;
+        } else if (left == null) {
+            return right;
+        } else {
+            AstExpressionLink expr = new AstExpressionLink(left, right);
+            expr.setLineNumber(getLineNumber());
+            return expr;
+        }
     }
    
     public AstExpression Reserved(String name) {
-        AstStatementReserved stmt = AstStatementReserved.lookup(name);
-        return stmt;
+        AstStatementReserved expr = AstStatementReserved.lookup(name);
+        expr.setLineNumber(getLineNumber());
+        return expr;
     }
 
     public String toString()

@@ -45,7 +45,9 @@ public class AstExpressionVisitor implements SourceLine
     
     private static final ClassMakerException [] ERRORS_PROTO = new ClassMakerException[0];
     private Vector <ClassMakerException> errorList = new Vector <ClassMakerException>();
-    protected SourceLine sourceLine = null;
+    //protected SourceLine sourceLine = null;
+    private String filename;
+    private int lineNumber;
     
     public AstExpressionVisitor()
     {
@@ -64,18 +66,33 @@ public class AstExpressionVisitor implements SourceLine
     public void setMaker(ClassMakerIfc maker)
     {
         this.maker = maker;
+        maker.setSourceLine(this);
     }
 
+    @Override
     public String getFilename()
     {
-        return (sourceLine != null) ? sourceLine.getFilename() : null;
+        return filename;
     }
 
-    public int getLineNumber()
+    public void setFilename(String sourceFilename)
     {
-        return (sourceLine != null) ? sourceLine.getLineNumber() : 0;
+        this.filename = sourceFilename;
     }
     
+    @Override
+    public int getLineNumber() {
+        return lineNumber;
+    }
+    
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
+    }
+
+    public void setSource(AstExpression tree) {
+        setLineNumber(tree.getLineNumber());
+    }
+
     public boolean hasErrors()
     {
         return !errorList.isEmpty();
@@ -101,7 +118,7 @@ public class AstExpressionVisitor implements SourceLine
     
     public Type resolveType(TerminalName term)
     {
-        sourceLine = term;
+        setSource(term);
         if ("this".equals(term.getName()))
             return maker.This();
         else if ("null".equals(term.getName()))
@@ -121,13 +138,13 @@ public class AstExpressionVisitor implements SourceLine
     
     public Type resolveType(TerminalBoolean term)
     {
-        sourceLine = term;
+        setSource(term);
         return maker.Literal(term.booleanValue());
     }
     
     public Type resolveType(TerminalNumber term)
     {
-        sourceLine = term;
+        setSource(term);
         switch (term.getSize())
         {
         case TerminalNumber.LONG:
@@ -147,7 +164,7 @@ public class AstExpressionVisitor implements SourceLine
     
     public Type resolveType(TerminalDecimal term)
     {
-        sourceLine = term;
+        setSource(term);
         switch (term.getSize())
         {
         case TerminalDecimal.DOUBLE:
@@ -161,7 +178,7 @@ public class AstExpressionVisitor implements SourceLine
     
     public Type resolveType(TerminalString term)
     {
-        sourceLine = term;
+        setSource(term);
         return maker.Literal(term.stringValue());
     }
     
@@ -169,7 +186,7 @@ public class AstExpressionVisitor implements SourceLine
     {
         Type leftType = tree.getLeftOperand().resolveType(this);
         Type rightType = tree.getRightOperand().resolveType(this);
-        sourceLine = tree;
+        setSource(tree);
         switch (tree.getOperatorType())
         {
         case BinaryOperator.MULT:
@@ -215,7 +232,7 @@ public class AstExpressionVisitor implements SourceLine
     public Type resolveType(UnaryOperator tree)
     {
         Type type = tree.getOperand().resolveType(this);
-        sourceLine = tree;
+        setSource(tree);
         switch (tree.getOperatorType())
         {
         case UnaryOperator.NEG:
@@ -234,7 +251,7 @@ public class AstExpressionVisitor implements SourceLine
     {
         Type type = tree.getLeftOperand().resolveType(this);
         String typeName = tree.getRightOperand().resolvePath(this);
-        sourceLine = tree;
+        setSource(tree);
         return maker.InstanceOf(type, typeName);
     }
     
@@ -242,7 +259,7 @@ public class AstExpressionVisitor implements SourceLine
     {
         String typeName = tree.getLeftOperand().resolvePath(this);
         Type type = tree.getRightOperand().resolveType(this);
-        sourceLine = tree;
+        setSource(tree);
         return maker.Cast(type, typeName);
     }
     
@@ -250,7 +267,7 @@ public class AstExpressionVisitor implements SourceLine
     {
     	Type reference = tree.getArrayOperand().resolveType(this);
     	Type index = tree.getIndexOperand().resolveType(this);
-        sourceLine = tree;
+        setSource(tree);
         return maker.GetAt(reference, index);
     }
     
@@ -265,7 +282,7 @@ public class AstExpressionVisitor implements SourceLine
         CallStack stack = null;
         if (tree.getParams() != null)
             stack = tree.getParams().resolveCallStack(this);
-        sourceLine = tree;
+        setSource(tree);
         return maker.New(declared).Init(stack);
     }
     
@@ -292,7 +309,7 @@ public class AstExpressionVisitor implements SourceLine
     {
         DeclaredType declared = tree.getTypeName().resolveDeclaredType(this);
         Type indexType = tree.getDimensions().resolveType(this);
-        sourceLine = tree;
+        setSource(tree);
         return maker.NewArray(declared, indexType);
     }
     
@@ -303,12 +320,12 @@ public class AstExpressionVisitor implements SourceLine
             Type arrayType = array.getArrayOperand().resolveType(this);
             Type indexType = array.getIndexOperand().resolveType(this);
             Type valueType = tree.getRightOperand().resolveType(this);
-            sourceLine = tree;
+            setSource(tree);
             return maker.AssignAt(arrayType, indexType, valueType);
         } else {
             MakerField field = tree.getLeftOperand().resolveMakerField(this);
             Type type = tree.getRightOperand().resolveType(this);
-            sourceLine = tree;
+            setSource(tree);
             if (field == null)
                 throw new IllegalStateException("MakerField is null: " + tree.getLeftOperand());
             if (field.isLocal())
@@ -327,7 +344,7 @@ public class AstExpressionVisitor implements SourceLine
         {
             String name = tree.getRightOperand().resolvePath(this);
             if (name != null) {
-                sourceLine = tree;
+                setSource(tree);
                 if (ClassMaker.isArray(reference) && "length".equals(name))
                     return maker.Length(reference);
                 else
@@ -335,19 +352,19 @@ public class AstExpressionVisitor implements SourceLine
             } else if (tree.getRightOperand().toMethodCall() != null) {
                 MethodCall call = tree.getRightOperand().toMethodCall();
                 CallStack callStack = resolveMethodCall(call);
-                sourceLine = tree;
+                setSource(tree);
                 return maker.Call(reference, callStack.getMethodName(), callStack);
             }
         } else {
             String path = tree.getLeftOperand().resolvePath(this);
             String name = tree.getRightOperand().resolvePath(this);
             if (name != null) {
-                sourceLine = tree;
+                setSource(tree);
                 return maker.Get(path, name);
             } else if (tree.getRightOperand().toMethodCall() != null) {
                 MethodCall call = tree.getRightOperand().toMethodCall();
                 CallStack callStack = resolveMethodCall(call);
-                sourceLine = tree;
+                setSource(tree);
                 return maker.Call(path, callStack.getMethodName(), callStack);
             }
         }
@@ -358,7 +375,7 @@ public class AstExpressionVisitor implements SourceLine
     {
         Type reference = maker.This();
         CallStack callStack = resolveMethodCall(call);
-        sourceLine = call;
+        setSource(call);
         return maker.Call(reference, callStack.getMethodName(), callStack);
     }
 
@@ -369,13 +386,13 @@ public class AstExpressionVisitor implements SourceLine
     	    ArrayIndex array = (ArrayIndex)tree.getOperand();
     	    Type arrayType = array.getArrayOperand().resolveType(this);
     	    Type indexType = array.getIndexOperand().resolveType(this);
-            sourceLine = tree;
+            setSource(tree);
     	    return maker.IncAt(arrayType, indexType);
     	}
     	else
     	{
             MakerField field = tree.getOperand().resolveMakerField(this);
-            sourceLine = tree;
+            setSource(tree);
             if (field.isLocal())
                 return maker.Inc(field.getName());
             else if (field.isStatic())
@@ -391,11 +408,11 @@ public class AstExpressionVisitor implements SourceLine
             ArrayIndex array = (ArrayIndex) tree.getOperand();
             Type arrayType = array.getArrayOperand().resolveType(this);
             Type indexType = array.getIndexOperand().resolveType(this);
-            sourceLine = tree;
+            setSource(tree);
             return maker.DecAt(arrayType, indexType);
         } else {
             MakerField field = tree.getOperand().resolveMakerField(this);
-            sourceLine = tree;
+            setSource(tree);
             if (field.isLocal())
                 return maker.Dec(field.getName());
             else if (field.isStatic())
@@ -411,11 +428,11 @@ public class AstExpressionVisitor implements SourceLine
             ArrayIndex array = (ArrayIndex) tree.getOperand();
             Type arrayType = array.getArrayOperand().resolveType(this);
             Type indexType = array.getIndexOperand().resolveType(this);
-            sourceLine = tree;
+            setSource(tree);
             return maker.PostIncAt(arrayType, indexType);
         } else {
             MakerField field = tree.getOperand().resolveMakerField(this);
-            sourceLine = tree;
+            setSource(tree);
             if (field.isLocal())
                 return maker.PostInc(field.getName());
             else if (field.isStatic())
@@ -431,11 +448,11 @@ public class AstExpressionVisitor implements SourceLine
             ArrayIndex array = (ArrayIndex) tree.getOperand();
             Type arrayType = array.getArrayOperand().resolveType(this);
             Type indexType = array.getIndexOperand().resolveType(this);
-            sourceLine = tree;
+            setSource(tree);
             return maker.PostDecAt(arrayType, indexType);
         } else {
             MakerField field = tree.getOperand().resolveMakerField(this);
-            sourceLine = tree;
+            setSource(tree);
             if (field.isLocal())
                 return maker.PostDec(field.getName());
             else if (field.isStatic())
@@ -449,7 +466,7 @@ public class AstExpressionVisitor implements SourceLine
     {
         ClassMaker.AndOrExpression expr = tree.getLeftOperand().resolveAndThen(this);
         Type cond = tree.getRightOperand().resolveType(this);
-        sourceLine = tree;
+        setSource(tree);
         return maker.Logic(expr, cond);
     }
     
@@ -457,13 +474,13 @@ public class AstExpressionVisitor implements SourceLine
     {
         ClassMaker.AndOrExpression expr = tree.getLeftOperand().resolveOrElse(this);
         Type cond = tree.getRightOperand().resolveType(this);
-        sourceLine = tree;
+        setSource(tree);
         return maker.Logic(expr, cond);
     }
     
     public Type resolveType(AstStatementReserved term)
     {
-        // sourceLine = term;
+        // setLineNumber(term);
         if ("this".equals(term.getReservedWord()))
             return maker.This();
         else if ("super".equals(term.getReservedWord()))
@@ -477,7 +494,7 @@ public class AstExpressionVisitor implements SourceLine
     // resolveTypeOrNull(...)
     public Type resolveTypeOrNull(TerminalName term)
     {
-        sourceLine = term;
+        setSource(term);
         if ("this".equals(term.getName()))
             return maker.This();
         else if ("null".equals(term.getName()))
@@ -503,12 +520,12 @@ public class AstExpressionVisitor implements SourceLine
             String name = tree.getRightOperand().resolvePath(this);
             if (name != null)
             {
-                sourceLine = tree;
+                setSource(tree);
                 return maker.Get(reference, name);
             } else if (tree.getRightOperand().toMethodCall() != null) {
                 MethodCall call = tree.getRightOperand().toMethodCall();
                 CallStack callStack = resolveMethodCall(call);
-                sourceLine = tree;
+                setSource(tree);
                 return maker.Call(reference, callStack.getMethodName(), callStack);
             }
         } else {
@@ -517,7 +534,7 @@ public class AstExpressionVisitor implements SourceLine
             if (declared != null)
             {
                 String name = tree.getRightOperand().resolvePath(this);
-                sourceLine = tree;
+                setSource(tree);
                 return maker.Get(declared.getName(), name);
             }
         }
@@ -532,7 +549,7 @@ public class AstExpressionVisitor implements SourceLine
         {
             if (!field.isLocal() && !field.isStatic())
             {
-                sourceLine = term;
+                setSource(term);
                 maker.This();
             }
         }
@@ -545,12 +562,12 @@ public class AstExpressionVisitor implements SourceLine
         if (type != null)
         {
             String name = tree.getRightOperand().resolvePath(this);
-            sourceLine = tree;
+            setSource(tree);
             return maker.Find(type, name);
         } else {
             String path = tree.getLeftOperand().resolvePath(this);
             String name = tree.getRightOperand().resolvePath(this);
-            sourceLine = tree;
+            setSource(tree);
             return maker.Find(path, name);
         }
     }
@@ -558,7 +575,7 @@ public class AstExpressionVisitor implements SourceLine
     // resolvePath(...)
     public String resolvePath(TerminalName term)
     {
-        sourceLine = term;
+        setSource(term);
         return term.getName();
     }
     
@@ -571,28 +588,28 @@ public class AstExpressionVisitor implements SourceLine
     
     public DeclaredType resolveDeclaredType(TerminalName term)
     {
-        sourceLine = term;
+        setSource(term);
         return maker.findDeclaredType(term.getName());
     }
     
     public DeclaredType resolveDeclaredType(DotOperator term)
     {
     	String path = resolvePath(term);
-        sourceLine = term;
+        setSource(term);
         return maker.findDeclaredType(path);
     }
 
     public DeclaredType resolveDeclaredType(ArrayOf arrayOf) 
     {
         DeclaredType type = arrayOf.getType().resolveDeclaredType(this);
-        sourceLine = arrayOf;
+        setSource(arrayOf);
         return maker.ArrayOf(type);
     }
     
     public DeclaredType resolveDeclaredType(ArrayIndex arrayOf)
     {
         DeclaredType type = arrayOf.getArrayOperand().resolveDeclaredType(this);
-        sourceLine = arrayOf;
+        setSource(arrayOf);
         return maker.ArrayOf(type);
     }
 
@@ -600,7 +617,7 @@ public class AstExpressionVisitor implements SourceLine
     {
         String methodName = call.getName().resolvePath(this);
         CallStack actualParameters = null;
-        sourceLine = call;
+        setSource(call);
         if (call.getParams() == null)
             actualParameters = maker.Push();
         else
@@ -623,12 +640,12 @@ public class AstExpressionVisitor implements SourceLine
         if (tree.getLeftExpression() == null)
         {
             Type reference = tree.getRightExpression().resolveType(this);
-            sourceLine = tree;
+            setSource(tree);
             return maker.Push(reference);
         } else {
             CallStack actualParameters = tree.getLeftExpression().resolveCallStack(this);
             Type reference = tree.getRightExpression().resolveType(this);
-            sourceLine = tree;
+            setSource(tree);
             return actualParameters.Push(reference);
         }
     }
@@ -636,7 +653,7 @@ public class AstExpressionVisitor implements SourceLine
     public CallStack resolveCallStack(AstExpression expr)
     {
         Type reference = expr.resolveType(this);
-        sourceLine = expr;
+        setSource(expr);
         return maker.Push(reference);
     }
     
@@ -644,7 +661,7 @@ public class AstExpressionVisitor implements SourceLine
     {
         if (tree.getLeftOperand() == null) {
             Type cond = tree.getRightOperand().resolveType(this);
-            sourceLine = tree;
+            setSource(tree);
             return maker.AndThen(cond);
         } else {
             AndOrExpression expr = null;
@@ -652,11 +669,11 @@ public class AstExpressionVisitor implements SourceLine
                 expr = tree.getLeftOperand().resolveAndThen(this);
             else {
                 Type cond = tree.getLeftOperand().resolveType(this);
-                sourceLine = tree;
+                setSource(tree);
                 expr = maker.AndThen(cond);
             }
             Type cond = tree.getRightOperand().resolveType(this);
-            sourceLine = tree;
+            setSource(tree);
             return maker.AndThen(expr, cond);
         }
     }
@@ -665,7 +682,7 @@ public class AstExpressionVisitor implements SourceLine
     {
         if (tree.getLeftOperand() == null) {
             Type cond = tree.getRightOperand().resolveType(this);
-            sourceLine = tree;
+            setSource(tree);
             return maker.OrElse(cond);
         } else {
             AndOrExpression expr = null;
@@ -673,11 +690,11 @@ public class AstExpressionVisitor implements SourceLine
                 expr = tree.getLeftOperand().resolveOrElse(this);
             else {
                 Type cond = tree.getLeftOperand().resolveType(this);
-                sourceLine = tree;
+                setSource(tree);
                 expr = maker.OrElse(cond);
             }
             Type cond = tree.getRightOperand().resolveType(this);
-            sourceLine = tree;
+            setSource(tree);
             return maker.OrElse(expr, cond);
         }
     }
@@ -685,22 +702,23 @@ public class AstExpressionVisitor implements SourceLine
     public AndOrExpression resolveOrElse(AstExpression tree)
     {
         Type cond = tree.resolveType(this);    	
-        sourceLine = tree;
+        setSource(tree);
         return maker.OrElse(cond);
     }
     
     public AndOrExpression resolveAndThen(AstExpression tree)
     {
         Type cond = tree.resolveType(this);    	
-        sourceLine = tree;
+        setSource(tree);
         return maker.AndThen(cond);
     }
     
     public String toString()
     {
         String source = "";
-        if (sourceLine != null)
-            source = "(" + sourceLine.getFilename() + ":" + sourceLine.getLineNumber() + ")";
+        if (getFilename() != null) {
+            source = "(" + getFilename() + ":" + getLineNumber() + ")";
+        }
         return getClass().getSimpleName() + source;
     }
 }

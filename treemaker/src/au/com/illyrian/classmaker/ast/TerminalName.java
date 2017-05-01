@@ -43,12 +43,6 @@ public class TerminalName extends AstExpressionBase implements ResolvePath
         this.name = name;
     }
     
-    public TerminalName(String name, SourceLine sourceLine)
-    {
-        super(sourceLine);
-        this.name = name;
-    }
-    
     public String getName()
     {
         return name;
