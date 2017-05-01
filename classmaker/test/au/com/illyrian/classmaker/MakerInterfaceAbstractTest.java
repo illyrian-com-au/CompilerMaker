@@ -307,7 +307,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex)
         {
-            assertEquals("ClassMakerException", "Abstract methods in a concrete class: int getId()\nvoid setId(int)", ex.getMessage());
+            assertEquals("ClassMakerException", "Abstract methods in a concrete class: public abstract int getId()\npublic abstract void setId(int)", ex.getMessage());
         }
     }
 
@@ -323,7 +323,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex)
         {
-            assertEquals("ClassMakerException", "Class does not implement all methods in interface: int getId()\nvoid setId(int)", ex.getMessage());
+            assertEquals("ClassMakerException", "Class does not implement all methods in interface: public abstract int getId()\npublic abstract void setId(int)", ex.getMessage());
         }
     }
 

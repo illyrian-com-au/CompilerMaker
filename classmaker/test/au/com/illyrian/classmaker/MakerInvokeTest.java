@@ -302,7 +302,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
             maker.Call(RunnableClass.class, "setId", maker.Push(maker.Literal(4)));
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("Static call to non static method: void setId(int) in class " + RunnableClassStr, ex.getMessage());
+            assertEquals("Static call to non static method: public void setId(int) in class " + RunnableClassStr, ex.getMessage());
         }
         try {
             maker.Call(maker.Literal(1), "setId", null);
@@ -571,7 +571,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
         assertEquals("Number of interfaces", 1, maker.getClassType().getInterfaces().length);
         assertEquals("Number of fields", 1, maker.getClassType().getFields().length);
         assertEquals("Number of methods", 2, maker.getClassType().getMethods().length);
-        assertEquals("Number of methods", 14, maker.getClassType().getAllMethods().length);
+        assertEquals("Number of methods", 13, maker.getClassType().getAllMethods().length);
         assertEquals("Number of constructors", 1, maker.getClassType().getConstructors().length);
 
         Class myClass = maker.defineClass();
@@ -600,7 +600,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
         ClassType execTypeA = maker.classToClassType(ExecutableAA.class);
         assertTrue("isInterface", execTypeA.isInterface());
         MakerMethod [] methodsA = maker.getMethods(execTypeA); 
-        assertEquals("No of methods", 15, methodsA.length);
+        assertEquals("No of methods", 14, methodsA.length);
         assertContains("void run()", methodsA);
         assertContains("void runA()", methodsA);
         assertContains("void execA()", methodsA);
@@ -608,7 +608,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
         ClassType execTypeB = maker.classToClassType(ExecutableAB.class);
         assertTrue("isInterface", execTypeB.isInterface());
         MakerMethod [] methodsB = maker.getMethods(execTypeB); 
-        assertEquals("No of methods", 14, methodsB.length);
+        assertEquals("No of methods", 13, methodsB.length);
         assertContains("void run()", methodsB);
         assertContains("void execB()", methodsB);
     }
@@ -617,8 +617,8 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
     {
     	for (Object item : list)
     	{
-    		if (find.equals(item.toString()))
-    			return;
+    	    if (find.equals(item.toString()))
+    	        return;
     	}
     	fail("Could not find: " + find);
     }
@@ -656,7 +656,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
             maker.Method("getNext", int.class, ClassMaker.ACC_PUBLIC);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("Wrong message", "Missing End() for previous method: int getValue()", ex.getMessage());
+            assertEquals("Wrong message", "Missing End() for previous method: public int getValue()", ex.getMessage());
         }
         maker.End();
 
@@ -669,7 +669,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
             maker.EndClass();
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("Wrong message", "Missing End() for previous method: int getNext()", ex.getMessage());
+            assertEquals("Wrong message", "Missing End() for previous method: public int getNext()", ex.getMessage());
         }
         maker.End();
         maker.EndClass();

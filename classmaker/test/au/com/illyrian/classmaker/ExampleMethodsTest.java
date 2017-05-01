@@ -243,6 +243,12 @@ public class ExampleMethodsTest extends TestCase
         Linkable push(Linkable top, String value);
     }
     
+    private static class LinkImpl implements Linkable 
+    {
+        public LinkImpl find(String target) { return null;}
+        public LinkImpl push(Linkable top, String value) { return null;}
+    }
+    
     public static class LinkMaker extends ClassMakerBase
     {
         public static final String linkName = "au.com.illyrian.classmaker.ExampleMethodsTest$Link";
@@ -273,6 +279,7 @@ public class ExampleMethodsTest extends TestCase
             End();
             // END - Recursive data structures
             
+            // FIXME this should not be required.
             Method("find", Linkable.class, ACC_PUBLIC);
             Declare("target", String.class, 0);
             Begin();

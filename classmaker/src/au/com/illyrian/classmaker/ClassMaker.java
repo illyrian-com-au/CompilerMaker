@@ -1103,7 +1103,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if ((modifiers & expected) != 0)
         {
-            appendStrings(buf, name, " ");
+            buf.append(name).append(" ");
         }
     }
 
@@ -1334,7 +1334,7 @@ public class ClassMaker implements ClassMakerIfc
     public void EndClass() throws ClassMakerException
     {
         if (method != null)
-            throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toString());
+            throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toFullString());
         if (getPass() != COMPLETED_PASS) {
             getClassType(); // Loads generated class into types visible from the factory
             if (!hasConstructor() && !isInterface()) {
@@ -1374,11 +1374,12 @@ public class ClassMaker implements ClassMakerIfc
                 if ((method.getModifiers() & ClassMaker.ACC_ABSTRACT) == ClassMaker.ACC_ABSTRACT)
                 {
                     hasAbstractMethod = true;
-                    appendStrings(buf, method.toString(), "\n");
+                    appendStrings(buf, method.toFullString(), "\n");
                 }
             }
-            if (hasAbstractMethod)
+            if (hasAbstractMethod) {
                 throw createException("ClassMaker.AbstractMethodsInConcreteClass_1", buf.toString());
+            }
         }
     }
 
@@ -1399,7 +1400,7 @@ public class ClassMaker implements ClassMakerIfc
                 if ((method.getModifiers() & ClassMaker.ACC_ABSTRACT) != ClassMaker.ACC_ABSTRACT)
                 {
                     hasConcreteMethod = true;
-                    appendStrings(buf, method.toString(), "\n");
+                    appendStrings(buf, method.toFullString(), "\n");
                 }
             }
             if (hasConcreteMethod)
@@ -1426,7 +1427,7 @@ public class ClassMaker implements ClassMakerIfc
                 if (concreteMethod == null)
                 {
                     hasUnimplementedMethod = true;
-                    appendStrings(buf, abstractMethod.toString(), "\n");
+                    appendStrings(buf, abstractMethod.toFullString(), "\n");
                 }
             }
             if (hasUnimplementedMethod)
@@ -1486,10 +1487,10 @@ public class ClassMaker implements ClassMakerIfc
             throw createException("ClassMaker.AccessDeniedToClass_1", classType.getName());
         // Determine whether the method is accessible
         if (isAccessDenied(getClassType(), method.getClassType(), method.getModifiers()))
-            throw createException("ClassMaker.AccessDeniedToMethod_2", classType.getName(), method.toString());
+            throw createException("ClassMaker.AccessDeniedToMethod_2", classType.getName(), method.toFullString());
         // Determine whether a protected method is accessible
         if (isAccessDeniedToProtected(getClassType(), classType, method.getModifiers()))
-            throw createException("ClassMaker.AccessDeniedToProtectedMethod_2", classType.getName(), method.toString());
+            throw createException("ClassMaker.AccessDeniedToProtectedMethod_2", classType.getName(), method.toFullString());
     }
 
     /**
@@ -1605,7 +1606,7 @@ public class ClassMaker implements ClassMakerIfc
      * @return the <code>DeclaredType</code> associated with the className
      * @throws ClassMakerException if the class does not exist
      */
-    DeclaredType stringToDeclaredClass(String className) throws ClassMakerException
+    public DeclaredType stringToDeclaredClass(String className) throws ClassMakerException
     {
         DeclaredType declared = findDeclaredType(className);
         if (declared == null || declared.getClassType() == null)
@@ -1625,7 +1626,7 @@ public class ClassMaker implements ClassMakerIfc
      * @return the <code>Type</code> associated with the typeName
      * @throws ClassMakerException if the type does not exist
      */
-    DeclaredType stringToDeclaredType(String typeName) throws ClassMakerException
+    public DeclaredType stringToDeclaredType(String typeName) throws ClassMakerException
     {
         // The alias table maps simple class names to ClassTypes.
         DeclaredType declared = findDeclaredType(typeName);
@@ -1898,7 +1899,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         checkMethodModifiers(methodModifiers);
         if (method != null)
-            throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toString());
+            throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toFullString());
         method = new MakerMethod(getClassType(), methodName, returnType, (short)methodModifiers);
         
         // Adjust the slots used to account for the this pointer, if present.
@@ -1931,8 +1932,8 @@ public class ClassMaker implements ClassMakerIfc
 
         if (getClassFileWriter() != null)
         {
-            markLineNumber(); // possibly add a new line number entry.
             cfw.startMethod(method.getName(), method.getSignature(), method.getModifiers());
+            markLineNumber(); // possibly add a new line number entry.
             if ((method.getModifiers() & ClassMaker.ACC_STATIC) == 0)
             {
                 String classSignature = getClassSignature();
@@ -2400,7 +2401,7 @@ public class ClassMaker implements ClassMakerIfc
         // Method must be static if reference was a declared type.
         if (isStatic && !method.isStatic())
             throw createException("ClassMaker.StaticCallToNonStaticMethod_2",
-                    method.toString(), method.getClassType().getName());
+                    method.toFullString(), method.getClassType().getName());
         checkAccessDenied(classType, method);
         markLineNumber(); // possibly add a new line number entry.
         if (classType.isInterface())
@@ -8668,8 +8669,12 @@ public class ClassMaker implements ClassMakerIfc
     public SourceLine getSourceLine()
     {
     	if (sourceLine == null)
-    		setSourceFilename(defaultSourceFilename());
+    	    setSourceFilename(defaultSourceFilename());
     	return sourceLine;
+    }
+    
+    public void setSourceLine(SourceLine source) {
+        this.sourceLine = source;
     }
     
     /**
@@ -8696,7 +8701,7 @@ public class ClassMaker implements ClassMakerIfc
     protected void markLineNumber()
     {
     	int lineNumber = getSourceLine().getLineNumber(); 
-        if (lineNumber != previousLineNumber)
+        if (lineNumber != previousLineNumber && lineNumber > 0)
         {
             cfw.addLineNumberEntry((short)lineNumber);
             previousLineNumber = lineNumber;

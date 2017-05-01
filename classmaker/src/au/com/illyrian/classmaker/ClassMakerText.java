@@ -3,6 +3,7 @@ package au.com.illyrian.classmaker;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Stack;
 
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
@@ -19,6 +20,7 @@ import au.com.illyrian.classmaker.types.Type;
 public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     ClassMakerFactory factory = new ClassMakerFactory();
     Stack<String> stack = new Stack<String>();
+    HashMap<String, Type>typeMap = new HashMap<String, Type>();
 
     public ClassMakerText() {
         this(new StringWriter());
@@ -26,6 +28,12 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
 
     public ClassMakerText(Writer out) {
         super(out);
+        typeMap.put("match()", ClassMaker.BOOLEAN_TYPE);
+        typeMap.put("expect()", ClassMaker.STRING_TYPE);
+    }
+    
+    @Override
+    public void setSourceLine(SourceLine source) {
     }
 
     @Override
@@ -64,7 +72,8 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String parameters = processCallStack(actualParameters.size());
         stack.push("Call(\"" + className + "\", \"" + methodName + "\", "
                 + parameters + ")");
-        return ClassMaker.INT_TYPE;
+        Type returnType = typeMap.get(methodName + "()");
+        return (returnType == null) ? ClassMaker.OBJECT_TYPE : returnType;
     }
 
     @Override
@@ -74,7 +83,8 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String refType = stack.pop();
         stack.push("Call(" + refType + ", \"" + methodName + "\", "
                 + parameters + ")");
-        return ClassMaker.INT_TYPE;
+        Type returnType = typeMap.get(methodName + "()");
+        return (returnType == null) ? ClassMaker.OBJECT_TYPE : returnType;
     }
 
     private String processCallStack(int count) {
@@ -291,8 +301,27 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
             return null; // This is a path
         else if (name.endsWith("Object"))
             return null;
+        else if (typeMap.containsKey(name)) 
+            return typeMap.get(name);
         else
             return ClassMaker.INT_TYPE;
+    }
+    
+    public void addType(String name, Class classType) {
+        Type type = new ClassType(classType);
+        typeMap.put(name, type);
+        String qname = classType.getName();
+        if (!name.equals(qname)) {
+            typeMap.put(qname, type);
+        }
+    }
+
+    public DeclaredType stringToDeclaredClass(String typeName) {
+        DeclaredType declared = findDeclaredType(typeName);
+        if (declared == null) {
+            throw new IllegalArgumentException("Unknown type: " + typeName);
+        }
+        return declared;
     }
 
     public DeclaredType findDeclaredType(String typeName)
@@ -313,6 +342,11 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         return null;
     }
 
+    public DeclaredType classToDeclaredType(Class javaClass) throws ClassMakerException
+    {
+        return factory.classToDeclaredType(javaClass); 
+    }
+    
     @Override
     public MakerField findField(String name) throws ClassMakerException {
         return Find(name);
@@ -326,22 +360,30 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     }
 
     @Override
-    public void Method(String methodName, String returnType, int methodModifiers)
+    public void Method(String methodName, Type returnType, int methodModifiers)
             throws ClassMakerException {
+        typeMap.put(methodName + "()", returnType);
         String modifiers = toModifierString(methodModifiers);
-        println("Method(\"" + methodName + "\", \"" + returnType + "\", "
+        println("Method(\"" + methodName + "\", \"" + returnType.getName() + "\", "
                 + modifiers + ")");
     }
 
     @Override
+    public void Method(String methodName, String returnType, int methodModifiers)
+            throws ClassMakerException {
+        Type type = findType(returnType);
+        Method(methodName, type, methodModifiers);
+    }
+
+    @Override
     public Labelled Begin() throws ClassMakerException {
-        println("Begin()");
+        println("  Begin();");
         return null;
     }
 
     @Override
     public void End() throws ClassMakerException {
-        println("End()");
+        println("  End();");
     }
 
     @Override

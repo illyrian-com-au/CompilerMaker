@@ -300,6 +300,18 @@ public class MakerMethod {
         return super.equals(other);
     }
 
+
+    public boolean matches(MakerMethod other)
+    {
+        if (getSignature() != null && name != null && other != null)
+        {
+            MakerMethod otherMethod = (MakerMethod)other;
+            return toShortString().equals(other.toShortString());
+            //name.equals(otherMethod.name) && getSignature().equals(otherMethod.getSignature());
+        }
+        return false;
+    }
+
     /**
      * A hash code value for the method. 
      * <br/>
@@ -314,6 +326,48 @@ public class MakerMethod {
     		return super.hashCode();
     }
 
+    /**
+     * Creates a string representing the field.
+     * <br/>
+     * E.g. MakerMethod resolveMethod(maker, methods, name, actualParameters)
+     */
+    public String toShortString()
+    {
+        StringBuffer buf = new StringBuffer();
+
+        buf.append(name);
+        buf.append('(');
+        if (formalParams != null)
+            for (int i = 0; i < formalParams.length; i++)
+            {
+                if (i > 0)
+                    buf.append(", ");
+                DeclaredType type = formalParams[i];
+                if (type == null)
+                    buf.append("null");
+                else
+                    buf.append(ClassMaker.toDotName(type.getName()));
+            }
+        buf.append(')');
+        return buf.toString();
+    }
+
+    public String toFullString()
+    {
+        StringBuffer buf = new StringBuffer();
+
+        buf.append(ClassMaker.toModifierString(getModifiers()));
+        buf.append((returnType != null) ? returnType.getName() : "void");
+        buf.append(' ');
+        buf.append(toShortString());
+        return buf.toString();
+    }
+
+    /**
+     * Creates a string representing the field.
+     * <br/>
+     * E.g. MakerMethod resolveMethod(maker, methods, name, actualParameters)
+     */
     /**
      * Creates a string representing the field.
      * <br/>

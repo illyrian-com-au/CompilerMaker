@@ -27,6 +27,8 @@
 
 package au.com.illyrian.classmaker;
 
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -484,16 +486,27 @@ public class ClassMakerFactory
     	if (classType == null && javaClass != null)
     		classType = classToType(javaClass).toClass();
 
-    	if (classType.getMethods() == null && javaClass != null)
+    	if (classType.getMethods() == null)
     	{
+    	    HashMap<String, MakerMethod> methods = new HashMap<String, MakerMethod>();
+    	    while (javaClass != null) {
 	    	java.lang.reflect.Method [] javaMethods = javaClass.getDeclaredMethods();
-	    	MakerMethod [] methods = new MakerMethod[javaMethods.length];
-	        for (int i = 0; i < methods.length; i++)
+	        for (int i = 0; i < javaMethods.length; i++)
 	        {
 	            java.lang.reflect.Method javaMethod = javaMethods[i];
-	            methods[i] = toMethod(classType, javaMethod);
+	            int modifiers = javaMethod.getModifiers();
+	            if (!Modifier.isPrivate(modifiers)) {
+                        MakerMethod method = toMethod(classType, javaMethod);
+                        String signature = method.getName() + method.getSignature();
+                        // Only add methods that are not overridden
+                        if (methods.get(signature) == null) {
+                            methods.put(signature, method);
+                        }
+	            }
 	        }
-	        classType.setMethods(methods);
+	        javaClass = javaClass.getSuperclass();
+    	    }
+            classType.setMethods(methods.values().toArray(METHOD_ARRAY));
     	}
         return classType;
     }
@@ -506,7 +519,7 @@ public class ClassMakerFactory
      * @param classType the ClassType wrapper around the java class
      * @param javaClass the java class from which to derive the methods
      */
-    public void populateJavaInterfaces(ClassType classType, Class javaClass)
+    public void populateJavaClassInterfaces(ClassType classType, Class javaClass)
     {
     	if (classType.getInterfaces() == null && javaClass != null)
     	{
@@ -566,7 +579,7 @@ public class ClassMakerFactory
      */
     public void findJavaInterfaceMethods(HashMap<String, MakerMethod> candidates, ClassType classType)
     {
-        populateJavaInterfaces(classType, classType.getJavaClass());
+        populateJavaClassInterfaces(classType, classType.getJavaClass());
     	if (classType.getInterfaces() != null)
     	{    	
     	    for (DeclaredType declared : classType.getInterfaces())
@@ -714,18 +727,22 @@ public class ClassMakerFactory
     protected MakerField[] populateJavaClassFields(ClassType classType)
     {
         Class javaClass = classType.getJavaClass();
-        java.lang.reflect.Field[] javaFields = javaClass.getDeclaredFields();
-        MakerField[] makerFields = new MakerField[javaFields.length];
-        for (int i = 0; i < javaFields.length; i++)
-        {
-            String name = javaFields[i].getName();
-            Class fieldType = javaFields[i].getType();
-            Type type = classToType(fieldType);
-            DeclaredType declared = classToDeclaredType(fieldType);
-            int modifiers = javaFields[i].getModifiers();
-            makerFields[i] = new MakerField(classType, name, declared, modifiers);
+        //MakerField[] makerFields = new MakerField[javaFields.length];
+        ArrayList<MakerField> makerFields = new ArrayList<MakerField>();
+        while (javaClass != null) {
+            java.lang.reflect.Field[] javaFields = javaClass.getDeclaredFields();
+            for (int i = 0; i < javaFields.length; i++)
+            {
+                String name = javaFields[i].getName();
+                Class fieldType = javaFields[i].getType();
+                //Type type = classToType(fieldType);
+                DeclaredType declared = classToDeclaredType(fieldType);
+                int modifiers = javaFields[i].getModifiers();
+                makerFields.add(new MakerField(classType, name, declared, modifiers));
+            }
+            javaClass = javaClass.getSuperclass();
         }
-        return makerFields;
+        return makerFields.toArray(FIELD_ARRAY);
     }
 
     //################## Conversion Strategies #####################

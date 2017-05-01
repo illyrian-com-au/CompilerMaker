@@ -13,6 +13,8 @@ import au.com.illyrian.classmaker.types.Type;
 
 public interface ClassMakerIfc
 {
+    public void setSourceLine(SourceLine source);
+
     /**
      * Sets the name of the class being generated.
      * @param fullyQualifiedClassName the fully qualified name of the class
@@ -517,11 +519,17 @@ public interface ClassMakerIfc
 
     public DeclaredType findDeclaredType(String typeName) throws ClassMakerException;
 
+    public DeclaredType stringToDeclaredClass(String typeName) throws ClassMakerException;
+    
+    public DeclaredType classToDeclaredType(Class javaClass) throws ClassMakerException;
+
     public MakerField findField(String name) throws ClassMakerException;
     
     public int addModifier(int modifiers, String modifierName);
     
     public void Method(String methodName, String returnType, int methodModifiers) throws ClassMakerException;
+
+    public void Method(String methodName, Type returnType, int methodModifiers) throws ClassMakerException;
 
     public Labelled Begin() throws ClassMakerException;
 

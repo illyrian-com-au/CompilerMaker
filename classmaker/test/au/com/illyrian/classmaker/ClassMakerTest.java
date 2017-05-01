@@ -218,12 +218,12 @@ public class ClassMakerTest extends TestCase
         maker.checkClassModifiers(ClassMaker.ACC_ABSTRACT);
         maker.checkClassModifiers(ClassMaker.ACC_FINAL);
         maker.checkClassModifiers(ClassMaker.ACC_STRICTFP);
-        checkClassModifiersException(ClassMaker.ACC_STATIC, "Invalid class modifier: static");
-        checkClassModifiersException(ClassMaker.ACC_SYNCHRONIZED, "Invalid class modifier: synchronized");
-        checkClassModifiersException(ClassMaker.ACC_VOLATILE, "Invalid class modifier: volatile");
-        checkClassModifiersException(ClassMaker.ACC_TRANSIENT, "Invalid class modifier: transient");
-        checkClassModifiersException(ClassMaker.ACC_NATIVE, "Invalid class modifier: native");
-        checkClassModifiersException(-1, "Invalid class modifier: static synchronized volatile transient native");
+        checkClassModifiersException(ClassMaker.ACC_STATIC, "Invalid class modifier: static ");
+        checkClassModifiersException(ClassMaker.ACC_SYNCHRONIZED, "Invalid class modifier: synchronized ");
+        checkClassModifiersException(ClassMaker.ACC_VOLATILE, "Invalid class modifier: volatile ");
+        checkClassModifiersException(ClassMaker.ACC_TRANSIENT, "Invalid class modifier: transient ");
+        checkClassModifiersException(ClassMaker.ACC_NATIVE, "Invalid class modifier: native ");
+        checkClassModifiersException(-1, "Invalid class modifier: static synchronized volatile transient native ");
         // Class modifier combinations
         maker.checkClassModifiers(ClassMaker.ACC_FINAL|ClassMaker.ACC_PUBLIC);
         maker.checkClassModifiers(ClassMaker.ACC_FINAL|ClassMaker.ACC_STRICTFP);
@@ -253,23 +253,23 @@ public class ClassMakerTest extends TestCase
         maker.checkMethodModifiers(ClassMaker.ACC_SYNCHRONIZED);
         maker.checkMethodModifiers(ClassMaker.ACC_NATIVE);
         maker.checkMethodModifiers(ClassMaker.ACC_STRICTFP);
-        checkMethodModifiersException(ClassMaker.ACC_VOLATILE, "Invalid method modifier: volatile");
-        checkMethodModifiersException(ClassMaker.ACC_TRANSIENT, "Invalid method modifier: transient");
-        checkMethodModifiersException(-1, "Invalid method modifier: volatile transient");
+        checkMethodModifiersException(ClassMaker.ACC_VOLATILE, "Invalid method modifier: volatile ");
+        checkMethodModifiersException(ClassMaker.ACC_TRANSIENT, "Invalid method modifier: transient ");
+        checkMethodModifiersException(-1, "Invalid method modifier: volatile transient ");
         // Method modifier combinations
         maker.checkMethodModifiers(ClassMaker.ACC_ABSTRACT|ClassMaker.ACC_PUBLIC);
         maker.checkMethodModifiers(ClassMaker.ACC_ABSTRACT|ClassMaker.ACC_PROTECTED);
         maker.checkMethodModifiers(ClassMaker.ACC_ABSTRACT|ClassMaker.ACC_PRIVATE);
         checkMethodModifiersException(ClassMaker.ACC_ABSTRACT|ClassMaker.ACC_STATIC,
-                        "Incompatible method modifier combination: abstract with static");
+                        "Incompatible method modifier combination: abstract with static ");
         checkMethodModifiersException(ClassMaker.ACC_ABSTRACT|ClassMaker.ACC_FINAL,
-                        "Incompatible method modifier combination: abstract with final");
+                        "Incompatible method modifier combination: abstract with final ");
         checkMethodModifiersException(ClassMaker.ACC_ABSTRACT|ClassMaker.ACC_SYNCHRONIZED,
-                        "Incompatible method modifier combination: abstract with synchronized");
+                        "Incompatible method modifier combination: abstract with synchronized ");
         checkMethodModifiersException(ClassMaker.ACC_ABSTRACT|ClassMaker.ACC_NATIVE,
-                        "Incompatible method modifier combination: abstract with native");
+                        "Incompatible method modifier combination: abstract with native ");
         checkMethodModifiersException(ClassMaker.ACC_ABSTRACT|ClassMaker.ACC_STRICTFP,
-                        "Incompatible method modifier combination: abstract with strictfp");
+                        "Incompatible method modifier combination: abstract with strictfp ");
     }
     
     void checkMultipleAccessModifiersException(int modifiers, String msg)
@@ -286,13 +286,13 @@ public class ClassMakerTest extends TestCase
     {
         // Check multiple access modifiers
     	checkMultipleAccessModifiersException(ClassMaker.ACC_PUBLIC|ClassMaker.ACC_PROTECTED,
-                "Cannot have more than one access modifier: public protected");
+                "Cannot have more than one access modifier: public protected ");
     	checkMultipleAccessModifiersException(ClassMaker.ACC_PUBLIC|ClassMaker.ACC_PRIVATE,
-                "Cannot have more than one access modifier: public private");
+                "Cannot have more than one access modifier: public private ");
     	checkMultipleAccessModifiersException(ClassMaker.ACC_PRIVATE|ClassMaker.ACC_PROTECTED,
-                "Cannot have more than one access modifier: protected private");
+                "Cannot have more than one access modifier: protected private ");
     	checkMultipleAccessModifiersException(ClassMaker.ACC_PUBLIC|ClassMaker.ACC_PROTECTED|ClassMaker.ACC_PRIVATE,
-                "Cannot have more than one access modifier: public protected private");
+                "Cannot have more than one access modifier: public protected private ");
     }
 
     void checkFieldModifiersException(int modifiers, String msg)
@@ -314,11 +314,11 @@ public class ClassMakerTest extends TestCase
         maker.checkFieldModifiers(ClassMaker.ACC_FINAL);
         maker.checkFieldModifiers(ClassMaker.ACC_TRANSIENT);
         maker.checkFieldModifiers(ClassMaker.ACC_VOLATILE);
-        checkFieldModifiersException(ClassMaker.ACC_ABSTRACT, "Invalid field modifier: abstract");
-        checkFieldModifiersException(ClassMaker.ACC_SYNCHRONIZED, "Invalid field modifier: synchronized");
-        checkFieldModifiersException(ClassMaker.ACC_STRICTFP, "Invalid field modifier: strictfp");
-        checkFieldModifiersException(ClassMaker.ACC_NATIVE, "Invalid field modifier: native");
-        checkFieldModifiersException(-1, "Invalid field modifier: synchronized native abstract strictfp");
+        checkFieldModifiersException(ClassMaker.ACC_ABSTRACT, "Invalid field modifier: abstract ");
+        checkFieldModifiersException(ClassMaker.ACC_SYNCHRONIZED, "Invalid field modifier: synchronized ");
+        checkFieldModifiersException(ClassMaker.ACC_STRICTFP, "Invalid field modifier: strictfp ");
+        checkFieldModifiersException(ClassMaker.ACC_NATIVE, "Invalid field modifier: native ");
+        checkFieldModifiersException(-1, "Invalid field modifier: synchronized native abstract strictfp ");
         // Class modifier combinations
         maker.checkFieldModifiers(ClassMaker.ACC_FINAL|ClassMaker.ACC_PUBLIC);
         maker.checkFieldModifiers(ClassMaker.ACC_FINAL|ClassMaker.ACC_PROTECTED);

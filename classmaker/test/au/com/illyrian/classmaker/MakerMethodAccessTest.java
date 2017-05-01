@@ -142,11 +142,11 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
             maker.Eval(maker.Set("test", maker.Get(maker.This(), "testBase")));
             maker.Eval(maker.Set(maker.Get("test"), "publicInt", maker.Call(maker.Get("test"), "getPublicInt", null)));
             failGetMethodAccess(maker, classType, "getProtectedInt",
-                       "Access Denied: method int getProtectedInt() in class other.TestMethodAccess is not visible");
+                       "Access Denied: method protected int getProtectedInt() in class other.TestMethodAccess is not visible");
             failGetMethodAccess(maker, classType, "getPackageInt",
                        "Access Denied: method int getPackageInt() in class other.TestMethodAccess is not visible");
             failGetMethodAccess(maker, classType, "getPrivateInt",
-                       "Access Denied: method int getPrivateInt() in class other.TestMethodAccess is not visible");
+                       "Access Denied: method private int getPrivateInt() in class other.TestMethodAccess is not visible");
             // Test access to static method.
             maker.Eval(maker.Call(maker.Get("test"), "getPublicStatic", null));
             maker.Return();
@@ -240,7 +240,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
             failGetMethodAccess(maker, maker.getClassType(), "getPackageInt",
                             "Access Denied: method int getPackageInt() in class test.MyClass is not visible");
             failGetMethodAccess(maker, maker.getClassType(), "getPrivateInt",
-                            "Access Denied: method int getPrivateInt() in class test.MyClass is not visible");
+                            "Access Denied: method private int getPrivateInt() in class test.MyClass is not visible");
             // Access fields in other object
             maker.Declare("test", maker.getClassType(), ACC_PUBLIC);
             maker.Eval(maker.Set("test", maker.Get(maker.This(), "testDerived")));
@@ -249,7 +249,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
             failGetMethodAccess(maker, classType, "getPackageInt",
                        "Access Denied: method int getPackageInt() in class other.TestMethodAccess is not visible");
             failGetMethodAccess(maker, classType, "getPrivateInt",
-                       "Access Denied: method int getPrivateInt() in class other.TestMethodAccess is not visible");
+                       "Access Denied: method private int getPrivateInt() in class other.TestMethodAccess is not visible");
             maker.Return();
         }
         maker.End();
@@ -300,11 +300,11 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
             maker.Eval(maker.Set(maker.Get("test"), "publicInt", maker.Call(maker.Get("test"), "getPublicInt", null)));
             //maker.Eval(maker.Set(maker.Get("test"), "protectedInt", maker.Call(maker.Get("test"), "getProtectedInt", null)));
             failGetMethodAccess(maker, classType, "getProtectedInt",
-                       "Access Denied: method int getProtectedInt() in class other.TestMethodAccess is protected so the type of the class being accessed must be the same or a subclass of the current class");
+                       "Access Denied: method protected int getProtectedInt() in class other.TestMethodAccess is protected so the type of the class being accessed must be the same or a subclass of the current class");
             failGetMethodAccess(maker, classType, "getPackageInt",
                        "Access Denied: method int getPackageInt() in class other.TestMethodAccess is not visible");
             failGetMethodAccess(maker, classType, "getPrivateInt",
-                       "Access Denied: method int getPrivateInt() in class other.TestMethodAccess is not visible");
+                       "Access Denied: method private int getPrivateInt() in class other.TestMethodAccess is not visible");
             maker.Return();
         }
         maker.End();
@@ -352,7 +352,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
             maker.Eval(maker.Set(maker.Get("test"), "protectedInt", maker.Call(maker.Get("test"), "getProtectedInt", null)));
             maker.Eval(maker.Set(maker.Get("test"), "packageInt", maker.Call(maker.Get("test"), "getPackageInt", null)));
             failGetMethodAccess(maker, classType, "getPrivateInt",
-                       "Access Denied: method int getPrivateInt() in class test.TestMethodAccess is not visible");
+                       "Access Denied: method private int getPrivateInt() in class test.TestMethodAccess is not visible");
             maker.Return();
         }
         maker.End();
@@ -481,13 +481,13 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
             // Access methods in other object
             maker.Eval(maker.Set(className, "publicStatic", maker.Call(otherName, "getPublicStatic", null)));
             failGetMethodAccess(maker, otherName, "getProtectedStatic",
-                       "Access Denied: method int getProtectedStatic() in class " + otherName + " is not visible");
+                       "Access Denied: method protected static int getProtectedStatic() in class " + otherName + " is not visible");
             failGetMethodAccess(maker, otherName, "getPackageStatic",
-                            "Access Denied: method int getPackageStatic() in class " + otherName + " is not visible");
+                            "Access Denied: method static int getPackageStatic() in class " + otherName + " is not visible");
             failGetMethodAccess(maker, otherName, "getPrivateStatic",
-                            "Access Denied: method int getPrivateStatic() in class " + otherName + " is not visible");
+                            "Access Denied: method private static int getPrivateStatic() in class " + otherName + " is not visible");
             failGetMethodAccess(maker, otherName, "getPublicInt",
-                            "Static call to non static method: int getPublicInt() in class " + otherName);
+                            "Static call to non static method: public int getPublicInt() in class " + otherName);
             maker.Return();
         }
         maker.End();
@@ -533,11 +533,11 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
             maker.Eval(maker.Set(className, "publicStatic", maker.Call(otherName, "getPublicStatic", null)));
             maker.Eval(maker.Set(className, "protectedStatic", maker.Call(otherName, "getProtectedStatic", null)));
             failGetMethodAccess(maker, otherName, "getPackageStatic",
-                            "Access Denied: method int getPackageStatic() in class " + otherName + " is not visible");
+                            "Access Denied: method static int getPackageStatic() in class " + otherName + " is not visible");
             failGetMethodAccess(maker, otherName, "getPrivateStatic",
-                            "Access Denied: method int getPrivateStatic() in class " + otherName + " is not visible");
+                            "Access Denied: method private static int getPrivateStatic() in class " + otherName + " is not visible");
             failGetMethodAccess(maker, otherName, "getPublicInt",
-                            "Static call to non static method: int getPublicInt() in class " + otherName);
+                            "Static call to non static method: public int getPublicInt() in class " + otherName);
             maker.Return();
         }
         maker.End();
@@ -583,7 +583,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
             maker.Eval(maker.Set(className, "protectedStatic", maker.Call(otherName, "getProtectedStatic", null)));
             maker.Eval(maker.Set(className, "packageStatic", maker.Call(otherName, "getPackageStatic", null)));
             failGetMethodAccess(maker, otherName, "getPrivateStatic",
-                            "Access Denied: method int getPrivateStatic() in class " + otherName + " is not visible");
+                            "Access Denied: method private static int getPrivateStatic() in class " + otherName + " is not visible");
             maker.Return();
         }
         maker.End();

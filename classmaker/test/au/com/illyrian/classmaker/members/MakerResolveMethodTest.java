@@ -109,9 +109,9 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
     	forwardPrimitiveMethods(ClassMaker.INT_TYPE);
         Vector<MakerMethod> methods = resolver.findMethods(maker.getDeclaredMethods(), "eval");
         assertEquals("Wrong number of methods found.", 3, methods.size());
-        assertEquals("void eval()", methods.get(0).toString());
-        assertEquals("void eval(int)", methods.get(1).toString());
-        assertEquals("void eval(int, int)", methods.get(2).toString());
+        assertEquals("public void eval()", methods.get(0).toFullString());
+        assertEquals("public void eval(int)", methods.get(1).toFullString());
+        assertEquals("public void eval(int, int)", methods.get(2).toFullString());
 
         MakerMethod method;
         method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push());
@@ -164,33 +164,33 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
 
         MakerMethod method;
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(DESSERT).Push(SCONE));
-        assertEquals("Did not resolve method: ", "void moorge(test.Dessert, test.Scone)", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.Dessert, test.Scone)", method.toFullString());
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(CHOCOLATE_CAKE).Push(DESSERT));
-        assertEquals("Did not resolve method: ", "void moorge(test.Cake, test.Dessert)", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.Cake, test.Dessert)", method.toFullString());
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(CHOCOLATE_CAKE).Push(BUTTERED_SCONE));
-        assertEquals("Did not resolve method: ", "void moorge(test.ChocolateCake, test.Scone)", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake, test.Scone)", method.toFullString());
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(CHOCOLATE_CAKE).Push(ClassMaker.BYTE_TYPE));
-        assertEquals("Did not resolve method: ", "void moorge(test.ChocolateCake, int)", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake, int)", method.toFullString());
 
     	failToResolveMethod("moorge", maker.Push(CAKE).Push(SCONE));
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(DESSERT).Push(ClassMaker.NULL_TYPE));
-        assertEquals("Did not resolve method: ", "void moorge(test.Dessert, test.Scone)", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.Dessert, test.Scone)", method.toFullString());
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(SCONE));
-        assertEquals("Did not resolve method: ", "void moorge(test.ChocolateCake, test.Scone)", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake, test.Scone)", method.toFullString());
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(CHOCOLATE_CAKE).Push(ClassMaker.NULL_TYPE));
-        assertEquals("Did not resolve method: ", "void moorge(test.ChocolateCake, test.Scone)", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake, test.Scone)", method.toFullString());
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(ClassMaker.NULL_TYPE));
-        assertEquals("Did not resolve method: ", "void moorge(test.ChocolateCake, test.Scone)", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake, test.Scone)", method.toFullString());
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(DESSERT).Push(DESSERT));
-        assertEquals("Did not resolve method: ", "void moorge(java.lang.Object, java.lang.Object)", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(java.lang.Object, java.lang.Object)", method.toFullString());
     }
 
     public void testResolveArrayReferenceMethods() throws Exception
@@ -217,26 +217,26 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
 
         MakerMethod method;
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(maker.ArrayOf(DESSERT)).Push(maker.ArrayOf(SCONE)));
-        assertEquals("Did not resolve method: ", "void moorge(test.Dessert[], test.Scone[])", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.Dessert[], test.Scone[])", method.toFullString());
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(maker.ArrayOf(CHOCOLATE_CAKE)).Push(maker.ArrayOf(DESSERT)));
-        assertEquals("Did not resolve method: ", "void moorge(test.Cake[], test.Dessert[])", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.Cake[], test.Dessert[])", method.toFullString());
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(maker.ArrayOf(CHOCOLATE_CAKE)).Push(maker.ArrayOf(BUTTERED_SCONE)));
-        assertEquals("Did not resolve method: ", "void moorge(test.ChocolateCake[], test.Scone[])", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake[], test.Scone[])", method.toFullString());
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(maker.ArrayOf(CHOCOLATE_CAKE)).Push(maker.ArrayOf(ClassMaker.INT_TYPE)));
-        assertEquals("Did not resolve method: ", "void moorge(test.ChocolateCake[], int[])", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake[], int[])", method.toFullString());
 
     	failToResolveMethod("moorge", maker.Push(maker.ArrayOf(CHOCOLATE_CAKE)).Push(maker.ArrayOf(ClassMaker.BYTE_TYPE)));
 
     	failToResolveMethod("moorge", maker.Push(maker.ArrayOf(CAKE)).Push(maker.ArrayOf(SCONE)));
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(maker.ArrayOf(DESSERT)).Push(ClassMaker.NULL_TYPE));
-        assertEquals("Did not resolve method: ", "void moorge(test.Dessert[], test.Scone[])", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.Dessert[], test.Scone[])", method.toFullString());
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(maker.ArrayOf(SCONE)));
-        assertEquals("Did not resolve method: ", "void moorge(test.ChocolateCake[], test.Scone[])", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake[], test.Scone[])", method.toFullString());
 
     	failToResolveMethod("moorge", maker.Push(maker.ArrayOf(CAKE)).Push(ClassMaker.NULL_TYPE));
 
@@ -272,7 +272,7 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
         maker.Forward();
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(maker.ArrayOf(DESSERT)).Push(maker.ArrayOf(DESSERT)));
-        assertEquals("Did not resolve method: ", "void moorge(java.lang.Object, java.lang.Object)", method.toString());
+        assertEquals("Did not resolve method: ", "public void moorge(java.lang.Object, java.lang.Object)", method.toFullString());
     }
 
     class Dessert {}
@@ -336,8 +336,9 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
 
         assertEquals("Should be one candidate", 1, candidates.size());
 
+        int mod = ClassMaker.ACC_PUBLIC | ClassMaker.ACC_ABSTRACT;
         MakerMethod method = candidates.firstElement();
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toString());
+        assertEquals("Did not resolve method: ", toString(mod, "moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
     }
     
@@ -356,30 +357,31 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
     {
         ClassType moorge = maker.classToClassType(MoorgeInterface.class);
 
+        int mod = ClassMaker.ACC_PUBLIC | ClassMaker.ACC_ABSTRACT;
         MakerMethod method;
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(Dessert.class)).Push(type(Scone.class)));
-        assertEquals("Did not resolve method: ", toString("moorge", Dessert.class, Scone.class), method.toString());
+        assertEquals("Did not resolve method: ", toString(mod, "moorge", Dessert.class, Scone.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(type(Dessert.class)));
-        assertEquals("Did not resolve method: ", toString("moorge", Cake.class, Dessert.class), method.toString());
+        assertEquals("Did not resolve method: ", toString(mod, "moorge", Cake.class, Dessert.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(type(ButteredScone.class)));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toString());
+        assertEquals("Did not resolve method: ", toString(mod, "moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(type(byte.class)));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, int.class), method.toString());
+        assertEquals("Did not resolve method: ", toString(mod, "moorge", ChocolateCake.class, int.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(Dessert.class)).Push(ClassMaker.NULL_TYPE));
-        assertEquals("Did not resolve method: ", toString("moorge", Dessert.class, Scone.class), method.toString());
+        assertEquals("Did not resolve method: ", toString(mod, "moorge", Dessert.class, Scone.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(type(Scone.class)));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toString());
+        assertEquals("Did not resolve method: ", toString(mod, "moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(ClassMaker.NULL_TYPE));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toString());
+        assertEquals("Did not resolve method: ", toString(mod, "moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(ClassMaker.NULL_TYPE));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toString());
+        assertEquals("Did not resolve method: ", toString(mod, "moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
         try {
             maker.resolveMethod(moorge, "dummy", null);
@@ -403,28 +405,28 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
 
         MakerMethod method;
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(Dessert.class)).Push(type(Scone.class)));
-        assertEquals("Did not resolve method: ", toString("moorge", Dessert.class, Scone.class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", Dessert.class, Scone.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(type(Dessert.class)));
-        assertEquals("Did not resolve method: ", toString("moorge", Cake.class, Dessert.class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", Cake.class, Dessert.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(type(ButteredScone.class)));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(type(byte.class)));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, int.class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, int.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(Dessert.class)).Push(ClassMaker.NULL_TYPE));
-        assertEquals("Did not resolve method: ", toString("moorge", Dessert.class, Scone.class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", Dessert.class, Scone.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(type(Scone.class)));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(ClassMaker.NULL_TYPE));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(ClassMaker.NULL_TYPE));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
         try {
             maker.resolveMethod(moorge, "dummy", null);
@@ -447,25 +449,25 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
 
         MakerMethod method;
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(Dessert[].class)).Push(type(Scone[].class)));
-        assertEquals("Did not resolve method: ", toString("moorge", Dessert[].class, Scone[].class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", Dessert[].class, Scone[].class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake[].class)).Push(type(Dessert[].class)));
-        assertEquals("Did not resolve method: ", toString("moorge", Cake[].class, Dessert[].class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", Cake[].class, Dessert[].class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake[].class)).Push(type(ButteredScone[].class)));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake[].class, Scone[].class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake[].class, Scone[].class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(Dessert[].class)).Push(ClassMaker.NULL_TYPE));
-        assertEquals("Did not resolve method: ", toString("moorge", Dessert[].class, Scone[].class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", Dessert[].class, Scone[].class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(type(Scone[].class)));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake[].class, Scone[].class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake[].class, Scone[].class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake[].class)).Push(ClassMaker.NULL_TYPE));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake[].class, Scone[].class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake[].class, Scone[].class), method.toFullString());
 
         method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(ClassMaker.NULL_TYPE));
-        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake[].class, Scone[].class), method.toString());
+        assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake[].class, Scone[].class), method.toFullString());
 
         try {
             maker.resolveMethod(moorge, "dummy", null);
@@ -475,9 +477,15 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
         }
     }
 
+    protected String toString(int modifiers, String name, Class left, Class right)
+    {
+        return ClassMaker.toModifierString(modifiers) + "void " + name 
+                + "(" + ClassMaker.classToName(left) + ", " + ClassMaker.classToName(right) + ")";
+    }
+
     protected String toString(String name, Class left, Class right)
     {
-        return "void " + name + "(" + ClassMaker.classToName(left) + ", " + ClassMaker.classToName(right) + ")";
+        return toString(ClassMaker.ACC_PUBLIC, name, left, right);
     }
 
     protected void failToResolveMethod(String name, CallStack params)
