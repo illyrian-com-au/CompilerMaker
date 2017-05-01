@@ -1,7 +1,5 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
-
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.types.Type;
 
@@ -9,8 +7,8 @@ public class BnfTreeRecover extends BnfTreeBase<Type>
 {
     private final BnfTree pattern;
 
-    public BnfTreeRecover(BnfTree pattern)
-    {
+    public BnfTreeRecover(BnfTree pattern, int sourceLine) {
+        super(sourceLine);
         this.pattern = pattern;
     }
 

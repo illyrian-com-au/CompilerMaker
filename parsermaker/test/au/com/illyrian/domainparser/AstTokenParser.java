@@ -36,9 +36,9 @@ public class AstTokenParser extends ParserBase implements ParseClass<AstExpressi
         expect(TokenType.DELIMITER, "{", "'{' expected");
     	result = expr();
         if (getTokenType() == TokenType.END)
-            throw error("Unexpected end of input");
+            throw exception("Unexpected end of input");
         if (!match(TokenType.DELIMITER, "}"))
-        	throw error("Operator or '}' expected");
+        	throw exception("Operator or '}' expected");
         return result;
     }
     
@@ -64,7 +64,7 @@ public class AstTokenParser extends ParserBase implements ParseClass<AstExpressi
     		TerminalNumber number = new TerminalNumber(value);
     		return number;
     	} else {
-            throw error("A numeric value is expected");
+            throw exception("A numeric value is expected");
     	}
     }
     
@@ -81,7 +81,7 @@ public class AstTokenParser extends ParserBase implements ParseClass<AstExpressi
     	} else if ("%".equals(operator)) {
     		return new BinaryOperator(BinaryOperator.REM, operand1, operand2);
     	} else {
-    		throw error("Unknown operator: " + operator);
+    		throw exception("Unknown operator: " + operator);
     	}
     }
 }

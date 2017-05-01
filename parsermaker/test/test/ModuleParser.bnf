@@ -1,0 +1,65 @@
+{
+name:TerminalName ::= IDENTIFIER  { ast.Name($1) } ;
+        
+qualified_name    ::= name DOT qualified_name { ast.Dot($1, $3) }
+                  |   name ;
+
+package_opt:AstPackage
+                  ::= PACKAGE qualified_name SEMI { ast.Package($2) }
+                  |   PACKAGE error("Package name expected")
+                  |   /*EMPTY*/ ;
+
+import_path_plus  ::= name DOT import_path_plus   { ast.Dot($1, $3) }
+                  |   name SEMI                   { $1 }
+                  |   name DOTSTAR SEMI           { ast.Dot($1, ast.Name("*")) }
+                  |   MULT SEMI                   { ast.Name("*") }
+                  |   error("Incomplete import path") ;
+
+import_mult:AstStructure
+                  ::= IMPORT import_path_plus import_mult  { ast.Seq(ast.Import($2), $3) }
+                  |   IMPORT import_path_plus              { ast.Import($2) } ;
+
+import_opt:AstStructure
+                  ::= import_mult
+                  |   /*EMPTY*/ ;
+
+modifier_mult:AstModifiers
+                  ::= PUBLIC  modifier_mult            { ast.Modifier($1, $2) }
+                  |   PROTECTED  modifier_mult         { ast.Modifier($1, $2) }
+                  |   PRIVATE  modifier_mult           { ast.Modifier($1, $2) }
+                  |   ABSTRACT  modifier_mult          { ast.Modifier($1, $2) }
+                  |   FINAL  modifier_mult             { ast.Modifier($1, $2) }
+                  |   STATIC  modifier_mult            { ast.Modifier($1, $2) }
+                  |   /*EMPTY*/ ;
+
+extends_opt       ::= EXTENDS qualified_name            {$2}
+                  |   EXTENDS error("A class name is expected after extends")
+                  |   /*EMPTY*/ ;
+
+implements_plus   ::= qualified_name COMMA implements_plus   { ast.Link($1, $3) }
+                  |   qualified_name ;
+                  
+implements_opt    ::= IMPLEMENTS implements_plus  {$2}
+                  |   IMPLEMENTS error("One or more class names is expected after implements")
+                  |   /*EMPTY*/ ;
+
+class_body:AstStructure  
+                  ::= BEGIN END  { null } ;     
+
+interface_body:AstStructure 
+                  ::= BEGIN END  { null } ;     
+                      
+class_declaration:AstStructure
+                  ::= modifier_mult CLASS name extends_opt implements_opt class_body 
+                        { ast.DeclareClass($1, $3, $4, $5, $6) }
+                  |   modifier_mult INTERFACE name extends_opt interface_body 
+                        { ast.DeclareInterface($1, $3, $4, $5) }
+                  |   modifier_mult error("Expected modifiers followed by class or interface") 
+                  |   modifier_mult CLASS name extends_opt implements_opt 
+                           error("A class name should be followed by extends or implements and a class body")
+                  |   modifier_mult INTERFACE name extends_opt implements_opt 
+                           error("An interface name should be followed by extends and an interface body")
+                  ;
+                 
+goal:AstStructure ::= package_opt import_opt class_declaration { ast.Module($1, $2, $3) } ;
+}

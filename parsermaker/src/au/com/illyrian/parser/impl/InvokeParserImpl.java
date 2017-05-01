@@ -38,11 +38,11 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             Class parserClass = getClassLoader().loadClass(parseName);
             objectInstance = parserClass.newInstance();
         } catch (ClassNotFoundException cnfe) {
-            throw error("Could not load parser: " + parseName);
+            throw exception("Could not load parser: " + parseName);
         } catch (IllegalAccessException iae) {
-            throw error("Could not access parser: " + parseName);
+            throw exception("Could not access parser: " + parseName);
         } catch (InstantiationException iae) {
-            throw error("Could not instantiate parser: " + parseName);
+            throw exception("Could not instantiate parser: " + parseName);
         }
         return objectInstance;
     }
@@ -57,7 +57,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             Object parser = loadParser(parseName);
             parserInstance = (ParseModule<T>) parser;
         } catch (ClassCastException cce) {
-            throw error("Class " + parseName + " does not implement the ParseModule interface.");
+            throw exception("Class " + parseName + " does not implement the ParseModule interface.");
         } catch (ParserException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -78,7 +78,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             Object parser = loadParser(parseName);
             parserInstance = (ParseClass<T>) parser;
         } catch (ClassCastException cce) {
-            throw error("Class " + parseName + " does not implement the ParseClass interface.");
+            throw exception("Class " + parseName + " does not implement the ParseClass interface.");
         } catch (ParserException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -99,7 +99,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             Object parser = loadParser(parseName);
             parserInstance = (ParseMembers<T>) parser;
         } catch (ClassCastException cce) {
-            throw error("Class " + parseName + " does not implement the ParseMember interface.");
+            throw exception("Class " + parseName + " does not implement the ParseMember interface.");
         } catch (ParserException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -120,7 +120,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             Object parser = loadParser(parseName);
             parserInstance = (ParseStatement<T>) parser;
         } catch (ClassCastException cce) {
-            throw error("Class " + parseName + " does not implement the ParseStatement interface.");
+            throw exception("Class " + parseName + " does not implement the ParseStatement interface.");
         } catch (ParserException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -141,7 +141,7 @@ public class InvokeParserImpl<T> extends ParserBase implements InvokeParser<T>
             Object parser = loadParser(parseName);
             parserInstance = (ParseExpression) parser;
         } catch (ClassCastException cce) {
-            throw error("Class " + parseName + " does not implement the ParseExpression interface.");
+            throw exception("Class " + parseName + " does not implement the ParseExpression interface.");
         } catch (ParserException ex) {
             throw ex;
         } catch (Exception ex) {

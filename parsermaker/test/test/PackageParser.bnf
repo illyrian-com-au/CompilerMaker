@@ -1,0 +1,12 @@
+{
+name  ::= IDENTIFIER  { ast.Name($1) } ;
+        
+qualified_name ::= name DOT qualified_name { ast.Dot($1, $3) }
+                 | name ;
+
+package:AstStructure ::= PACKAGE qualified_name SEMI { ast.Package($2) }
+                     |   PACKAGE error("Package name expected")
+                     |   /*EMPTY*/ ;
+                 
+goal:AstStructure    ::= package { ast.Module($1, null, null) } ;
+}

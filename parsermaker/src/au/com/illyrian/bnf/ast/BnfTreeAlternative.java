@@ -1,8 +1,7 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
-
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class BnfTreeAlternative extends BnfTreeBinary <Type>
@@ -10,12 +9,9 @@ public class BnfTreeAlternative extends BnfTreeBinary <Type>
     public static final BnfTree [] NULL_ARRAY = new BnfTree [] {null};
     BnfTree [] altArray;
     
-    public BnfTreeAlternative(BnfTree left, BnfTree right)
-    {
+    public BnfTreeAlternative(BnfTree left, BnfTree right) {
         super(left, right);
-        BnfTree [] leftArr = (left == null) ? NULL_ARRAY : left.toAltArray();
-        BnfTree [] rightArr = (right == null) ? NULL_ARRAY : right.toAltArray();
-        altArray = concat(leftArr, rightArr);
+        altArray = concat(left.toAltArray(), right.toAltArray());
     }
 
     public BnfTree resolveMerge(BnfMergeVisitor visitor) {

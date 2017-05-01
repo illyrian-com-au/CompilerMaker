@@ -1,22 +1,25 @@
 package au.com.illyrian.bnf.ast;
 
-import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
+import au.com.illyrian.classmaker.ast.LineNumber;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.TokenType;
 
 public class BnfTreeFactory extends AstExpressionFactory
 {
-    public BnfTreeFactory () {
-    }
-
-    public BnfTreeFactory (SourceLine source) {
-        super(source);
+    LineNumber source;
+    
+    public BnfTreeFactory (LineNumber lineNumber) {
+        this.source = lineNumber;
     }
     
     public BnfTreeParser Parser(BnfTree list) {
-        return new BnfTreeParser(list);
+        return new BnfTreeParser(list, getLineNumber());
+    }
+    
+    public int getLineNumber() {
+        return source == null ? 0 : source.getLineNumber();
     }
 
     public BnfTreeList List(BnfTree left, BnfTree right) {
@@ -28,7 +31,8 @@ public class BnfTreeFactory extends AstExpressionFactory
     }
 
     public BnfTreeTarget Target(BnfTree name, BnfTree type) {
-        return new BnfTreeTarget(name, type);
+        BnfTreeTarget result = new BnfTreeTarget(name, type);
+        return result;
     }
 
     public BnfTree Seq(BnfTree left, BnfTree right) {
@@ -45,16 +49,18 @@ public class BnfTreeFactory extends AstExpressionFactory
         return new BnfTreeAlternative(left, right);
     }
     
-    public BnfTreeMethodCall MethodCall(AstExpression name, AstExpression actuals) {
-        return new BnfTreeMethodCall(name, actuals);
+    public BnfTreeMethodCall MethodCall(BnfTree name, AstExpression actuals) {
+        BnfTreeMethodCall result = new BnfTreeMethodCall(name, actuals);
+        return result;
     }
 
     public BnfTreeLookahead Lookahead(BnfTree pattern) {
-        return new BnfTreeLookahead(pattern);
+        return new BnfTreeLookahead(pattern, getLineNumber());
     }
 
     public BnfTreeRecover Recover(BnfTree pattern) {
-        return new BnfTreeRecover(pattern);
+        BnfTreeRecover result = new BnfTreeRecover(pattern, getLineNumber());
+        return result;
     }
 
     public BnfTreeName BnfName(Lexer lexer)
@@ -69,16 +75,18 @@ public class BnfTreeFactory extends AstExpressionFactory
     }
     
     public BnfTreeName BnfName(String name) {
-        return new BnfTreeName(name);
+        BnfTreeName result = new BnfTreeName(name, getLineNumber());
+        return result;
     }
     
     public BnfTreeReserved BnfReserved(String name) {
-        return new BnfTreeReserved(name);
+        BnfTreeReserved result = new BnfTreeReserved(name, getLineNumber());
+        return result;
     }
      
     public BnfTreeReserved Reserved(Lexer lexer)
     {
-        BnfTreeReserved result = new BnfTreeReserved(lexer.getTokenValue());
+        BnfTreeReserved result = BnfReserved(lexer.getTokenValue());
         lexer.nextToken();
         return result;
     }
@@ -86,13 +94,17 @@ public class BnfTreeFactory extends AstExpressionFactory
     // FIXME don't think this is necessary
     public BnfTreeNonterminal Nonterminal(String name)
     {
-        BnfTreeNonterminal result = new BnfTreeNonterminal(name);
+        BnfTreeNonterminal result = new BnfTreeNonterminal(name, getLineNumber());
         return result;
+    }
+    
+    public BnfTreeAction Action(AstExpression expr) {
+        return new BnfTreeAction(expr, getLineNumber());
     }
 
     public BnfTree Empty()
     {
-        return new BnfTreeEmpty();
+        return new BnfTreeEmpty(getLineNumber());
     }
 
 }

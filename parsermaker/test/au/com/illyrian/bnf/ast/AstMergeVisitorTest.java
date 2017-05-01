@@ -36,11 +36,11 @@ public class AstMergeVisitorTest extends TestCase
 
     public void testGroupCommon() throws Exception
     {
-        BnfTreeFactory fac = new BnfTreeFactory();
-        BnfTree alt4 = fac.Alt(new BnfTreeName("dog"), new BnfTreeName("fox"));
-        BnfTree alt3 = fac.Alt(new BnfTreeName("fox"), alt4);
-        BnfTree alt2 = fac.Alt(new BnfTreeName("dog"), alt3);
-        BnfTree alt1 = fac.Alt(new BnfTreeName("fox"), alt2);
+        BnfTreeFactory fac = new BnfTreeFactory(null);
+        BnfTree alt4 = fac.Alt(fac.BnfName("dog"), fac.BnfName("fox"));
+        BnfTree alt3 = fac.Alt(fac.BnfName("fox"), alt4);
+        BnfTree alt2 = fac.Alt(fac.BnfName("dog"), alt3);
+        BnfTree alt1 = fac.Alt(fac.BnfName("fox"), alt2);
         assertNotNull("Should not be null:", alt2);
         assertEquals("AST", "( fox | dog | fox | dog | fox )", alt1.toString());
         

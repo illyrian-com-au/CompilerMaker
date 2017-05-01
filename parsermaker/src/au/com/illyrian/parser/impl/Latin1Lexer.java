@@ -45,6 +45,8 @@ public class Latin1Lexer implements Lexer
     private TokenType tokenType = TokenType.END;
 
     private Input input = null;
+    
+    private int lineNumber = 0;
 
     /** Whitespace before the current token */
     private String whitespace;
@@ -137,7 +139,7 @@ public class Latin1Lexer implements Lexer
             operators = new Properties();
         return operators;
     }
-
+    
     /**
      * Get the whitespace before the current token.
      *
@@ -245,6 +247,7 @@ public class Latin1Lexer implements Lexer
         TokenType token;
         // Now examine the start character.
         char ch = input.startChar();
+        lineNumber = input.getLineNumber();
         if (ch == Input.NULL) {
             token = TokenType.END;
         } else if (isIdentifierStartChar(ch)) {
@@ -608,19 +611,20 @@ public class Latin1Lexer implements Lexer
      * 
      * @return the source file or null if the source file is not provided
      */
-    public String getSourceFilename()
+    public String getFilename()
     {
-        return input.getSourceFilename();
+        return input.getFilename();
     }
 
     /**
-     * The line number
+     * The line number.
+     * The line number of the start of the current token.
      * 
      * @return the line number or 0 if not reading from a source file
      */
     public int getLineNumber()
     {
-        return input.getLineNumber();
+        return lineNumber;
     }
 
     public String toString()

@@ -1,7 +1,5 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
-
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.types.Type;
 
@@ -11,8 +9,7 @@ public class BnfTreeRule extends BnfTreeBase <Type>
     private final BnfTree body;
     private BnfFirstSet firstSet;
     
-    public BnfTreeRule(BnfTree target, BnfTree body)
-    {
+    public BnfTreeRule(BnfTree target, BnfTree body) {
         this.target = target;
         this.body = body;
     }
@@ -32,7 +29,6 @@ public class BnfTreeRule extends BnfTreeBase <Type>
         return visitor.resolveMerge(this);
     }
 
-    // FIXME - BnfFirstSet
     public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet)
     {
         return visitor.resolveFirst(this, firstSet);
@@ -65,7 +61,11 @@ public class BnfTreeRule extends BnfTreeBase <Type>
     public String getName() {
         return getTarget().getName();
     }
-
+    
+    public int getLineNumber() {
+        return target.getLineNumber();
+    }
+    
     public BnfTreeRule replace(BnfTree target, BnfTree body) {
         if (target == this.target && body == this.body)
             return this;

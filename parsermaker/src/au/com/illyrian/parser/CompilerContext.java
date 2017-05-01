@@ -14,5 +14,5 @@ public interface CompilerContext extends VisitParser
 
     public ClassLoader getClassLoader();
 
-    public ParserException error(Input input, String message);
+    public ParserException exception(Input input, String message);
 }

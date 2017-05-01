@@ -113,7 +113,7 @@ public class AstExpressionPrecidenceParser
                 result = getPrecidenceActions().unaryAction(ParserConstants.NOP, firstOperand);
             }
         } else {
-            throw error("Unexpected Perenthesis");
+            throw exception("Unexpected Perenthesis");
         }
 
         return result;
@@ -197,7 +197,7 @@ public class AstExpressionPrecidenceParser
            AstExpression ctor = getPrecidenceActions().binaryAction(ARRAYOF, arrayType, parameters);
            result = getPrecidenceActions().unaryAction(NEW, ctor);
        } else {
-           throw error("Array dimension or constructor parameters expected");
+           throw exception("Array dimension or constructor parameters expected");
        }
        return result;
    }
@@ -260,7 +260,7 @@ public class AstExpressionPrecidenceParser
            }
            return result;
        } else {
-           throw error("Identifier expected");
+           throw exception("Identifier expected");
        }
    }
 

@@ -179,19 +179,19 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
         // Ensure all tokens have been processed.
         if (token == TokenType.ERROR)
         {
-            throw error(getLexer().getErrorMessage());
+            throw exception(getLexer().getErrorMessage());
         }
         else if (token == TokenType.DELIMITER)
         {
-            throw error("Unbalanced perentheses - too many \')\'.");
+            throw exception("Unbalanced perentheses - too many \')\'.");
         }
         else if (token == TokenType.IDENTIFIER)
         {
-            throw error("Operator expected.");
+            throw exception("Operator expected.");
         }
         else
         {
-            throw error("Operator or '}' expected.");
+            throw exception("Operator or '}' expected.");
         }
     }
     
@@ -218,7 +218,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
         }
         else
         {
-            throw error("Expected the name of the class.");
+            throw exception("Expected the name of the class.");
         }
         return result;
     }
@@ -237,7 +237,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
             }
             else
             {
-                throw error("Expected the name of the extended class.");
+                throw exception("Expected the name of the extended class.");
             }
         }
         return null;
@@ -342,7 +342,7 @@ public class ExpressionParser extends AstExpressionPrecidenceParser
                 }
                 else
                 {
-                    throw error("Name of a variable expected.");
+                    throw exception("Name of a variable expected.");
                 }
             }
         }

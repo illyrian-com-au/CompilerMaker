@@ -78,7 +78,8 @@ public class InputStreamTest extends TestCase
     {
         File file = new File(srcDir, "au/com/illyrian/parser/impl/InputStreamTest.java");
         System.out.println(file.getAbsolutePath());
-        LexerInputStream input = new LexerInputStream(file);
+        LexerInputStream input = new LexerInputStream(file, 
+                "au/com/illyrian/parser/impl/InputStreamTest.java");
         Latin1Lexer tokeniser = new Latin1Lexer(input);
         assertEquals("token", TokenType.IDENTIFIER, tokeniser.nextToken());
         assertEquals("String", "package", tokeniser.getTokenValue());

@@ -7,6 +7,7 @@ import au.com.illyrian.bnf.ast.BnfTreeAction;
 import au.com.illyrian.bnf.ast.BnfTreeFactory;
 import au.com.illyrian.bnf.ast.BnfTreeParser;
 import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.ast.LineNumber;
 import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseMembers;
@@ -14,7 +15,8 @@ import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.expr.AstExpressionPrecidenceParser;
 
-public class BnfParser extends AstExpressionPrecidenceParser implements ParseMembers<BnfTreeParser>
+public class BnfParser extends AstExpressionPrecidenceParser 
+    implements ParseMembers<BnfTreeParser>, LineNumber
 {
     private BnfTreeFactory factory;
     private BnfMergeVisitor merger;
@@ -34,7 +36,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     public BnfTreeFactory getFactory()
     {
         if (factory == null) {
-            factory = new BnfTreeFactory();
+            factory = new BnfTreeFactory(this);
             this.setAstExpressionFactory(factory);
         }
         return factory;
@@ -43,6 +45,10 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     public void setFactory(BnfTreeFactory factory)
     {
         this.factory = factory;
+    }
+    
+    public int getLineNumber() {
+        return getLexer().getLineNumber();
     }
 
     public BnfMergeVisitor getMerger()
@@ -119,7 +125,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         expect(BnfToken.BEGIN);
         BnfTree $2 = rules_plus();
         if (!match(BnfToken.END)) {
-            throw error("} expected");
+            throw exception("} expected");
         }
         return getFactory().Parser($2);
     }
@@ -166,7 +172,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
                 $$ = $1;
             }
         } else {
-            throw error("Name of rule expected.");
+            throw exception("Name of rule expected.");
         }
         return $$;
     }
@@ -223,9 +229,11 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     {
         getFactory();
         expect(BnfToken.BEGIN);
+        int lineNo = getLineNumber();
         AstExpression expr = expression();
+        BnfTreeAction action = getFactory().Action(expr); // Must return the start of the expression
         expect(BnfToken.END);
-        return new BnfTreeAction(expr);
+        return action;
     }
 
     /*
@@ -241,7 +249,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         } else if (match(BnfToken.RESERVED)) {
             $$ = macro();
         } else {
-            throw error("Terminal, Non-terminal or Macro expected");
+            throw exception("Terminal, Non-terminal or Macro expected");
         }
         return $$;
     }
@@ -252,7 +260,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
     public AstExpression actual_opt()
     {
         if (match(BnfToken.RPAR)) {
-            return getFactory().Empty();
+            return null; //getFactory().Empty();
         } else {
             return param_mult();
         }
@@ -292,7 +300,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         } else if (match(TokenType.STRING)) {
             $$ = getFactory().Literal(getLexer().getTokenString());
         } else {
-            throw error("Function parameter expected");
+            throw exception("Function parameter expected");
         }
         nextToken();
         return $$;
@@ -327,7 +335,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         if (match(BnfToken.IDENTIFIER)) {
             $$ = getFactory().BnfName(getLexer());
         } else {
-            throw error("TokenNameExpected");
+            throw exception("TokenNameExpected");
         }
         return $$;
     }
@@ -349,7 +357,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         } else if (match(BnfToken.RESERVED)) {
             $$ = getFactory().Reserved(getLexer());
         } else {
-            throw error("MacroNameExpected");
+            throw exception("MacroNameExpected");
         }
         return $$;
     }
@@ -374,7 +382,7 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         if (match(BnfToken.RESERVED)) {
             $$ = getFactory().Reserved(getLexer());
         } else {
-            throw error("MacroNameExpected");
+            throw exception("MacroNameExpected");
         }
         return $$;
     }
@@ -413,9 +421,9 @@ public class BnfParser extends AstExpressionPrecidenceParser implements ParseMem
         return $$;
     }
 
-    public ParserException error(String message)
+    public ParserException exception(String message)
     {
-        return getCompilerContext().error(getInput(), message);
+        return getCompilerContext().exception(getInput(), message);
     }
 
 }

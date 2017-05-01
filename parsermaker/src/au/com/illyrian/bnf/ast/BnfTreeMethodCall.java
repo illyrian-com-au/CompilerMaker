@@ -1,18 +1,15 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
-
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.types.Type;
 
 public class BnfTreeMethodCall extends BnfTreeBase <Type>
 {
-    private final AstExpression name;
+    private final BnfTree name;
     private final AstExpression actuals;
     
-    public BnfTreeMethodCall(AstExpression name, AstExpression actuals)
-    {
+    public BnfTreeMethodCall(BnfTree name, AstExpression actuals) {
         this.name = name;
         this.actuals = actuals;
     }
@@ -40,6 +37,10 @@ public class BnfTreeMethodCall extends BnfTreeBase <Type>
     public Type resolveType(BnfMakerVisitor visitor)
     {
         return visitor.resolveType(this);
+    }
+    
+    public int getLineNumber() {
+        return name.getLineNumber();
     }
     
     public String toString() {

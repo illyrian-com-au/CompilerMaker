@@ -1,13 +1,21 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
-
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
-import au.com.illyrian.classmaker.ast.AstExpressionBase;
+import au.com.illyrian.classmaker.ast.LineNumber;
 import au.com.illyrian.classmaker.types.Type;
 
-public abstract class BnfTreeBase <T> extends AstExpressionBase implements BnfTree <T>
+public abstract class BnfTreeBase <T> implements BnfTree <T>, LineNumber
 {
+     private int lineNumber;
+    
+     BnfTreeBase() {
+         lineNumber = 0;
+     }
+     
+     BnfTreeBase(int lineNumber) {
+         this.lineNumber = lineNumber;
+     }
+     
      public BnfTree resolveMerge(BnfMergeVisitor visitor) {
          return visitor.resolveMerge(this);
      }
@@ -62,6 +70,14 @@ public abstract class BnfTreeBase <T> extends AstExpressionBase implements BnfTr
      
      public BnfTreeSequence toSequence() {
          return null;
+     }
+     
+     public int getLineNumber() {
+         return lineNumber;
+     }
+     
+     public void setLineNumber(int lineNumber) {
+         this.lineNumber = lineNumber;
      }
      
      public BnfTree [] toAltArray() {

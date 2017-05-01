@@ -72,7 +72,7 @@ public class DSL extends ParserBase implements ParseClass
         expect(TokenType.DELIMITER, "{", "'{' expected.");
         Object result = many_rules();
         if (!match(TokenType.DELIMITER, "}"))
-            throw error("'}' expected.");
+            throw exception("'}' expected.");
         return result;
     }
 
@@ -135,7 +135,7 @@ public class DSL extends ParserBase implements ParseClass
             else if (match(TokenType.DELIMITER, "]"))
                 break;
             else
-                throw error(", or | expected.");
+                throw exception(", or | expected.");
         }
         return expr;
     }
@@ -200,7 +200,7 @@ public class DSL extends ParserBase implements ParseClass
         else if (match(TokenType.END))
             ;
         else
-            throw error("Terminal, non-terminal or rule construct expected");
+            throw exception("Terminal, non-terminal or rule construct expected");
         return expr;
     }
     

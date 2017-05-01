@@ -1,12 +1,10 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
-
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
-import au.com.illyrian.classmaker.ast.AstExpression;
+import au.com.illyrian.classmaker.ast.LineNumber;
 import au.com.illyrian.classmaker.types.Type;
 
-public interface BnfTree <T> extends AstExpression
+public interface BnfTree <T> extends LineNumber
 {
     // BnfMakerVisitor methods
     public Type resolveDeclaration(BnfMakerVisitor visitor);

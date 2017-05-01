@@ -165,7 +165,7 @@ public class LexerInputString implements Input
      * 
      * @return the source file or null if the source file is not provided
      */
-    public String getSourceFilename()
+    public String getFilename()
     {
         return (getSourceFile() == null ? "" : getSourceFile().getPath());
     }

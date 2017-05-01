@@ -14,10 +14,10 @@ public class LexerInputStream extends LexerInputString implements Input
     final LineNumberReader reader;
     final String sourceFilename;
 
-    public LexerInputStream(File file) throws IOException
+    public LexerInputStream(File file, String source) throws IOException
     {
         reader = createReader(file);
-        sourceFilename = file.getPath();
+        sourceFilename = source;
         nextLine();
     }
 
@@ -80,7 +80,7 @@ public class LexerInputStream extends LexerInputString implements Input
      * 
      * @return the source file or null if the source file is not provided
      */
-    public String getSourceFilename()
+    public String getFilename()
     {
         return sourceFilename;
     }
@@ -102,6 +102,6 @@ public class LexerInputStream extends LexerInputString implements Input
     
     public String toString()
     {
-        return getSourceFilename() + ';' + getLineNumber() + "\n" + super.toString();
+        return getFilename() + ';' + getLineNumber() + "\n" + super.toString();
     }
 }

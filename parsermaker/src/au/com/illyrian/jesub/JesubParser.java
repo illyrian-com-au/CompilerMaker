@@ -158,19 +158,19 @@ public class JesubParser extends OperatorPrecidenceParser
         // Ensure all tokens have been processed.
         if (token == TokenType.ERROR)
         {
-            throw error(getLexer().getErrorMessage());
+            throw exception(getLexer().getErrorMessage());
         }
         else if (token == TokenType.DELIMITER)
         {
-            throw error("Unbalanced perentheses - too many \')\'.");
+            throw exception("Unbalanced perentheses - too many \')\'.");
         }
         else if (token == TokenType.IDENTIFIER)
         {
-            throw error("Operator expected.");
+            throw exception("Operator expected.");
         }
         else
         {
-            throw error("Operator or '}' expected.");
+            throw exception("Operator or '}' expected.");
         }
     }
     
@@ -260,11 +260,11 @@ public class JesubParser extends OperatorPrecidenceParser
                     qualifiedClassName = jesubAction.Dot(qualifiedClassName, simpleName);
                 }
                 else
-                    throw error("More package name expected.");
+                    throw exception("More package name expected.");
             }
         }
         else
-            throw error("Class name expected.");
+            throw exception("Class name expected.");
         return qualifiedClassName;
     }
 
@@ -333,7 +333,7 @@ public class JesubParser extends OperatorPrecidenceParser
             simpleName = getLexer().getTokenValue();
             nextToken();
         } else {
-            throw error("Name expected.");
+            throw exception("Name expected.");
         }
         //result = action.declareType(modifiers, declared, simpleName);
         return result;

@@ -2,7 +2,6 @@ package au.com.illyrian.bnf.maker;
 
 import java.util.Map;
 
-import junit.framework.TestCase;
 import au.com.illyrian.bnf.BnfParser;
 import au.com.illyrian.bnf.ast.BnfFirstSet;
 import au.com.illyrian.bnf.ast.BnfFirstVisitor;
@@ -20,16 +19,16 @@ import au.com.illyrian.parser.impl.LexerInputStream;
 import au.com.illyrian.parser.impl.ModuleContext;
 import au.com.illyrian.test.StringReadWriter;
 
-public class BnfMakerTextVisitorTest extends TestCase
+public class BnfMakerTextVisitorTest extends BnfMakerTextBase
 {
     private static final String OBJ = "java.lang.Object";
     
     ClassMakerIfc maker = new ClassMakerText();
     BnfMakerVisitor visitor = new BnfMakerVisitor(maker);
-    BnfTreeFactory ast = new BnfTreeFactory();
+    BnfTreeFactory ast = new BnfTreeFactory(null);
 
     public void testTerminalName() {
-        BnfTreeName tree = new BnfTreeName("IDENTIFIER");
+        BnfTreeName tree = ast.BnfName("IDENTIFIER");
         visitor.resolveType(tree);
         String expected = "[" + expect("IDENTIFIER") + "]";
         assertEquals(expected, maker.toString());
@@ -192,7 +191,7 @@ public class BnfMakerTextVisitorTest extends TestCase
         BnfTree ret  = ast.BnfReserved("RETURN");
         BnfTree brk  = ast.BnfReserved("BREAK");
         BnfTree cont = ast.BnfReserved("CONTINUE");
-        BnfTree err  = ast.MethodCall(ast.Name("error"), 
+        BnfTree err  = ast.MethodCall(ast.BnfName("error"), 
                 ast.Literal("return, break or continue expected"));
         BnfTree tree1 = ast.Alt(ret, brk);
         BnfTree tree2 = ast.Alt(tree1, cont);
@@ -272,8 +271,8 @@ public class BnfMakerTextVisitorTest extends TestCase
     }
 
     public void testLookaheadAlt1() {
-        BnfTreeName ruleName = new BnfTreeName("jump");
-        BnfTreeName ruleBody = new BnfTreeName("RETURN");
+        BnfTreeName ruleName = ast.BnfName("jump");
+        BnfTreeName ruleBody = ast.BnfName("RETURN");
         BnfTreeRule rule = ast.Rule(ruleName, ruleBody);
 
         BnfFirstVisitor firstVisitor = new BnfFirstVisitor();
@@ -288,8 +287,8 @@ public class BnfMakerTextVisitorTest extends TestCase
     }
     
     public void testLookaheadAlt2() {
-        BnfTreeName ruleBreak = new BnfTreeName("BREAK");
-        BnfTreeName ruleCont = new BnfTreeName("CONTINUE");
+        BnfTreeName ruleBreak = ast.BnfName("BREAK");
+        BnfTreeName ruleCont = ast.BnfName("CONTINUE");
         BnfTreeRule rule = ast.Rule(null, null);
         BnfFirstSet firstSet = new BnfFirstSet("jump");
         firstSet.add("BREAK", ruleBreak);
@@ -304,9 +303,9 @@ public class BnfMakerTextVisitorTest extends TestCase
     }
     
     public void testLookaheadAlt3() {
-        BnfTreeName ruleBreak = new BnfTreeName("BREAK");
-        BnfTreeName ruleCont = new BnfTreeName("CONTINUE");
-        BnfTreeName ruleRet = new BnfTreeName("RETURN");
+        BnfTreeName ruleBreak = ast.BnfName("BREAK");
+        BnfTreeName ruleCont = ast.BnfName("CONTINUE");
+        BnfTreeName ruleRet = ast.BnfName("RETURN");
         BnfTreeRule rule = ast.Rule(null, null);
         BnfFirstSet firstSet = new BnfFirstSet("jump");
         firstSet.add("BREAK", ruleBreak);
@@ -325,10 +324,10 @@ public class BnfMakerTextVisitorTest extends TestCase
     }
     
     public void testLookaheadAlt4() {
-        BnfTreeName ruleBreak = new BnfTreeName("BREAK");
-        BnfTreeName ruleCont = new BnfTreeName("CONTINUE");
-        BnfTreeName ruleRet = new BnfTreeName("RETURN");
-        BnfTreeName ruleStop = new BnfTreeName("STOP");
+        BnfTreeName ruleBreak = ast.BnfName("BREAK");
+        BnfTreeName ruleCont = ast.BnfName("CONTINUE");
+        BnfTreeName ruleRet = ast.BnfName("RETURN");
+        BnfTreeName ruleStop = ast.BnfName("STOP");
         BnfTreeRule rule = ast.Rule(null, null);
         BnfFirstSet firstSet = new BnfFirstSet("jump");
         firstSet.add("BREAK", ruleBreak);
@@ -648,16 +647,16 @@ public class BnfMakerTextVisitorTest extends TestCase
             ) + endMethod();
         assertEquals(expectDirection, maker.toString());
     }
-
+/*
     // String functions
     String match(String token) {
-        return "Call(This(), \"match\", Push(Get(\"" + token + "\")))";
+        return "Call(This(), \"match\", Push(Get(This(), \"" + token + "\")))";
     }
     String match(String token, int ahead) {
-        return "Call(This(), \"match\", Push(Get(\"" + token + "\")).Push(Literal(" + ahead + ")))";
+        return "Call(This(), \"match\", Push(Get(This(), \"" + token + "\")).Push(Literal(" + ahead + ")))";
     }
     String expect(String token) {
-        return "Call(This(), \"expect\", Push(Get(\"" + token + "\")))";
+        return "Call(This(), \"expect\", Push(Get(This(), \"" + token + "\")))";
     }
     String error(String message) {
         return "  Eval(Call(This(), \"error\", Push(Literal(\"" + message + "\"))));\n";
@@ -693,13 +692,15 @@ public class BnfMakerTextVisitorTest extends TestCase
         return ifThen(match(token), thenCode);
     }
     String ifThen(String cond, String thenCode) {
-        return "  If(" + cond + ");\n" + thenCode + "  EndIf();\n";
+        return "  If(" + cond + ");\n  Begin();\n" + thenCode + "  End();\n  EndIf();\n";
     }
     String ifMatchThenElse(String token, String thenCode, String elseCode) {
         return ifThenElse(match(token), thenCode, elseCode);
     }
     String ifThenElse(String cond, String thenCode, String elseCode) {
-        return "  If(" + cond + ");\n" + thenCode + "  Else();\n" + elseCode + "  EndIf();\n";
+        return "  If(" + cond + ");\n  Begin();\n"  + thenCode 
+                + "  End();\n  Else();\n  Begin();\n" + elseCode 
+                + "  End();\n  EndIf();\n";
     }
     String orElse(String cond) {
         return "OrElse(" + cond + ")";
@@ -725,5 +726,5 @@ public class BnfMakerTextVisitorTest extends TestCase
         return "  Return(Get(\"$0\"));\n"
                 + "End()\n";        
     }
-    
+   */ 
 }

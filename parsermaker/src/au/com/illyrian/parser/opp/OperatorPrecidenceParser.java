@@ -236,7 +236,7 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
             result = expression();
             expect(TokenType.DELIMITER, ")", "\')\' expected");
         } else {
-            throw error("Unexpected Perenthesis");
+            throw exception("Unexpected Perenthesis");
         }
         return result;
     }
@@ -276,7 +276,7 @@ public class OperatorPrecidenceParser<Expr> extends ParserBase
             result = literalOperand();
             break;
         default:
-            throw error("Expression expected");
+            throw exception("Expression expected");
         }
         return result;
     }

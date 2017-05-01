@@ -12,6 +12,7 @@ import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.LexerInputStream;
 import au.com.illyrian.parser.impl.ModuleContext;
+import au.com.illyrian.test.StringReadWriter;
 
 public class AstFirstVisitorTest extends TestCase
 {
@@ -46,10 +47,11 @@ public class AstFirstVisitorTest extends TestCase
     }
 
     public void testFirstSeq() throws Exception {
+        StringReadWriter out = new StringReadWriter();
         out.println("{");
         out.println("   rhyme ::= the fox ;");
         out.println("}");
-        BnfTree tree = parse(getReader());
+        BnfTree tree = parse(out.getReader());
         
         boolean hasEmpty = tree.resolveFirst(visitor, null);
         assertFalse("hasEmpty should be false", hasEmpty);

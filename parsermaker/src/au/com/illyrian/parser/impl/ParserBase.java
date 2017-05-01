@@ -57,6 +57,27 @@ public class ParserBase
         this.lexer = lexer;
     }
     
+    /**
+     * The source file.
+     * 
+     * @return the source file or null if the source file is not provided
+     */
+    public String getFilename()
+    {
+        return lexer.getFilename();
+    }
+
+    /**
+     * The line number.
+     * The line number of the start of the current token.
+     * 
+     * @return the line number or 0 if not reading from a source file
+     */
+    public int getLineNumber()
+    {
+        return lexer.getLineNumber();
+    }
+    
     public void addReserved(String word) {
         getLexer().getReservedWords().put(word, word);
     }
@@ -72,9 +93,18 @@ public class ParserBase
         TokenType token = getLexer().nextToken();
         if (token == TokenType.ERROR)
         {
-            throw error(getLexer().getErrorMessage() );
+            throw exception(getLexer().getErrorMessage() );
         }
         return token;
+    }
+    
+    public boolean match(Token [] tokens) {
+        for (Token token : tokens) {
+            if (match(token)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean match(Token token)
@@ -117,7 +147,7 @@ public class ParserBase
 
     public String expect(Token token)
     {
-        return expect(token.getTokenType(), token.getTokenValue());
+        return expect(token.getTokenType(), token.getTokenValue(), null);
     }
 
     public String expect(TokenType expected, String value)
@@ -136,7 +166,7 @@ public class ParserBase
             if (message == null) {
                 message = toErrorString(expected, value);
             }
-            throw error(message);
+            throw exception(message);
         }
     }
 
@@ -179,11 +209,15 @@ public class ParserBase
         * @throws Exception -
         *             with details of the error.
         */
-    public ParserException error(String message)
+    public ParserException exception(String message)
     {
         ParserException ex =  new ParserException(message);
         ex.setParserStatus(getInput());
         return ex;
+    }
+    
+    public void error(String message) {
+        throw exception(message);
     }
     
     public String toString()

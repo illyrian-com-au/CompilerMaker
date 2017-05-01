@@ -79,7 +79,7 @@ public class ModuleParser extends ParserBase implements ParseModule
     }
     
 /*
-     dec_module:AstDeclareModule   ::= dec_package dec_imports dec_class
+     dec_module:AstModule   ::= dec_package dec_imports dec_class
      dec_package:AstExpression     ::= 'package' class_name ';'
                                    | EMPTY ;
      dec_imports:AstExpression     ::= 'import' class_name ';' dec_imports
@@ -88,8 +88,8 @@ public class ModuleParser extends ParserBase implements ParseModule
                                    | '.' IDENTIFIER
                                    | '.' error("More of the class name expected) 
                                    | error("Class name expected") ;
-     dec_class:AstDeclareClass     ::= class_name '::' code '::' class_name ';'
-     code:AstDeclareClass          ::= <code for the invoked parser> 
+     dec_class:AstClass     ::= class_name '::' code '::' class_name ';'
+     code:AstClass          ::= <code for the invoked parser> 
  */
     
    /**
@@ -129,15 +129,15 @@ public class ModuleParser extends ParserBase implements ParseModule
        // Ensure all tokens have been processed.
        if (token == TokenType.ERROR)
        {
-           throw error(getLexer().getErrorMessage());
+           throw exception(getLexer().getErrorMessage());
        }
        else if (token == TokenType.DELIMITER)
        {
-           throw error("Unbalanced perentheses - too many \')\'.");
+           throw exception("Unbalanced perentheses - too many \')\'.");
        }
        else if (token != TokenType.END)
        {
-           throw error("End of input expected");
+           throw exception("End of input expected");
        }
    }
    
@@ -198,11 +198,11 @@ public class ModuleParser extends ParserBase implements ParseModule
                    qualifiedClassName = getModuleAction().Dot(qualifiedClassName, simpleName);
                }
                else
-                   throw error("More package name expected.");
+                   throw exception("More package name expected.");
            }
        }
        else
-           throw error("Class name expected.");
+           throw exception("Class name expected.");
        return qualifiedClassName;
    }
 
@@ -255,16 +255,16 @@ public class ModuleParser extends ParserBase implements ParseModule
                {
                    Object className = classname();
                    if (!className.equals(parseName))
-                       throw error("'" + parseName + "' expected at end of parser space");
+                       throw exception("'" + parseName + "' expected at end of parser space");
                }
                else
-                   throw error(":: expected");
+                   throw exception(":: expected");
            }
            else
-               throw error(":: expected");
+               throw exception(":: expected");
        }
        else
-           throw error("Parser name expected");
+           throw exception("Parser name expected");
        return result;
    }
 }

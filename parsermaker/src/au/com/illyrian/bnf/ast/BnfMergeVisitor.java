@@ -119,7 +119,7 @@ public class BnfMergeVisitor
     public BnfTree resolveMerge(BnfTreeName item)
     {
         if (ruleSet.containsKey(item.getName())) {
-            return new BnfTreeNonterminal(item.getName());
+            return new BnfTreeNonterminal(item.getName(), item.getLineNumber());
         } else {
             return item;
         }

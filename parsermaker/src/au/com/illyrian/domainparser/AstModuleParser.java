@@ -4,9 +4,12 @@ import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.DotOperator;
 import au.com.illyrian.classmaker.ast.TerminalName;
-import au.com.illyrian.jesub.ast.AstDeclareClass;
-import au.com.illyrian.jesub.ast.AstDeclareModule;
+import au.com.illyrian.jesub.ast.AstClass;
+import au.com.illyrian.jesub.ast.AstImport;
+import au.com.illyrian.jesub.ast.AstModule;
+import au.com.illyrian.jesub.ast.AstPackage;
 import au.com.illyrian.jesub.ast.AstStructure;
+import au.com.illyrian.jesub.ast.AstStructureLink;
 import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParseModule;
@@ -62,7 +65,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
     }
 
     /*
-         dec_module:AstDeclareModule   ::= dec_package dec_imports dec_class ;
+         dec_module:AstModule   ::= dec_package dec_imports dec_class ;
          dec_package:AstExpression     ::= 'package' class_name ';'
                                        | EMPTY ;
          dec_imports:AstExpression     ::= 'import' class_name ';' dec_imports
@@ -71,8 +74,8 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
                                        | '.' IDENTIFIER
                                        | '.' error("More of the class name expected) 
                                        | error("Class name expected") ;
-         dec_class:AstDeclareClass     ::= class_name '::' code '::' class_name ';' ;
-         code:AstDeclareClass          ::= <code for the invoked parser> 
+         dec_class:AstClass     ::= class_name '::' code '::' class_name ';' ;
+         code:AstClass          ::= <code for the invoked parser> 
      */
 
     /**
@@ -113,37 +116,37 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
         TokenType token = getTokenType();
         // Ensure all tokens have been processed.
         if (token == TokenType.ERROR) {
-            throw error(getLexer().getErrorMessage());
+            throw exception(getLexer().getErrorMessage());
         } else if (token == TokenType.DELIMITER) {
-            throw error("Unbalanced perentheses - too many \')\'.");
+            throw exception("Unbalanced perentheses - too many \')\'.");
         } else if (token != TokenType.END) {
-            throw error("End of input expected");
+            throw exception("End of input expected");
         }
     }
 
     /**
      * dec_module:AstStructure ::= dec_package more_imports dec_class { return
-     * new AstDeclareModule($1, $2, $3); };
+     * new AstModule($1, $2, $3); };
      */
     public AstStructure dec_module()
     {
-        AstExpression packageExpr = dec_package();
-        AstExpression importsExpr = more_imports();
-        AstDeclareClass classExpr = dec_class();
-        return new AstDeclareModule(packageExpr, importsExpr, classExpr);
+        AstPackage packageExpr = dec_package();
+        AstStructure importsExpr = more_imports();
+        AstClass classExpr = dec_class();
+        return new AstModule(packageExpr, importsExpr, classExpr);
     }
 
     /**
      * packageStatement ::= 'package' class_name ';' { return $2; }
      * | EMPTY ;
      */
-    public AstExpression dec_package()
+    public AstPackage dec_package()
     {
         if (accept(TokenType.RESERVED, "package")) {
             AstExpression packageName = class_name();
             expect(TokenType.DELIMITER, ";", "';' expected at the end of the package name");
 
-            return packageName;
+            return new AstPackage(packageName);
         }
         return null;
     }
@@ -153,12 +156,12 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
      * { return ($2==null) ? S1 : new AstExpressionLink($1, $2); }
      * | EMPTY
      */
-    public AstExpression more_imports()
+    public AstStructure more_imports()
     {
         if (match(TokenType.RESERVED, "import")) {
-            AstExpression className = declare_import();
-            AstExpression more = more_imports();
-            return (more == null) ? className : new AstExpressionLink(className, more);
+            AstImport declareImport = declare_import();
+            AstStructure more = more_imports();
+            return (more == null) ? declareImport : new AstStructureLink(declareImport, more);
         }
         return null;
     }
@@ -166,12 +169,12 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
     /**
      * declare_import:AstExpression ::= 'import' class_name ';' { return $2; } ;
      */
-    public AstExpression declare_import()
+    public AstImport declare_import()
     {
         expect(TokenType.RESERVED, "import");
         AstExpression className = class_name();
         semi();
-        return className;
+        return new AstImport(className);
     }
 
     /**
@@ -187,7 +190,7 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
             nextToken();
             result = new TerminalName(simpleName);
         } else
-            throw error("Class name expected.");
+            throw exception("Class name expected.");
         return result;
     }
 
@@ -217,9 +220,9 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
      * verifyParserName($1, $5); return $3; }
      * | error("Parser class name expected") ;
      */
-    public AstDeclareClass dec_class()
+    public AstClass dec_class()
     {
-        AstDeclareClass decClass = null;
+        AstClass decClass = null;
         if (getTokenType() == TokenType.IDENTIFIER) {
             AstExpression parseName = class_name();
             if (match(TokenType.OPERATOR, "::")) {
@@ -229,25 +232,25 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
                     AstExpression className = class_name();
                     verifyParserName(parseName, className);
                     if (!className.equals(parseName))
-                        throw error("'" + parseName + "' expected at end of parser space");
+                        throw exception("'" + parseName + "' expected at end of parser space");
                 } else
-                    throw error(":: expected");
+                    throw exception(":: expected");
             } else
-                throw error(":: expected");
+                throw exception(":: expected");
         } else
-            throw error("Parser class name expected");
+            throw exception("Parser class name expected");
         return decClass;
     }
 
-    public AstDeclareClass code(String parseName)
+    public AstClass code(String parseName)
     {
-        AstDeclareClass decClass = null;
+        AstClass decClass = null;
         String qualifiedName = getModuleAction().getParserName(parseName);
         InvokeParser parser = getCompilerContext().getInvokeParser();
         Input input = getInput();
         Object result = parser.invokeParseClass(qualifiedName);
-        if (result instanceof AstDeclareClass)
-            decClass = (AstDeclareClass) result;
+        if (result instanceof AstClass)
+            decClass = (AstClass) result;
         return decClass;
     }
 
@@ -256,6 +259,6 @@ public class AstModuleParser extends ParserBase implements ParseModule<AstStruct
         String firstName = name1.toString();
         String secondName = name2.toString();
         if (!firstName.equals(secondName))
-            throw error("'" + firstName + "' expected at end of parser space");
+            throw exception("'" + firstName + "' expected at end of parser space");
     }
 }

@@ -1,17 +1,15 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
-
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
-import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class BnfTreeName extends BnfTreeBase <Type>
 {
     private final String name;
     
-    public BnfTreeName(String name)
-    {
+    public BnfTreeName(String name, int sourceLine) {
+        super(sourceLine);
         this.name = name;
     }
 
@@ -37,6 +35,11 @@ public class BnfTreeName extends BnfTreeBase <Type>
 
     public BnfTree resolveMerge(BnfMergeVisitor visitor) {
         return visitor.resolveMerge(this);
+    }
+
+    public Type resolveDeclaration(BnfMakerVisitor visitor)
+    {
+        return visitor.resolveDeclaration(this);
     }
 
     public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)

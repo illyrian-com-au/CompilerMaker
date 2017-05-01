@@ -115,7 +115,7 @@ public class PC extends ParserBase implements ParseClass
         expect(TokenType.OPERATOR, ":");
         String value = expect(TokenType.IDENTIFIER, null);
         if (!listContains(value, optionsRace))
-            throw error("Expected: " + toString(optionsRace));
+            throw exception("Expected: " + toString(optionsRace));
     }
     //*  class_attr  ::= "Class" ':' "fighter" | "magicuser" | "cleric" | "anticleric" | "thief"
     public static final String [] optionsClass = {"fighter", "magicuser", "cleric", "anticleric", "thief"};
@@ -125,7 +125,7 @@ public class PC extends ParserBase implements ParseClass
         expect(TokenType.OPERATOR, ":");
         String value = expect(TokenType.IDENTIFIER, null);
         if (!listContains(value, optionsClass))
-            throw error("Expected one of: " + toString(optionsClass));
+            throw exception("Expected one of: " + toString(optionsClass));
     }
 
     //*  sex_attr    ::= "Sex" ':' "male" | "female"
@@ -136,7 +136,7 @@ public class PC extends ParserBase implements ParseClass
         expect(TokenType.OPERATOR, ":");
         String value = expect(TokenType.IDENTIFIER, null);
         if (!listContains(value, optionsSex))
-            throw error("Expected one of: " + toString(optionsSex));
+            throw exception("Expected one of: " + toString(optionsSex));
     }
     
     //*  align_attr  ::= "Alignment" ':' "lawful" | "neutral" | "chaotic"
@@ -147,7 +147,7 @@ public class PC extends ParserBase implements ParseClass
         expect(TokenType.OPERATOR, ":");
         String value = expect(TokenType.IDENTIFIER, null);
         if (!listContains(value, optionsAlign))
-            throw error("Expected one of: " + toString(optionsAlign));
+            throw exception("Expected one of: " + toString(optionsAlign));
     }
     
     //*  abilities   ::= "Abilities" ':' '{' many_abilities '}'
@@ -230,7 +230,7 @@ public class PC extends ParserBase implements ParseClass
                 return score;
             }
         }
-        throw error(name + " must be a number in the range 3..18");
+        throw exception(name + " must be a number in the range 3..18");
     }
     
 }

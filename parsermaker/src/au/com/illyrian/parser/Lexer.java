@@ -2,7 +2,9 @@ package au.com.illyrian.parser;
 
 import java.util.Properties;
 
-public interface Lexer
+import au.com.illyrian.classmaker.ast.LineNumber;
+
+public interface Lexer extends LineNumber
 {
 
     /**
@@ -28,11 +30,6 @@ public interface Lexer
 
     public Properties getOperators();
 
-    /**
-     * Advance the Lexer to the next token in the input.
-     * 
-     * @return a number representing the next token
-     */
     public TokenType nextToken();
     
     public TokenType getTokenType();
@@ -40,4 +37,8 @@ public interface Lexer
     public Input getInput();
     
     public void setInput(Input input);
+
+    public String getFilename();
+
+    public int getLineNumber();
 }

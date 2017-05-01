@@ -2,7 +2,6 @@ package au.com.illyrian.bnf.ast;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.types.Type;
@@ -12,7 +11,8 @@ public class BnfTreeParser extends BnfTreeBase <Type>
     private final BnfTree rules;
     private final Map<String, BnfTreeRule> ruleSet;
     
-    public BnfTreeParser(BnfTree rules) {
+    public BnfTreeParser(BnfTree rules, int sourceLine) {
+        super(sourceLine);
         this.rules = rules;
         ruleSet = createRuleSet(rules.toRuleArray());
     }
@@ -43,7 +43,7 @@ public class BnfTreeParser extends BnfTreeBase <Type>
     public BnfTreeParser replace(BnfTree rules) {
         if (rules == this.rules)
             return this;
-        return new BnfTreeParser(rules);
+        return new BnfTreeParser(rules, getLineNumber());
     }
     
     public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet)

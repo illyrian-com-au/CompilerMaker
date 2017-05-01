@@ -37,7 +37,7 @@ public class TestTokenParser extends ParserBase implements ParseClass, ParseMemb
             buf.append(' ');
             nextToken();
         }
-        throw error("Unexpected end of input");
+        throw exception("Unexpected end of input");
     }
     
     /* (non-Javadoc)

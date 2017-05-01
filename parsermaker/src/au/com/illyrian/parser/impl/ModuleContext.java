@@ -37,9 +37,9 @@ public class ModuleContext implements CompilerContext
         this.input = input;
     }
 
-    public void setInput(File file) throws IOException
+    public void setInput(File file, String source) throws IOException
     {
-        Input input = new LexerInputStream(file);
+        Input input = new LexerInputStream(file, source);
 
         this.input = input;
     }
@@ -49,10 +49,10 @@ public class ModuleContext implements CompilerContext
         setInput(new LexerInputStream(reader, filename));
     }
 
-    public void setInputFile(File sourceFile) throws IOException
+    public void setInputFile(File sourceFile, String sourcePath) throws IOException
     {
         Reader reader = new FileReader(sourceFile);
-        setInputReader(reader, sourceFile.getPath());
+        setInputReader(reader, sourcePath);
     }
 
     public void setInputString(String string, String sourceName) throws IOException
@@ -148,7 +148,7 @@ public class ModuleContext implements CompilerContext
         parser.setInput(getInput());
     }
 
-    public ParserException error(Input input, String message)
+    public ParserException exception(Input input, String message)
     {
         ParserException ex =  new ParserException(message);
         ex.setParserStatus(input);

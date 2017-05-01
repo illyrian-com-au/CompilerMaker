@@ -1,16 +1,14 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
-
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class BnfTreeSequence extends BnfTreeBinary <Type>
 {
     BnfTree [] seqArray;
     
-    public BnfTreeSequence(BnfTree left, BnfTree right)
-    {
+    public BnfTreeSequence(BnfTree left, BnfTree right) {
         super(left, right);
         seqArray = concat(left.toSeqArray(), right.toSeqArray());
     }

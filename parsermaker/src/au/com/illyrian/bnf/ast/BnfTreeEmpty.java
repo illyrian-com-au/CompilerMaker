@@ -1,13 +1,12 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
-
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.types.Type;
 
 public class BnfTreeEmpty extends BnfTreeBase <Type>
 {
-    public BnfTreeEmpty() {
+    public BnfTreeEmpty(int lineNumber) {
+        super(lineNumber);
     }
     
     public boolean resolveFirst(BnfFirstVisitor visitor, BnfFirstSet firstSet)

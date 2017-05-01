@@ -1,6 +1,7 @@
 package au.com.illyrian.bnf.ast;
 
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.types.Type;
 
@@ -9,7 +10,8 @@ public class BnfTreeAction extends BnfTreeBase
 {
     private final AstExpression expr;
     
-    public BnfTreeAction(AstExpression expr) {
+    public BnfTreeAction(AstExpression expr, int lineNumber) {
+        super(lineNumber);
         this.expr = expr;
     }
     

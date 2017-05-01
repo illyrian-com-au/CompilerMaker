@@ -174,16 +174,16 @@ public class ClassParser extends ModuleParser
                {
                    Object className = classname();
                    if (!className.equals(parseName))
-                       throw error("'" + parseName + "' expected at end of parser space");
+                       throw exception("'" + parseName + "' expected at end of parser space");
                }
                else
-                   throw error(":: expected");
+                   throw exception(":: expected");
            }
            else
-               throw error(":: expected");
+               throw exception(":: expected");
        }
        else
-           throw error("Parser name expected");
+           throw exception("Parser name expected");
        return result;
    }
 }

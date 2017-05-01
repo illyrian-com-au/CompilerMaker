@@ -75,7 +75,7 @@ public interface Input
      * 
      * @return the source file or null if the source file is not provided
      */
-    public String getSourceFilename();
+    public String getFilename();
     
     /**
      * The line number

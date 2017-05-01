@@ -70,7 +70,7 @@ public class ParserException extends RuntimeException
     public void setParserStatus(Input input)
     {
         this.locationString = input.toString();
-        this.sourceFilename = input.getSourceFilename();
+        this.sourceFilename = input.getFilename();
         this.lineNumber     = input.getLineNumber();
     }
 

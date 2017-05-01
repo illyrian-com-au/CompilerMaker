@@ -1,14 +1,15 @@
 package au.com.illyrian.bnf.ast;
 
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
+import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 
 public class BnfTreeLookahead extends BnfTreeBase<Type>
 {
     private final BnfTree pattern;
 
-    public BnfTreeLookahead(BnfTree<Type> pattern)
-    {
+    public BnfTreeLookahead(BnfTree<Type> pattern, int sourceLine) {
+        super(sourceLine);
         this.pattern = pattern;
     }
 
@@ -44,7 +45,7 @@ public class BnfTreeLookahead extends BnfTreeBase<Type>
 
     public BnfTreeLookahead replace(BnfTree pattern) {
         if (pattern != this.pattern) {
-            return new BnfTreeLookahead(pattern);
+            return new BnfTreeLookahead(pattern, this.getLineNumber());
         }
         return this;
     }

@@ -1,12 +1,13 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
+import au.com.illyrian.bnf.maker.BnfMakerVisitor;
+import au.com.illyrian.classmaker.SourceLine;
+import au.com.illyrian.classmaker.types.Type;
 
 public class BnfTreeList <T> extends BnfTreeBinary <T>
 {
     
-    public BnfTreeList(BnfTree left, BnfTree right)
-    {
+    public BnfTreeList(BnfTree left, BnfTree right) {
         super(left, right);
     }
 
@@ -37,6 +38,11 @@ public class BnfTreeList <T> extends BnfTreeBinary <T>
 
     public BnfTree resolveMerge(BnfMergeVisitor visitor) {
         return visitor.resolveMerge(this);
+    }
+
+    public Type resolveDeclaration(BnfMakerVisitor visitor)
+    {
+        return visitor.resolveDeclaration(this);
     }
 
     public String toString() {

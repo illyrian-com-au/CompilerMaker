@@ -5,9 +5,8 @@ import au.com.illyrian.classmaker.types.Type;
 
 public class BnfTreeNonterminal extends BnfTreeName
 {
-    public BnfTreeNonterminal(String name)
-    {
-        super(name);
+    public BnfTreeNonterminal(String name, int sourceLine) {
+        super(name, sourceLine);
     }
 
     public boolean matches(BnfTree other)

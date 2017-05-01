@@ -1,15 +1,12 @@
 package au.com.illyrian.bnf.ast;
 
-import java.util.Set;
-
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.types.Type;
 
 public class BnfTreeReserved extends BnfTreeName
 {
-    public BnfTreeReserved(String name)
-    {
-        super(name);
+    public BnfTreeReserved(String name, int sourceLine) {
+        super(name, sourceLine);
     }
 
     public boolean matches(BnfTree other)

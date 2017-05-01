@@ -9,8 +9,8 @@ public class BnfTreeMacroCall extends BnfTreeBase <Type>
     private final AstExpression name;
     private final AstExpression pattern;
     
-    public BnfTreeMacroCall(AstExpression name, AstExpression pattern)
-    {
+    public BnfTreeMacroCall(AstExpression name, AstExpression pattern, int sourceLine) {
+        super(sourceLine);
         this.name = name;
         this.pattern = pattern;
     }
