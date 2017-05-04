@@ -33,6 +33,7 @@ import au.com.illyrian.classmaker.MakerMultiClassTest.Getter;
 import au.com.illyrian.classmaker.members.MakerMethod;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.DeclaredType;
+import au.com.illyrian.classmaker.types.PrimitiveType;
 
 public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
 {
@@ -416,7 +417,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
             maker.Declare("a", int.class, 0);
         	maker.Set("a", maker.Literal(8));
         try {
-            maker.Return(ClassMaker.INT_TYPE);
+            maker.Return(PrimitiveType.INT_TYPE);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
                 assertEquals("Method run returns void so must not return a value", ex.getMessage());
@@ -426,7 +427,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
     public void testReturnValueException() throws Exception
     {
         try {
-            maker.Return(ClassMaker.INT_TYPE);
+            maker.Return(PrimitiveType.INT_TYPE);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
                 assertEquals("Return while not in a method", ex.getMessage());
@@ -442,7 +443,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
                 assertEquals("A call to Return or Throw must precede End()", ex.getMessage());
         }
         try {
-            maker.Return(ClassMaker.VOID_TYPE);
+            maker.Return(PrimitiveType.VOID_TYPE);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
                 assertEquals("Cannot return type void", ex.getMessage());

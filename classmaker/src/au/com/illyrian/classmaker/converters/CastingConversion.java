@@ -80,28 +80,28 @@ public class CastingConversion extends AssignmentConversion implements Convertab
         switch (source.index)
         {
         case PrimitiveType.DOUBLE_INDEX: // -> float, long, int, short, char, byte
-            if (ClassMaker.FLOAT_TYPE.equals(target))
+            if (PrimitiveType.FLOAT_TYPE.equals(target))
                 return true;
         case PrimitiveType.FLOAT_INDEX: // -> long, int, short, char, byte
-            if (ClassMaker.LONG_TYPE.equals(target))
+            if (PrimitiveType.LONG_TYPE.equals(target))
                 return true;
         case PrimitiveType.LONG_INDEX: // -> int, short, char, byte
-            if (ClassMaker.INT_TYPE.equals(target))
+            if (PrimitiveType.INT_TYPE.equals(target))
                 return true;
         case PrimitiveType.INT_INDEX: // -> short, char, byte
-            if (ClassMaker.SHORT_TYPE.equals(target))
+            if (PrimitiveType.SHORT_TYPE.equals(target))
                 return true;
         case PrimitiveType.SHORT_INDEX: // -> char, byte
-            if (ClassMaker.BYTE_TYPE.equals(target))
+            if (PrimitiveType.BYTE_TYPE.equals(target))
                 return true;
         case PrimitiveType.BYTE_INDEX: // -> char
-            if (ClassMaker.CHAR_TYPE.equals(target))
+            if (PrimitiveType.CHAR_TYPE.equals(target))
                 return true;
             break;
         case PrimitiveType.CHAR_INDEX: // -> short, byte
-            if (ClassMaker.SHORT_TYPE.equals(target))
+            if (PrimitiveType.SHORT_TYPE.equals(target))
                 return true;
-            if (ClassMaker.BYTE_TYPE.equals(target))
+            if (PrimitiveType.BYTE_TYPE.equals(target))
                 return true;
             break;
         }
@@ -167,7 +167,7 @@ public class CastingConversion extends AssignmentConversion implements Convertab
         // From Object to any class type.
         // From Object to any interface.
         // From Object to any array type.
-        if (ClassMaker.OBJECT_TYPE.equals(source))
+        if (ClassType.OBJECT_TYPE.equals(source))
             return true;
 
         if (ClassMaker.isArray(target))

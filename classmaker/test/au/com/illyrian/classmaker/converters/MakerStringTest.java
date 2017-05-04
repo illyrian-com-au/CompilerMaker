@@ -31,6 +31,7 @@ import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.types.ClassType;
+import au.com.illyrian.classmaker.types.PrimitiveType;
 
 public class MakerStringTest extends ClassMakerTestCase
 {
@@ -47,7 +48,7 @@ public class MakerStringTest extends ClassMakerTestCase
     // Generate default constructor
     public void defaultConstructor(ClassMaker maker) throws Exception
     {
-        maker.Method("<init>", ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("<init>", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
           maker.Init(maker.Super(), null);
         maker.Return();
@@ -69,7 +70,7 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Import("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
           maker.Return(maker.Literal("Hello World"));
         maker.End();
@@ -86,9 +87,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
         StringConversion convert = factory.getStringConversion();
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           ClassType stack = convert.newStringBuffer(maker);
           stack = convert.append(maker, stack, maker.Literal("Hello World"));
           stack = convert.toString(maker,stack);
@@ -107,9 +108,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Import("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           maker.Set("str", maker.Add(maker.Literal("Hello"), maker.Literal(" World")));
           maker.Return(maker.Get("str"));
         maker.End();
@@ -125,9 +126,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Import("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           maker.Set("str", maker.Add(maker.Literal("Weight = "),
         		                     maker.Literal(3)));
           maker.Return(maker.Get("str"));
@@ -144,9 +145,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Import("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           // str = "Weight = " + 3 + -3567;
           maker.Set("str", maker.Add(maker.Add(maker.Literal("Weight = "),
         		                     maker.Literal(3)), maker.Literal(-3567)));
@@ -167,9 +168,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Import("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           maker.Set("str", maker.Add(maker.Literal(5), maker.Literal(" grams")));
           maker.Return(maker.Get("str"));
         maker.End();
@@ -185,9 +186,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Import("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           // str = 3 + -10 + " grams";
           maker.Set("str", maker.Add(maker.Add(maker.Literal(3), maker.Literal(-10)),
         		                     maker.Literal(" grams")));
@@ -208,9 +209,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Import("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           // str = 3 + (-3567 + " grams");
           maker.Set("str", maker.Add(maker.Literal(3),
         		  maker.Add(maker.Literal(-3567), maker.Literal(" grams"))));
@@ -231,9 +232,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Import("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           maker.Set("str", maker.Add(maker.Literal("Stars = "), maker.Literal(9876543210L)));
           maker.Return(maker.Get("str"));
         maker.End();
@@ -249,9 +250,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Import("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           maker.Set("str", maker.Add(maker.Literal(5000000000L), maker.Literal(" stars")));
           maker.Return(maker.Get("str"));
         maker.End();
@@ -267,9 +268,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Import("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           maker.Set("str", maker.Add(maker.Literal("Money = "), maker.Literal(105.45)));
           maker.Return(maker.Get("str"));
         maker.End();
@@ -285,9 +286,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Import("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           maker.Set("str", maker.Add(maker.Literal(324.65), maker.Literal(" dollars")));
           maker.Return(maker.Get("str"));
         maker.End();
@@ -303,9 +304,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Import("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           maker.Set("str", maker.Add(maker.Literal("Pi = "), maker.Literal(Math.PI)));
           maker.Return(maker.Get("str"));
         maker.End();
@@ -321,9 +322,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Import("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/converters/MakerStringTest$Eval");
 
-        maker.Method("eval", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           maker.Set("str", maker.Add(maker.Literal(Math.PI), maker.Literal(" radians")));
           maker.Return(maker.Get("str"));
         maker.End();
@@ -338,10 +339,10 @@ public class MakerStringTest extends ClassMakerTestCase
     {
         maker.Implements(Unary.class);
 
-        maker.Method("unary", ClassMaker.STRING_TYPE, ClassMaker.ACC_PUBLIC);
-          maker.Declare("obj", ClassMaker.OBJECT_TYPE, 0);
+        maker.Method("unary", ClassType.STRING_TYPE, ClassMaker.ACC_PUBLIC);
+          maker.Declare("obj", ClassType.OBJECT_TYPE, 0);
         maker.Begin();
-          maker.Declare("str", ClassMaker.STRING_TYPE, 0);
+          maker.Declare("str", ClassType.STRING_TYPE, 0);
           maker.Set("str", maker.Add(maker.Literal("Object = "), maker.Get("obj")));
           maker.Return(maker.Get("str"));
         maker.End();

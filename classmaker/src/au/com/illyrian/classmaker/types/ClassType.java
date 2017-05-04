@@ -38,6 +38,26 @@ import au.com.illyrian.classmaker.members.MakerMethod;
  * and the interfaces that the class implements.
  */
 public class ClassType extends Type {
+    /** Reference to <code>null</code> type */
+    public static final ClassType NULL_TYPE = new ClassType("null", (ClassType)null);
+    /** Reference to <code>Object</code> type */
+    public static final ClassType OBJECT_TYPE = new ClassType(Object.class);
+    /** Reference to a special automatically created StringBuffer.
+     *  An automatically created StringBuffer results from concatenating
+     *  a String with any value or object.
+     */
+    public static final ClassType AUTO_STRING_TYPE = new ClassType(StringBuffer.class);
+    /** Reference to <code>String</code> type */
+    public static final ClassType STRING_TYPE = new ClassType(String.class);
+    /** Reference to <code>StringBuffer</code> type */
+    public static final ClassType STRING_BUFFER_TYPE = new ClassType(StringBuffer.class);
+    /** Reference to <code>Cloneable</code> type */
+    public static final ClassType CLONEABLE_TYPE = new ClassType(Cloneable.class);
+    /** Reference to <code>Throwable</code> type */
+    public static final ClassType THROWABLE_TYPE = new ClassType(Throwable.class);
+    /** Reference to <code>Class</code> type */
+    public static final ClassType CLASS_TYPE = new ClassType(Class.class);
+
     private DeclaredType    extendsDeclaredType = null;
     private ClassType       extendsType = null;
     private String          packageName = null;
@@ -50,7 +70,7 @@ public class ClassType extends Type {
 
     public ClassType(Class javaClass)
     {
-        this(ClassMaker.classToName(javaClass), ClassMaker.OBJECT_TYPE);
+        this(ClassMaker.classToName(javaClass), OBJECT_TYPE);
         setJavaClass(javaClass);
         setModifiers(javaClass.getModifiers());
     }

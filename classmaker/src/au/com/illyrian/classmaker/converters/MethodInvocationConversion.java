@@ -82,11 +82,11 @@ public class MethodInvocationConversion implements Convertable
         switch (source.index)
         {
         case PrimitiveType.BYTE_INDEX: // byte can be promoted to short or int
-            if (ClassMaker.SHORT_TYPE.equals(target))
+            if (PrimitiveType.SHORT_TYPE.equals(target))
                 return true;
         case PrimitiveType.SHORT_INDEX: // short can be promoted to int
         case PrimitiveType.CHAR_INDEX:  // char can be promoted to int
-            if (ClassMaker.INT_TYPE.equals(target))
+            if (PrimitiveType.INT_TYPE.equals(target))
                 return true;
         }
         return false;
@@ -117,11 +117,11 @@ public class MethodInvocationConversion implements Convertable
         // From any class type to class type Object.
         // From any interface type to type Object.
         // From any array type to type Object.
-        if (ClassMaker.OBJECT_TYPE.equals(target))
+        if (ClassType.OBJECT_TYPE.equals(target))
             return true;
 
         // From the null type to any class type, interface type, or array type.
-        if (ClassMaker.NULL_TYPE.equals(source))
+        if (ClassType.NULL_TYPE.equals(source))
             return true;
 
         // From any array type SC[] to any array type TC[], provided that SC and TC are
@@ -232,11 +232,11 @@ public class MethodInvocationConversion implements Convertable
     protected boolean isWideningArrayConvertable(ArrayType source, ClassType target)
     {
         // From any array type to type Object
-        if (ClassMaker.OBJECT_TYPE.equals(target))
+        if (ClassType.OBJECT_TYPE.equals(target))
             return true;
 
         // From any array type to type Cloneable
-        if (ClassMaker.CLONEABLE_TYPE.equals(target))
+        if (ClassType.CLONEABLE_TYPE.equals(target))
             return true;
 
         // From any array type SC[] to any array type TC[], provided that SC and TC are

@@ -34,6 +34,7 @@ import org.mozilla.classfile.ByteCode;
 import au.com.illyrian.classmaker.test.TestFieldAccess;
 import au.com.illyrian.classmaker.test.TestableImpl;
 import au.com.illyrian.classmaker.types.ClassType;
+import au.com.illyrian.classmaker.types.PrimitiveType;
 
 public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
 {
@@ -48,7 +49,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
     // Generate default constructor
     public void defaultConstructor(ClassMaker maker)
     {
-        maker.Method("<init>", ClassMaker.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("<init>", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
           maker.Init(maker.Super(), null);
         maker.Return();
@@ -58,7 +59,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
     private void failSetObjectAccess(ClassMaker maker, ClassType classType, String fieldName, String message)
     {
         try {
-            maker.Set(classType, fieldName, ClassMaker.INT_TYPE);
+            maker.Set(classType, fieldName, PrimitiveType.INT_TYPE);
             fail("Expected ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals(message, ex.getMessage());
@@ -223,7 +224,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
         ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
         ClassType classType = maker.classToClassType(TestFieldAccess.class);
         maker.Implements(Testable.class);
-        maker.Method("exec", ClassMaker.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("exec", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
         maker.Declare("test", TestFieldAccess.class, 0);
         maker.Begin();
         {
@@ -302,7 +303,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
 
         defaultConstructor(maker);
 
-        maker.Method("run", ClassMaker.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             maker.Declare("i", int.class, 0);
@@ -428,7 +429,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
 
         defaultConstructor(maker);
 
-        maker.Method("run", ClassMaker.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             maker.Declare("i", int.class, 0);
@@ -579,7 +580,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
 
         maker.Declare("testOther", otherClass, ACC_PUBLIC);
 
-        maker.Method("run", ClassMaker.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             maker.Declare("test", otherType, ACC_PUBLIC);
@@ -668,7 +669,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
         maker.Return(maker.Get(maker.This(), "privateInt"));
         maker.End();
 
-        maker.Method("run", ClassMaker.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Instance fields
@@ -749,7 +750,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
     private void failSetStaticAccess(ClassMaker maker, String className, String fieldName, String message)
     {
         try {
-            maker.Set(className, fieldName, ClassMaker.INT_TYPE);
+            maker.Set(className, fieldName, PrimitiveType.INT_TYPE);
             fail("Expected ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals(message, ex.getMessage());
@@ -821,7 +822,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
         String className = TestFieldAccess.class.getName();
         ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
         maker.Implements(Runnable.class);
-        maker.Method("run", ClassMaker.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Static fields
@@ -899,7 +900,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
 
         maker.Declare("test", otherClass, ACC_PUBLIC);
 
-        maker.Method("run", ClassMaker.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Static fields
@@ -984,7 +985,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
 
         maker.Declare("test", otherClass, ACC_PUBLIC);
 
-        maker.Method("run", ClassMaker.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Static fields of base class
@@ -1059,7 +1060,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
 
         maker.Declare("test", otherClass, ACC_PUBLIC);
 
-        maker.Method("run", ClassMaker.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Static fields
@@ -1165,7 +1166,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
 
         maker.Declare("testBase", otherClass, ACC_PUBLIC);
 
-        maker.Method("run", ClassMaker.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Access fields in other object
@@ -1243,7 +1244,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
     	ClassMaker maker = factory.createClassMaker();
     	maker.setFullyQualifiedClassName("MyClass");
     	
-        maker.Declare("test", ClassMaker.INT_TYPE, 0);
+        maker.Declare("test", PrimitiveType.INT_TYPE, 0);
         try {
         	maker.Declare("test", char.class, 0);
             fail("Should throw ClassMakerException");
@@ -1252,7 +1253,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
         }
 
     	maker.Method("unary", void.class, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.INT_TYPE, 0);
+        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
         maker.Begin();
         try {
         	maker.Declare("a", int.class, 0);
@@ -1260,7 +1261,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Duplicate local variable or parameter declaration: a", ex.getMessage());
         }
-        maker.Declare("b", ClassMaker.INT_TYPE, 0);
+        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
         try {
         	maker.Declare("b", char.class, 0);
             fail("Should throw ClassMakerException");

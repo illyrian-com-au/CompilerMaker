@@ -42,6 +42,8 @@ public class Type
 
     /** The java Class which this type is based upon */
     private Class javaClass = null;
+    
+    private Value value;
 
     /**
      * Base constructor for all ClassMaker types.
@@ -52,6 +54,12 @@ public class Type
     {
         this.name = name;
         this.signature = signature;
+        
+        this.value = new Value(this);
+    }
+
+    public Value getValue() {
+        return value;
     }
     
     public Type getType()

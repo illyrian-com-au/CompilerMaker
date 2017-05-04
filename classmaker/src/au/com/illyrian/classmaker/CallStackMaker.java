@@ -2,6 +2,7 @@ package au.com.illyrian.classmaker;
 
 import java.util.Vector;
 
+import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.Type;
 
 /**
@@ -34,7 +35,7 @@ public class CallStackMaker implements CallStack
     public CallStack Push(Type type) throws ClassMakerException
     {
         // Convert automatically created StringBuffers back to Strings as they are pushed onto the stack.
-        if (type == ClassMaker.AUTO_STRING_TYPE)
+        if (type == ClassType.AUTO_STRING_TYPE)
             type = this.classMaker.getFactory().getStringConversion().toString(this.classMaker, type.toClass());
         stack.add(type);
         return this;

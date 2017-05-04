@@ -29,6 +29,7 @@ package au.com.illyrian.classmaker;
 
 import org.mozilla.classfile.ByteCode;
 
+import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 
@@ -1371,11 +1372,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
 
     public void testMathException() throws Exception
     {
-        maker.Method("other", ClassMaker.INT_TYPE, ACC_PUBLIC);
+        maker.Method("other", PrimitiveType.INT_TYPE, ACC_PUBLIC);
         maker.Begin();
-        maker.Declare("x", ClassMaker.INT_TYPE, 0);
-        maker.Declare("a", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("o", ClassMaker.OBJECT_TYPE, 0);
+        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Declare("a", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("o", ClassType.OBJECT_TYPE, 0);
         //# Add
         try {
             maker.Add(maker.Get("a"), maker.Get("x"));
@@ -2217,12 +2218,12 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
     public void testBitwiseException() throws Exception
     {
         // MemberField
-        maker.Method("eval", ClassMaker.INT_TYPE, ACC_PUBLIC);
+        maker.Method("eval", PrimitiveType.INT_TYPE, ACC_PUBLIC);
         maker.Begin();
-        maker.Declare("b", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("i", ClassMaker.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
-        maker.Declare("l", ClassMaker.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("o", ClassMaker.OBJECT_TYPE, ACC_PUBLIC);
+        maker.Declare("b", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("i", PrimitiveType.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("l", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("o", ClassType.OBJECT_TYPE, ACC_PUBLIC);
         try {
             maker.Return(maker.Or(maker.Get("b"), maker.Get("b")));
             fail("Should throw ClassMakerException");
@@ -2831,12 +2832,12 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
     public void testShiftException() throws Exception
     {
         // MemberField
-        maker.Method("eval", ClassMaker.INT_TYPE, ACC_PUBLIC);
+        maker.Method("eval", PrimitiveType.INT_TYPE, ACC_PUBLIC);
         maker.Begin();
-        maker.Declare("b", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("i", ClassMaker.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
-        maker.Declare("l", ClassMaker.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("o", ClassMaker.OBJECT_TYPE, ACC_PUBLIC);
+        maker.Declare("b", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("i", PrimitiveType.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("l", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("o", ClassType.OBJECT_TYPE, ACC_PUBLIC);
         try {
             maker.Return(maker.USHR(maker.Get("b"), maker.Get("i")));
             fail("Should throw ClassMakerException");
@@ -3031,13 +3032,13 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
     public void testIncException() throws Exception
     {
         // MemberField
-        maker.Declare("b", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("c", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("b", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("c", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("other", ClassMaker.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", ClassMaker.INT_TYPE, 0);
+        maker.Method("other", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
         maker.Begin();
-        maker.Declare("a", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
         try {
             maker.Inc("a");
             fail("Should throw ClassMakerException");
@@ -3074,13 +3075,13 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
     public void testDecException() throws Exception
     {
         // MemberField
-        maker.Declare("b", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("c", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("b", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("c", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("other", ClassMaker.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", ClassMaker.INT_TYPE, 0);
+        maker.Method("other", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
         maker.Begin();
-        maker.Declare("a", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
         try {
             maker.Dec("a");
             fail("Should throw ClassMakerException");
@@ -3117,13 +3118,13 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
     public void testPostIncException() throws Exception
     {
         // MemberField
-        maker.Declare("b", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("c", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("b", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("c", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("other", ClassMaker.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", ClassMaker.INT_TYPE, 0);
+        maker.Method("other", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
         maker.Begin();
-        maker.Declare("a", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
         try {
             maker.PostInc("a");
             fail("Should throw ClassMakerException");
@@ -3159,13 +3160,13 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
     public void testPostDecException() throws Exception
     {
         // MemberField
-        maker.Declare("b", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("c", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("b", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("c", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("other", ClassMaker.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", ClassMaker.INT_TYPE, 0);
+        maker.Method("other", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
         maker.Begin();
-        maker.Declare("a", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
         try {
             maker.PostDec("a");
             fail("Should throw ClassMakerException");

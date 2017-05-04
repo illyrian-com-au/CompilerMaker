@@ -31,6 +31,7 @@ import java.io.File;
 
 import junit.framework.TestCase;
 import au.com.illyrian.classmaker.types.ClassType;
+import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 
 public class ClassMakerTest extends TestCase
@@ -48,7 +49,7 @@ public class ClassMakerTest extends TestCase
     {
         // Generate Class
         maker.Import(System.class);
-        maker.Declare("id", ClassMaker.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
 
         // Generate constructor
         {
@@ -337,8 +338,8 @@ public class ClassMakerTest extends TestCase
 
     public void testAccessDenied()
     {
-        ClassType string = ClassMaker.STRING_TYPE;
-        ClassType throwable = ClassMaker.THROWABLE_TYPE;
+        ClassType string = ClassType.STRING_TYPE;
+        ClassType throwable = ClassType.THROWABLE_TYPE;
         ClassType extendsThrow = factory.addClassType(ExtendsThrowable.class);
 
         assertFalse("Same class: public",    maker.isAccessDenied(string, string, ClassMaker.ACC_PUBLIC));

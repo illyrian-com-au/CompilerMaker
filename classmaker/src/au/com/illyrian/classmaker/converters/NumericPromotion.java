@@ -29,6 +29,7 @@ package au.com.illyrian.classmaker.converters;
 
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerFactory;
+import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 
 /**
@@ -69,7 +70,7 @@ public class NumericPromotion extends AssignmentConversion implements Convertabl
     public boolean isConvertable(Type op)
     {
         return (ClassMaker.isPrimitive(op)
-             && isWideningIntegerConvertable(op.toPrimitive(), ClassMaker.INT_TYPE));
+             && isWideningIntegerConvertable(op.toPrimitive(), PrimitiveType.INT_TYPE));
     }
 
     /**
@@ -85,8 +86,8 @@ public class NumericPromotion extends AssignmentConversion implements Convertabl
         if (ClassMaker.isPrimitive(op))
         {
             // Assume a conversion from byte, short or char -> int.
-            if (isWideningIntegerConvertable(op.toPrimitive(), ClassMaker.INT_TYPE))
-                return ClassMaker.INT_TYPE;
+            if (isWideningIntegerConvertable(op.toPrimitive(), PrimitiveType.INT_TYPE))
+                return PrimitiveType.INT_TYPE;
         }
         throw new IllegalArgumentException("Cannot convert " + op.getName());
     }
@@ -108,10 +109,10 @@ public class NumericPromotion extends AssignmentConversion implements Convertabl
     {
         if (ClassMaker.isPrimitive(left) && ClassMaker.isPrimitive(right))
         {
-            if (isWideningIntegerConvertable(left.toPrimitive(), ClassMaker.INT_TYPE))
-                left = ClassMaker.INT_TYPE;
-            if (isWideningIntegerConvertable(right.toPrimitive(), ClassMaker.INT_TYPE))
-                right = ClassMaker.INT_TYPE;
+            if (isWideningIntegerConvertable(left.toPrimitive(), PrimitiveType.INT_TYPE))
+                left = PrimitiveType.INT_TYPE;
+            if (isWideningIntegerConvertable(right.toPrimitive(), PrimitiveType.INT_TYPE))
+                right = PrimitiveType.INT_TYPE;
             if (left.equals(right))
                 return true;
             if (isWideningPrimitiveConvertable(left.toPrimitive(), right.toPrimitive()))
@@ -137,10 +138,10 @@ public class NumericPromotion extends AssignmentConversion implements Convertabl
         if (ClassMaker.isPrimitive(left) && ClassMaker.isPrimitive(right))
         {
             // Assume a conversion from byte, short or char -> int.
-            if (isWideningIntegerConvertable(left.toPrimitive(), ClassMaker.INT_TYPE))
-                left = ClassMaker.INT_TYPE;
-            if (isWideningIntegerConvertable(right.toPrimitive(), ClassMaker.INT_TYPE))
-                right = ClassMaker.INT_TYPE;
+            if (isWideningIntegerConvertable(left.toPrimitive(), PrimitiveType.INT_TYPE))
+                left = PrimitiveType.INT_TYPE;
+            if (isWideningIntegerConvertable(right.toPrimitive(), PrimitiveType.INT_TYPE))
+                right = PrimitiveType.INT_TYPE;
 
             // Identity conversion
             if (left.equals(right))

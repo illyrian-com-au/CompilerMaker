@@ -244,29 +244,29 @@ public class ClassMakerFactory
     /** Adds all the standard PrimitiveTypes */
     protected void addPrimitives()
     {
-        addTypeAndDeclaredType(ClassMaker.VOID_TYPE);
-        addTypeAndDeclaredType(ClassMaker.BYTE_TYPE);
-        addTypeAndDeclaredType(ClassMaker.CHAR_TYPE);
-        addTypeAndDeclaredType(ClassMaker.DOUBLE_TYPE);
-        addTypeAndDeclaredType(ClassMaker.FLOAT_TYPE);
-        addTypeAndDeclaredType(ClassMaker.INT_TYPE);
-        addTypeAndDeclaredType(ClassMaker.LONG_TYPE);
-        addTypeAndDeclaredType(ClassMaker.SHORT_TYPE);
-        addTypeAndDeclaredType(ClassMaker.BOOLEAN_TYPE);
+        addTypeAndDeclaredType(PrimitiveType.VOID_TYPE);
+        addTypeAndDeclaredType(PrimitiveType.BYTE_TYPE);
+        addTypeAndDeclaredType(PrimitiveType.CHAR_TYPE);
+        addTypeAndDeclaredType(PrimitiveType.DOUBLE_TYPE);
+        addTypeAndDeclaredType(PrimitiveType.FLOAT_TYPE);
+        addTypeAndDeclaredType(PrimitiveType.INT_TYPE);
+        addTypeAndDeclaredType(PrimitiveType.LONG_TYPE);
+        addTypeAndDeclaredType(PrimitiveType.SHORT_TYPE);
+        addTypeAndDeclaredType(PrimitiveType.BOOLEAN_TYPE);
     }
 
     /** Adds important Types representing standard java classes */
     protected void addStandardClasses()
     {
         // Prime the first objects in classTypeToString
-        addTypeAndDeclaredType(ClassMaker.NULL_TYPE);
-        addTypeAndDeclaredType(ClassMaker.OBJECT_TYPE);
-        addTypeAndDeclaredType(ClassMaker.STRING_TYPE);
-        addTypeAndDeclaredType(ClassMaker.AUTO_STRING_TYPE);
-        addTypeAndDeclaredType(ClassMaker.STRING_BUFFER_TYPE);
-        addTypeAndDeclaredType(ClassMaker.CLONEABLE_TYPE);
-        addTypeAndDeclaredType(ClassMaker.THROWABLE_TYPE);
-        addTypeAndDeclaredType(ClassMaker.CLASS_TYPE);
+        addTypeAndDeclaredType(ClassType.NULL_TYPE);
+        addTypeAndDeclaredType(ClassType.OBJECT_TYPE);
+        addTypeAndDeclaredType(ClassType.STRING_TYPE);
+        addTypeAndDeclaredType(ClassType.AUTO_STRING_TYPE);
+        addTypeAndDeclaredType(ClassType.STRING_BUFFER_TYPE);
+        addTypeAndDeclaredType(ClassType.CLONEABLE_TYPE);
+        addTypeAndDeclaredType(ClassType.THROWABLE_TYPE);
+        addTypeAndDeclaredType(ClassType.CLASS_TYPE);
     }
 
     /**
@@ -687,7 +687,7 @@ public class ClassMakerFactory
     protected MakerMethod toMethod(ClassType classType, java.lang.reflect.Constructor javaMethod)
     {
         short modifiers = (short)javaMethod.getModifiers();
-        DeclaredType declaredVoid = typeToDeclaredType(ClassMaker.VOID_TYPE);
+        DeclaredType declaredVoid = typeToDeclaredType(PrimitiveType.VOID_TYPE);
         MakerMethod method = new MakerMethod(classType, ClassMaker.INIT, declaredVoid, modifiers);
         Class[] params = javaMethod.getParameterTypes();
         DeclaredType [] formalParams = new DeclaredType[params.length];

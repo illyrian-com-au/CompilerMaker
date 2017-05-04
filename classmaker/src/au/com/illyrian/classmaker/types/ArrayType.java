@@ -48,7 +48,7 @@ public class ArrayType extends ClassType
 
     public ArrayType(String name, String signature, Type arrayOfType)
     {
-        super(name, signature, ClassMaker.OBJECT_TYPE);
+        super(name, signature, ClassType.OBJECT_TYPE);
         this.arrayOfType = arrayOfType;
     }
 

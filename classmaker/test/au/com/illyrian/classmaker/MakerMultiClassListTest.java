@@ -2,6 +2,8 @@ package au.com.illyrian.classmaker;
 
 import org.mozilla.classfile.ByteCode;
 
+import au.com.illyrian.classmaker.types.PrimitiveType;
+
 public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteCode
 {
     public interface Value {
@@ -108,7 +110,7 @@ public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteC
         
         maker.Declare("stack", entryName, 0);
         
-        maker.Method(ClassMaker.INIT, ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method(ClassMaker.INIT, PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
         {
             maker.Init(maker.Super(), null);
@@ -194,7 +196,7 @@ public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteC
         maker.Declare("key", int.class, 0);
         maker.Declare("next", entryName, 0);
 
-        maker.Method(ClassMaker.INIT, ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method(ClassMaker.INIT, PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Declare("key", int.class, 0);
         maker.Declare("next", entryName, 0);
         maker.Begin();

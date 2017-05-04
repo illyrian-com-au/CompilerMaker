@@ -32,6 +32,7 @@ import au.com.illyrian.classmaker.ClassMakerBase;
 import au.com.illyrian.classmaker.ClassMakerException;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
+import au.com.illyrian.classmaker.types.PrimitiveType;
 
 public class MakerAssignmentTest extends ClassMakerTestCase
 {
@@ -49,27 +50,27 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("intField", INT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("longField", LONG_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("floatField", FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("shortField", SHORT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("byteField", BYTE_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("charField", CHAR_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("intLocal", INT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("longLocal", LONG_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("floatLocal", FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("doubleLocal", DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("intStatic", INT_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
-                Declare("longStatic", LONG_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
-                Declare("floatStatic", FLOAT_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
-                Declare("doubleStatic", DOUBLE_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
-                Declare("intArray", ArrayOf(INT_TYPE), ClassMaker.ACC_PUBLIC);
-                Declare("longArray", ArrayOf(LONG_TYPE), ClassMaker.ACC_PUBLIC);
-                Declare("floatArray", ArrayOf(FLOAT_TYPE), ClassMaker.ACC_PUBLIC);
-                Declare("doubleArray", ArrayOf(DOUBLE_TYPE), ClassMaker.ACC_PUBLIC);
+                Declare("intField", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("longField", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("shortField", PrimitiveType.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("byteField", PrimitiveType.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("charField", PrimitiveType.CHAR_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("intLocal", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("longLocal", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("floatLocal", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("doubleLocal", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("intStatic", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
+                Declare("longStatic", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
+                Declare("floatStatic", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
+                Declare("doubleStatic", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
+                Declare("intArray", ArrayOf(PrimitiveType.INT_TYPE), ClassMaker.ACC_PUBLIC);
+                Declare("longArray", ArrayOf(PrimitiveType.LONG_TYPE), ClassMaker.ACC_PUBLIC);
+                Declare("floatArray", ArrayOf(PrimitiveType.FLOAT_TYPE), ClassMaker.ACC_PUBLIC);
+                Declare("doubleArray", ArrayOf(PrimitiveType.DOUBLE_TYPE), ClassMaker.ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ClassMaker.ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
                 Begin();
                 Set(This(), "intField", Literal(8));
                 Set(This(), "longField", Literal(8));
@@ -80,10 +81,10 @@ public class MakerAssignmentTest extends ClassMakerTestCase
                 Set(This(), "byteField", Literal(8));
                 Set(This(), "charField", Literal('z'));
                 // local variables
-                Declare("intValue", INT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("longValue", LONG_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("floatValue", FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("doubleValue", DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("intValue", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("longValue", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("floatValue", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("doubleValue", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
                 Set("intValue", Literal(8));
                 Set("longValue", Literal(8));
                 Set("floatValue", Literal(8));
@@ -99,13 +100,13 @@ public class MakerAssignmentTest extends ClassMakerTestCase
                 Set(getFullyQualifiedClassName(), "floatStatic", Literal(8));
                 Set(getFullyQualifiedClassName(), "doubleStatic", Literal(8));
                 // Array variables
-                Set(This(), "intArray", NewArray(ArrayOf(INT_TYPE), Literal(1)));
+                Set(This(), "intArray", NewArray(ArrayOf(PrimitiveType.INT_TYPE), Literal(1)));
                 SetAt(Get(This(), "intArray"), Literal(0), Literal(8));
-                Set(This(), "longArray", NewArray(ArrayOf(LONG_TYPE), Literal(1)));
+                Set(This(), "longArray", NewArray(ArrayOf(PrimitiveType.LONG_TYPE), Literal(1)));
                 SetAt(Get(This(), "longArray"), Literal(0), Literal(8));
-                Set(This(), "floatArray", NewArray(ArrayOf(FLOAT_TYPE), Literal(1)));
+                Set(This(), "floatArray", NewArray(ArrayOf(PrimitiveType.FLOAT_TYPE), Literal(1)));
                 SetAt(Get(This(), "floatArray"), Literal(0), Literal(8));
-                Set(This(), "doubleArray", NewArray(ArrayOf(DOUBLE_TYPE), Literal(1)));
+                Set(This(), "doubleArray", NewArray(ArrayOf(PrimitiveType.DOUBLE_TYPE), Literal(1)));
                 SetAt(Get(This(), "doubleArray"), Literal(0), Literal(8));
                 Return();
                 End();
@@ -152,27 +153,27 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("intField", INT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("longField", LONG_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("floatField", FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("shortField", SHORT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("byteField", BYTE_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("charField", CHAR_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("intLocal", INT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("longLocal", LONG_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("floatLocal", FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("doubleLocal", DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("intStatic", INT_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
-                Declare("longStatic", LONG_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
-                Declare("floatStatic", FLOAT_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
-                Declare("doubleStatic", DOUBLE_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
-                Declare("intArray", ArrayOf(INT_TYPE), ClassMaker.ACC_PUBLIC);
-                Declare("longArray", ArrayOf(LONG_TYPE), ClassMaker.ACC_PUBLIC);
-                Declare("floatArray", ArrayOf(FLOAT_TYPE), ClassMaker.ACC_PUBLIC);
-                Declare("doubleArray", ArrayOf(DOUBLE_TYPE), ClassMaker.ACC_PUBLIC);
+                Declare("intField", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("longField", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("shortField", PrimitiveType.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("byteField", PrimitiveType.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("charField", PrimitiveType.CHAR_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("intLocal", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("longLocal", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("floatLocal", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("doubleLocal", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("intStatic", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
+                Declare("longStatic", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
+                Declare("floatStatic", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
+                Declare("doubleStatic", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
+                Declare("intArray", ArrayOf(PrimitiveType.INT_TYPE), ClassMaker.ACC_PUBLIC);
+                Declare("longArray", ArrayOf(PrimitiveType.LONG_TYPE), ClassMaker.ACC_PUBLIC);
+                Declare("floatArray", ArrayOf(PrimitiveType.FLOAT_TYPE), ClassMaker.ACC_PUBLIC);
+                Declare("doubleArray", ArrayOf(PrimitiveType.DOUBLE_TYPE), ClassMaker.ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ClassMaker.ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
                 Begin();
                 Assign(This(), "intField", Literal(8));
                 Assign(This(), "longField", Literal(8));
@@ -183,10 +184,10 @@ public class MakerAssignmentTest extends ClassMakerTestCase
                 Assign(This(), "byteField", Literal(8));
                 Assign(This(), "charField", Literal('z'));
                 // local variables
-                Declare("intValue", INT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("longValue", LONG_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("floatValue", FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("doubleValue", DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("intValue", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("longValue", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("floatValue", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("doubleValue", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
                 Assign("intValue", Literal(8));
                 Assign("longValue", Literal(8));
                 Assign("floatValue", Literal(8));
@@ -202,13 +203,13 @@ public class MakerAssignmentTest extends ClassMakerTestCase
                 Assign(getFullyQualifiedClassName(), "floatStatic", Literal(8));
                 Assign(getFullyQualifiedClassName(), "doubleStatic", Literal(8));
                 // Array variables
-                Assign(This(), "intArray", NewArray(ArrayOf(INT_TYPE), Literal(1)));
+                Assign(This(), "intArray", NewArray(ArrayOf(PrimitiveType.INT_TYPE), Literal(1)));
                 AssignAt(Get(This(), "intArray"), Literal(0), Literal(8));
-                Assign(This(), "longArray", NewArray(ArrayOf(LONG_TYPE), Literal(1)));
+                Assign(This(), "longArray", NewArray(ArrayOf(PrimitiveType.LONG_TYPE), Literal(1)));
                 AssignAt(Get(This(), "longArray"), Literal(0), Literal(8));
-                Assign(This(), "floatArray", NewArray(ArrayOf(FLOAT_TYPE), Literal(1)));
+                Assign(This(), "floatArray", NewArray(ArrayOf(PrimitiveType.FLOAT_TYPE), Literal(1)));
                 AssignAt(Get(This(), "floatArray"), Literal(0), Literal(8));
-                Assign(This(), "doubleArray", NewArray(ArrayOf(DOUBLE_TYPE), Literal(1)));
+                Assign(This(), "doubleArray", NewArray(ArrayOf(PrimitiveType.DOUBLE_TYPE), Literal(1)));
                 AssignAt(Get(This(), "doubleArray"), Literal(0), Literal(8));
                 Return();
                 End();
@@ -252,9 +253,9 @@ public class MakerAssignmentTest extends ClassMakerTestCase
     {
         ClassMaker maker = factory.createClassMaker("test", "MyClass", null);
 
-        maker.Method("binary", ClassMaker.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-        maker.Declare("a", ClassMaker.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
         try {
             maker.Set("a", maker.Literal((long) 8));
             fail("Should throw ClassMakerException");
@@ -282,15 +283,15 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("intField", INT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("longField", LONG_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("floatField", FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("shortField", SHORT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("byteField", BYTE_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("charField", CHAR_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("intField", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("longField", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("shortField", PrimitiveType.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("byteField", PrimitiveType.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("charField", PrimitiveType.CHAR_TYPE, ClassMaker.ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ClassMaker.ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
                 Begin();
                 Set(This(), "intField", Literal((byte) 8));
                 Set(This(), "longField", Literal((byte) 8));
@@ -323,15 +324,15 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("intField", INT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("longField", LONG_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("floatField", FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("shortField", SHORT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("byteField", BYTE_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("charField", CHAR_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("intField", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("longField", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("shortField", PrimitiveType.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("byteField", PrimitiveType.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("charField", PrimitiveType.CHAR_TYPE, ClassMaker.ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ClassMaker.ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
                 Begin();
                 Set(This(), "intField", Literal((short) 308));
                 Set(This(), "longField", Literal((short) 308));
@@ -357,9 +358,9 @@ public class MakerAssignmentTest extends ClassMakerTestCase
     public void testShortException() throws Exception
     {
         ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
-        maker.Declare("byteField", ClassMaker.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("byteField", PrimitiveType.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
 
-        maker.Method("run", ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
         try
         {
@@ -384,7 +385,7 @@ public class MakerAssignmentTest extends ClassMakerTestCase
                 Declare("floatField", float.class, ClassMaker.ACC_PUBLIC);
                 Declare("doubleField", double.class, ClassMaker.ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ClassMaker.ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
                 Begin();
                 Set(This(), "charField", Literal('z'));
                 Set(This(), "intField", Literal('z'));
@@ -410,15 +411,15 @@ public class MakerAssignmentTest extends ClassMakerTestCase
     public void testCharException() throws Exception
     {
         ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
-        maker.Declare("byteField", ClassMaker.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("shortField", ClassMaker.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("charField", ClassMaker.CHAR_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("intField", ClassMaker.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("longField", ClassMaker.LONG_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("floatField", ClassMaker.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("doubleField", ClassMaker.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("byteField", PrimitiveType.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("shortField", PrimitiveType.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("charField", PrimitiveType.CHAR_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("intField", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("longField", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("floatField", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
 
-        maker.Method("run", ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
         try
         {
@@ -445,11 +446,11 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("longField", LONG_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("floatField", FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("longField", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ClassMaker.ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
                 Begin();
                 Set(This(), "longField", Literal(987654321L));
                 Set(This(), "floatField", Literal(987654321L));
@@ -471,12 +472,12 @@ public class MakerAssignmentTest extends ClassMakerTestCase
     public void testLongException() throws Exception
     {
         ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
-        maker.Declare("byteField", ClassMaker.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("intField", ClassMaker.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("shortField", ClassMaker.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("charField", ClassMaker.CHAR_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("byteField", PrimitiveType.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("intField", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("shortField", PrimitiveType.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("charField", PrimitiveType.CHAR_TYPE, ClassMaker.ACC_PUBLIC);
 
-        maker.Method("run", ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
         try
         {
@@ -519,10 +520,10 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("floatField", FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ClassMaker.ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
                 Begin();
                 Set(This(), "floatField", Literal(98765.43210000F));
                 Set(This(), "doubleField", Literal(98765.43210000F));
@@ -542,13 +543,13 @@ public class MakerAssignmentTest extends ClassMakerTestCase
     public void testFloatException() throws Exception
     {
         ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
-        maker.Declare("byteField", ClassMaker.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("intField", ClassMaker.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("shortField", ClassMaker.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("charField", ClassMaker.CHAR_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("longField", ClassMaker.LONG_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("byteField", PrimitiveType.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("intField", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("shortField", PrimitiveType.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("charField", PrimitiveType.CHAR_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("longField", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC);
 
-        maker.Method("run", ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
         try
         {
@@ -599,9 +600,9 @@ public class MakerAssignmentTest extends ClassMakerTestCase
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("doubleField", DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ClassMaker.ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ClassMaker.ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
                 Begin();
                 Set(This(), "doubleField", Literal(98765.43210123D));
                 Return();
@@ -619,14 +620,14 @@ public class MakerAssignmentTest extends ClassMakerTestCase
     public void testDoubleException() throws Exception
     {
         ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
-        maker.Declare("byteField", ClassMaker.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("intField", ClassMaker.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("shortField", ClassMaker.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("charField", ClassMaker.CHAR_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("longField", ClassMaker.LONG_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("floatField", ClassMaker.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("byteField", PrimitiveType.BYTE_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("intField", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("shortField", PrimitiveType.SHORT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("charField", PrimitiveType.CHAR_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("longField", PrimitiveType.LONG_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("floatField", PrimitiveType.FLOAT_TYPE, ClassMaker.ACC_PUBLIC);
 
-        maker.Method("run", ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("run", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
         try
         {

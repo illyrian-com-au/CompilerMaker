@@ -32,13 +32,14 @@ import org.mozilla.classfile.ByteCode;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerBase;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
+import au.com.illyrian.classmaker.types.PrimitiveType;
 
 public class MakerNumericPromotionTest extends ClassMakerTestCase implements ByteCode
 {
     // Generate default constructor
     public void defaultConstructor(ClassMaker maker)
     {
-        maker.Method("<init>", ClassMaker.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("<init>", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
           maker.Init(maker.Super(), null);
         maker.Return();
@@ -52,14 +53,14 @@ public class MakerNumericPromotionTest extends ClassMakerTestCase implements Byt
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("byteField", BYTE_TYPE, ACC_PUBLIC);
-                Declare("shortField", SHORT_TYPE, ACC_PUBLIC);
-                Declare("intField", INT_TYPE, ACC_PUBLIC);
-                Declare("longField", LONG_TYPE, ACC_PUBLIC);
-                Declare("floatField", FLOAT_TYPE, ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ACC_PUBLIC);
+                Declare("byteField", PrimitiveType.BYTE_TYPE, ACC_PUBLIC);
+                Declare("shortField", PrimitiveType.SHORT_TYPE, ACC_PUBLIC);
+                Declare("intField", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+                Declare("longField", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
                 Begin();
                     Set(This(), "byteField", Cast(Add(Literal((byte)50), Literal((byte)100)), byte.class));
                     Set(This(), "shortField", Cast(Add(Literal((byte)50), Literal((short)100)), short.class));
@@ -91,14 +92,14 @@ public class MakerNumericPromotionTest extends ClassMakerTestCase implements Byt
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("byteField", BYTE_TYPE, ACC_PUBLIC);
-                Declare("shortField", SHORT_TYPE, ACC_PUBLIC);
-                Declare("intField", INT_TYPE, ACC_PUBLIC);
-                Declare("longField", LONG_TYPE, ACC_PUBLIC);
-                Declare("floatField", FLOAT_TYPE, ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ACC_PUBLIC);
+                Declare("byteField", PrimitiveType.BYTE_TYPE, ACC_PUBLIC);
+                Declare("shortField", PrimitiveType.SHORT_TYPE, ACC_PUBLIC);
+                Declare("intField", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+                Declare("longField", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
                 Begin();
                     Set(This(), "byteField", Cast(Add(Literal((byte)50), Literal((byte)100)), byte.class));
                     Set(This(), "shortField", Cast(Add(Literal((short)50), Literal((byte)100)), short.class));
@@ -130,14 +131,14 @@ public class MakerNumericPromotionTest extends ClassMakerTestCase implements Byt
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("byteField", BYTE_TYPE, ACC_PUBLIC);
-                Declare("shortField", SHORT_TYPE, ACC_PUBLIC);
-                Declare("intField", INT_TYPE, ACC_PUBLIC);
-                Declare("longField", LONG_TYPE, ACC_PUBLIC);
-                Declare("floatField", FLOAT_TYPE, ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ACC_PUBLIC);
+                Declare("byteField", PrimitiveType.BYTE_TYPE, ACC_PUBLIC);
+                Declare("shortField", PrimitiveType.SHORT_TYPE, ACC_PUBLIC);
+                Declare("intField", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+                Declare("longField", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
                 Begin();
                     Set(This(), "byteField", Cast(Add(Literal((short)50), Literal((byte)100)), byte.class));
                     Set(This(), "shortField", Cast(Add(Literal((short)50), Literal((short)100)), short.class));
@@ -169,14 +170,14 @@ public class MakerNumericPromotionTest extends ClassMakerTestCase implements Byt
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("byteField", BYTE_TYPE, ACC_PUBLIC);
-                Declare("shortField", SHORT_TYPE, ACC_PUBLIC);
-                Declare("intField", INT_TYPE, ACC_PUBLIC);
-                Declare("longField", LONG_TYPE, ACC_PUBLIC);
-                Declare("floatField", FLOAT_TYPE, ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ACC_PUBLIC);
+                Declare("byteField", PrimitiveType.BYTE_TYPE, ACC_PUBLIC);
+                Declare("shortField", PrimitiveType.SHORT_TYPE, ACC_PUBLIC);
+                Declare("intField", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+                Declare("longField", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
                 Begin();
                     Set(This(), "byteField", Cast(Add(Literal((byte)50), Literal((short)100)), byte.class));
                     Set(This(), "shortField", Cast(Add(Literal((short)50), Literal((short)100)), short.class));
@@ -208,14 +209,14 @@ public class MakerNumericPromotionTest extends ClassMakerTestCase implements Byt
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("byteField", BYTE_TYPE, ACC_PUBLIC);
-                Declare("shortField", SHORT_TYPE, ACC_PUBLIC);
-                Declare("intField", INT_TYPE, ACC_PUBLIC);
-                Declare("longField", LONG_TYPE, ACC_PUBLIC);
-                Declare("floatField", FLOAT_TYPE, ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ACC_PUBLIC);
+                Declare("byteField", PrimitiveType.BYTE_TYPE, ACC_PUBLIC);
+                Declare("shortField", PrimitiveType.SHORT_TYPE, ACC_PUBLIC);
+                Declare("intField", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+                Declare("longField", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
                 Begin();
                     Set(This(), "byteField", Cast(Add(Literal(50), Literal((byte)100)), byte.class));
                     Set(This(), "shortField", Cast(Add(Literal(50), Literal((short)100)), short.class));
@@ -247,14 +248,14 @@ public class MakerNumericPromotionTest extends ClassMakerTestCase implements Byt
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("byteField", BYTE_TYPE, ACC_PUBLIC);
-                Declare("shortField", SHORT_TYPE, ACC_PUBLIC);
-                Declare("intField", INT_TYPE, ACC_PUBLIC);
-                Declare("longField", LONG_TYPE, ACC_PUBLIC);
-                Declare("floatField", FLOAT_TYPE, ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ACC_PUBLIC);
+                Declare("byteField", PrimitiveType.BYTE_TYPE, ACC_PUBLIC);
+                Declare("shortField", PrimitiveType.SHORT_TYPE, ACC_PUBLIC);
+                Declare("intField", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+                Declare("longField", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
                 Begin();
                     Set(This(), "byteField", Cast(Add(Literal((byte)50), Literal(100)), byte.class));
                     Set(This(), "shortField", Cast(Add(Literal((short)50), Literal(100)), short.class));
@@ -286,11 +287,11 @@ public class MakerNumericPromotionTest extends ClassMakerTestCase implements Byt
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("longField", LONG_TYPE, ACC_PUBLIC);
-                Declare("floatField", FLOAT_TYPE, ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ACC_PUBLIC);
+                Declare("longField", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
                 Begin();
                     Set(This(), "longField", Add(Literal((long)50), Literal(100L)));
                     Set(This(), "floatField", Add(Literal((long)50), Literal(100.0f)));
@@ -316,11 +317,11 @@ public class MakerNumericPromotionTest extends ClassMakerTestCase implements Byt
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("longField", LONG_TYPE, ACC_PUBLIC);
-                Declare("floatField", FLOAT_TYPE, ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ACC_PUBLIC);
+                Declare("longField", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
                 Begin();
                     Set(This(), "longField", Add(Literal(100L), Literal((long)50)));
                     Set(This(), "floatField", Add(Literal(100.0f), Literal((long)50)));
@@ -346,10 +347,10 @@ public class MakerNumericPromotionTest extends ClassMakerTestCase implements Byt
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("floatField", FLOAT_TYPE, ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
                 Begin();
                     Set(This(), "floatField", Add(Literal((float)50.0), Literal(100.0f)));
                     Set(This(), "doubleField", Add(Literal((float)50.0), Literal(100.0d)));
@@ -373,10 +374,10 @@ public class MakerNumericPromotionTest extends ClassMakerTestCase implements Byt
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("floatField", FLOAT_TYPE, ACC_PUBLIC);
-                Declare("doubleField", DOUBLE_TYPE, ACC_PUBLIC);
+                Declare("floatField", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
                 Begin();
                     Set(This(), "floatField", Add(Literal(100.0f), Literal((float)50.0)));
                     Set(This(), "doubleField", Add(Literal(100.0d), Literal((float)50.0)));
@@ -400,9 +401,9 @@ public class MakerNumericPromotionTest extends ClassMakerTestCase implements Byt
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("doubleField", DOUBLE_TYPE, ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
                 Begin();
                     Set(This(), "doubleField", Add(Literal(100.0d), Literal((double)50.0)));
                     Return();
@@ -424,9 +425,9 @@ public class MakerNumericPromotionTest extends ClassMakerTestCase implements Byt
             public void code()
             {
                 Implements(Runnable.class);
-                Declare("doubleField", DOUBLE_TYPE, ACC_PUBLIC);
+                Declare("doubleField", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
 
-                Method("run", VOID_TYPE, ACC_PUBLIC);
+                Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
                 Begin();
                     Set(This(), "doubleField", Add(Literal((double)50.0), Literal(100.0d)));
                     Return();

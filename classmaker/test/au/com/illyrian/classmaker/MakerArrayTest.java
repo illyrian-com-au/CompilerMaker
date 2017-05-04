@@ -32,6 +32,7 @@ import java.lang.reflect.Field;
 import org.mozilla.classfile.ByteCode;
 
 import au.com.illyrian.classmaker.types.DeclaredType;
+import au.com.illyrian.classmaker.types.PrimitiveType;
 
 public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
 {
@@ -128,12 +129,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testIntSetAt() throws Exception
     {
         maker.Implements(Runnable.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.INT_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.INT_TYPE), ACC_PUBLIC);
 
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
         {
-            maker.Declare("x", ClassMaker.INT_TYPE, 0);
+            maker.Declare("x", PrimitiveType.INT_TYPE, 0);
             // int x = this.values[0];
             maker.Set("x", maker.GetAt(maker.Get(maker.This(), "values"), maker.Literal(0)));
             // this.values[0] = ++x;
@@ -159,12 +160,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testLongSetAt() throws Exception
     {
         maker.Implements(Runnable.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.LONG_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.LONG_TYPE), ACC_PUBLIC);
 
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
         {
-            maker.Declare("x", ClassMaker.LONG_TYPE, 0);
+            maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
             // int x = this.values[0];
             maker.Set("x", maker.GetAt(maker.Get(maker.This(), "values"), maker.Literal(0)));
             // this.values[0] = ++x;
@@ -460,7 +461,7 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
         //maker.getClassFileWriter().setDebugCodeOutput(System.out);
 
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.BYTE_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.BYTE_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
@@ -493,12 +494,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testByteSetAt() throws Exception
     {
         maker.Implements(Runnable.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.BYTE_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.BYTE_TYPE), ACC_PUBLIC);
 
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
         {
-            maker.Declare("x", ClassMaker.BYTE_TYPE, 0);
+            maker.Declare("x", PrimitiveType.BYTE_TYPE, 0);
             // int x = this.values[0];
             maker.Set("x", maker.GetAt(maker.Get(maker.This(), "values"), maker.Literal(0)));
             // this.values[0] = ++x;
@@ -524,12 +525,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testByteIncAt() throws Exception
     {
         maker.Implements(UnaryByte.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.BYTE_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.BYTE_TYPE), ACC_PUBLIC);
 
-        maker.Method("unary", ClassMaker.BYTE_TYPE, ACC_PUBLIC);
+        maker.Method("unary", PrimitiveType.BYTE_TYPE, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.BYTE_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.BYTE_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.IncAt(maker.Get("a"), maker.Get("x")));
@@ -571,12 +572,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testByteDecAt() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.BYTE_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.BYTE_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.BYTE_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.BYTE_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.DecAt(maker.Get("a"), maker.Get("x")));
@@ -618,12 +619,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testBytePostIncAt() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.BYTE_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.BYTE_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.BYTE_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.BYTE_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.PostIncAt(maker.Get("a"), maker.Get("x")));
@@ -665,12 +666,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testBytePostDecAt() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.BYTE_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.BYTE_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.BYTE_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.BYTE_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.PostDecAt(maker.Get("a"), maker.Get("x")));
@@ -712,7 +713,7 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testShortGetAt() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.SHORT_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.SHORT_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
@@ -746,12 +747,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testShortSetAt() throws Exception
     {
         maker.Implements(Runnable.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.SHORT_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.SHORT_TYPE), ACC_PUBLIC);
 
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
         {
-            maker.Declare("x", ClassMaker.SHORT_TYPE, 0);
+            maker.Declare("x", PrimitiveType.SHORT_TYPE, 0);
             // int x = this.values[0];
             maker.Set("x", maker.GetAt(maker.Get(maker.This(), "values"), maker.Literal(0)));
             // this.values[0] = ++x;
@@ -777,12 +778,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testShortIncAt() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.SHORT_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.SHORT_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.SHORT_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.SHORT_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.IncAt(maker.Get("a"), maker.Get("x")));
@@ -824,12 +825,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testShortDecAt() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.SHORT_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.SHORT_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.SHORT_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.SHORT_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.DecAt(maker.Get("a"), maker.Get("x")));
@@ -871,12 +872,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testShortPostIncAt() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.SHORT_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.SHORT_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.SHORT_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.SHORT_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.PostIncAt(maker.Get("a"), maker.Get("x")));
@@ -918,12 +919,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testShortPostDecAt() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.SHORT_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.SHORT_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.SHORT_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.SHORT_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.PostDecAt(maker.Get("a"), maker.Get("x")));
@@ -965,7 +966,7 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testCharGetAt() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.CHAR_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.CHAR_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
@@ -999,12 +1000,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testCharSetAt() throws Exception
     {
         maker.Implements(Runnable.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.CHAR_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.CHAR_TYPE), ACC_PUBLIC);
 
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
         {
-            maker.Declare("x", ClassMaker.CHAR_TYPE, 0);
+            maker.Declare("x", PrimitiveType.CHAR_TYPE, 0);
             // int x = this.values[0];
             maker.Set("x", maker.GetAt(maker.Get(maker.This(), "values"), maker.Literal(0)));
             // this.values[0] = ++x;
@@ -1030,12 +1031,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testCharIncAt() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.CHAR_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.CHAR_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.CHAR_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.CHAR_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.IncAt(maker.Get("a"), maker.Get("x")));
@@ -1075,12 +1076,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testCharDecAt() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.CHAR_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.CHAR_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.CHAR_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.CHAR_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.DecAt(maker.Get("a"), maker.Get("x")));
@@ -1122,12 +1123,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testCharPostIncAt() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.CHAR_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.CHAR_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.CHAR_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.CHAR_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.PostIncAt(maker.Get("a"), maker.Get("x")));
@@ -1169,12 +1170,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testCharPostDecAt() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.CHAR_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.CHAR_TYPE), ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.CHAR_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.CHAR_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.PostDecAt(maker.Get("a"), maker.Get("x")));
@@ -1216,12 +1217,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testLongIncAt() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.LONG_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.LONG_TYPE), ACC_PUBLIC);
 
-        maker.Method("unary", ClassMaker.LONG_TYPE, ACC_PUBLIC);
+        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.LONG_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.LONG_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.IncAt(maker.Get("a"), maker.Get("x")));
@@ -1263,12 +1264,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testLongDecAt() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.LONG_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.LONG_TYPE), ACC_PUBLIC);
 
-        maker.Method("unary", ClassMaker.LONG_TYPE, ACC_PUBLIC);
+        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.LONG_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.LONG_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.DecAt(maker.Get("a"), maker.Get("x")));
@@ -1310,12 +1311,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testLongPostIncAt() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.LONG_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.LONG_TYPE), ACC_PUBLIC);
 
-        maker.Method("unary", ClassMaker.LONG_TYPE, ACC_PUBLIC);
+        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.LONG_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.LONG_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.PostIncAt(maker.Get("a"), maker.Get("x")));
@@ -1357,12 +1358,12 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testLongPostDecAt() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("values", maker.ArrayOf(ClassMaker.LONG_TYPE), ACC_PUBLIC);
+        maker.Declare("values", maker.ArrayOf(PrimitiveType.LONG_TYPE), ACC_PUBLIC);
 
-        maker.Method("unary", ClassMaker.LONG_TYPE, ACC_PUBLIC);
+        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            maker.Declare("a", maker.ArrayOf(ClassMaker.LONG_TYPE), ACC_PUBLIC);
+            maker.Declare("a", maker.ArrayOf(PrimitiveType.LONG_TYPE), ACC_PUBLIC);
             maker.Set("a", maker.Get(maker.This(), "values"));
             // return ++a[x];
             maker.Return(maker.PostDecAt(maker.Get("a"), maker.Get("x")));
@@ -1784,7 +1785,7 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
     public void testIncAtException() throws Exception
     {
         maker.Method("unary", int.class, ACC_PUBLIC);
-        maker.Declare("x", ClassMaker.LONG_TYPE, 0);
+        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
         maker.Begin();
         try {
             maker.IncAt(maker.Get("x"), maker.Get("x"));
@@ -1861,16 +1862,16 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
         } catch (ClassMakerException ex) {
             assertEquals("Array index must be must be type int, short, byte or char, not long", ex.getMessage());
         }
-        maker.Return(ClassMaker.INT_TYPE);
+        maker.Return(PrimitiveType.INT_TYPE);
         maker.End();
 
         // MemberField
-        maker.Declare("b", maker.ArrayOf(ClassMaker.BOOLEAN_TYPE), ACC_PUBLIC);
+        maker.Declare("b", maker.ArrayOf(PrimitiveType.BOOLEAN_TYPE), ACC_PUBLIC);
 
         maker.Method("other", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-        maker.Declare("a", maker.ArrayOf(ClassMaker.BOOLEAN_TYPE), ACC_PUBLIC);
+        maker.Declare("a", maker.ArrayOf(PrimitiveType.BOOLEAN_TYPE), ACC_PUBLIC);
         try {
             maker.IncAt(maker.Get("a"), maker.Get("x"));
             fail("Should throw ClassMakerException");

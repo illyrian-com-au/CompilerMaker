@@ -41,7 +41,7 @@ public class DeclaredType
     
     public short getSlotSize()
     {
-        return (short)(ClassMaker.DOUBLE_TYPE.equals(getType()) || ClassMaker.LONG_TYPE.equals(getType()) ? 2 : 1);
+        return (short)(PrimitiveType.DOUBLE_TYPE.equals(getType()) || PrimitiveType.LONG_TYPE.equals(getType()) ? 2 : 1);
     }
     
     public Class defineClass()

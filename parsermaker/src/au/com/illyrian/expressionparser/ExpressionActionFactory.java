@@ -31,6 +31,7 @@ import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
+import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 
 /**
@@ -61,7 +62,7 @@ public class ExpressionActionFactory
 
     public Object declareFunctionName(String identifier)
     {
-        getClassMaker().Method(identifier, ClassMaker.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        getClassMaker().Method(identifier, PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
         return null;
     }
 

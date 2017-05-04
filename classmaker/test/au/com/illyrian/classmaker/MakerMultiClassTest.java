@@ -2,6 +2,8 @@ package au.com.illyrian.classmaker;
 
 import org.mozilla.classfile.ByteCode;
 
+import au.com.illyrian.classmaker.types.PrimitiveType;
+
 public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
 {
     public interface Getter {
@@ -28,7 +30,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Declare("val", int.class, ClassMaker.ACC_PUBLIC);
         
-        maker.Method(ClassMaker.INIT, ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method(ClassMaker.INIT, PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
         maker.Begin();
             maker.Init(maker.Super(), null);
             maker.Eval(maker.Assign(maker.This(), "val", maker.Literal(9)));
@@ -163,7 +165,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
             factory.setPass(pass);
             maker.Implements(Getter.class);
             // Constructor initialises the init field with an instance of class Init.
-            maker.Method(ClassMaker.INIT, ClassMaker.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+            maker.Method(ClassMaker.INIT, PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
             maker.Begin(); 
             {
                 maker.Init(maker.Super(), null);

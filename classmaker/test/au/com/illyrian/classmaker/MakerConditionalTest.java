@@ -31,6 +31,8 @@ import org.mozilla.classfile.ByteCode;
 import org.mozilla.classfile.ClassFileWriter;
 import org.mozilla.classfile.SimpleClassLoader;
 
+import au.com.illyrian.classmaker.types.PrimitiveType;
+
 public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
 {
     ClassFileWriter cfw;
@@ -98,7 +100,7 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     // Generate default constructor
     public void defaultConstructor() throws Exception
     {
-        maker.Method("<init>", ClassMaker.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("<init>", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
           maker.Init(maker.Super(), null);
         maker.Return();
@@ -110,7 +112,7 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
         maker.Import("au/com/illyrian/classmaker/MakerConditionalTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/MakerConditionalTest$Eval");
         defaultConstructor();
-        maker.Method("eval", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Method("eval", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
         maker.Begin();
         maker.Return(maker.Not(maker.Literal(true)));
         maker.End();
@@ -125,7 +127,7 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
         maker.Import("au/com/illyrian/classmaker/MakerConditionalTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/MakerConditionalTest$Eval");
         defaultConstructor();
-        maker.Method("eval", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Method("eval", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
         maker.Begin();
         maker.Return(maker.Not(maker.Literal(false)));
         maker.End();
@@ -140,7 +142,7 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
         maker.Import("au/com/illyrian/classmaker/MakerConditionalTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/MakerConditionalTest$Eval");
         defaultConstructor();
-        maker.Method("eval", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Method("eval", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
         maker.Begin();
         maker.Return(maker.Literal(true));
         maker.End();
@@ -155,7 +157,7 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
         maker.Import("au/com/illyrian/classmaker/MakerConditionalTest$Eval");
         maker.Implements("au/com/illyrian/classmaker/MakerConditionalTest$Eval");
         defaultConstructor();
-        maker.Method("eval", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Method("eval", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
         maker.Begin();
         maker.Return(maker.Literal(false));
         maker.End();
@@ -169,9 +171,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanInt.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.INT_TYPE, 0);
-        maker.Declare("b", ClassMaker.INT_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
+        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.GT(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -187,9 +189,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanInt.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.INT_TYPE, 0);
-        maker.Declare("b", ClassMaker.INT_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
+        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.GE(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -205,9 +207,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanInt.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.INT_TYPE, 0);
-        maker.Declare("b", ClassMaker.INT_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
+        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.LE(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -223,9 +225,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanInt.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.INT_TYPE, 0);
-        maker.Declare("b", ClassMaker.INT_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
+        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.LT(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -241,9 +243,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanInt.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.INT_TYPE, 0);
-        maker.Declare("b", ClassMaker.INT_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
+        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.EQ(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -259,9 +261,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanInt.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.INT_TYPE, 0);
-        maker.Declare("b", ClassMaker.INT_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
+        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.NE(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -277,9 +279,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanLong.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.LONG_TYPE, 0);
-        maker.Declare("b", ClassMaker.LONG_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.LONG_TYPE, 0);
+        maker.Declare("b", PrimitiveType.LONG_TYPE, 0);
         maker.Begin();
         maker.Return(maker.GT(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -295,9 +297,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanLong.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.LONG_TYPE, 0);
-        maker.Declare("b", ClassMaker.LONG_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.LONG_TYPE, 0);
+        maker.Declare("b", PrimitiveType.LONG_TYPE, 0);
         maker.Begin();
         maker.Return(maker.GE(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -313,9 +315,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanLong.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.LONG_TYPE, 0);
-        maker.Declare("b", ClassMaker.LONG_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.LONG_TYPE, 0);
+        maker.Declare("b", PrimitiveType.LONG_TYPE, 0);
         maker.Begin();
         maker.Return(maker.EQ(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -331,9 +333,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanLong.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.LONG_TYPE, 0);
-        maker.Declare("b", ClassMaker.LONG_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.LONG_TYPE, 0);
+        maker.Declare("b", PrimitiveType.LONG_TYPE, 0);
         maker.Begin();
         maker.Return(maker.NE(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -349,9 +351,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanLong.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.LONG_TYPE, 0);
-        maker.Declare("b", ClassMaker.LONG_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.LONG_TYPE, 0);
+        maker.Declare("b", PrimitiveType.LONG_TYPE, 0);
         maker.Begin();
         maker.Return(maker.LE(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -367,9 +369,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanLong.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.LONG_TYPE, 0);
-        maker.Declare("b", ClassMaker.LONG_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.LONG_TYPE, 0);
+        maker.Declare("b", PrimitiveType.LONG_TYPE, 0);
         maker.Begin();
         maker.Return(maker.LT(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -385,9 +387,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanFloat.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.FLOAT_TYPE, 0);
-        maker.Declare("b", ClassMaker.FLOAT_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Declare("b", PrimitiveType.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.GT(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -406,9 +408,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanFloat.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.FLOAT_TYPE, 0);
-        maker.Declare("b", ClassMaker.FLOAT_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Declare("b", PrimitiveType.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.GE(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -427,9 +429,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanFloat.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.FLOAT_TYPE, 0);
-        maker.Declare("b", ClassMaker.FLOAT_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Declare("b", PrimitiveType.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.EQ(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -448,9 +450,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanFloat.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.FLOAT_TYPE, 0);
-        maker.Declare("b", ClassMaker.FLOAT_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Declare("b", PrimitiveType.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.NE(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -469,9 +471,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanFloat.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.FLOAT_TYPE, 0);
-        maker.Declare("b", ClassMaker.FLOAT_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Declare("b", PrimitiveType.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.LE(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -490,9 +492,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanFloat.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.FLOAT_TYPE, 0);
-        maker.Declare("b", ClassMaker.FLOAT_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Declare("b", PrimitiveType.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.LT(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -511,9 +513,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanDouble.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.DOUBLE_TYPE, 0);
-        maker.Declare("b", ClassMaker.DOUBLE_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Declare("b", PrimitiveType.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Return(maker.GT(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -532,9 +534,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanDouble.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.DOUBLE_TYPE, 0);
-        maker.Declare("b", ClassMaker.DOUBLE_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Declare("b", PrimitiveType.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Return(maker.GE(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -553,9 +555,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanDouble.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.DOUBLE_TYPE, 0);
-        maker.Declare("b", ClassMaker.DOUBLE_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Declare("b", PrimitiveType.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Return(maker.EQ(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -574,9 +576,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanDouble.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.DOUBLE_TYPE, 0);
-        maker.Declare("b", ClassMaker.DOUBLE_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Declare("b", PrimitiveType.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Return(maker.NE(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -595,9 +597,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanDouble.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.DOUBLE_TYPE, 0);
-        maker.Declare("b", ClassMaker.DOUBLE_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Declare("b", PrimitiveType.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Return(maker.LE(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -616,9 +618,9 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(BooleanDouble.class);
         defaultConstructor();
-        maker.Method("test", ClassMaker.BOOLEAN_TYPE, ACC_PUBLIC);
-        maker.Declare("a", ClassMaker.DOUBLE_TYPE, 0);
-        maker.Declare("b", ClassMaker.DOUBLE_TYPE, 0);
+        maker.Method("test", PrimitiveType.BOOLEAN_TYPE, ACC_PUBLIC);
+        maker.Declare("a", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Declare("b", PrimitiveType.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Return(maker.LT(maker.Get("a"), maker.Get("b")));
         maker.End();
@@ -636,7 +638,7 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     public void testConditionException() throws Exception
     {
         // MemberField
-        maker.Method("eval", ClassMaker.INT_TYPE, ACC_PUBLIC);
+        maker.Method("eval", PrimitiveType.INT_TYPE, ACC_PUBLIC);
         maker.Begin();
         try {
             maker.Not(maker.Literal(1));

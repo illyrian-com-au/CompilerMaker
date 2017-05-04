@@ -38,6 +38,7 @@ import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.DeclaredType;
+import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 
 public class MakerResolveMethodTest extends ClassMakerTestCase
@@ -45,7 +46,7 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
     ClassMakerFactory factory;
     ClassMaker maker;
     MethodResolver resolver;
-    final ClassType DESSERT = new ClassType("test.Dessert", ClassMaker.OBJECT_TYPE);;
+    final ClassType DESSERT = new ClassType("test.Dessert", ClassType.OBJECT_TYPE);;
     final ClassType CAKE = new ClassType("test.Cake", DESSERT);
     final ClassType SCONE = new ClassType("test.Scone", DESSERT);
     final ClassType CHOCOLATE_CAKE = new ClassType("test.ChocolateCake", CAKE);
@@ -82,7 +83,7 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
     // Generate default constructor
     public void defaultConstructor(ClassMaker maker) throws Exception
     {
-        maker.Method("<init>", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("<init>", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Begin();
           maker.Init(maker.Super(), null);
         maker.Return();
@@ -91,14 +92,14 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
 
     public void forwardPrimitiveMethods(Type type) throws Exception
     {
-        maker.Method("eval", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("eval", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Forward();
 
-        maker.Method("eval", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("eval", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", type, 0);
         maker.Forward();
 
-        maker.Method("eval", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("eval", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", type, 0);
         maker.Declare("y", type, 0);
         maker.Forward();
@@ -106,7 +107,7 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
 
 	public void testResolveIntMethods() throws Exception
     {
-    	forwardPrimitiveMethods(ClassMaker.INT_TYPE);
+    	forwardPrimitiveMethods(PrimitiveType.INT_TYPE);
         Vector<MakerMethod> methods = resolver.findMethods(maker.getDeclaredMethods(), "eval");
         assertEquals("Wrong number of methods found.", 3, methods.size());
         assertEquals("public void eval()", methods.get(0).toFullString());
@@ -118,48 +119,48 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
         assertEquals("Did not find eval()", 0, method.getFormalDeclaredTypes().length);
 
         // Check assignment of primitives
-        method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(ClassMaker.INT_TYPE));
+        method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(PrimitiveType.INT_TYPE));
         assertEquals("Did not find eval(int)", 1, method.getFormalDeclaredTypes().length);
-        method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(ClassMaker.BYTE_TYPE));
+        method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(PrimitiveType.BYTE_TYPE));
         assertEquals("Did not find eval(int)", 1, method.getFormalDeclaredTypes().length);
-        method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(ClassMaker.SHORT_TYPE));
+        method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(PrimitiveType.SHORT_TYPE));
         assertEquals("Did not find eval(int)", 1, method.getFormalDeclaredTypes().length);
-        method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(ClassMaker.CHAR_TYPE));
+        method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(PrimitiveType.CHAR_TYPE));
         assertEquals("Did not find eval(int)", 1, method.getFormalDeclaredTypes().length);
 
-        failToResolveMethod("eval", maker.Push(ClassMaker.FLOAT_TYPE));
-        failToResolveMethod("eval", maker.Push(ClassMaker.DOUBLE_TYPE));
-        failToResolveMethod("eval", maker.Push(ClassMaker.LONG_TYPE));
+        failToResolveMethod("eval", maker.Push(PrimitiveType.FLOAT_TYPE));
+        failToResolveMethod("eval", maker.Push(PrimitiveType.DOUBLE_TYPE));
+        failToResolveMethod("eval", maker.Push(PrimitiveType.LONG_TYPE));
 
-        method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(ClassMaker.INT_TYPE).Push(ClassMaker.INT_TYPE));
+        method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(PrimitiveType.INT_TYPE).Push(PrimitiveType.INT_TYPE));
         assertEquals("Did not find eval(int,int)", 2, method.getFormalDeclaredTypes().length);
     }
 
     public void testResolveReferenceMethods() throws Exception
     {
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", DESSERT, 0);
         maker.Declare("y", SCONE, 0);
         maker.Forward();
 
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", CAKE, 0);
         maker.Declare("y", DESSERT, 0);
         maker.Forward();
 
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", CHOCOLATE_CAKE, 0);
         maker.Declare("y", SCONE, 0);
         maker.Forward();
 
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", CHOCOLATE_CAKE, 0);
-        maker.Declare("y", ClassMaker.INT_TYPE, 0);
+        maker.Declare("y", PrimitiveType.INT_TYPE, 0);
         maker.Forward();
 
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
-        maker.Declare("x", ClassMaker.OBJECT_TYPE, 0);
-        maker.Declare("y", ClassMaker.OBJECT_TYPE, 0);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Declare("x", ClassType.OBJECT_TYPE, 0);
+        maker.Declare("y", ClassType.OBJECT_TYPE, 0);
         maker.Forward();
 
         MakerMethod method;
@@ -172,21 +173,21 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(CHOCOLATE_CAKE).Push(BUTTERED_SCONE));
         assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake, test.Scone)", method.toFullString());
 
-        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(CHOCOLATE_CAKE).Push(ClassMaker.BYTE_TYPE));
+        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(CHOCOLATE_CAKE).Push(PrimitiveType.BYTE_TYPE));
         assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake, int)", method.toFullString());
 
     	failToResolveMethod("moorge", maker.Push(CAKE).Push(SCONE));
 
-        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(DESSERT).Push(ClassMaker.NULL_TYPE));
+        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(DESSERT).Push(ClassType.NULL_TYPE));
         assertEquals("Did not resolve method: ", "public void moorge(test.Dessert, test.Scone)", method.toFullString());
 
-        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(SCONE));
+        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(ClassType.NULL_TYPE).Push(SCONE));
         assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake, test.Scone)", method.toFullString());
 
-        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(CHOCOLATE_CAKE).Push(ClassMaker.NULL_TYPE));
+        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(CHOCOLATE_CAKE).Push(ClassType.NULL_TYPE));
         assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake, test.Scone)", method.toFullString());
 
-        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(ClassMaker.NULL_TYPE));
+        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(ClassType.NULL_TYPE).Push(ClassType.NULL_TYPE));
         assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake, test.Scone)", method.toFullString());
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(DESSERT).Push(DESSERT));
@@ -195,24 +196,24 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
 
     public void testResolveArrayReferenceMethods() throws Exception
     {
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", maker.ArrayOf(DESSERT), 0);
         maker.Declare("y", maker.ArrayOf(SCONE), 0);
         maker.Forward();
 
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", maker.ArrayOf(CAKE), 0);
         maker.Declare("y", maker.ArrayOf(DESSERT), 0);
         maker.Forward();
 
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", maker.ArrayOf(CHOCOLATE_CAKE), 0);
         maker.Declare("y", maker.ArrayOf(SCONE), 0);
         maker.Forward();
 
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", maker.ArrayOf(CHOCOLATE_CAKE), 0);
-        maker.Declare("y", maker.ArrayOf(ClassMaker.INT_TYPE), 0);
+        maker.Declare("y", maker.ArrayOf(PrimitiveType.INT_TYPE), 0);
         maker.Forward();
 
         MakerMethod method;
@@ -225,50 +226,50 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(maker.ArrayOf(CHOCOLATE_CAKE)).Push(maker.ArrayOf(BUTTERED_SCONE)));
         assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake[], test.Scone[])", method.toFullString());
 
-        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(maker.ArrayOf(CHOCOLATE_CAKE)).Push(maker.ArrayOf(ClassMaker.INT_TYPE)));
+        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(maker.ArrayOf(CHOCOLATE_CAKE)).Push(maker.ArrayOf(PrimitiveType.INT_TYPE)));
         assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake[], int[])", method.toFullString());
 
-    	failToResolveMethod("moorge", maker.Push(maker.ArrayOf(CHOCOLATE_CAKE)).Push(maker.ArrayOf(ClassMaker.BYTE_TYPE)));
+    	failToResolveMethod("moorge", maker.Push(maker.ArrayOf(CHOCOLATE_CAKE)).Push(maker.ArrayOf(PrimitiveType.BYTE_TYPE)));
 
     	failToResolveMethod("moorge", maker.Push(maker.ArrayOf(CAKE)).Push(maker.ArrayOf(SCONE)));
 
-        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(maker.ArrayOf(DESSERT)).Push(ClassMaker.NULL_TYPE));
+        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(maker.ArrayOf(DESSERT)).Push(ClassType.NULL_TYPE));
         assertEquals("Did not resolve method: ", "public void moorge(test.Dessert[], test.Scone[])", method.toFullString());
 
-        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(maker.ArrayOf(SCONE)));
+        method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(ClassType.NULL_TYPE).Push(maker.ArrayOf(SCONE)));
         assertEquals("Did not resolve method: ", "public void moorge(test.ChocolateCake[], test.Scone[])", method.toFullString());
 
-    	failToResolveMethod("moorge", maker.Push(maker.ArrayOf(CAKE)).Push(ClassMaker.NULL_TYPE));
+    	failToResolveMethod("moorge", maker.Push(maker.ArrayOf(CAKE)).Push(ClassType.NULL_TYPE));
 
-    	failToResolveMethod("moorge", maker.Push(ClassMaker.NULL_TYPE).Push(ClassMaker.NULL_TYPE));
+    	failToResolveMethod("moorge", maker.Push(ClassType.NULL_TYPE).Push(ClassType.NULL_TYPE));
     }
 
     public void testResolveArrayToObjectMethods() throws Exception
     {
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", maker.ArrayOf(DESSERT), 0);
         maker.Declare("y", maker.ArrayOf(SCONE), 0);
         maker.Forward();
 
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", maker.ArrayOf(CAKE), 0);
         maker.Declare("y", maker.ArrayOf(DESSERT), 0);
         maker.Forward();
 
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", maker.ArrayOf(CHOCOLATE_CAKE), 0);
         maker.Declare("y", maker.ArrayOf(SCONE), 0);
         maker.Forward();
 
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Declare("x", maker.ArrayOf(CHOCOLATE_CAKE), 0);
-        maker.Declare("y", maker.ArrayOf(ClassMaker.INT_TYPE), 0);
+        maker.Declare("y", maker.ArrayOf(PrimitiveType.INT_TYPE), 0);
         maker.Forward();
 
         MakerMethod method;
-        maker.Method("moorge", ClassMaker.VOID_TYPE, ByteCode.ACC_PUBLIC);
-        maker.Declare("x", ClassMaker.OBJECT_TYPE, 0);
-        maker.Declare("y", ClassMaker.OBJECT_TYPE, 0);
+        maker.Method("moorge", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Declare("x", ClassType.OBJECT_TYPE, 0);
+        maker.Declare("y", ClassType.OBJECT_TYPE, 0);
         maker.Forward();
 
         method = maker.resolveMethod(maker.getClassType(), "moorge", maker.Push(maker.ArrayOf(DESSERT)).Push(maker.ArrayOf(DESSERT)));
@@ -301,7 +302,7 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
     {
         int i = 0;
         MethodResolver resolver = factory.getMethodResolver();
-        ClassType classType = new ClassType("Test", ClassMaker.OBJECT_TYPE);
+        ClassType classType = new ClassType("Test", ClassType.OBJECT_TYPE);
         classType.setJavaClass(MoorgeInterface.class);
         MakerMethod [] methods = factory.getMethods(classType);
         String name = "moorge";
@@ -371,16 +372,16 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(type(byte.class)));
         assertEquals("Did not resolve method: ", toString(mod, "moorge", ChocolateCake.class, int.class), method.toFullString());
 
-        method = maker.resolveMethod(moorge, "moorge", maker.Push(type(Dessert.class)).Push(ClassMaker.NULL_TYPE));
+        method = maker.resolveMethod(moorge, "moorge", maker.Push(type(Dessert.class)).Push(ClassType.NULL_TYPE));
         assertEquals("Did not resolve method: ", toString(mod, "moorge", Dessert.class, Scone.class), method.toFullString());
 
-        method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(type(Scone.class)));
+        method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassType.NULL_TYPE).Push(type(Scone.class)));
         assertEquals("Did not resolve method: ", toString(mod, "moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
-        method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(ClassMaker.NULL_TYPE));
+        method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(ClassType.NULL_TYPE));
         assertEquals("Did not resolve method: ", toString(mod, "moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
-        method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(ClassMaker.NULL_TYPE));
+        method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassType.NULL_TYPE).Push(ClassType.NULL_TYPE));
         assertEquals("Did not resolve method: ", toString(mod, "moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
         try {
@@ -416,16 +417,16 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(type(byte.class)));
         assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, int.class), method.toFullString());
 
-        method = maker.resolveMethod(moorge, "moorge", maker.Push(type(Dessert.class)).Push(ClassMaker.NULL_TYPE));
+        method = maker.resolveMethod(moorge, "moorge", maker.Push(type(Dessert.class)).Push(ClassType.NULL_TYPE));
         assertEquals("Did not resolve method: ", toString("moorge", Dessert.class, Scone.class), method.toFullString());
 
-        method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(type(Scone.class)));
+        method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassType.NULL_TYPE).Push(type(Scone.class)));
         assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
-        method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(ClassMaker.NULL_TYPE));
+        method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake.class)).Push(ClassType.NULL_TYPE));
         assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
-        method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(ClassMaker.NULL_TYPE));
+        method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassType.NULL_TYPE).Push(ClassType.NULL_TYPE));
         assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake.class, Scone.class), method.toFullString());
 
         try {
@@ -457,16 +458,16 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
         method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake[].class)).Push(type(ButteredScone[].class)));
         assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake[].class, Scone[].class), method.toFullString());
 
-        method = maker.resolveMethod(moorge, "moorge", maker.Push(type(Dessert[].class)).Push(ClassMaker.NULL_TYPE));
+        method = maker.resolveMethod(moorge, "moorge", maker.Push(type(Dessert[].class)).Push(ClassType.NULL_TYPE));
         assertEquals("Did not resolve method: ", toString("moorge", Dessert[].class, Scone[].class), method.toFullString());
 
-        method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(type(Scone[].class)));
+        method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassType.NULL_TYPE).Push(type(Scone[].class)));
         assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake[].class, Scone[].class), method.toFullString());
 
-        method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake[].class)).Push(ClassMaker.NULL_TYPE));
+        method = maker.resolveMethod(moorge, "moorge", maker.Push(type(ChocolateCake[].class)).Push(ClassType.NULL_TYPE));
         assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake[].class, Scone[].class), method.toFullString());
 
-        method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassMaker.NULL_TYPE).Push(ClassMaker.NULL_TYPE));
+        method = maker.resolveMethod(moorge, "moorge", maker.Push(ClassType.NULL_TYPE).Push(ClassType.NULL_TYPE));
         assertEquals("Did not resolve method: ", toString("moorge", ChocolateCake[].class, Scone[].class), method.toFullString());
 
         try {
@@ -502,8 +503,8 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
     public void testFormalParameters()
     {
         MakerMethod method = new MakerMethod(null, null, null, (short)0);
-        DeclaredType voidDeclared = factory.typeToDeclaredType(ClassMaker.VOID_TYPE);
-        DeclaredType intDeclared = factory.typeToDeclaredType(ClassMaker.INT_TYPE);
+        DeclaredType voidDeclared = factory.typeToDeclaredType(PrimitiveType.VOID_TYPE);
+        DeclaredType intDeclared = factory.typeToDeclaredType(PrimitiveType.INT_TYPE);
         assertEquals("Wrong default method", "()V", method.createSignature(ClassMakerFactory.DECLARED_TYPE_ARRAY, voidDeclared));
         assertEquals("Wrong integer method", "()I", method.createSignature(ClassMakerFactory.DECLARED_TYPE_ARRAY, intDeclared));
         DeclaredType[] emptyParam = {};

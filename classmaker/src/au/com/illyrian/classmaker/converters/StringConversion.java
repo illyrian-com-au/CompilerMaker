@@ -70,8 +70,8 @@ public class StringConversion implements Convertable, Assignable
      */
     public boolean isConvertable(Type left, Type right)
     {
-        return (ClassMaker.STRING_TYPE.equals(left) || ClassMaker.STRING_TYPE.equals(right)
-             || ClassMaker.AUTO_STRING_TYPE == left || ClassMaker.AUTO_STRING_TYPE == right);
+        return (ClassType.STRING_TYPE.equals(left) || ClassType.STRING_TYPE.equals(right)
+             || ClassType.AUTO_STRING_TYPE == left || ClassType.AUTO_STRING_TYPE == right);
     }
 
     /**
@@ -91,7 +91,7 @@ public class StringConversion implements Convertable, Assignable
         if (isConvertable(left, right))
         {
             ClassType buf;
-            if (ClassMaker.AUTO_STRING_TYPE == left)
+            if (ClassType.AUTO_STRING_TYPE == left)
                 buf = left.toClass();
             else
             {
@@ -127,7 +127,7 @@ public class StringConversion implements Convertable, Assignable
      */
     public boolean isAssignable(Type source, Type target)
     {
-        return (ClassMaker.AUTO_STRING_TYPE == source  && ClassMaker.STRING_TYPE.equals(target));
+        return (ClassType.AUTO_STRING_TYPE == source  && ClassType.STRING_TYPE.equals(target));
     }
 
     /**
@@ -155,7 +155,7 @@ public class StringConversion implements Convertable, Assignable
     protected ClassType newStringBuffer(ClassMaker maker)
     {
         maker.New(StringBuffer.class).Init(null);
-        return ClassMaker.AUTO_STRING_TYPE;
+        return ClassType.AUTO_STRING_TYPE;
     }
 
     /**
@@ -167,7 +167,7 @@ public class StringConversion implements Convertable, Assignable
      */
     protected ClassType append(ClassMaker maker, ClassType buffer, Type value)
     {
-        if (ClassMaker.AUTO_STRING_TYPE.equals(buffer))
+        if (ClassType.AUTO_STRING_TYPE.equals(buffer))
         {
             maker.Call(buffer, "append", maker.Push(value));
             return buffer;
@@ -185,10 +185,10 @@ public class StringConversion implements Convertable, Assignable
      */
     public ClassType toString(ClassMaker maker, ClassType buffer)
     {
-        if (ClassMaker.AUTO_STRING_TYPE.equals(buffer))
+        if (ClassType.AUTO_STRING_TYPE.equals(buffer))
         {
             maker.Call(buffer, "toString", maker.Push());
-            return ClassMaker.STRING_TYPE;
+            return ClassType.STRING_TYPE;
         }
         // Should not get here.
         throw new IllegalArgumentException("buffer parameter to append method must be an automatic StringBuffer");

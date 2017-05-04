@@ -24,7 +24,9 @@ import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
+import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.DeclaredType;
+import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.parser.ParserException;
 
@@ -125,7 +127,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         setRuleSet(tree.getRuleSet());
         setLineNumber(tree);
         tree.getRules().resolveDeclaration(this);
-        return ClassMaker.VOID_TYPE;
+        return PrimitiveType.VOID_TYPE;
     }
 
     public Type resolveDeclaration(BnfTreeList list)
@@ -134,7 +136,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         for (BnfTree rule : rules) {
             rule.resolveDeclaration(this);
         }
-        return ClassMaker.VOID_TYPE;
+        return PrimitiveType.VOID_TYPE;
     }
 
     public Type resolveDeclaration(BnfTreeRule rule)
@@ -198,7 +200,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
             left.resolveSequence(this, variable);
             //getMaker().End();
         }
-        return ClassMaker.VOID_TYPE;
+        return PrimitiveType.VOID_TYPE;
     }
 
     public Type resolveDeclaration(BnfTreeSequence seq) {
@@ -221,7 +223,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         }
         // Clear local variables going out of scope.
         localVariables.setSize(scopeSize);
-        return ClassMaker.VOID_TYPE;
+        return PrimitiveType.VOID_TYPE;
     }
     
     public Type resolveSequence(BnfTreeAlternative tree, int variable) {
@@ -245,7 +247,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
 
     public Type resolveSequence(BnfTreeName tree, int variable) {
         setLineNumber(tree);
-        declare(variable, ClassMaker.STRING_TYPE);
+        declare(variable, ClassType.STRING_TYPE);
         Type type = (Type)tree.resolveType(this);
         assign(variable, type);
         return type;
@@ -263,23 +265,23 @@ public class BnfMakerVisitor extends AstExpressionVisitor
     boolean isOnlyOneOption() {
         return (isActionRequired() 
                 && localVariables.size() == 1
-                && localVariables.lastElement() != ClassMaker.VOID_TYPE);
+                && localVariables.lastElement() != PrimitiveType.VOID_TYPE);
     }
 
     public Type resolveSequence(BnfTreeMethodCall call, int variable)
     {
         setLineNumber(call);
         getMaker().Eval(resolveType(call));
-        return ClassMaker.VOID_TYPE;
+        return PrimitiveType.VOID_TYPE;
     }
 
     public Type resolveSequence(BnfTreeReserved reserved, int variable)
     {
         setLineNumber(reserved);
-        declare(variable, ClassMaker.STRING_TYPE);
+        declare(variable, ClassType.STRING_TYPE);
         Type type = expect(reserved.getName());
         assign(variable, type);
-        return ClassMaker.VOID_TYPE;
+        return PrimitiveType.VOID_TYPE;
     }
 
     public Type resolveSequence(BnfTreeNonterminal nonterm, int variable)
