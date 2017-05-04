@@ -170,110 +170,90 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
         assertEquals("Local Get", 6, exec.unary(0));
     }
 
-//    public void testIntFindField() throws Exception
-//    {
-//        maker.Implements(UnaryInt.class);
-//        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-//
-//        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-//        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
-//        maker.Begin();
-//        maker.Return(maker.Find("id"));
-//        maker.End();
-//
-//        Class myClass = maker.defineClass();
-//        UnaryInt exec = (UnaryInt)myClass.newInstance();
-//
-//        setIntField(myClass, exec, "id", 3);
-//        assertEquals("Local Get", 3, exec.unary(0));
-//        setIntField(myClass, exec, "id", 6);
-//        assertEquals("Local Get", 6, exec.unary(0));
-//    }
-//
-//    public void testIntFindSetThisField() throws Exception
-//    {
-//        maker.Implements(UnaryInt.class);
-//        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-//
-//        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-//        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
-//        maker.Begin();
-//        maker.Set(maker.Find("id"), maker.Get("x"));
-//        maker.Return(maker.Literal(0));
-//        maker.End();
-//
-//        Class myClass = maker.defineClass();
-//        UnaryInt exec = (UnaryInt)myClass.newInstance();
-//
-//        setIntField(myClass, exec, "id", -1);
-//        assertEquals("Local Get", 0, exec.unary(3));
-//        int id = getIntField(myClass, exec, "id");
-//        assertEquals("Set Field", 3, id);
-//
-//        setIntField(myClass, exec, "id", -1);
-//        assertEquals("Local Get", 0, exec.unary(6));
-//        id = getIntField(myClass, exec, "id");
-//        assertEquals("Set Field", 6, id);
-//    }
-//
-//    public void testIntFindAssignThisField() throws Exception
-//    {
-//        maker.Implements(UnaryInt.class);
-//        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-//
-//        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-//        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
-//        maker.Begin();
-//        maker.Return(maker.Assign(maker.Find("id"), maker.Get("x")));
-//        maker.End();
-//
-//        Class myClass = maker.defineClass();
-//        UnaryInt exec = (UnaryInt)myClass.newInstance();
-//
-//        setIntField(myClass, exec, "id", -1);
-//        assertEquals("Local Get", 3, exec.unary(3));
-//        int id = getIntField(myClass, exec, "id");
-//        assertEquals("Set Field", 3, id);
-//
-//        setIntField(myClass, exec, "id", -1);
-//        assertEquals("Local Get", 6, exec.unary(6));
-//        id = getIntField(myClass, exec, "id");
-//        assertEquals("Set Field", 6, id);
-//    }
-//
-//    public void testIntFindAssignOtherField() throws Exception
-//    {
-//        maker.Implements(UnaryInt.class);
-//        maker.Declare("other", maker.getClassType(), ACC_PUBLIC);
-//        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-//
-//        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-//        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
-//        maker.Begin();
-//        maker.Return(maker.Assign(maker.Find(maker.Get("other"), "id"), maker.Get("x")));
-//        maker.End();
-//
-//        Class myClass = maker.defineClass();
-//        UnaryInt exec = (UnaryInt)myClass.newInstance();
-//        Object   other = myClass.newInstance();
-//
-//        setIntField(myClass, exec, "id", -1);
-//        setIntField(myClass, other, "id", -1);
-//        setField(myClass, exec, "other", other);
-//
-//        assertEquals("Local Get", 3, exec.unary(3));
-//        int id = getIntField(myClass, exec, "id");
-//        assertEquals("exec.id", -1, id);
-//        id = getIntField(myClass, other, "id");
-//        assertEquals("other.id", 3, id);
-//
-//        assertEquals("Local Get", 6, exec.unary(6));
-//        id = getIntField(myClass, exec, "id");
-//        assertEquals("exec.id", -1, id);
-//        id = getIntField(myClass, other, "id");
-//        assertEquals("other.id", 6, id);
-//    }
-//
+    public void testIntGetSetThisField() throws Exception
+    {
+        maker.Implements(UnaryInt.class);
+        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+
+        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Begin();
+        maker.Set(maker.This(), "id", maker.Get("x"));
+        maker.Return(maker.Literal(0));
+        maker.End();
+
+        Class myClass = maker.defineClass();
+        UnaryInt exec = (UnaryInt)myClass.newInstance();
+
+        setIntField(myClass, exec, "id", -1);
+        assertEquals("Local Get", 0, exec.unary(3));
+        int id = getIntField(myClass, exec, "id");
+        assertEquals("Set Field", 3, id);
+
+        setIntField(myClass, exec, "id", -1);
+        assertEquals("Local Get", 0, exec.unary(6));
+        id = getIntField(myClass, exec, "id");
+        assertEquals("Set Field", 6, id);
+    }
+
+    public void testIntFindAssignThisField() throws Exception
+    {
+        maker.Implements(UnaryInt.class);
+        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+
+        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Begin();
+        maker.Return(maker.Assign(maker.This(), "id", maker.Get("x")));
+        maker.End();
+
+        Class myClass = maker.defineClass();
+        UnaryInt exec = (UnaryInt)myClass.newInstance();
+
+        setIntField(myClass, exec, "id", -1);
+        assertEquals("Local Get", 3, exec.unary(3));
+        int id = getIntField(myClass, exec, "id");
+        assertEquals("Set Field", 3, id);
+
+        setIntField(myClass, exec, "id", -1);
+        assertEquals("Local Get", 6, exec.unary(6));
+        id = getIntField(myClass, exec, "id");
+        assertEquals("Set Field", 6, id);
+    }
+
+    public void testIntFindAssignOtherField() throws Exception
+    {
+        maker.Implements(UnaryInt.class);
+        maker.Declare("other", maker.getClassType(), ACC_PUBLIC);
+        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+
+        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Begin();
+        maker.Return(maker.Assign(maker.Get(maker.This(), "other"), "id", maker.Get("x")));
+        maker.End();
+
+        Class myClass = maker.defineClass();
+        UnaryInt exec = (UnaryInt)myClass.newInstance();
+        Object   other = myClass.newInstance();
+
+        setIntField(myClass, exec, "id", -1);
+        setIntField(myClass, other, "id", -1);
+        setField(myClass, exec, "other", other);
+
+        assertEquals("Local Get", 3, exec.unary(3));
+        int id = getIntField(myClass, exec, "id");
+        assertEquals("exec.id", -1, id);
+        id = getIntField(myClass, other, "id");
+        assertEquals("other.id", 3, id);
+
+        assertEquals("Local Get", 6, exec.unary(6));
+        id = getIntField(myClass, exec, "id");
+        assertEquals("exec.id", -1, id);
+        id = getIntField(myClass, other, "id");
+        assertEquals("other.id", 6, id);
+    }
+
     public void testIntSetField() throws Exception
     {
         maker.Implements(UnaryInt.class);
@@ -1643,7 +1623,6 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             MakerField field = new MakerField("a", declaredVoid, 0);
             field.setSlot(1);
             maker.storeLocal(field, PrimitiveType.VOID_TYPE);
-//            maker.storeLocal(1, PrimitiveType.VOID_TYPE);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Don't know how to store type: void", ex.getMessage());

@@ -52,7 +52,7 @@ public class MakerTryCatchTest extends ClassMakerTestCase
     public void setUp() throws Exception
     {
         factory = new ClassMakerFactory();
-        maker = factory.createClassMaker("au.com.illyrian.classmaker", "MakerTryCatchTest.java", "au/com/illyrian/classmaker/MakerTryCatchTest.java");
+        maker = factory.createClassMaker("au.com.illyrian.classmaker", "MyTest", "au/com/illyrian/classmaker/MakerTryCatchTest.java");
     }
 
     // Generate default constructor
@@ -110,7 +110,6 @@ public class MakerTryCatchTest extends ClassMakerTestCase
     }
 
     public static final String ILLEGAL_ARGUMENT_EXCEPTION = "java/lang/IllegalArgumentException";
-/*
     public void testThrowUncheckedException() throws Exception
     {
 nl(93);
@@ -521,10 +520,10 @@ nl();   maker.End();
             assertEquals(++count, getIntField(exec.getClass(), exec, "val"));
         };
     }
-
+/*
     public void testCatchThrowFinally() throws Exception
     {
-nl(541);
+nl(526);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
 nl();   maker.Import(FILE_NOT_FOUND_EXCEPTION);
@@ -573,7 +572,7 @@ nl();   maker.End();
         } catch (IllegalArgumentException ex) {
             // exec.val was set to 1000 by the catch block
             count = 1000;
-            // then incremented by the finaly block
+            // then incremented by the finally block
             assertEquals(++count, getIntField(exec.getClass(), exec, "val"));
         };
         assertEquals("FileNotFoundException was not caught.", 10000, exec.unary(2));
@@ -585,7 +584,7 @@ nl();   maker.End();
             assertEquals(++count, getIntField(exec.getClass(), exec, "val"));
         };
     }
-
+*/
     public class TryCatchFinallyMaker extends ClassMakerBase
     {
         public void code()
@@ -632,7 +631,7 @@ nl();   maker.End();
         assertEquals("Wrong value for exec.unary()", 10001, exec.unary(-1));
 
     }
-*/
+
     public static class Unreliable {
     	public int f(int a) throws IOException
     	{
