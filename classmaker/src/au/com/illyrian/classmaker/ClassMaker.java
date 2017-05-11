@@ -190,44 +190,6 @@ public class ClassMaker implements ClassMakerIfc
     /** Bitmask of method modifiers that are incompatable with the <code>abstract</code> modifier. */
     public static final int MASK_INCOMPATABLE_WITH_ABSTRACT_METHOD = ACC_STATIC | ACC_FINAL | ACC_SYNCHRONIZED| ACC_NATIVE | ACC_STRICTFP;
 
-    /** Reference to <code>null</code> type */
-    //public static ClassType NULL_TYPE = new ClassType("null", (ClassType)null);
-    /** Reference to <code>Object</code> type */
-    //public static final ClassType OBJECT_TYPE = new ClassType(Object.class);
-    /** Reference to a special automatically created StringBuffer.
-     *  An automatically created StringBuffer results from concatenating
-     *  a String with any value or object.
-     */
-    //public static final ClassType AUTO_STRING_TYPE = new ClassType(StringBuffer.class);
-    /** Reference to <code>String</code> type */
-    //public static final ClassType STRING_TYPE = new ClassType(String.class);
-    /** Reference to <code>StringBuffer</code> type */
-    //public static final ClassType STRING_BUFFER_TYPE = new ClassType(StringBuffer.class);
-    /** Reference to <code>Cloneable</code> type */
-    //public static final ClassType CLONEABLE_TYPE = new ClassType(Cloneable.class);
-    /** Reference to <code>Throwable</code> type */
-    //public static final ClassType THROWABLE_TYPE = new ClassType(Throwable.class);
-    /** Reference to <code>Class</code> type */
-    //public static final ClassType CLASS_TYPE = new ClassType(Class.class);
-    /** Reference to <code>void</code> type */
-    //public static final PrimitiveType VOID_TYPE = new PrimitiveType(PrimitiveType.VOID_INDEX, "void", "V", void.class);
-    /** Reference to <code>byte</code> type */
-    //public static final PrimitiveType BYTE_TYPE = new PrimitiveType(PrimitiveType.BYTE_INDEX, "byte", "B", byte.class);
-    /** Reference to <code>char</code> type */
-    //public static final PrimitiveType CHAR_TYPE = new PrimitiveType(PrimitiveType.CHAR_INDEX, "char", "C", char.class);
-    /** Reference to <code>double</code> type */
-    //public static final PrimitiveType DOUBLE_TYPE = new PrimitiveType(PrimitiveType.DOUBLE_INDEX, "double", "D", double.class);
-    /** Reference to <code>float</code> type */
-    //public static final PrimitiveType FLOAT_TYPE = new PrimitiveType(PrimitiveType.FLOAT_INDEX, "float", "F", float.class);
-    /** Reference to <code>int</code> type */
-    //public static final PrimitiveType INT_TYPE = new PrimitiveType(PrimitiveType.INT_INDEX, "int", "I", int.class);
-    /** Reference to <code>long</code> type */
-    //public static final PrimitiveType LONG_TYPE = new PrimitiveType(PrimitiveType.LONG_INDEX, "long", "J", long.class);
-    /** Reference to <code>short</code> type */
-    //public static final PrimitiveType SHORT_TYPE = new PrimitiveType(PrimitiveType.SHORT_INDEX, "short", "S", short.class);
-    /** Reference to <code>boolean</code> type */
-    //public static final PrimitiveType BOOLEAN_TYPE = new PrimitiveType(PrimitiveType.BOOLEAN_INDEX, "boolean", "Z", boolean.class);
-    
     /** Enumeration to indicate that byte-code will be generated in one pass (default). */
     public static final int ONE_PASS = 0;
     /** Enumeration to indicate that this is the first pass of two pass byte-code generation. */
@@ -259,7 +221,7 @@ public class ClassMaker implements ClassMakerIfc
     /** A list of member fields in the class being generated. */
     private Vector<MakerField>      fieldTable = new Vector<MakerField>();
     /** A list of local variables in the class being generated. */
-    private Vector<MakerField>      localTable = new Vector<MakerField>();
+    Vector<MakerField>      localTable = new Vector<MakerField>();
     /** Short class names are mapped to class types as they are imported into the class being generated. */
     private HashMap<String, DeclaredType> aliasMap = new HashMap<String, DeclaredType>();
     /** A reference to the method currently being generated. */
@@ -743,8 +705,12 @@ public class ClassMaker implements ClassMakerIfc
     protected boolean isDebugCode()
     {
     	if (getClassFileWriter() != null)
-    		return cfw.isDebugCode();
+    	    return cfw.isDebugCode();
     	return false;
+    }
+    
+    protected void setDebugComment(String comment) {
+        cfw.setDebugComment(comment);
     }
 
     /** <code>ClassMaker</code>s share a common <code>ClassMakerFactory</code>. */
@@ -1997,13 +1963,13 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (bottomStatement == null)
         {
-            bottomStatement = new MethodBodyStatement();
+            bottomStatement = new MethodBodyStatement(this);
             bottomStatement.Begin();
             return bottomStatement;
         }
         else
         {
-            ScopeStatement stmt = new ScopeStatement();
+            ScopeStatement stmt = new ScopeStatement(this);
             stmt.Begin();
             return stmt;
         }
@@ -2339,8 +2305,8 @@ public class ClassMaker implements ClassMakerIfc
         DeclaredType declaredType = stringToDeclaredClass(className);
         if (actualParameters == null)
             actualParameters = Push();
-        actualParameters.setMethodName(methodName);
-        return methodCall(declaredType.getType(), actualParameters, true);
+    //    actualParameters.setMethodName(methodName);
+        return methodCall(declaredType.getType(), methodName, actualParameters, true);
     }
 
     /**
@@ -2358,25 +2324,10 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (actualParameters == null)
             actualParameters = Push();
-        actualParameters.setMethodName(methodName);
-        return methodCall(reference, actualParameters, false);
+     //   actualParameters.setMethodName(methodName);
+        return methodCall(reference, methodName, actualParameters, false);
     }
-    
-    /**
-     * Calls a method from the class instance on top of the stack that is appropriate for the actual parameters.
-     * </br>
-     * Uses <code>MethodResolver</code> to determine the appropriate method for the actual parameters and
-     * then determines whether the method is private, static, virtual or an interface method and
-     * uses the appropriate invocation.
-     * @param reference the Type of the reference on top of the stack
-     * @param actualParameters the Types of the actual parameters in the call stack
-     * @return the return type of the called method
-     */
-    public Type Call(Type reference, CallStackMaker actualParameters) throws ClassMakerException
-    {
-        return methodCall(reference, actualParameters, false);
-    }
-    
+        
     /**
      * Calls a method from the class instance on top of the stack that is appropriate for the actual parameters.
      * </br>
@@ -2387,14 +2338,14 @@ public class ClassMaker implements ClassMakerIfc
      * @param actualParameters the types of the actual parameters in the call stack
      * @return the return type of the called method
      */
-    private Type methodCall(Type type, CallStack actualParameters, boolean isStatic) throws ClassMakerException
+    private Type methodCall(Type type, String methodName, CallStack actualParameters, boolean isStatic) throws ClassMakerException
     {
         if (getClassFileWriter() == null)
             return null;
         if (!isClass(type))
             throw createException("ClassMaker.TypeIsNotAClass_1", type.getName());
         ClassType classType = type.toClass();
-        MakerMethod method = resolveMethod(classType, actualParameters.getMethodName(), actualParameters);
+        MakerMethod method = resolveMethod(classType, methodName, actualParameters);
         // Method must be static if reference was a declared type.
         if (isStatic && !method.isStatic())
             throw createException("ClassMaker.StaticCallToNonStaticMethod_2",
@@ -2529,7 +2480,7 @@ public class ClassMaker implements ClassMakerIfc
 
         markLineNumber(); // possibly add a new line number entry.
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Throw("+exception+");");
+        	setDebugComment("Throw("+exception+");");
         cfw.add(ByteCode.ATHROW);
 
         // Throwing an exception is the equivalent of calling return;
@@ -2546,7 +2497,7 @@ public class ClassMaker implements ClassMakerIfc
         if (getClassFileWriter() == null)
             return;
         if (isDebugCode())
-        	cfw.setDebugComment("Return();");
+        	setDebugComment("Return();");
 
         // Call any finally subroutines before returning
         Statement stmt = topStatement();
@@ -2575,7 +2526,7 @@ public class ClassMaker implements ClassMakerIfc
         if (getClassFileWriter() == null)
             return;
         if (isDebugCode())
-        	cfw.setDebugComment("Return(" + type + ");");
+        	setDebugComment("Return(" + type + ");");
 
         // Call any finally subroutines before returning
         Statement stmt = topStatement();
@@ -2685,7 +2636,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             markLineNumber(); // possibly add a new line number entry.
             if (isDebugCode())
-            	cfw.setDebugComment("This();");
+            	setDebugComment("This();");
             cfw.addLoadThis();
         }
         return thisClassType;
@@ -2710,7 +2661,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             markLineNumber(); // possibly add a new line number entry.
             if (isDebugCode())
-            	cfw.setDebugComment("Super();");
+            	setDebugComment("Super();");
             cfw.addLoadThis();
         }
         return superClass.getClassType();
@@ -2733,7 +2684,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             markLineNumber(); // possibly add a new line number entry.
             if (isDebugCode())
-            	cfw.setDebugComment("Null();");
+            	setDebugComment("Null();");
             cfw.add(ByteCode.ACONST_NULL);
         }
         return ClassType.NULL_TYPE;
@@ -2758,7 +2709,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             markLineNumber(); // possibly add a new line number entry.
             if (isDebugCode())
-            	cfw.setDebugComment("Literal(" + value + ");");
+            	setDebugComment("Literal(" + value + ");");
             cfw.addPush(value);
         }
         return PrimitiveType.DOUBLE_TYPE;
@@ -2782,7 +2733,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             markLineNumber(); // possibly add a new line number entry.
             if (isDebugCode())
-            	cfw.setDebugComment("Literal(" + value + ");");
+            	setDebugComment("Literal(" + value + ");");
             cfw.addPush(value);
         }
         return PrimitiveType.FLOAT_TYPE;
@@ -2806,7 +2757,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             markLineNumber(); // possibly add a new line number entry.
             if (isDebugCode())
-            	cfw.setDebugComment("Literal(" + value + ");");
+            	setDebugComment("Literal(" + value + ");");
             cfw.addPush(value);
         }
         return PrimitiveType.LONG_TYPE;
@@ -2830,7 +2781,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             markLineNumber(); // possibly add a new line number entry.
             if (isDebugCode())
-            	cfw.setDebugComment("Literal(" + value + ");");
+            	setDebugComment("Literal(" + value + ");");
             cfw.addPush(value);
         }
         // Return the most specific type.
@@ -2861,7 +2812,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             markLineNumber(); // possibly add a new line number entry.
             if (isDebugCode())
-            	cfw.setDebugComment("Literal(\'" + value + "\');");
+            	setDebugComment("Literal(\'" + value + "\');");
             cfw.addPush(value);
         }
         return PrimitiveType.CHAR_TYPE;
@@ -2885,7 +2836,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             markLineNumber(); // possibly add a new line number entry.
             if (isDebugCode())
-            	cfw.setDebugComment("Literal(" + value + ");");
+            	setDebugComment("Literal(" + value + ");");
             cfw.add(ByteCode.BIPUSH, value); // constant byte operand
         }
         return PrimitiveType.BYTE_TYPE;
@@ -2909,7 +2860,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             markLineNumber(); // possibly add a new line number entry.
             if (isDebugCode())
-            	cfw.setDebugComment("Literal(" + value + ");");
+            	setDebugComment("Literal(" + value + ");");
             cfw.add(ByteCode.SIPUSH, value); // constant short operand
         }
         return PrimitiveType.SHORT_TYPE;
@@ -2933,7 +2884,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             markLineNumber(); // possibly add a new line number entry.
             if (isDebugCode())
-            	cfw.setDebugComment("Literal(" + value + ");");
+            	setDebugComment("Literal(" + value + ");");
             cfw.addPush(value); // constant boolean operand
         }
         return PrimitiveType.BOOLEAN_TYPE;
@@ -2957,7 +2908,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             markLineNumber(); // possibly add a new line number entry.
             if (isDebugCode())
-            	cfw.setDebugComment("Literal(" + value + ");");
+            	setDebugComment("Literal(" + value + ");");
             cfw.addLoadConstant(value);
         }
         return ClassType.STRING_TYPE;
@@ -2985,7 +2936,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    	    cfw.setDebugComment("Assign(" + name + ", " + type + ")");
+    	    setDebugComment("Assign(" + name + ", " + type + ")");
         dup(type);
         Set(name, type);
         return type;
@@ -3011,7 +2962,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("Assign(" + refType + ", " + fieldName + ", " + valueType + ")");
+    		setDebugComment("Assign(" + refType + ", " + fieldName + ", " + valueType + ")");
         // Duplicate the value on top of the stack and put it under the reference.
         // Stack: reference, value
         dupunder(refType, valueType);
@@ -3041,7 +2992,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("Assign(" + className + ", " + fieldName + ", " + type + ")");
+    		setDebugComment("Assign(" + className + ", " + fieldName + ", " + type + ")");
         dup(type);
         Set(className, fieldName, type);
         return type;
@@ -3067,7 +3018,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (isDebugCode())
-        	cfw.setDebugComment("Set(" + name + ", " + valueType + ")");
+        	setDebugComment("Set(" + name + ", " + valueType + ")");
         markLineNumber(); // possibly add a new line number entry.
 
         MakerField field = Find(name);
@@ -3101,7 +3052,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("Set(" + reference + ", " + fieldName + ", " + valueType + ")");
+    		setDebugComment("Set(" + reference + ", " + fieldName + ", " + valueType + ")");
         MakerField field = Find(reference, fieldName);
         Type fieldType = field.getType();
         if (fieldType == null)
@@ -3141,7 +3092,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("Set(" + className + ", " + fieldName + ", " + valueType + ")");
+    		setDebugComment("Set(" + className + ", " + fieldName + ", " + valueType + ")");
         MakerField field = Find(className, fieldName);
         Type declaredType = field.getType();
 
@@ -3174,7 +3125,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("Get(" + reference + ", " + fieldName+ ")");
+    		setDebugComment("Get(" + reference + ", " + fieldName+ ")");
         MakerField field = Find(reference, fieldName);
         return loadField(field);
     }
@@ -3207,7 +3158,7 @@ public class ClassMaker implements ClassMakerIfc
     { 
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    	    cfw.setDebugComment("Get(\"" + className + "\", " + fieldName+ ")");
+    	    setDebugComment("Get(\"" + className + "\", " + fieldName+ ")");
         MakerField field = Find(className, fieldName);
         return loadStatic(field);
     }
@@ -3233,7 +3184,7 @@ public class ClassMaker implements ClassMakerIfc
         if (getClassFileWriter() == null) return null;
         MakerField field = Find(name);
         if (isDebugCode())
-        	cfw.setDebugComment("Get(" + name + ");");
+        	setDebugComment("Get(" + name + ");");
         return loadLocal(field);
     }
 
@@ -3756,7 +3707,7 @@ public class ClassMaker implements ClassMakerIfc
                 if (isInBody())
                 {
                     if (isDebugCode())
-                        cfw.setDebugComment("initialise local " + name);
+                        setDebugComment("initialise local " + name);
                     initLocal(local);
                 }
             }
@@ -3834,7 +3785,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-            cfw.setDebugComment("Cast("+source+", "+target+");");
+            setDebugComment("Cast("+source+", "+target+");");
         Type targetType = target.getType();
         if (getFactory().getCastingConversion().isConvertable(source, targetType))
             return getFactory().getCastingConversion().convertTo(this, source, targetType);
@@ -3869,7 +3820,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("InstanceOf("+reference+", "+target+");");
+        	setDebugComment("InstanceOf("+reference+", "+target+");");
         DeclaredType declared = findDeclaredType(target);
         if (reference.toClass() == null)
             throw createException("ClassMaker.InstanceOfMustTestAClass_1", reference.getName());
@@ -4153,7 +4104,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Add("+op1+", "+op2+");");
+        	setDebugComment("Add("+op1+", "+op2+");");
         if (isPrimitive(op1) && isPrimitive(op2))
         {
             if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
@@ -4240,7 +4191,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Subt("+op1+", "+op2+");");
+        	setDebugComment("Subt("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4319,7 +4270,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Mult("+op1+", "+op2+");");
+        	setDebugComment("Mult("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4398,7 +4349,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Div("+op1+", "+op2+");");
+        	setDebugComment("Div("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4477,7 +4428,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Rem("+op1+", "+op2+");");
+        	setDebugComment("Rem("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4554,7 +4505,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Neg("+type+");");
+        	setDebugComment("Neg("+type+");");
         if (getFactory().getNumericPromotion().isConvertable(type))
         {
             type = getFactory().getNumericPromotion().convertTo(this, type);
@@ -4603,7 +4554,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Xor("+op1+", "+op2+");");
+        	setDebugComment("Xor("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4677,7 +4628,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("And("+op1+", "+op2+");");
+        	setDebugComment("And("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4751,7 +4702,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Or("+op1+", "+op2+");");
+        	setDebugComment("Or("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -4824,7 +4775,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Inv("+op1+");");
+        	setDebugComment("Inv("+op1+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType()))
         {
             op1 = getFactory().getNumericPromotion().convertTo(this, op1.getType());
@@ -4901,7 +4852,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("SHL("+op1+", "+op2+");");
+        	setDebugComment("SHL("+op1+", "+op2+");");
         // Promote left and right operands independantly.
         if (getFactory().getNumericPromotion().isConvertable(op1.getType()))
         {
@@ -4918,7 +4869,7 @@ public class ClassMaker implements ClassMakerIfc
         throw createException("ClassMaker.CannotShiftLeftType_1", op1.getName());
     }
     
-    private boolean isIntegerType(Type operand) {
+    static boolean isIntegerType(Type operand) {
         return PrimitiveType.INT_TYPE.equals(operand) 
                 || PrimitiveType.SHORT_TYPE.equals(operand) 
                 || PrimitiveType.CHAR_TYPE.equals(operand) 
@@ -4988,7 +4939,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("SHR("+op1+", "+op2+");");
+        	setDebugComment("SHR("+op1+", "+op2+");");
         // Promote left and right operands independantly.
         if (getFactory().getNumericPromotion().isConvertable(op1.getType()))
         {
@@ -5067,7 +5018,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("USHR("+op1+", "+op2+");");
+        	setDebugComment("USHR("+op1+", "+op2+");");
         // Promote left and right operands independantly.
         if (getFactory().getNumericPromotion().isConvertable(op1.getType()))
         {
@@ -5148,7 +5099,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("GT("+op1+", "+op2+");");
+        	setDebugComment("GT("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -5200,7 +5151,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("GE("+op1+", "+op2+");");
+        	setDebugComment("GE("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -5252,7 +5203,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("LE("+op1+", "+op2+");");
+        	setDebugComment("LE("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -5304,7 +5255,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("LT("+op1+", "+op2+");");
+        	setDebugComment("LT("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -5356,7 +5307,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("EQ("+op1+", "+op2+");");
+        	setDebugComment("EQ("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -5414,7 +5365,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("NE("+op1+", "+op2+");");
+        	setDebugComment("NE("+op1+", "+op2+");");
         if (getFactory().getNumericPromotion().isConvertable(op1.getType(), op2.getType()))
         {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1.getType(), op2.getType());
@@ -5467,11 +5418,11 @@ public class ClassMaker implements ClassMakerIfc
         int jumpFalse = cfw.acquireLabel();
 
         cfw.add(ifOperator, jumpTrue);
-        if (isDebugCode()) cfw.setDebugComment("false");
+        if (isDebugCode()) setDebugComment("false");
         cfw.add(ByteCode.ICONST_0);
         cfw.add(ByteCode.GOTO, jumpFalse);
         cfw.markLabel(jumpTrue);
-        if (isDebugCode()) cfw.setDebugComment("true");
+        if (isDebugCode()) setDebugComment("true");
         cfw.add(ByteCode.ICONST_1);
         cfw.markLabel(jumpFalse);
     }
@@ -5496,7 +5447,7 @@ public class ClassMaker implements ClassMakerIfc
         {
             markLineNumber(); // possibly add a new line number entry.
             if (cfw.isDebugCode()) 
-            	cfw.setDebugComment("Not("+op1+");");
+            	setDebugComment("Not("+op1+");");
             if (op1.toPrimitive().index == PrimitiveType.BOOLEAN_INDEX)
             {
                 cfw.add(ByteCode.ICONST_1);
@@ -5550,7 +5501,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("NewArray("+arrayType+", "+size+");");
+        	setDebugComment("NewArray("+arrayType+", "+size+");");
         if (!isArray(arrayType))
             throw createException("ClassMaker.NotATypeOfArray_1", arrayType.getName());
         checkArrayDimensionType("Array size", size);
@@ -5604,7 +5555,7 @@ public class ClassMaker implements ClassMakerIfc
         markLineNumber(); // possibly add a new line number entry.
 
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("NewArray("+array+", "+dims+");");
+        	setDebugComment("NewArray("+array+", "+dims+");");
         cfw.add(ByteCode.MULTIANEWARRAY, arrayType.getSignature(), (byte) dims.length);
         return arrayType;
     }
@@ -5684,7 +5635,7 @@ public class ClassMaker implements ClassMakerIfc
         checkArrayIndex(indexType.getType());
         markLineNumber(); // possibly add a new line number entry.
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("GetAt("+array+", "+index+");");
+        	setDebugComment("GetAt("+array+", "+index+");");
 
         Type elementType = arrayType.getArrayOfType();
         if (isClass(elementType) || isArray(elementType))
@@ -5744,7 +5695,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("AssignAt("+arrayType+", "+indexType+", "+valueType+");");
+        	setDebugComment("AssignAt("+arrayType+", "+indexType+", "+valueType+");");
         // Cannot dupunder two wide types so store value in an anonomous local variable.
         dup(valueType);
         int offset = storeAnonymousValue(valueType);
@@ -5773,7 +5724,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("SetAt("+arrayType+", "+indexType+", "+valueType+");");
+        	setDebugComment("SetAt("+arrayType+", "+indexType+", "+valueType+");");
         ArrayType element = arrayType.toArray();
         if (element == null)
             throw createException("ClassMaker.ArrayExpectedOnStack_1", arrayType.getName());
@@ -5839,7 +5790,7 @@ public class ClassMaker implements ClassMakerIfc
             throw createException("ClassMaker.ArrayExpectedOnStack_1", array.getName());
         markLineNumber(); // possibly add a new line number entry.
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Length("+array+");");
+        	setDebugComment("Length("+array+");");
 
         cfw.add(ByteCode.ARRAYLENGTH);
         return PrimitiveType.INT_TYPE;
@@ -5893,7 +5844,7 @@ public class ClassMaker implements ClassMakerIfc
         if (!PrimitiveType.VOID_TYPE.equals(type))
         {
         	if (isDebugCode())
-            	cfw.setDebugComment("Eval("+ type + ")");
+            	setDebugComment("Eval("+ type + ")");
             pop(type.getType());
         }
     }
@@ -6010,7 +5961,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("Inc(" + name + ")");
+    		setDebugComment("Inc(" + name + ")");
         MakerField local = Find(name);
         return incLocal(local);
     }
@@ -6040,7 +5991,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("Inc(" + reference + ", " + name+ ")");
+    		setDebugComment("Inc(" + reference + ", " + name+ ")");
         MakerField field = Find(reference, name);
         return incField(field);
     }
@@ -6082,7 +6033,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("Inc(\"" + className + "\", " + name+ ")");
+    		setDebugComment("Inc(\"" + className + "\", " + name+ ")");
         MakerField field = Find(className, name);
         return incStatic(field);
     }
@@ -6126,7 +6077,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("Dec(" + name + ")");
+    		setDebugComment("Dec(" + name + ")");
         MakerField field = Find(name);
         return decLocal(field);
     }
@@ -6156,7 +6107,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    	    cfw.setDebugComment("Dec(" + reference + ", " + name+ ")");
+    	    setDebugComment("Dec(" + reference + ", " + name+ ")");
         MakerField field = Find(reference, name);
         return decField(field);
     }
@@ -6200,7 +6151,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    	    cfw.setDebugComment("Dec(\"" + className + "\", " + name+ ")");
+    	    setDebugComment("Dec(\"" + className + "\", " + name+ ")");
         MakerField field = Find(className, name);
         return decStatic(field);
     }
@@ -6244,7 +6195,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("PostInc(" + name+ ")");
+    		setDebugComment("PostInc(" + name+ ")");
         MakerField local = Find(name);
         return postIncLocal(local);
     }
@@ -6275,7 +6226,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("PostInc(" + reference + ", " + name+ ")");
+    		setDebugComment("PostInc(" + reference + ", " + name+ ")");
         MakerField field = Find(reference, name);
         return postIncField(field);
     }
@@ -6320,7 +6271,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("PostInc(\"" + className + "\", " + name+ ")");
+    		setDebugComment("PostInc(\"" + className + "\", " + name+ ")");
         MakerField field = Find(className, name);
         return postIncStatic(field);
     }
@@ -6364,7 +6315,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("PostDec(" + name+ ")");
+    		setDebugComment("PostDec(" + name+ ")");
         MakerField local = Find(name);
         return postDecLocal(local);
     }
@@ -6394,14 +6345,13 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("PostDec(" + reference + ", " + name+ ")");
+    		setDebugComment("PostDec(" + reference + ", " + name+ ")");
         MakerField field = Find(reference, name);
         return postDecField(field);
     }
 
     Type postDecField(MakerField field)
     {
-        markLineNumber(); // possibly add a new line number entry.
         Type fieldType = field.getType();
         String fieldName = field.getName();
         ClassType classType = field.getClassType();
@@ -6439,7 +6389,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return null;
     	if (isDebugCode())
-    		cfw.setDebugComment("PostDec(\"" + className + "\", " + name+ ")");
+    	    setDebugComment("PostDec(\"" + className + "\", " + name+ ")");
         MakerField field = Find(className, name);
         return postDecStatic(field);
     }
@@ -6803,190 +6753,11 @@ public class ClassMaker implements ClassMakerIfc
         return statementStack;
     }
 
-    /**
-     * Provides methods to set and get Label names.
-     * @author dstrong
-     */
-    public interface Labelled
-    {
-        /**
-         * Labels a <code>Statement</code>.
-         * The statement can then be the target of a <code>Break</code> or <code>Continue</code>.
-         * @param label the name of the label
-         */
-        void setLabel(String label);
-
-        /**
-         * The label for a <code>Statement</code>.
-         * @return the name of the label
-         */
-        String getLabel();
-    }
-
-    /**
-     * <code>Statement</code> instances form a stack of nested statements in a method.
-     * This is a base class for specific statement types like <code>LoopStatement</code>.
-     * @author dstrong
-     */
-    protected abstract class Statement implements Labelled
-    {
-        /* Next Statement down the statement stack. */
-        private Statement next = null;
-
-        /* Label for this statement. */
-        private String label = null;
-
-        /* The jump address for this statement. This is typically the end of the statement. */
-        protected int labelTarget;
-
-        /** The default constructor pushes this instance onto the statement stack. */
-        public Statement()
-        {
-            next = statementStack;
-            statementStack = this;
-        }
-
-        /** Is there another <code>Statement</code> nested around this one? */
-        boolean hasNext()
-        {
-            return next != null;
-        }
-
-        /** Gets the <code>Statement</code> nested around this one. */
-        Statement getNext()
-        {
-            return next;
-        }
-
-        public int getScopeLevel()
-        {
-            if (next == null)
-                throw new IllegalStateException("Statement Stack should start with class MethodBodyStatement");
-            return next.getScopeLevel();
-        }
-        
-        protected abstract int getStatementEnd();
-
-        /**
-         * Jumps to a <code>Statement</code>.
-         * This default implementation passess the jump request down the statement stack.
-         * The label identifies which <code>Statement<code> to jump to. If the label is <code>null<code>
-         * the first appropriate <code>Statement<code> will be the target.
-         * The <code>jumpType</code> determines where in the statement execution will jump to.
-         * This will typically be the start of the statement for continue, the end of the
-         * statement for break or the end of the method for return.
-         * @param jumpType <code>ClassMaker.BREAK</code>, <code>ClassMaker.CONTINUE</code>, <code>ClassMaker.RETURN</code> or <code>null</code>.
-         * @param label the name of the statement to jump to
-         * @return the target <code>Statement</code> or <code>null</code> if not found.
-         */
-        protected Statement jumpToTarget(String jumpType, String label)
-        {
-            if (BREAK.equals(jumpType) && getLabel() != null && getLabel().equals(label))
-            {   // Break jumps to the end of the loop
-                cfw.add(ByteCode.GOTO, getStatementEnd());
-                return this;
-            }
-            else if (hasNext())
-                return getNext().jumpToTarget(jumpType, label);
-            else
-                return null;
-        }
-
-        /* Implements Labelled. */
-        public void setLabel(String label)
-        {
-            this.label = label;
-        }
-
-        /* Implements Labelled. */
-        public String getLabel()
-        {
-            return label;
-        }
-
-        /** Pops the Statement off the stack. */
-        protected void dispose()
-        {
-            if (statementStack != this) // Should not get here.
-                throw new IllegalStateException("Can only dispose of top most Statement.");
-            statementStack = getNext();
-        }
-    }
+    
 
     // ##################  Method Begin End  ###################
 
-    /**
-     * Represents the body of a method.
-     * An instance of this class is always created when the body of a method
-     * is entered. Consequently, there will always be an instance of this class
-     * at the bottom of the stack.
-     */
-    protected class MethodBodyStatement extends ScopeStatement
-    {
-        /**
-         * Jumps to a <code>Statement</code>.
-         * Returns this instance if the jumpTarget is <code>ClassMaker.RETURN</code>;
-         * all other options should have been handleded further up the statement stack.
-         * Otherwise, calls <code>super.jumpToTarget</code> which will probably return null.
-         * @param jumpTarget must be <code>ClassMaker.RETURN</code>.
-         * @param label the name of the statement to jump to
-         * @return the target <code>Statement</code> or <code>null</code> if not found.
-         */
-        protected Statement jumpToTarget(String jumpTarget, String label)
-        {
-            if (RETURN.equals(jumpTarget) && getNext() == null)
-            {
-                return this;
-            }
-            return null;
-        }
-
-        /* Implements Labelled. */
-        public void setLabel(String label)
-        {
-            throw createException("ClassMaker.CannotSetLabelOnMethodBlock");
-        }
-
-        protected int getStatementEnd()
-        {
-            return 0;
-        }
-
-        public void Begin()
-        {
-            bottomStatement = this;
-            BeginMethod();
-        }
-
-        /**
-         * Ends the body of a method.
-         * Checks that the method body ends with a <code>Return</code> or <code>Throw</code>
-         * statement.
-         * Delegates to <code>ScopeStatement.End</code>.
-         */
-        public void End() throws ClassMakerException
-        {
-            // Save local variable descriptors to be used by the debugger.
-            exitScope(getScopeLevel());
-            EndMethod();
-            // Pop ScopeStatement off statement stack.
-            dispose();
-            // Pop MethodBodyStatement off statement stack.
-            bottomStatement = null;
-        }
-
-        public int getScopeLevel()
-        {
-            return 1;
-        }
-
-        /** Pops the Statement off the stack. */
-        protected void dispose()
-        {
-            bottomStatement = null;
-            super.dispose();
-        }
-    }
+    
 
     // ##################  Begin End  ###################
 
@@ -7001,46 +6772,6 @@ public class ClassMaker implements ClassMakerIfc
         if ((topStatement() instanceof ScopeStatement))
             return (ScopeStatement) topStatement();
         throw createException(msg);
-    }
-
-    /**
-     * Represents the scope of enclosed variables.
-     */
-    protected class ScopeStatement extends Statement
-    {
-        /** Break target at the end of labelled block. */
-        protected int blockEnd = 0;
-
-        public void Begin()
-        {
-            if (getClassFileWriter() != null) 
-                blockEnd = cfw.acquireLabel();
-        }
-
-        /**
-         * Ends the body of a method.
-         * Checks that the method body ends with a <code>Return</code> or <code>Throw</code>
-         * statement.
-         */
-        public void End() throws ClassMakerException
-        {
-            if (getClassFileWriter() != null) 
-                cfw.markLabel(blockEnd);
-            // Save local variable descriptors to be used by the debugger.
-            exitScope(getScopeLevel());
-            // Pop ScopeStatement off statement stack.
-            dispose();
-        }
-
-        public int getScopeLevel()
-        {
-            return super.getScopeLevel() +1;
-        }
-
-        protected int getStatementEnd()
-        {
-            return blockEnd;
-        }
     }
 
     // ##################  If Then Else EndIf  ###################
@@ -7063,6 +6794,10 @@ public class ClassMaker implements ClassMakerIfc
      */
     protected class IfStatement extends Statement
     {
+        protected IfStatement(ClassMaker maker) {
+            super(maker);
+        }
+
         /** Jump label at the end of the Then block. */
         protected int jumpThen = 0;
 
@@ -7092,7 +6827,7 @@ public class ClassMaker implements ClassMakerIfc
                 throw createException("ClassMaker.IfConditionMustBeBoolean_1", condition.getName());
             }
             markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode()) cfw.setDebugComment("If");
+            if (isDebugCode()) setDebugComment("If");
 
             endStatement = cfw.acquireLabel();
             // Boolean value on stack will be 1 to execute Then block or 0 to
@@ -7112,7 +6847,7 @@ public class ClassMaker implements ClassMakerIfc
             if (jumpElse != 0)
                 throw createException("ClassMaker.ElseCalledTwice");
             markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode()) cfw.setDebugComment("Else");
+            if (isDebugCode()) setDebugComment("Else");
 
             jumpElse = cfw.acquireLabel();
             cfw.add(ByteCode.GOTO, jumpElse);
@@ -7129,7 +6864,7 @@ public class ClassMaker implements ClassMakerIfc
             if (getClassFileWriter() != null)
             {
                 markLineNumber(); // possibly add a new line number entry.
-                if (isDebugCode()) cfw.setDebugComment("End If");
+                if (isDebugCode()) setDebugComment("End If");
 
                 if (jumpElse != 0)
                 {
@@ -7166,7 +6901,7 @@ public class ClassMaker implements ClassMakerIfc
      */
     public Labelled If(Type condition) throws ClassMakerException
     {
-        IfStatement stmt = new IfStatement();
+        IfStatement stmt = new IfStatement(this);
         stmt.If(condition);
         return stmt;
     }
@@ -7220,132 +6955,6 @@ public class ClassMaker implements ClassMakerIfc
     }
 
     /**
-     * Represents a <code>Loop</code> statement.
-     * Manages the jump labels and generates the bytecode for the <code>Loop</code> statement.
-     */
-    protected class LoopStatement extends Statement
-    {
-        /** Jump label for the start of the loop. */
-        protected int beginLoop = 0;
-
-        /** Jump label for the end of the loop. */
-        protected int endLoop = 0;
-
-        /** There must be at least one <code>Break</code> or equivalent within the <code>Loop</code>. */
-        protected int breakCount = 0;
-
-        /**
-         * Begins a <code>Loop</code> statement.
-         * Control will jump here from the <code>EndLoop</code> clause or from
-         * an enclosed <code>Continue</code> statement.
-         * The loop will not terminate unless there is an enclosed statement that
-         * breaks out of the loop, for example, <code>While</code> or <code>Break</code>.
-         */
-        public void Loop() throws ClassMakerException
-        {
-            if (getClassFileWriter() == null) return;
-            markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode()) cfw.setDebugComment("Loop()");
-
-            beginLoop = cfw.acquireLabel();
-            endLoop = cfw.acquireLabel();
-            cfw.markLabel(beginLoop);
-            cfw.add(ByteCode.NOP);
-        }
-
-        /**
-         * Ends a <code>Loop</code> statement.
-         * Jumps to the <code>Loop</code> clause.
-         *
-         * A <code>Break</code> or <code>While</code> will jump to the end of this clause;
-         * thus terminating the loop.
-         */
-        public void EndLoop() throws ClassMakerException
-        {
-            if (getClassFileWriter() != null)
-            {
-                if (breakCount == 0)
-                    throw createException("ClassMaker.LoopDoesNotContainBreak");
-                markLineNumber(); // possibly add a new line number entry.
-
-                if (isDebugCode()) cfw.setDebugComment("   Jump to begining of Loop");
-                cfw.add(ByteCode.GOTO, beginLoop);
-
-                if (isDebugCode()) cfw.setDebugComment("End of Loop");
-                cfw.markLabel(endLoop);
-            }
-            // Pop LoopStatement off statement stack.
-            dispose();
-        }
-
-        /**
-         * Iterates through a <code>Loop</code> while the condition is <code>true</code>
-         * Breaks out of the enclosing <code>Loop</code> when the condition is <code>false</code>.
-         * The <code>While</code> clause should be the first or last in a loop; however, this is not enforced.
-         * @param condition the type of the condition expression must be boolean
-         */
-        public ForStep While(Type condition) throws ClassMakerException
-        {
-            if (getClassFileWriter() == null) return null;
-            if (!PrimitiveType.BOOLEAN_TYPE.equals(condition))
-            {
-                throw createException("ClassMaker.WhileConditionMustBeTypeBooleanNot_1", condition.getName());
-            }
-            markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode()) cfw.setDebugComment("    jump conditional to end of loop");
-            // Boolean value on stack will be 1 (true) to continute Loop or 0 (false) to exit Loop.
-            cfw.add(ByteCode.IFEQ, endLoop);   // Break out of the loop if equal to zero.
-            breakCount++;
-            return null;
-        }
-
-        /**
-         * Jumps to <code>EndLoop</code> when <code>Break</code> is called.
-         * The <code>label</code> must also match this statement if it is provided;
-         * otherwise, passes the jump request down the statement stack.
-         * @param jumpTarget <code>ClassMaker.BREAK</code>,
-         *                   <code>ClassMaker.CONTINUE</code> or
-         *                   <code>ClassMaker.RETURN</code>.
-         * @param label the name of the statement to jump to or <code>null</code>
-         * @return the target <code>Statement</code> or <code>null</code> if not found.
-         */
-        protected Statement jumpToTarget(String jumpTarget, String label)
-        {
-            if (BREAK.equals(jumpTarget) && (label == null || label.equals(getLabel())))
-            {   // Break jumps to the end of the loop
-                if (isDebugCode()) cfw.setDebugComment("    Break jumps to end of loop" + (label == null ? "" : label));
-                cfw.add(ByteCode.GOTO, endLoop);
-                breakCount++;
-            }
-            else if (CONTINUE.equals(jumpTarget) && (label == null || label.equals(getLabel())))
-            {   // Continue jumps to the start of the loop
-                if (isDebugCode()) 
-                	cfw.setDebugComment("    Continue jumps to start of loop " + (label == null ? "" : label));
-                continueLoop();
-            }
-            else
-            {   // We have not found the appropriate break.
-                if (BREAK.equals(jumpTarget))
-                    breakCount++; // indicate that this statement has at least one break.
-                // Pass the request down the statement stack
-                return super.jumpToTarget(jumpTarget, label);
-            }
-            return this;
-        }
-
-        /** Jumps to the begining of the loop. */
-        protected void continueLoop()
-        {
-            cfw.add(ByteCode.GOTO, beginLoop);
-        }
-        
-        protected int getStatementEnd()
-        {
-        	return endLoop;
-        }
-    }
-
-    /**
      * Fetches the <code>ForStatement</code> at the top of the statement stack.
      * Casts the statement on the top of the statement stack or throws an
      * <code>IllegalStateException</code> if this is not possible.
@@ -7356,140 +6965,6 @@ public class ClassMaker implements ClassMakerIfc
         if ((topStatement() instanceof ForStatement))
             return (ForStatement) topStatement();
         throw createException(msg);
-    }
-
-    /**
-     * Represents a <code>For</code> statement.
-     * Manages the jump labels and generates the bytecode for the <code>Loop</code> statement.
-     */
-    protected class ForStatement extends LoopStatement implements ForWhile, ForStep
-    {
-        /** Jump label for the start of the step. */
-        protected int beginStep = 0;
-
-        /** Jump label for the end of the step. */
-        protected int endStep = 0;
-
-        /** Set <code>true</code> when <code>While</code> is called. */
-        protected boolean calledWhile = false;
-
-        /** Set <code>true</code> when <code>Step</code> is called. */
-        protected boolean calledStep  = false;
-
-        /** Top of the For loop statement. */
-        public void Loop() throws ClassMakerException
-        {
-            if (getClassFileWriter() == null) return;
-            markLineNumber(); // possibly add a new line number entry.
-            beginLoop = cfw.acquireLabel();
-            endLoop = cfw.acquireLabel();
-            if (isDebugCode()) cfw.setDebugComment("For loop");
-            cfw.markLabel(beginLoop);
-            cfw.add(ByteCode.NOP);
-        }
-
-        /**
-         * Implements a While clause of a For loop.
-         *
-         * Jumps to the end of the loop if the condition eveluates to true; otherwise
-         * jumps to the body of the loop.
-         *
-         * @param condition the type of the condition must be <code>boolean</code>
-         * @return an interface for the <code>Step</code> clause
-         */
-        public ForStep While(Type condition) throws ClassMakerException
-        {
-            if (getClassFileWriter() == null) return this;
-            markLineNumber(); // possibly add a new line number entry.
-            if (condition != null)
-            {
-	            if (!PrimitiveType.BOOLEAN_TYPE.equals(condition))
-	            {
-	                throw createException("ClassMaker.WhileConditionMustBeTypeBooleanNot_1", condition.getName());
-	            }
-	            if (isDebugCode()) cfw.setDebugComment("For while");
-	            // Boolean value on stack will be 1 (true) to continute Loop or 0 (false) to exit Loop.
-	            cfw.add(ByteCode.IFEQ, endLoop);   // Break out of the loop if equal to zero.
-        	
-            }
-            endStep = cfw.acquireLabel();
-            beginStep = cfw.acquireLabel();
-            cfw.add(ByteCode.GOTO, endStep);
-            cfw.markLabel(beginStep);
-            breakCount++;
-            calledWhile = true;
-            return this;
-        }
-
-        /**
-         * Implements a Step clause of a For loop.
-         *
-         * Jumps to the begining of the loop after evaluating the Step clause.
-         *
-         * @param step the type of the Step expression
-         * @return an interface to set a Label
-         */
-        public Labelled Step(Type step) throws ClassMakerException
-        {
-            if (getClassFileWriter() == null) return this;
-            if (isDebugCode()) cfw.setDebugComment("For step");
-            if (step != null)
-            	Eval(step);
-            markLineNumber(); // possibly add a new line number entry.
-
-            cfw.add(ByteCode.GOTO, beginLoop);
-            cfw.markLabel(endStep);
-            calledStep = true;
-            return this;
-        }
-
-        /**
-         * Ends a <code>For</code> statement.
-         *
-         * Jumps to the <code>Step</code> clause of the <code>For</code> statement.
-         * A <code>Break</code> will jump to the end of this clause;
-         * thus terminating the loop.
-         */
-        public void EndLoop() throws ClassMakerException
-        {
-            if (getClassFileWriter() != null)
-            {
-                if (breakCount == 0)
-                    throw createException("ClassMaker.ForDoesNotContainBreak");
-                markLineNumber(); // possibly add a new line number entry.
-
-                if (isDebugCode()) cfw.setDebugComment("For end");
-                // Handles a For() statement with or without While() and Step() clauses.
-                if (!calledWhile)
-                {
-                    cfw.add(ByteCode.GOTO, beginLoop);
-                }
-                else if (!calledStep)
-                {
-                    cfw.add(ByteCode.GOTO, beginLoop);
-                    cfw.markLabel(endStep);
-                    cfw.add(ByteCode.GOTO, beginStep);
-                }
-                else
-                    cfw.add(ByteCode.GOTO, beginStep);
-                cfw.markLabel(endLoop);
-            }
-            // Pop ForStatement off the stack.
-            dispose();
-        }
-
-        /**
-         * Iterates through the loop once more, calling the Step code if appropriate.
-         */
-        protected void continueLoop()
-        {
-            if (!calledWhile)
-                // Jumps to the begining of the loop
-                cfw.add(ByteCode.GOTO, beginLoop);
-            else
-                // Jumps to the Step code and then to the begining of the loop
-                cfw.add(ByteCode.GOTO, beginStep);
-        }
     }
 
     /**
@@ -7512,7 +6987,7 @@ public class ClassMaker implements ClassMakerIfc
      */
     public Labelled Loop() throws ClassMakerException
     {
-        LoopStatement stmt = new LoopStatement();
+        LoopStatement stmt = new LoopStatement(this);
         stmt.Loop();
         return stmt;
     }
@@ -7576,47 +7051,9 @@ public class ClassMaker implements ClassMakerIfc
     {
     	if (declare != null)
     		Eval(declare);
-        ForStatement stmt = new ForStatement();
+        ForStatement stmt = new ForStatement(this);
         stmt.Loop();
         return stmt;
-    }
-
-    /**
-     * Interface for the <code>While</code> part of a <code>For</code> loop.
-     */
-    public interface ForWhile
-    {
-        /**
-         * The <code>While</code> part of a <code>For</code> loop.
-         * </br>
-         * Used in a daisy chain like this.
-         * <pre>
-         *    For( <expression> ).While( <condition> ).Step( <increment> );
-         * </pre>
-         * @param condition the <code>Type</code> of the condition expression
-         * @return an interface to allow the <code>For</code> statement to be labeled
-         * @throws ClassMakerException if the condition type is not boolean
-         */
-        ForStep While(Type condition) throws ClassMakerException;
-    }
-
-    /**
-     * Interface for the <code>Step</code> part of a <code>For</code> loop.
-     */
-    public interface ForStep
-    {
-        /**
-         * The <code>Step</code> part of a <code>For</code> loop.
-         * </br>
-         * Used in a daisy chain like this.
-         * <pre>
-         *    For( <expression> ).While( <condition> ).Step( <increment> );
-         * </pre>
-         * @param step the <code>Type</code> of the increment expression
-         * @return an interface to allow the <code>For</code> statement to be labeled
-         * @throws ClassMakerException
-         */
-        Labelled Step(Type step) throws ClassMakerException;
     }
 
     /**
@@ -7663,19 +7100,19 @@ public class ClassMaker implements ClassMakerIfc
      */
     public void Break(String label) throws ClassMakerException
     {
-        if (getClassFileWriter() == null) return;
-   	   if (isDebugCode()) 
-   		   cfw.setDebugComment("Break(" + (label == null ? "" : label) + ")");
+        if (getClassFileWriter() == null)
+            return;
+        if (isDebugCode())
+            setDebugComment("Break(" + (label == null ? "" : label) + ")");
         Statement stmt = topStatement();
         markLineNumber(); // possibly add a new line number entry.
-        if (stmt.jumpToTarget(BREAK, label) == null)
-        {
-        	if (label == null)
-        		throw createException("ClassMaker.BreakWhileNotInLoopOrSwitch");
-        	else
-        		throw createException("ClassMaker.CouldNotFindTargetLabelForBreak_1", label);
+        if (stmt.jumpToTarget(BREAK, label) == null) {
+            if (label == null)
+                throw createException("ClassMaker.BreakWhileNotInLoopOrSwitch");
+            else
+                throw createException("ClassMaker.CouldNotFindTargetLabelForBreak_1", label);
         }
-        
+
     }
 
     /** Continues the nearest enclosing <code>Loop<code> statement. */
@@ -7691,7 +7128,7 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null) return;
     	   if (isDebugCode()) 
-       		   cfw.setDebugComment("Continue(" + (label == null ? "" : label) + ")");
+       		   setDebugComment("Continue(" + (label == null ? "" : label) + ")");
         Statement stmt = topStatement();
         markLineNumber(); // possibly add a new line number entry.
         if (stmt.jumpToTarget(CONTINUE, label) == null)
@@ -7711,249 +7148,6 @@ public class ClassMaker implements ClassMakerIfc
             return (SwitchStatement) topStatement();
         else
             throw createException(msg);
-    }
-
-    //################# Switch Statement ########################
-    /**
-     * Represents a <code>Switch</code> statement.
-     * Manages the case keys and generates the bytecode for the switch statement.
-     */
-    protected class SwitchStatement extends Statement
-    {
-        int beginSwitch = 0;
-        int endSwitch = 0;
-        int defaultSwitch = 0;
-        int[] cases = new int[16];
-        int caseSize = 0;
-        String label = null;
-        short startLineNumber;
-
-        /**
-         * Begins a <code>Switch</code> statement.
-         * </br>
-         * The type of the selector must be int, char, short or byte.
-         * The bytecode for the switch is added in <code>EndSwitch</code>,
-         * after the bytecode for each case clause has been added,
-         * so we jump to <code>EndSwitch</code>.
-         * @param switchType the type of the selector for the switch
-         */
-        public void Switch(Type switchType)
-        {
-            if (getClassFileWriter() == null) return;
-            checkSwitchType(switchType);
-            markLineNumber(); // possibly add a new line number entry.
-            startLineNumber = (short)getSourceLine().getLineNumber();
-            beginSwitch = cfw.acquireLabel();
-            endSwitch = cfw.acquireLabel();
-            if (cfw.isDebugCode()) 
-            	cfw.setDebugComment("Switch("+switchType+");");
-            cfw.add(ByteCode.GOTO, beginSwitch);
-        }
-
-        /**
-         * Adds a <code>Case</code> clause of a <code>Switch</code> statement.
-         * </br>
-         * The switch statement will jump here if the switch value matches the given key.
-         * Bytecode is generated to mark the jump offset and insert it and the key
-         * into the <code>cases</code> table.
-         * @param caseKey the selector which will cause the switch statement to jump to this case
-         */
-        public void Case(int caseKey)
-        {
-            if (getClassFileWriter() == null) return;
-            if (cfw.isDebugCode()) 
-            	cfw.setDebugComment("Case("+caseKey+");");
-            markLineNumber(); // possibly add a new line number entry.
-            int caseLabel = cfw.acquireLabel();
-            cfw.markLabel(caseLabel);
-
-            insertCaseKey(caseKey, caseLabel);
-        }
-
-        /**
-         * Adds a <code>Default</code> clause of a <code>Switch</code> statement.
-         * </br>
-         * The switch statement will jump here if none of the other cases apply.
-         *
-         * Bytecode is generated to mark the jump offset.
-         */
-        public void Default()
-        {
-            if (getClassFileWriter() == null) return;
-            if (cfw.isDebugCode()) 
-            	cfw.setDebugComment("Default();");
-            if (defaultSwitch != 0)
-                throw createException("ClassMaker.MoreThanOneDefaultInSwitch");
-            markLineNumber(); // possibly add a new line number entry.
-
-            defaultSwitch = cfw.acquireLabel();
-            cfw.markLabel(defaultSwitch);
-        }
-
-        /**
-         * Ends a <code>Switch</code> statement.
-         * </br>
-         * The switch statement jumps here before being redirected to the appropriate
-         * code block.
-         * </br>
-         * Byte code is generated for either a Table Switch or a Lookup Switch
-         * depending upon whether the case keys are contiguous. Control
-         * will jump to the end of this code if <code>Break</code> is called.
-         */
-        public void EndSwitch()
-        {
-            if (getClassFileWriter() == null) return;
-            if (caseSize == 0)
-            	throw createException("ClassMaker.NoCaseClauseInSwitch");
-            if (cfw.isDebugCode()) 
-            	cfw.setDebugComment("EndSwitch();");
-            if (defaultSwitch == 0)
-            {   // Ensure there is a default option that does nothing.
-            	Default();
-            	Break();
-            }
-
-            cfw.addLineNumberEntry(startLineNumber);
-            cfw.markLabel(beginSwitch);
-            // Use a Table Switch if the keys are contiguous; otherwise use a Lookup Switch.
-            if (isContiguous())
-            	createTableSwitch();
-            else
-            	createLookupSwitch();
-
-            cfw.markLabel(endSwitch);
-            dispose();
-        }
-        
-        protected int getStatementEnd()
-        {
-        	return endSwitch;
-        }
-
-        /** Doubles the size of the cases array. */
-        protected void expand()
-        {
-            int[] tmp = new int[cases.length * 2];
-            System.arraycopy(cases, 0, tmp, 0, cases.length);
-            cases = tmp;
-        }
-
-        /**
-         * Checks that the switch type is int, char, short or byte.
-         * @param switchType the type of the selector for the switch
-         */
-        protected void checkSwitchType(Type switchType)
-        {
-            if (!isIntegerType(switchType))
-                throw createException("ClassMaker.SwitchTypeMustBeNumberNot_1", switchType.getName());
-        }
-
-        /** Returns <code>true</code> if the case keys form a contigous sequence. */
-        protected boolean isContiguous()
-        {
-            for (int i = 2; i < caseSize; i += 2)
-            {
-                if (cases[i - 2] + 1 != cases[i])
-                    return false;
-            }
-            return true;
-        }
-
-        /**
-         * Inserts a case key into the sequence for this <code>Switch</code>.
-         * @param key the case key to be inserted
-         * @param label the jump offset corresponding to the given key
-         */
-        protected void insertCaseKey(int key, int label)
-        {
-            // Expand array if required.
-            if (caseSize + 2 > cases.length)
-                expand();
-
-            // insert key & label into correct place in array.
-            int i;
-            for (i = caseSize; i > 0; i -= 2)
-            {
-                if (cases[i - 2] > key)
-                {
-                    cases[i] = cases[i - 2];
-                    cases[i + 1] = cases[i - 1];
-                    continue;
-                }
-                else if (cases[i - 2] == key)
-                    throw createException("ClassMaker.DuplicateCaseKey_1", Integer.toString(key));
-                break;
-            }
-            cases[i] = key;
-            cases[i + 1] = label;
-            caseSize += 2;
-        }
-
-        /** Generates the bytecode for a <code>Switch<code> statement with contiguous keys. */
-       protected void createTableSwitch()
-       {
-    	   if (cfw.isDebugCode()) 
-    		   cfw.setDebugComment("Table Switch");
-            int low = cases[0];
-            int high = cases[caseSize - 2];
-            int startSwitch = cfw.addTableSwitch(low, high);
-            cfw.addTableSwitchDefaultLabel(startSwitch, defaultSwitch);
-            //int prev = cases[0] - 1;
-            int prev = -1; // first key is always zero
-            for (int i = 0; i < caseSize; i += 2)
-            {
-                int entry = i / 2;
-                int key = cases[i] - low;
-                int label = cases[i + 1];
-                if (prev == key)
-                    throw new IllegalStateException("TableSwitch duplicate case key:" + key);
-                if (prev + 1 != key)
-                    throw new IllegalStateException("TableSwitch case keys are not contiguous, case " + prev + ": case" + key + ":");
-                cfw.addTableSwitchCaseLabel(startSwitch, entry, label);
-                prev = key;
-            }
-        }
-
-       /** Generates the bytecode for a <code>Switch<code> statement with <b>non-</b>contiguous keys. */
-        protected void createLookupSwitch()
-        {
-     	   if (cfw.isDebugCode()) 
-    		   cfw.setDebugComment("Lookup Switch");
-            int startSwitch = cfw.addLookupSwitch(caseSize / 2);
-            cfw.addLookupSwitchDefaultLabel(startSwitch, defaultSwitch);
-            int prev = cases[0] - 1;
-            for (int i = 0; i < caseSize; i += 2)
-            {
-                int entry = i / 2;
-                int key = cases[i];
-                int label = cases[i + 1];
-                if (prev == key)
-                    throw new IllegalStateException("LookupSwitch duplicate case key:" + key);
-                if (prev > key)
-                    throw new IllegalStateException("TableSwitch case keys must be in ascending order, case " + prev + ": case " + key + ":");
-                cfw.addLookupSwitchCaseLabel(startSwitch, entry, key, label);
-                prev = key;
-            }
-        }
-
-        /**
-         * Jumps to <code>EndSwitch</code> when <code>Break</code> is called.
-         * </br>
-         * The <code>label</code> must also match this statement if it is provided;
-         * otherwise, passess the jump request down the statement stack.
-         * @param jumpTarget <code>ClassMaker.BREAK</code>, <code>ClassMaker.CONTINUE</code>, <code>ClassMaker.RETURN</code> or <code>null</code>.
-         * @param label the name of the statement to jump to or <code>null</code>
-         * @return the target <code>Statement</code> or <code>null</code> if not found.
-         */
-        protected Statement jumpToTarget(String jumpTarget, String label)
-        {
-            if (BREAK.equals(jumpTarget) && (label == null || label.equals(this.label)))
-            {
-                cfw.add(ByteCode.GOTO, endSwitch);
-                return this;
-            }
-            return super.jumpToTarget(jumpTarget, label);
-        }
     }
 
     /**
@@ -7983,7 +7177,7 @@ public class ClassMaker implements ClassMakerIfc
      */
     public Labelled Switch(Type type)
     {
-        SwitchStatement stmt = new SwitchStatement();
+        SwitchStatement stmt = new SwitchStatement(this);
         stmt.Switch(type);
         return stmt;
     }
@@ -8023,200 +7217,6 @@ public class ClassMaker implements ClassMakerIfc
         SwitchStatement stmt = topSwitchStatement("ClassMaker.EndSwitchWhileNotInSwitch");
         stmt.EndSwitch();
         followsReturn = false;
-    }
-
-    /**
-     * Represents a <code>Try Catch Finally</code> statement.
-     * Assists the generation of code for the statement by managing the
-     * jump addresses and subroutines.
-     */
-    protected class TryCatchFinally extends Statement
-    {
-        /* Start of the try block is a parameter to the exception handlers. */
-        int startTryBlock = 0;
-
-        /* End of the try block is a parameter to the exception handlers. */
-        int endTryBlock = 0;
-
-        /* Jump to the end of the catch block from the try block and each exception handler. */
-        int endCatchBlock = 0;
-
-        /* Reference to the finally subroutine which is called from many places. */
-        int finallySubroutine = 0;
-        int startFinallyBlock = 0;
-
-        /* An anonomous local variable holds the return PC for the finally subroutine. */
-        int finallyReturnSlot = 0;
-        int endFinallyBlock = 0;
-        
-        int finalyExceptionSlot = -1;
-        
-        /**
-         * Begins a <code>Try Catch Finally</code> block.
-         * </br>
-         * Marks the start of the try block.
-         */
-        public void Try()
-        {
-            if (getClassFileWriter() == null) return;
-            if (isDebugCode())
-            	cfw.setDebugComment("Try();");
-            startTryBlock = cfw.acquireLabel();
-            endCatchBlock = cfw.acquireLabel();
-            cfw.markLabel(startTryBlock);
-        }
-
-        /**
-         * Catch an Exception type.
-         * </br>
-         * Catches the given Exception type and stores it in a local variable with the given name.
-         * Also marks the begining of a block of code to handle the exception.
-         * @param exceptionType the type of exception handled by this block of code
-         * @param name the local variable name for the exception
-         */
-        public void Catch(Type exceptionType, String name) throws ClassMakerException
-        {
-            if (getClassFileWriter() == null) return;
-            if (isDebugCode())
-            	cfw.setDebugComment("Catch(" + exceptionType + ", " + name  + ");");
-            endTryCatchBlock();
-
-            // catch (Exception ex)
-            int catchBlock = cfw.acquireLabel();
-            String exceptionName = exceptionType.getName();
-            cfw.addExceptionHandler(startTryBlock, endTryBlock, catchBlock, exceptionName);
-            cfw.markLabel(catchBlock);
-            cfw.adjustStackTop(1); // exception pointer pushed onto stack.
-            markLineNumber(); // possibly add a new line number entry.
-
-            Declare(name, exceptionType, 0);
-            Eval(Set(name, exceptionType));
-        }
-
-        protected void endTryCatchBlock2()
-        {
-            if (endTryBlock == 0)
-            {
-                endTryBlock = cfw.acquireLabel();
-                cfw.markLabel(endTryBlock);
-            }
-            finalyExceptionSlot = storeAnonymousValue(ClassType.OBJECT_TYPE);
-            // initialise slot
-            // Jump over remaining catch and finally blocks.
-            cfw.add(ByteCode.GOTO, endCatchBlock);
-        }
-
-       /**
-         * Starts a Finaly block.
-         * </br>
-         * Begins a subroutine that will always be executed regardless of the execution path.
-         * The finally sunroutine is called:
-         * <UL>
-         *   <LI>after execution of the Try block completes normally</LI>
-         *   <LI>after a Catch clause processes an exception</LI>
-         *   <LI>as appropriate when Break, Continue or Return methods are called</LI>
-         *   <LI>whenever an exception passes through the method without being caught.</LI>
-         * </UL>
-         */
-        public void Finally()
-        {
-            if (getClassFileWriter() == null) return;
-            if (isDebugCode())
-            	cfw.setDebugComment("Finally();");
-            endTryCatchBlock();
-
-            // Start finaly block
-            int catchBlockAll = cfw.acquireLabel();
-            cfw.addExceptionHandler(startTryBlock, endTryBlock, catchBlockAll, null);
-            cfw.markLabel(catchBlockAll);
-            // An exception pointer has been pushed onto the stack.
-            cfw.adjustStackTop(1);
-            finallySubroutine = cfw.acquireLabel();
-            markLineNumber(); // possibly add a new line number entry.
-
-            // Store the exception pointer in an anonomous local variable.
-            if (cfw.isDebugCode())
-            	cfw.setDebugComment("Store reference to exception");
-            int finalyExceptionAddress = storeAnonymousValue(ClassType.OBJECT_TYPE);
-
-            // Jump to the finally subroutine
-            callFinallySubroutine();
-
-            // Rethrow the exception.
-            if (cfw.isDebugCode())
-            	cfw.setDebugComment("Load reference to exception");
-            loadAnonymousValue(finalyExceptionAddress);
-            if (cfw.isDebugCode())
-            	cfw.setDebugComment("Rethrow exception");
-            cfw.add(ByteCode.ATHROW);
-
-            // Finaly subroutine
-            if (cfw.isDebugCode())
-            	cfw.setDebugComment("finally subroutine");
-            cfw.markLabel(finallySubroutine);
-
-            // Store return address in an annonomous local variable.
-            finallyReturnSlot = storeAnonymousValue(ClassType.OBJECT_TYPE);
-        }
-
-        /**
-         * Generates the bytecode to end a <code>Try Catch Finally</code> block.
-         * The <code>Try</code> block and all preceeding <code>Catch</code> blocks jump to here.
-         * Completes from the finally subroutine and then calls it.
-         */
-        public void EndTry()
-        {
-            if (getClassFileWriter() != null)
-            {
-                if (cfw.isDebugCode()) 
-                	cfw.setDebugComment("EndTry();");
-                if (finallyReturnSlot != 0)
-                {
-                    MakerField local = localTable.get(finallyReturnSlot);
-                    cfw.add(ByteCode.RET, local.getSlot());
-                }
-                cfw.markLabel(endCatchBlock);
-                callFinallySubroutine();
-            }
-            dispose();
-        }
-
-        /**
-         * Generates bytecode at the start of a <code>Catch</code> block.
-         * </br>
-         * Marks the bottom of the <code>Try</code> block so it can be used in
-         * exception handlers.
-         * Jumps over the following <code>Catch</code> blocks.
-         */
-        protected void endTryCatchBlock()
-        {
-            if (endTryBlock == 0)
-            {
-                endTryBlock = cfw.acquireLabel();
-                cfw.markLabel(endTryBlock);
-            }
-            // Jump over remaining catch and finally blocks.
-            cfw.add(ByteCode.GOTO, endCatchBlock);
-        }
-
-        /**
-         * Jump to the finally subroutine.
-         */
-        protected void callFinallySubroutine()
-        {
-            if (finallySubroutine != 0)
-            {
-            	if (cfw.isDebugCode())
-            		cfw.setDebugComment("jump to finally subroutine");
-                cfw.add(ByteCode.JSR, finallySubroutine);
-            }
-        }
-        
-        protected int getStatementEnd()
-        {
-        	return endCatchBlock;
-        }
-
     }
 
     /**
@@ -8261,7 +7261,7 @@ public class ClassMaker implements ClassMakerIfc
      */
     public Labelled Try()
     {
-        TryCatchFinally stmt = new TryCatchFinally();
+        TryCatchFinally stmt = new TryCatchFinally(this);
         stmt.Try();
         return stmt;
     }
@@ -8409,13 +7409,13 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (andOr != null && andOr.jumpAnd != 0) {
             if (cfw.isDebugCode())
-                cfw.setDebugComment("preserve result on stack");
+                setDebugComment("preserve result on stack");
             int temp = cfw.acquireLabel();
             cfw.add(ByteCode.GOTO, temp);
             cfw.markLabel(andOr.jumpAnd);
             andOr.jumpAnd = 0;
             if (cfw.isDebugCode())
-                cfw.setDebugComment("|| expression evaluates to false");
+                setDebugComment("|| expression evaluates to false");
             cfw.add(ByteCode.ICONST_0);
             cfw.markLabel(temp);
         }
@@ -8425,13 +7425,13 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (andOr != null && andOr.jumpOr != 0) {
             if (cfw.isDebugCode())
-                cfw.setDebugComment("preserve result on stack");
+                setDebugComment("preserve result on stack");
             int temp = cfw.acquireLabel();
             cfw.add(ByteCode.GOTO, temp);
             cfw.markLabel(andOr.jumpOr);
             andOr.jumpOr = 0;
             if (cfw.isDebugCode())
-                cfw.setDebugComment("|| expression evaluates to true");
+                setDebugComment("|| expression evaluates to true");
             cfw.add(ByteCode.ICONST_1);
             cfw.markLabel(temp);
         }
@@ -8466,13 +7466,10 @@ public class ClassMaker implements ClassMakerIfc
         andOr.prev = previous;  // Chain similar shortcut operators
         // Jump to the same label as the previous AndThen expression, if available.
         andOr.jumpAnd = (previous == null || previous.jumpAnd == 0) ? cfw.acquireLabel() : previous.jumpAnd;
-        //dup(BOOLEAN_TYPE); // Duplicate value so it is on stack at and of jump.
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("&& Jump if false on stack");
+        	setDebugComment("&& Jump if false on stack");
         cfw.add(ByteCode.IFEQ, andOr.jumpAnd); // Jump over other expression if
                                                 // cond is false.
-        //cfw.add(ByteCode.POP); // Previous value now irrelevant so remove from
-                                // stack.
 
         markLineNumber(); // possibly add a new line number entry.
 
@@ -8529,11 +7526,9 @@ public class ClassMaker implements ClassMakerIfc
         // Jump to the same label as the previous OrElse expression, if available.
         andOr.jumpOr = (previous == null || previous.jumpOr == 0) ? cfw.acquireLabel() : previous.jumpOr;
         
-        //dup(BOOLEAN_TYPE); // Duplicate cond so it is on stack at end of jump.
         if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("|| Jump if true on stack");
+        	setDebugComment("|| Jump if true on stack");
         cfw.add(ByteCode.IFNE, andOr.jumpOr); // Jump over other expression if cond is true.
-        //cfw.add(ByteCode.POP); // Previous cond now irrelevant so remove from stack.
 
         markLineNumber(); // possibly add a new line number entry.
 

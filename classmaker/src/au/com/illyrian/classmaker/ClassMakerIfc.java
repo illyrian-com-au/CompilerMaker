@@ -1,9 +1,7 @@
 package au.com.illyrian.classmaker;
 
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
-import au.com.illyrian.classmaker.ClassMaker.ForWhile;
 import au.com.illyrian.classmaker.ClassMaker.Initialiser;
-import au.com.illyrian.classmaker.ClassMaker.Labelled;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;

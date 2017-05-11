@@ -28,10 +28,10 @@
 package au.com.illyrian.jesub.ast;
 
 import au.com.illyrian.classmaker.ClassMaker;
-import au.com.illyrian.classmaker.ClassMaker.ForStep;
-import au.com.illyrian.classmaker.ClassMaker.ForWhile;
-import au.com.illyrian.classmaker.ClassMaker.Labelled;
 import au.com.illyrian.classmaker.ClassMakerLocation;
+import au.com.illyrian.classmaker.ForStep;
+import au.com.illyrian.classmaker.ForWhile;
+import au.com.illyrian.classmaker.Labelled;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;

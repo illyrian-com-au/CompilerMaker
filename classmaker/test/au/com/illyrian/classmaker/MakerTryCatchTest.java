@@ -30,6 +30,7 @@ package au.com.illyrian.classmaker;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 
 public class MakerTryCatchTest extends ClassMakerTestCase
@@ -57,7 +58,7 @@ public class MakerTryCatchTest extends ClassMakerTestCase
 
     // Generate default constructor
     public void defaultConstructor()
-    {   nl(38);
+    {   nl(60);
         maker.Method("<init>", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC); nl();
         maker.Begin();                      nl();
           maker.Init(maker.Super(), null);  nl();
@@ -112,7 +113,7 @@ public class MakerTryCatchTest extends ClassMakerTestCase
     public static final String ILLEGAL_ARGUMENT_EXCEPTION = "java/lang/IllegalArgumentException";
     public void testThrowUncheckedException() throws Exception
     {
-nl(93);
+nl(115);
 nl();   maker.Implements(Unary.class);
 nl();   maker.Import(ILLEGAL_ARGUMENT_EXCEPTION);
 nl();   maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
@@ -139,7 +140,7 @@ nl();   maker.End();
 
     public void testThrowCheckedException() throws Exception
     {
-nl(120);
+nl(142);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(FILE_NOT_FOUND_EXCEPTION);
 nl();   maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
@@ -244,7 +245,7 @@ nl();   maker.End();
 
     public void testCatchNoExceptions() throws Exception
     {
-nl(262);
+nl(247);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
 nl();   maker.Declare("func", UNARY_CHECKED, ClassMaker.ACC_PUBLIC);
@@ -284,7 +285,7 @@ nl();   maker.End();
 
     public void testCatchOneException() throws Exception
     {
-nl(302);
+nl(287);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
 nl();   maker.Import(FILE_NOT_FOUND_EXCEPTION);
@@ -322,7 +323,7 @@ nl();   maker.End();
 
     public void testCatchExceptions() throws Exception
     {
-nl(340);
+nl(325);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
 nl();   maker.Import(FILE_NOT_FOUND_EXCEPTION);
@@ -366,7 +367,7 @@ nl();   maker.End();
 
     public void testFinally() throws Exception
     {
-nl(384);
+nl(369);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
 nl();   maker.Declare("func", UNARY_CHECKED, ClassMaker.ACC_PUBLIC);
@@ -409,7 +410,7 @@ nl();   maker.End();
 
     public void testCatchFinally() throws Exception
     {
-nl(427);
+nl(412);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
 nl();   maker.Import(FILE_NOT_FOUND_EXCEPTION);
@@ -466,7 +467,7 @@ nl();   maker.End();
 
     public void testCatch2Finally() throws Exception
     {
-nl(484);
+nl(469);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
 nl();   maker.Import(FILE_NOT_FOUND_EXCEPTION);
@@ -520,9 +521,9 @@ nl();   maker.End();
             assertEquals(++count, getIntField(exec.getClass(), exec, "val"));
         };
     }
-/*
+
     public void testCatchThrowFinally() throws Exception
-    {
+    { maker.getClassFileWriter().setDebugCodeOutput(System.out);
 nl(526);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
@@ -584,7 +585,7 @@ nl();   maker.End();
             assertEquals(++count, getIntField(exec.getClass(), exec, "val"));
         };
     }
-*/
+
     public class TryCatchFinallyMaker extends ClassMakerBase
     {
         public void code()
@@ -685,7 +686,7 @@ nl();   maker.End();
         assertEquals("Wrong value for exec.unary()", -9, exec.unary(0));
         assertEquals("Wrong value for exec.unary()", -99, exec.unary(-1));
     }
-/*
+
     public void testTryException() throws Exception
     {
 
@@ -729,5 +730,5 @@ nl();   maker.End();
             assertEquals("Wrong message", "Class java.lang.String cannot be thrown", ex.getMessage());
         }
     }
-    */
+    
 }
