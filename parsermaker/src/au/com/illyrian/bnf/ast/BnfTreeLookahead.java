@@ -3,10 +3,11 @@ package au.com.illyrian.bnf.ast;
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class BnfTreeLookahead extends BnfTreeBase<Type>
 {
-    private final BnfTree pattern;
+    private final BnfTree<Type> pattern;
 
     public BnfTreeLookahead(BnfTree<Type> pattern, int sourceLine) {
         super(sourceLine);
@@ -33,7 +34,7 @@ public class BnfTreeLookahead extends BnfTreeBase<Type>
         return visitor.resolveMerge(this);
     }
 
-    public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)
+    public Value resolveLookahead(BnfMakerVisitor visitor, int howFar)
     {
         return visitor.resolveLookahead(this, howFar);
     }

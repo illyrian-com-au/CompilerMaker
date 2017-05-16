@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 /**
  * A call stack for the actual parameters types of a method call.
@@ -32,8 +33,12 @@ public class CallStackMaker implements CallStack
      * @param param type of the actual parameter
      * @return a call stack containing the actual parameter types for a method call
      */
-    public CallStack Push(Type type) throws ClassMakerException
+    public CallStack Push(Value value) throws ClassMakerException
     {
+        if (classMaker.getClassFileWriter() == null) {
+            return this;
+        }
+        Type type = value.getType();
         // Convert automatically created StringBuffers back to Strings as they are pushed onto the stack.
         if (type == ClassType.AUTO_STRING_TYPE)
             type = this.classMaker.getFactory().getStringConversion().toString(this.classMaker, type.toClass());

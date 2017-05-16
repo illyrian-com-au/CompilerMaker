@@ -29,7 +29,7 @@ package au.com.illyrian.classmaker.ast;
 
 import au.com.illyrian.classmaker.CallStack;
 import au.com.illyrian.classmaker.SourceLine;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class CommaOperator extends AstExpressionBase
 {
@@ -49,7 +49,7 @@ public class CommaOperator extends AstExpressionBase
         rightExpression = right;
     }
 
-    public Type resolveType(AstExpressionVisitor visitor)
+    public Value resolveType(AstExpressionVisitor visitor)
     {
         return null;
     }

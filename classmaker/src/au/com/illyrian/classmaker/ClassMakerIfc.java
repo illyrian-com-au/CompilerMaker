@@ -3,11 +3,9 @@ package au.com.illyrian.classmaker;
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.ClassMaker.Initialiser;
 import au.com.illyrian.classmaker.members.MakerField;
-import au.com.illyrian.classmaker.types.ArrayType;
-import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.DeclaredType;
-import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public interface ClassMakerIfc
 {
@@ -79,6 +77,7 @@ public interface ClassMakerIfc
      * @return an <code>Initialiser</code> for the instance
      */
     public Initialiser New(DeclaredType declared) throws ClassMakerException;
+    public Initialiser New(Type type) throws ClassMakerException;
 
     /**
      * Calls a constructor from the base class that is appropriate for the actual parameters.
@@ -89,7 +88,7 @@ public interface ClassMakerIfc
      * @param classType the type of the base class
      * @param actualParameters the types of the actual parameters in the call stack
      */
-    public void Init(ClassType classType, CallStack actualParameters) throws ClassMakerException;
+    public void Init(Value classType, CallStack actualParameters) throws ClassMakerException;
 
     //################## Method calls ##########################
     /**
@@ -102,7 +101,7 @@ public interface ClassMakerIfc
      * @param actualParameters the types of the actual parameters in the call stack
      * @return the return type of the called method
      */
-    //public Type Call(Class javaClass, String methodName, Pushable actualParameters) throws ClassMakerException;
+    //public Value Call(Class javaClass, String methodName, CallStack actualParameters) throws ClassMakerException;
 
     /**
      * Calls a static method in the named class that is appropriate for the actual parameters.
@@ -114,7 +113,7 @@ public interface ClassMakerIfc
      * @param actualParameters the types of the actual parameters in the call stack
      * @return the return type of the called method
      */
-    public Type Call(String className, String methodName, CallStack actualParameters) throws ClassMakerException;
+    public Value Call(String className, String methodName, CallStack actualParameters) throws ClassMakerException;
 
     /**
      * Calls a method from the class instance on top of the stack that is appropriate for the actual parameters.
@@ -127,7 +126,7 @@ public interface ClassMakerIfc
      * @param actualParameters the types of the actual parameters in the call stack
      * @return the return type of the called method
      */
-    public Type Call(Type reference, String methodName, CallStack actualParameters) throws ClassMakerException;
+    public Value Call(Value reference, String methodName, CallStack actualParameters) throws ClassMakerException;
 
     /**
      * Calls a method from the class instance on top of the stack that is appropriate for the actual parameters.
@@ -139,7 +138,7 @@ public interface ClassMakerIfc
      * @param actualParameters the types of the actual parameters in the call stack
      * @return the return type of the called method
      */
-    //public Type Call(Pushable actualParameters) throws ClassMakerException;
+    //public Value Call(Pushable actualParameters) throws ClassMakerException;
 
     // Special references
     /**
@@ -153,7 +152,7 @@ public interface ClassMakerIfc
      * </table>
      * @return the type for this class
      */
-    public ClassType This() throws ClassMakerException;
+    public Value This() throws ClassMakerException;
 
     /**
      * Pushes a reference to this class's <code>super</code> class onto the stack.
@@ -168,7 +167,7 @@ public interface ClassMakerIfc
      * </table>
      * @return the type for the super class
      */
-    public ClassType Super() throws ClassMakerException;
+    public Value Super() throws ClassMakerException;
 
     /**
      * Pushes <code>null</code> onto the stack.
@@ -181,7 +180,7 @@ public interface ClassMakerIfc
      * </table>
      * @return the type for <code>null</code>
      */
-    public ClassType Null() throws ClassMakerException;
+    public Value Null() throws ClassMakerException;
 
     // Literals
     /**
@@ -196,7 +195,7 @@ public interface ClassMakerIfc
      * @param value the double to be pushed onto the stack
      * @return the type for <code>double</code>
      */
-    public PrimitiveType Literal(double value) throws ClassMakerException;
+    public Value Literal(double value) throws ClassMakerException;
 
     /**
      * Pushes a literal <code>float</code> onto the stack.
@@ -210,7 +209,7 @@ public interface ClassMakerIfc
      * @param value the float to be pushed onto the stack
      * @return the type for <code>float</code>
      */
-    public PrimitiveType Literal(float value) throws ClassMakerException;
+    public Value Literal(float value) throws ClassMakerException;
 
     /**
      * Pushes a literal <code>long</code> onto the stack.
@@ -224,7 +223,7 @@ public interface ClassMakerIfc
      * @param value the long to be pushed onto the stack
      * @return the type for <code>long</code>
      */
-    public PrimitiveType Literal(long value) throws ClassMakerException;
+    public Value Literal(long value) throws ClassMakerException;
 
     /**
      * Pushes a literal <code>int</code> onto the stack.
@@ -238,7 +237,7 @@ public interface ClassMakerIfc
      * @param value the int to be pushed onto the stack
      * @return the type for <code>int</code>
      */
-    public PrimitiveType Literal(int value) throws ClassMakerException;
+    public Value Literal(int value) throws ClassMakerException;
 
     /**
      * Pushes a literal <code>char</code> onto the stack.
@@ -252,7 +251,7 @@ public interface ClassMakerIfc
      * @param value the char to be pushed onto the stack
      * @return the type for <code>char</code>
      */
-    public PrimitiveType Literal(char value) throws ClassMakerException;
+    public Value Literal(char value) throws ClassMakerException;
 
     /**
      * Pushes a literal <code>byte</code> value onto the stack.
@@ -266,7 +265,7 @@ public interface ClassMakerIfc
      * @param value the byte to be pushed onto the stack
      * @return the type for <code>byte</code>
      */
-    public PrimitiveType Literal(byte value) throws ClassMakerException;
+    public Value Literal(byte value) throws ClassMakerException;
 
     /**
      * Pushes a literal <code>short</code> onto the stack.
@@ -280,7 +279,7 @@ public interface ClassMakerIfc
      * @param value the short to be pushed onto the stack
      * @return the type for <code>short</code>
      */
-    public PrimitiveType Literal(short value) throws ClassMakerException;
+    public Value Literal(short value) throws ClassMakerException;
 
     /**
      * Pushes a literal <code>boolean</code> value onto the stack.
@@ -294,7 +293,7 @@ public interface ClassMakerIfc
      * @param value the boolean value to be pushed onto the stack
      * @return the type for <code>boolean</code>
      */
-    public PrimitiveType Literal(boolean value) throws ClassMakerException;
+    public Value Literal(boolean value) throws ClassMakerException;
 
     /**
      * Pushes a literal <code>String</code> onto the stack.
@@ -308,7 +307,7 @@ public interface ClassMakerIfc
      * @param value the string to be pushed onto the stack
      * @return the type for <code>String</code>
      */
-    public ClassType Literal(String value) throws ClassMakerException;
+    public Value Literal(String value) throws ClassMakerException;
 
     //#################### Getters and Setters ######################
     /**
@@ -327,7 +326,7 @@ public interface ClassMakerIfc
      * @param type type of the value being set
      * @return type of the value on the stack
      */
-    public Type Assign(String name, Type type) throws ClassMakerException;
+    public Value Assign(String name, Value type) throws ClassMakerException;
 
     /**
      * Assigns a value to a member variable and leaves the value on the stack.
@@ -345,7 +344,7 @@ public interface ClassMakerIfc
      * @param valueType the type of the value to be set
      * @return the type of the unconverted value left on the stack
      */
-    public Type Assign(Type type, String fieldName, Type value) throws ClassMakerException;
+    public Value Assign(Value type, String fieldName, Value value) throws ClassMakerException;
 
     /**
      * Assigns a value to a static member field, leaving the value on top of the stack.
@@ -363,7 +362,7 @@ public interface ClassMakerIfc
      * @param valueType the type of the value to be set
      * @return type of the value on top of the stack
      */
-    public Type Assign(String className, String fieldName, Type value) throws ClassMakerException;
+    public Value Assign(String className, String fieldName, Value value) throws ClassMakerException;
 
     /**
      * Sets a member variable to the value.
@@ -378,9 +377,9 @@ public interface ClassMakerIfc
      * @param type the type of the class containing the variable
      * @param fieldName the name of the member variable
      * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
+     * @return a <code>Value</code> representing <code>void</code>
      */
-//    public Type Assign(Type lvalue, Type value) throws ClassMakerException;
+//    public Value Assign(Value lvalue, Value value) throws ClassMakerException;
 
     /**
      * Sets a member variable to the value.
@@ -395,9 +394,9 @@ public interface ClassMakerIfc
      * @param type the type of the class containing the variable
      * @param fieldName the name of the member variable
      * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
+     * @return a <code>Value</code> representing <code>void</code>
      */
-   // public Type Set(Type lvalue, Type value) throws ClassMakerException;
+   // public Value Set(Value lvalue, Value value) throws ClassMakerException;
 
     /**
      * Sets the value on top of the stack to the named local variable or formal parameter.
@@ -414,7 +413,7 @@ public interface ClassMakerIfc
      * @param type type of the value being set
      * @return <code>ClassMaker.VOID_TYPE</code>
      */
-    public Type Set(String name, Type value) throws ClassMakerException;
+    public Value Set(String name, Value value) throws ClassMakerException;
 
     /**
      * Sets a member variable to the value.
@@ -429,9 +428,9 @@ public interface ClassMakerIfc
      * @param type the type of the class containing the variable
      * @param fieldName the name of the member variable
      * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
+     * @return a <code>Value</code> representing <code>void</code>
      */
-    public Type Set(Type reference, String fieldName, Type value) throws ClassMakerException;
+    public Value Set(Value reference, String fieldName, Value value) throws ClassMakerException;
 
     /**
      * Sets a static member field to the value.
@@ -446,9 +445,9 @@ public interface ClassMakerIfc
      * @param className the short or fully qualified name of the class
      * @param fieldName the name of the static member variable
      * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
+     * @return a <code>Value</code> representing <code>void</code>
      */
-    public Type Set(String className, String fieldName, Type value) throws ClassMakerException;
+    public Value Set(String className, String fieldName, Value value) throws ClassMakerException;
 
     /**
      * Gets a value from a member variable.
@@ -462,7 +461,7 @@ public interface ClassMakerIfc
      * @param fieldName the name of the member variable
      * @return the type of the value left on the stack
      */
-    public Type Get(Type reference, String fieldName) throws ClassMakerException;
+    public Value Get(Value reference, String fieldName) throws ClassMakerException;
 
     /**
      * Gets a value from a static member variable.
@@ -477,25 +476,25 @@ public interface ClassMakerIfc
      * @param fieldName the name of the static member variable
      * @return the type of the value left on the stack
      */
-    public Type Get(String className, String fieldName) throws ClassMakerException;
+    public Value Get(String className, String fieldName) throws ClassMakerException;
 
     /**
      * Gets a local variable or formal parameter by name.
      * @param name name of the local variable
      * @return type of the local variable
      */
-    public Type Get(String name) throws ClassMakerException;
+    public Value Get(String name) throws ClassMakerException;
 
     /**
      * Finds a named field in the given class.
      * </br>
      * Delegates to <code>findMemberField</code> and throws an <code>Exception</code> if the field is not found.
-     * @param reference the Type of the reference on top of the stack
+     * @param reference the Value of the reference on top of the stack
      * @param name name of the member field
      * @return the <code>MakerField</code> corresponding to the given name
      * @throws ClassMakerException if the field is not found
      */
-    public MakerField Find(Type type, String name) throws ClassMakerException;
+    public MakerField Find(Value type, String name) throws ClassMakerException;
 
     /**
      * Finds a named field in the given class.
@@ -558,13 +557,13 @@ public interface ClassMakerIfc
     public void Declare(String name, String typeName, int modifiers) throws ClassMakerException;
 
     /**
-     * Declares a local variable or member field using a <code>Type</code>.
+     * Declares a local variable or member field using a <code>Value</code>.
      * </br>
      * This version of <code>Declare</code> may be used when there is no
      * class descriptor for the type.
-     * The first pass of a two pass compiler will produce a <code>Type</code>,
+     * The first pass of a two pass compiler will produce a <code>Value</code>,
      * but the <code>Class</code> will not be available until after the second pass.
-     * The <code>Type</code> can be used to declare Classes during the first pass.
+     * The <code>Value</code> can be used to declare Classes during the first pass.
      * </br>
      * The following code is equivalent.
      * <table border="1" width="100%">
@@ -573,7 +572,7 @@ public interface ClassMakerIfc
         public OtherClass x;
      * </pre><code></td>
      * <td><code><pre>
-        Type otherClass = findClass("au.com.Illyrian.OtherClass");
+        Value otherClass = findClass("au.com.Illyrian.OtherClass");
         Declare("x", otherClass, ACC_PUBLIC);
        </pre></code></td></tr>
      * </table>
@@ -581,6 +580,7 @@ public interface ClassMakerIfc
      * @param type the type of the variable
      * @param modifiers bitmask of variable modifiers
      */
+    public void Declare(String name, DeclaredType type, int modifiers) throws ClassMakerException;
     public void Declare(String name, Type type, int modifiers) throws ClassMakerException;
 
     //################### Casting methods. ##################
@@ -602,7 +602,7 @@ public interface ClassMakerIfc
      * @param target the type into which to cast
      * @return the target type
      */
-    public Type Cast(Type source, String target) throws ClassMakerException;
+    public Value Cast(Value source, String target) throws ClassMakerException;
 
     /**
      * Casts a reference from one type to another.
@@ -620,7 +620,7 @@ public interface ClassMakerIfc
      * @param target the type into which to cast
      * @return the target type
      */
-    public Type Cast(Type source, Class target) throws ClassMakerException;
+    public Value Cast(Value source, Class target) throws ClassMakerException;
 
     /**
      * Casts a reference from one type to another.
@@ -630,7 +630,7 @@ public interface ClassMakerIfc
      * @param target the declared type which the reference shall be cast to
      * @return the target type
      */
-    //public Type Cast(Type source, DeclaredType target) throws ClassMakerException;
+    public Value Cast(Value source, Type target) throws ClassMakerException;
 
     /**
      * Test whether the given reference is of the specified type.
@@ -638,8 +638,8 @@ public interface ClassMakerIfc
      * @param declared the DeclaredType to be tested against
      * @return true if the instance is of the specified type; otherwise false 
      */
-    public Type InstanceOf(Type reference, String target);
-    //public Type InstanceOf(Type reference, DeclaredType declared);
+    public Value InstanceOf(Value reference, String target);
+    public Value InstanceOf(Value reference, Type type);
 
     /**
      * <b>Add</b>s the two values on top of the stack.
@@ -657,7 +657,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the right operand
      * @return the type of the result after promotion
      */
-    public Type Add(Type value1, Type value2);
+    public Value Add(Value value1, Value value2);
 
     /**
      * <b>Subt</b>racts the two values on top of the stack.
@@ -675,7 +675,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the right operand
      * @return the type of the result after promotion
      */
-    public Type Subt(Type value1, Type value2);
+    public Value Subt(Value value1, Value value2);
 
     /**
      * <b>Mult</b>iplies the two values on top of the stack.
@@ -693,7 +693,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the right operand
      * @return the type of the result after promotion
      */
-    public Type Mult(Type value1, Type value2);
+    public Value Mult(Value value1, Value value2);
 
     /**
      * <b>Div</b>ides the two values on top of the stack.
@@ -711,7 +711,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the right operand
      * @return the type of the result after promotion
      */
-    public Type Div(Type value1, Type value2);
+    public Value Div(Value value1, Value value2);
 
     /**
      * Determines the integer <b>Rem</b>ainder after dividing the two values on top of the stack.
@@ -729,7 +729,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the right operand
      * @return the type of the result after promotion
      */
-    public Type Rem(Type value1, Type value2);
+    public Value Rem(Value value1, Value value2);
 
     /**
      * Negates the numeric value on top of the stack.
@@ -744,7 +744,7 @@ public interface ClassMakerIfc
      * @param value the type of the value
      * @return the type of the promoted value
      */
-    public Type Neg(Type value);
+    public Value Neg(Value value);
 
     /**
      * Applies bitwise <b>exclisive or</b> to the two values on top of the stack.
@@ -762,7 +762,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the right operand
      * @return the type of the result after promotion
      */
-    public Type Xor(Type value1, Type value2);
+    public Value Xor(Value value1, Value value2);
 
     /**
      * Applies bitwise <b>and</b> to the two values on top of the stack.
@@ -780,7 +780,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the right operand
      * @return the type of the result after promotion
      */
-    public Type And(Type value1, Type value2);
+    public Value And(Value value1, Value value2);
 
     /**
      * Applies bitwise <b>or</b> to the two values on top of the stack.
@@ -798,7 +798,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the right operand
      * @return the type of the result after promotion
      */
-    public Type Or(Type value1, Type value2);
+    public Value Or(Value value1, Value value2);
 
     /**
      * Applies bitwise <b>Inv</b>ersion to the value on top of the stack.
@@ -815,7 +815,7 @@ public interface ClassMakerIfc
      * @param op1 the type of the left operand
      * @return the type of the result after promotion
      */
-    public Type Inv(Type value);
+    public Value Inv(Value value);
 
     //################ Bitwise shifting operators ####################
     /**
@@ -833,7 +833,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the operand indicating places to shift
      * @return the type of op1 after promotion
      */
-    public Type SHL(Type value1, Type value2);
+    public Value SHL(Value value1, Value value2);
 
     /**
      * <b>SH</b>ifts <b>R</b>ight the signed value of the first operand by the number of bits indicated by the second operand.
@@ -850,7 +850,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the operand indicating places to shift
      * @return the type of op1 after promotion
      */
-    public Type SHR(Type value1, Type value2);
+    public Value SHR(Value value1, Value value2);
 
     /**
      * <b>U</b>nsigned <b>SH</b>ifts <b>R</b>ight the value of the first operand by the number of bits indicated by the second operand.
@@ -867,7 +867,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the operand indicating places to shift
      * @return the type of op1 after promotion
      */
-    public Type USHR(Type value1, Type value2);
+    public Value USHR(Value value1, Value value2);
 
     //################# Comparison operators ######################
     /**
@@ -885,7 +885,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the second operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Type GT(Type value1, Type value2);
+    public Value GT(Value value1, Value value2);
 
     /**
      * Tests whether the first value is <b>G</b>reater than or <B>E</B>qual to the second.
@@ -902,7 +902,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the second operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Type GE(Type value1, Type value2);
+    public Value GE(Value value1, Value value2);
 
     /**
      * Tests whether the first value is <b>L</b>ess than or <B>E</B>qual to the second.
@@ -919,7 +919,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the second operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Type LE(Type value1, Type value2);
+    public Value LE(Value value1, Value value2);
 
     /**
      * Tests whether the first value is <b>L</b>ess <b>T</b>han the second.
@@ -936,7 +936,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the second operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Type LT(Type value1, Type value2);
+    public Value LT(Value value1, Value value2);
 
     /**
      * Tests whether the two values are <b>Eq</b>ual.
@@ -953,7 +953,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the second operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Type EQ(Type value1, Type value2);
+    public Value EQ(Value value1, Value value2);
 
     /**
      * Tests whether the two values are <b>N</b>ot <b>E</b>qual.
@@ -970,7 +970,7 @@ public interface ClassMakerIfc
      * @param op2 the type of the second operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Type NE(Type value1, Type value2);
+    public Value NE(Value value1, Value value2);
 
     /**
      * Negates a boolean value.
@@ -985,7 +985,7 @@ public interface ClassMakerIfc
      * @param op1 the type of the first operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Type Not(Type value);
+    public Value Not(Value value);
 
     /**
      * Creates an array using the dimension on the stack.
@@ -996,12 +996,13 @@ public interface ClassMakerIfc
      * @param sizeType the type of the dimension
      * @return the type of the new array instance
      */
-    public ArrayType NewArray(DeclaredType arrayType, Type size);
+    public Value NewArray(DeclaredType arrayType, Value size);
+    public Value NewArray(Type arrayType, Value size);
 
     /**
      * Creates an multi-dimensional array using the dimensions on the stack.
       <pre>
-       Type mint_array = ArrayOf(ArrayOf(ArrayOf(int.class)));
+       Value mint_array = ArrayOf(ArrayOf(ArrayOf(int.class)));
        Declare("x", mint_array, 0);
        // x = new int[3,2,2];
        Set("x", NewArray(mint_array, Push(Literal(3)).Push(Literal(2)).Push(Literal(2))));
@@ -1011,7 +1012,7 @@ public interface ClassMakerIfc
      * @param dimensions the call stack
      * @return an new instance of a multi-dimensional array
      */
-    public ArrayType NewArray(DeclaredType array, CallStack dimensions);
+    public Value NewArray(DeclaredType array, CallStack dimensions);
 
     /**
      * Finds a type representing an array of the given java class.
@@ -1019,7 +1020,7 @@ public interface ClassMakerIfc
          Declare("intArray", ArrayOf(int.class), 0);
       </pre>
      * @param javaClass the class of element in the array
-     * @return an <code>ArrayType</code> whose elements are of the given class
+     * @return an <code>Value</code> whose elements are of the given class
      */
     public DeclaredType ArrayOf(Class javaClass);
 
@@ -1029,7 +1030,7 @@ public interface ClassMakerIfc
          Declare("intArray", ArrayOf("int"), 0);
       </pre>
      * @param typeName the class name of the element in the array
-     * @return an <code>ArrayType</code> whose elements are of the given class
+     * @return an <code>Value</code> whose elements are of the given class
      */
     public DeclaredType ArrayOf(String typeName);
 
@@ -1043,7 +1044,7 @@ public interface ClassMakerIfc
      * for the array element, for example when declaring an array of
      * the class currently being generated.
      * @param type the type of element in the array
-     * @return an <code>ArrayType</code> whose elements are of the given type
+     * @return an <code>Value</code> whose elements are of the given type
      */
     public DeclaredType ArrayOf(DeclaredType type);
 
@@ -1057,9 +1058,9 @@ public interface ClassMakerIfc
      * for the array element, for example when declaring an array of
      * the class currently being generated.
      * @param type the type of element in the array
-     * @return an <code>ArrayType</code> whose elements are of the given type
+     * @return an <code>Value</code> whose elements are of the given type
      */
-    public Type ArrayOf(Type type);
+     //public Type ArrayOf(Type type);
 
     /**
      * Gets a value from an array element.
@@ -1075,7 +1076,7 @@ public interface ClassMakerIfc
      * @param indexType the type of the index into the array
      * @return the type of the value on the stack
      */
-    public Type GetAt(Type reference, Type index);
+    public Value GetAt(Value reference, Value index);
 
     /**
      * Assigns an array element to a value and leaves the value on the stack.
@@ -1093,7 +1094,7 @@ public interface ClassMakerIfc
      * @param valueType the type of the value to be set
      * @return the type of the value on the stack
      */
-    public Type AssignAt(Type array, Type index, Type value);
+    public Value AssignAt(Value array, Value index, Value value);
 
     /**
      * Sets an array element to a value.
@@ -1109,9 +1110,9 @@ public interface ClassMakerIfc
      * @param arrayType the type of the array containing the element
      * @param indexType the type of the index into the array
      * @param value the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
+     * @return a <code>Value</code> representing <code>void</code>
      */
-    public Type SetAt(Type arrayRef, Type index, Type value);
+    public Value SetAt(Value arrayRef, Value index, Value value);
 
     /**
      * Gets the length of the array on top of the stack.
@@ -1121,7 +1122,7 @@ public interface ClassMakerIfc
      * @param arrayType the type of the array
      * @return the length of the array
      */
-    public PrimitiveType Length(Type arrayRef);
+    public Value Length(Value arrayRef);
 
     /**
      * Gets the value of a local variable after incrementing it.
@@ -1135,7 +1136,7 @@ public interface ClassMakerIfc
      * @param name the name of the member variable
      * @return the value of the variable after it is incremented
      */
-    public Type Inc(String name) throws ClassMakerException;
+    public Value Inc(String name) throws ClassMakerException;
 
     /**
      * Gets the value of a member variable after incrementing it.
@@ -1150,7 +1151,7 @@ public interface ClassMakerIfc
      * @param name the name of the member variable
      * @return the value of the variable after it is incremented
      */
-    public Type Inc(Type reference, String name) throws ClassMakerException;
+    public Value Inc(Value reference, String name) throws ClassMakerException;
 
     /**
      * Gets the value of a static member variable after incrementing it.
@@ -1164,7 +1165,7 @@ public interface ClassMakerIfc
      * @param name the name of the static member variable
      * @return the value of the variable after it is incremented
      */
-    public Type Inc(String className, String name) throws ClassMakerException;
+    public Value Inc(String className, String name) throws ClassMakerException;
 
     /**
      * Sets a member variable to the value.
@@ -1179,9 +1180,9 @@ public interface ClassMakerIfc
      * @param type the type of the class containing the variable
      * @param fieldName the name of the member variable
      * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
+     * @return a <code>Value</code> representing <code>void</code>
      */
-//    public Type Inc(Type lvalue) throws ClassMakerException;
+//    public Value Inc(Value lvalue) throws ClassMakerException;
 
     /**
      * Gets the value of a local variable after decrementing it.
@@ -1195,7 +1196,7 @@ public interface ClassMakerIfc
      * @param name the name of the member variable
      * @return the value of the variable after it is decremented
      */
-    public Type Dec(String name) throws ClassMakerException;
+    public Value Dec(String name) throws ClassMakerException;
 
     /**
      * Gets the value of a member variable after decrementing it.
@@ -1210,7 +1211,7 @@ public interface ClassMakerIfc
      * @param name the name of the member variable
      * @return the value of the variable after it is decremented
      */
-    public Type Dec(Type reference, String name) throws ClassMakerException;
+    public Value Dec(Value reference, String name) throws ClassMakerException;
 
     /**
      * Gets the value of a static member variable after decrementing it.
@@ -1225,7 +1226,7 @@ public interface ClassMakerIfc
      * @param name the name of the static member variable
      * @return the value of the variable after if is decremented
      */
-    public Type Dec(String className, String name) throws ClassMakerException;
+    public Value Dec(String className, String name) throws ClassMakerException;
 
     /**
      * Sets a member variable to the value.
@@ -1240,9 +1241,9 @@ public interface ClassMakerIfc
      * @param type the type of the class containing the variable
      * @param fieldName the name of the member variable
      * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
+     * @return a <code>Value</code> representing <code>void</code>
      */
-//    public Type Dec(Type lvalue) throws ClassMakerException;
+//    public Value Dec(Value lvalue) throws ClassMakerException;
 
     /**
      * Gets the value of a local variable before incrementing it.
@@ -1256,7 +1257,7 @@ public interface ClassMakerIfc
      * @param name the name of the member variable
      * @return the value of the variable before it is incremented
      */
-    public Type PostInc(String name) throws ClassMakerException;
+    public Value PostInc(String name) throws ClassMakerException;
 
     /**
      * Gets the value of a member variable before incrementing it.
@@ -1271,7 +1272,7 @@ public interface ClassMakerIfc
      * @param name the name of the member variable
      * @return the value of the variable before it is incremented
      */
-    public Type PostInc(Type reference, String name) throws ClassMakerException;
+    public Value PostInc(Value reference, String name) throws ClassMakerException;
 
     /**
      * Gets the value of a static member variable before incrementing it.
@@ -1286,7 +1287,7 @@ public interface ClassMakerIfc
      * @param name the name of the static member variable
      * @return the value of the variable before it is incremented
      */
-    public Type PostInc(String className, String name) throws ClassMakerException;
+    public Value PostInc(String className, String name) throws ClassMakerException;
 
     /**
      * Sets a member variable to the value.
@@ -1301,9 +1302,9 @@ public interface ClassMakerIfc
      * @param type the type of the class containing the variable
      * @param fieldName the name of the member variable
      * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
+     * @return a <code>Value</code> representing <code>void</code>
      */
-    //public Type PostInc(Type lvalue) throws ClassMakerException;
+    //public Value PostInc(Value lvalue) throws ClassMakerException;
 
     /**
      * Gets the value of a local variable before decrementing it.
@@ -1317,7 +1318,7 @@ public interface ClassMakerIfc
      * @param name the name of the member variable
      * @return the value of the variable before it is decremented
      */
-    public Type PostDec(String name) throws ClassMakerException;
+    public Value PostDec(String name) throws ClassMakerException;
 
     /**
      * Gets the value of a member variable before decrementing it.
@@ -1331,7 +1332,7 @@ public interface ClassMakerIfc
      * @param name the name of the member variable
      * @return the value of the variable before if is decremented
      */
-    public Type PostDec(Type reference, String name) throws ClassMakerException;
+    public Value PostDec(Value reference, String name) throws ClassMakerException;
 
     /**
      * Gets the value of a static member variable before decrementing it.
@@ -1346,7 +1347,7 @@ public interface ClassMakerIfc
      * @param name the name of the static member variable
      * @return the value of the variable before if is decremented
      */
-    public Type PostDec(String className, String name) throws ClassMakerException;
+    public Value PostDec(String className, String name) throws ClassMakerException;
 
     /**
      * Sets a member variable to the value.
@@ -1361,9 +1362,9 @@ public interface ClassMakerIfc
      * @param type the type of the class containing the variable
      * @param fieldName the name of the member variable
      * @param valueType the type of the value to be set
-     * @return a <code>Type</code> representing <code>void</code>
+     * @return a <code>Value</code> representing <code>void</code>
      */
-//    public Type PostDec(Type lvalue) throws ClassMakerException;
+//    public Value PostDec(Value lvalue) throws ClassMakerException;
 
     /**
      * Gets the value of an array element after incrementing it.
@@ -1378,7 +1379,7 @@ public interface ClassMakerIfc
      * @param index the type of the index
      * @return the value of the array element after it is incremented
      */
-    public Type IncAt(Type array, Type index) throws ClassMakerException;
+    public Value IncAt(Value array, Value index) throws ClassMakerException;
 
     /**
      * Gets the value of an array element after decrementing it.
@@ -1393,7 +1394,7 @@ public interface ClassMakerIfc
      * @param index the type of the index
      * @return the value of the array element after it is decremented
      */
-    public Type DecAt(Type array, Type index) throws ClassMakerException;
+    public Value DecAt(Value array, Value index) throws ClassMakerException;
 
     /**
      * Gets the value of an array element before incrementing it.
@@ -1408,7 +1409,7 @@ public interface ClassMakerIfc
      * @param index the type of the index
      * @return the value of the array element before it is incremented
      */
-    public Type PostIncAt(Type array, Type index) throws ClassMakerException;
+    public Value PostIncAt(Value array, Value index) throws ClassMakerException;
 
     /**
      * Gets the value of an array element before decrementing it.
@@ -1423,9 +1424,9 @@ public interface ClassMakerIfc
      * @param index the type of the index
      * @return the value of the array element before if is decremented
      */
-    public Type PostDecAt(Type array, Type index) throws ClassMakerException;
+    public Value PostDecAt(Value array, Value index) throws ClassMakerException;
     
-    public CallStack Push(Type reference);
+    public CallStack Push(Value reference);
 
     public CallStack Push();
 
@@ -1445,7 +1446,7 @@ public interface ClassMakerIfc
      * @param cond next conditional expression
      * @return logic expression including shortcut logic
      */
-    public AndOrExpression AndThen(AndOrExpression andOr, Type cond);
+    public AndOrExpression AndThen(AndOrExpression andOr, Value cond);
 
     /**
      * Creates a <code>cond &&</code> logic expression.
@@ -1462,7 +1463,7 @@ public interface ClassMakerIfc
      * @param cond next conditional expression
      * @return logic expression including shortcut logic
      */
-    public AndOrExpression AndThen(Type cond);
+    public AndOrExpression AndThen(Value cond);
 
     /**
      * Appends a <code>cond ||</code> logic expression to a preceeding expression.
@@ -1480,7 +1481,7 @@ public interface ClassMakerIfc
      * @param cond next conditional expression
      * @return logic expression including shortcut logic
      */
-    public AndOrExpression OrElse(AndOrExpression andOr, Type cond);
+    public AndOrExpression OrElse(AndOrExpression andOr, Value cond);
 
     /**
      * Creates a <code>cond ||</code> logic expression.
@@ -1497,7 +1498,7 @@ public interface ClassMakerIfc
      * @param cond next conditional expression
      * @return logic expression including shortcut logic
      */
-    public AndOrExpression OrElse(Type cond);
+    public AndOrExpression OrElse(Value cond);
 
     /**
      * Contains an expression that includes shortcut AND and OR logic.
@@ -1514,7 +1515,7 @@ public interface ClassMakerIfc
      * @param cond last conditional expression
      * @return return type is always boolean
      */
-    public Type Logic(AndOrExpression andOr, Type cond);
+    public Value Logic(AndOrExpression andOr, Value cond);
 
     // Program Statements
     /**
@@ -1530,7 +1531,7 @@ public interface ClassMakerIfc
      * </pre>
      * @param type the result type of the expression
      */
-    public void Eval(Type value);
+    public void Eval(Value value);
 
     /**
      * Ends a method that does not have a body.
@@ -1539,13 +1540,13 @@ public interface ClassMakerIfc
 
     public void Return() throws ClassMakerException;
     
-    public void Return(Type type) throws ClassMakerException;
+    public void Return(Value type) throws ClassMakerException;
 
     /**
      * Begins an <code>If</code> statement.
      * @return an interface to set a Label
      */
-    public Labelled If(Type condition) throws ClassMakerException;
+    public Labelled If(Value condition) throws ClassMakerException;
 
     /**
      * Begins an <code>Else</code> clause of an <code>If</code> statement.
@@ -1570,12 +1571,12 @@ public interface ClassMakerIfc
     /**
      * Iterates through a <code>Loop</code> while the condition is <code>true</code>
      */
-    public void While(Type condition) throws ClassMakerException;
+    public void While(Value condition) throws ClassMakerException;
 
     /**
      * Start of a <code>For</code> loop.
      */
-    public ForWhile For(Type declare) throws ClassMakerException;
+    public ForWhile For(Value declare) throws ClassMakerException;
 
     /**
      * Ends a <code>Loop</code> statement.
@@ -1595,7 +1596,7 @@ public interface ClassMakerIfc
     public void Continue(String label) throws ClassMakerException;
 
     /** Begins a <code>Switch</code> statement. */
-    public Labelled Switch(Type type);
+    public Labelled Switch(Value type);
 
     /** Adds a <code>Case</code> clause of a <code>Switch</code> statement. */
     public void Case(int key);

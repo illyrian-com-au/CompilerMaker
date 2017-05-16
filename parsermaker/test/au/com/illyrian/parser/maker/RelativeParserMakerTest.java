@@ -6,7 +6,7 @@ import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.expr.AstExpressionPrecidenceParser;
@@ -94,13 +94,13 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
         return maker;
     }
     
-    void endMethod(ClassMaker maker, Object value)
+    void endMethod(ClassMaker maker, Value value)
     {
-        maker.Return((Type)value);
+        maker.Return(value);
         maker.End();
     }
 
-    private Type parseExpression(String input)
+    private Value parseExpression(String input)
     {
         Input lexer = new LexerInputString(input);
         OperatorPrecidenceParser parser = createParser();
@@ -114,7 +114,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testEqual() throws Exception
     {
         methodFuncAB(maker);
-        Type result = parseExpression("a == b");
+        Value result = parseExpression("a == b");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -131,7 +131,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testNotEqual() throws Exception
     {
         methodFuncAB(maker);
-        Type result = parseExpression("a != b");
+        Value result = parseExpression("a != b");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -148,7 +148,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testLessEqual() throws Exception
     {
         methodFuncAB(maker);
-        Type result = parseExpression("a <= b");
+        Value result = parseExpression("a <= b");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -165,7 +165,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testGreatEqual() throws Exception
     {
         methodFuncAB(maker);
-        Type result = parseExpression("a >= b");
+        Value result = parseExpression("a >= b");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -182,7 +182,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testLessThan() throws Exception
     {
         methodFuncAB(maker);
-        Type result = parseExpression("a < b");
+        Value result = parseExpression("a < b");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -199,7 +199,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testGreaterThan() throws Exception
     {
         methodFuncAB(maker);
-        Type result = parseExpression("a > b");
+        Value result = parseExpression("a > b");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -216,7 +216,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testAndThen() throws Exception
     {
         methodBooleanAB(maker);
-        Type result = parseExpression("a && b");
+        Value result = parseExpression("a && b");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -234,7 +234,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testOrElse() throws Exception
     {
         methodBooleanAB(maker);
-        Type result = parseExpression("a || b");
+        Value result = parseExpression("a || b");
         endMethod(maker, result);
 
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -252,7 +252,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testAndThenInt() throws Exception
     {
         methodFuncABCD(maker);
-        Type result = parseExpression("a == b && c == d");
+        Value result = parseExpression("a == b && c == d");
         endMethod(maker, result);
 
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -270,7 +270,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testOrElseInt() throws Exception
     {
         methodFuncABCD(maker);
-        Type result = parseExpression("a == b || c == d");
+        Value result = parseExpression("a == b || c == d");
         endMethod(maker, result);
 
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -289,7 +289,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testAndThenAndThen() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a && b && c");
+        Value result = parseExpression("a && b && c");
         endMethod(maker, result);
 
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -313,7 +313,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testOrElseOrElse() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a || b || c");
+        Value result = parseExpression("a || b || c");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -337,7 +337,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testOrElseAndThen() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a || b && c");
+        Value result = parseExpression("a || b && c");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -361,7 +361,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testAndThenOrElse() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a && b || c");
+        Value result = parseExpression("a && b || c");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -385,7 +385,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testOrElseOrElseOrElse() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a || b || c || d");
+        Value result = parseExpression("a || b || c || d");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -419,7 +419,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testAndThenAndThenAndThen() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a&&b&&c&&d");
+        Value result = parseExpression("a&&b&&c&&d");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -454,7 +454,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testOrElseAndThenAndThen() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a || b && c && d");
+        Value result = parseExpression("a || b && c && d");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -488,7 +488,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testOrElseOrElseAndThen() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a || b || c && d");
+        Value result = parseExpression("a || b || c && d");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -523,7 +523,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testOrElseAndThenOrElse() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a || b && c || d");
+        Value result = parseExpression("a || b && c || d");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -557,7 +557,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testAndThenOrElseAndThen() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a && b || c && d");
+        Value result = parseExpression("a && b || c && d");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -591,7 +591,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testAndThenOrElseOrElse() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a && b || c || d");
+        Value result = parseExpression("a && b || c || d");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -625,7 +625,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testAndThenAndThenOrElse() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a || b && c || d");
+        Value result = parseExpression("a || b && c || d");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -659,7 +659,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testEQAndThenNE() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a == b && c != d");
+        Value result = parseExpression("a == b && c != d");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -693,7 +693,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
     public void testEQOrElseNE() throws Exception
     {
         methodBooleanABCD(maker);
-        Type result = parseExpression("a == b || c != d");
+        Value result = parseExpression("a == b || c != d");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());

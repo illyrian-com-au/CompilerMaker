@@ -34,10 +34,12 @@ public class ExampleMethodsTest extends TestCase
     public interface Accessable
     {
         void exec();
+
         void setName(String name);
+
         String getName();
     }
-    
+
     public class AccessMaker extends ClassMakerBase
     {
         public void code()
@@ -48,7 +50,7 @@ public class ExampleMethodsTest extends TestCase
 
             Method("exec", void.class, ACC_PUBLIC);
             Begin();
-                Eval(Set(This(), "name", Literal("Hello World")));
+            Eval(Set(This(), "name", Literal("Hello World")));
             End();
             // END - Declaring Methods example
 
@@ -56,14 +58,14 @@ public class ExampleMethodsTest extends TestCase
             Method("setName", void.class, ACC_PUBLIC);
             Declare("name", String.class, 0);
             Begin();
-                Eval(Set(This(), "name", Get("name")));
+            Eval(Set(This(), "name", Get("name")));
             End();
             // END - Formal Parameters example
 
             // BEGIN - Returning Values example
             Method("getName", String.class, ACC_PUBLIC);
             Begin();
-                Return(Get(This(), "name"));
+            Return(Get(This(), "name"));
             End();
             // END - Returning Values example
         }
@@ -73,69 +75,69 @@ public class ExampleMethodsTest extends TestCase
     {
         ClassMaker maker = new AccessMaker();
         Class testClass = maker.defineClass();
-        Accessable exec = (Accessable)testClass.newInstance();
-        
-        String value = (String)testClass.getField("name").get(exec);
+        Accessable exec = (Accessable) testClass.newInstance();
+
+        String value = (String) testClass.getField("name").get(exec);
         assertNull("name", value);
-        
+
         exec.exec();
-        value = (String)testClass.getField("name").get(exec);
+        value = (String) testClass.getField("name").get(exec);
         assertEquals("name", "Hello World", value);
-        
+
         exec.setName("Wally");
-        value = (String)testClass.getField("name").get(exec);
+        value = (String) testClass.getField("name").get(exec);
         assertEquals("name", "Wally", value);
-        
+
         testClass.getField("name").set(exec, "Bruce");
         value = exec.getName();
         assertEquals("name", "Bruce", value);
     }
-    
-	static Executable instance = null;
 
-	public static Executable getInstance()
-	{
-		return ExampleMethodsTest.instance;
-	}
-	
-	public static void setInstance(Executable invoke)
-	{
-		ExampleMethodsTest.instance = invoke;
-	}
+    static Executable instance = null;
 
-	public class InvocationJava implements Executable
+    public static Executable getInstance()
     {
-    	public Executable obj;
-    	int x;
-    	int y;
-    	
-    	public void run()
-    	{
-    		x = 2;
-    	}
-    	
-    	public int add(int a, int b)
-    	{
-    		return a + b;
-    	}
-    	
-    	public void exec()
-    	{
+        return ExampleMethodsTest.instance;
+    }
+
+    public static void setInstance(Executable invoke)
+    {
+        ExampleMethodsTest.instance = invoke;
+    }
+
+    public class InvocationJava implements Executable
+    {
+        public Executable obj;
+        int x;
+        int y;
+
+        public void run()
+        {
+            x = 2;
+        }
+
+        public int add(int a, int b)
+        {
+            return a + b;
+        }
+
+        public void exec()
+        {
             run();
             obj.run();
             x = add(1, 2);
             y = obj.add(x, 3);
             obj = ExampleMethodsTest.getInstance();
             ExampleMethodsTest.setInstance(this);
-    	}
+        }
     }
 
-	public void testJavaMethodInvocation() throws Exception
+    public void testJavaMethodInvocation() throws Exception
     {
-	    ExampleMethodsTest.instance = null;
-    	InvocationJava obj1 = new InvocationJava();
-    	InvocationJava obj2 = new InvocationJava();
-    	obj1.obj = obj2;
+        ExampleMethodsTest.instance = null;
+        InvocationJava obj1 = new InvocationJava();
+        InvocationJava obj2 = new InvocationJava();
+        obj1.obj = obj2;
         obj1.exec();
         assertEquals("obj1.x", 3, obj1.x);
         assertEquals("obj2.x", 2, obj2.x);
@@ -144,14 +146,15 @@ public class ExampleMethodsTest extends TestCase
         assertNull("obj1.obj", obj1.obj);
         assertEquals("ExampleMethodsTest.instance", obj1, ExampleMethodsTest.getInstance());
     }
-    
-	public interface Executable extends Runnable
-	{
-		public int add(int a, int b);
-		public void exec();
-	}
-	
-	public class InvocationMaker extends ClassMakerBase
+
+    public interface Executable extends Runnable
+    {
+        public int add(int a, int b);
+
+        public void exec();
+    }
+
+    public class InvocationMaker extends ClassMakerBase
     {
         public void code()
         {
@@ -162,38 +165,38 @@ public class ExampleMethodsTest extends TestCase
 
             Method("run", void.class, ACC_PUBLIC);
             Begin();
-                Eval(Set(This(), "x", Literal(2)));
+            Eval(Set(This(), "x", Literal(2)));
             End();
 
             Method("add", int.class, ACC_PUBLIC);
             Declare("a", int.class, 0);
             Declare("b", int.class, 0);
             Begin();
-                Return(Add(Get("a"), Get("b")));
+            Return(Add(Get("a"), Get("b")));
             End();
-        	
+
             Method("exec", void.class, ACC_PUBLIC);
             Begin();
-                Eval(Call(This(), "run", null));
-                Eval(Call(Get(This(), "obj"), "run", null));
-                Eval(Set(This(), "x", Call(This(), "add", Push(Literal(1)).Push(Literal(2)))));
-                Eval(Set(This(), "y", Call(Get(This(), "obj"), "add", Push(Get(This(), "x")).Push(Literal(3)))));
-                Eval(Set(This(), "obj", Call(ExampleMethodsTest.class, "getInstance", null)));
-                Eval(Call(ExampleMethodsTest.class, "setInstance", Push(This())));
+            Eval(Call(This(), "run", null));
+            Eval(Call(Get(This(), "obj"), "run", null));
+            Eval(Set(This(), "x", Call(This(), "add", Push(Literal(1)).Push(Literal(2)))));
+            Eval(Set(This(), "y", Call(Get(This(), "obj"), "add", Push(Get(This(), "x")).Push(Literal(3)))));
+            Eval(Set(This(), "obj", Call(ExampleMethodsTest.class, "getInstance", null)));
+            Eval(Call(ExampleMethodsTest.class, "setInstance", Push(This())));
             End();
         }
     }
 
-	public void testMethodInvocation() throws Exception
+    public void testMethodInvocation() throws Exception
     {
         ExampleMethodsTest.instance = null;
-		ClassMakerBase.setSharedFactory(null);
-		ExampleMethodsTest.setInstance(null);
-		InvocationMaker maker = new InvocationMaker();
-		Class invocationClass = maker.defineClass(); 
-    	Executable obj1 = (Executable)invocationClass.newInstance();
-    	Executable obj2 = (Executable)invocationClass.newInstance();
-    	invocationClass.getField("obj").set(obj1, obj2);
+        ClassMakerBase.setSharedFactory(null);
+        ExampleMethodsTest.setInstance(null);
+        InvocationMaker maker = new InvocationMaker();
+        Class invocationClass = maker.defineClass();
+        Executable obj1 = (Executable) invocationClass.newInstance();
+        Executable obj2 = (Executable) invocationClass.newInstance();
+        invocationClass.getField("obj").set(obj1, obj2);
         obj1.exec();
         assertEquals("obj1.x", 3, invocationClass.getField("x").getInt(obj1));
         assertEquals("obj2.x", 2, invocationClass.getField("x").getInt(obj2));
@@ -202,12 +205,12 @@ public class ExampleMethodsTest extends TestCase
         assertNull("obj1.obj", invocationClass.getField("obj").get(obj1));
         assertEquals("ExampleMethodsTest.instance", obj1, ExampleMethodsTest.getInstance());
     }
-    
+
     public interface Binary
     {
         long binary(long a, long b);
     }
-    
+
     public class MultiplyMaker extends ClassMakerBase
     {
         public void code()
@@ -219,7 +222,7 @@ public class ExampleMethodsTest extends TestCase
             Declare("x", long.class, 0);
             Declare("y", long.class, 0);
             Begin();
-                Return(Mult(Get("x"), Get("y")));
+            Return(Mult(Get("x"), Get("y")));
             End();
             // BEGIN - Declaring Methods example 1
         }
@@ -227,31 +230,40 @@ public class ExampleMethodsTest extends TestCase
 
     public void testBinaryMultiply() throws Exception
     {
-		ClassMakerBase.setSharedFactory(null);
+        ClassMakerBase.setSharedFactory(null);
         ClassMaker maker = new MultiplyMaker();
         Class multiplyClass = maker.defineClass();
-        Binary exec = (Binary)multiplyClass.newInstance();
-        
+        Binary exec = (Binary) multiplyClass.newInstance();
+
         assertEquals("Multiply", 6, exec.binary(2, 3));
         assertEquals("Multiply", -4, exec.binary(-2, 2));
         assertEquals("Multiply", 1, exec.binary(-1, -1));
     }
-    
+
     public interface Linkable
     {
         Linkable find(String target);
+
         Linkable push(Linkable top, String value);
     }
-    
-    private static class LinkImpl implements Linkable 
+
+    private static class LinkImpl implements Linkable
     {
-        public LinkImpl find(String target) { return null;}
-        public LinkImpl push(Linkable top, String value) { return null;}
+        public LinkImpl find(String target)
+        {
+            return null;
+        }
+
+        public LinkImpl push(Linkable top, String value)
+        {
+            return null;
+        }
     }
-    
+
     public static class LinkMaker extends ClassMakerBase
     {
         public static final String linkName = "au.com.illyrian.classmaker.ExampleMethodsTest$Link";
+
         public void code()
         {
             Implements(Linkable.class);
@@ -259,8 +271,8 @@ public class ExampleMethodsTest extends TestCase
             // BEGIN - Default Constructor example
             Method("<init>", void.class, ACC_PUBLIC);
             Begin();
-                Init(Super(), null);
-                Return();
+            Init(Super(), null);
+            Return();
             End();
             // END - Default Constructor example
 
@@ -269,47 +281,47 @@ public class ExampleMethodsTest extends TestCase
             Declare("next", getClassType(), 0);
 
             Method("find", getClassType(), ACC_PUBLIC);
-                Declare("target", String.class, 0);
+            Declare("target", String.class, 0);
             Begin();
-                If(Call(Get("target"), "equals", Push(Get(This(), "name"))));
-                    Return(This());
-                Else();
-                    Return(Call(Get(This(), "next"), "find", Push(Get("target"))));
-                EndIf();
+            If(Call(Get("target"), "equals", Push(Get(This(), "name"))));
+            Return(This());
+            Else();
+            Return(Call(Get(This(), "next"), "find", Push(Get("target"))));
+            EndIf();
             End();
             // END - Recursive data structures
-            
+
             // FIXME this should not be required.
             Method("find", Linkable.class, ACC_PUBLIC);
             Declare("target", String.class, 0);
             Begin();
-                Return(Cast(Call(This(), "find", Push(Get("target"))), Linkable.class));
+            Return(Cast(Call(This(), "find", Push(Get("target"))), Linkable.class));
             End();
-            
+
             Method("push", Linkable.class, ACC_PUBLIC);
             Declare("top", Linkable.class, 0);
             Declare("value", String.class, 0);
             Begin();
-                Eval(Set(This(), "next", Cast(Get("top"), linkName)));
-                Eval(Set(This(), "name", Get("value")));
-                Return(This());
-            End();            
+            Eval(Set(This(), "next", Cast(Get("top"), linkName)));
+            Eval(Set(This(), "name", Get("value")));
+            Return(This());
+            End();
         }
     }
-    
+
     public void testLink() throws Exception
     {
         ClassMakerBase.setSharedFactory(null);
         ClassMaker maker = new LinkMaker();
         Class linkClass = maker.defineClass();
-        
+
         Linkable top = null;
-        Linkable alpha = (Linkable)linkClass.newInstance();
+        Linkable alpha = (Linkable) linkClass.newInstance();
         top = alpha.push(top, "alpha");
-        
-        Linkable beta = (Linkable)linkClass.newInstance();
+
+        Linkable beta = (Linkable) linkClass.newInstance();
         top = beta.push(top, "beta");
-        
+
         assertEquals("Find alpha", alpha, top.find("alpha"));
         assertEquals("Find beta", beta, top.find("beta"));
     }
@@ -318,7 +330,7 @@ public class ExampleMethodsTest extends TestCase
     {
         int eval();
     }
-    
+
     public void testForwardDeclaration() throws Exception
     {
         ClassMakerBase.setSharedFactory(null);
@@ -334,19 +346,19 @@ public class ExampleMethodsTest extends TestCase
 
         maker.Method("eval", int.class, ClassMaker.ACC_PUBLIC);
         maker.Begin();
-          maker.Return(maker.Call(maker.This(), "add", maker.Push(maker.Literal(1)).Push(maker.Literal(2))));
+        maker.Return(maker.Call(maker.This(), "add", maker.Push(maker.Literal(1)).Push(maker.Literal(2))));
         maker.End();
 
         maker.Method("add", int.class, ClassMaker.ACC_PRIVATE);
         maker.Declare("a", int.class, 0);
         maker.Declare("b", int.class, 0);
         maker.Begin();
-          maker.Return(maker.Add(maker.Get("a"), maker.Get("b")));
+        maker.Return(maker.Add(maker.Get("a"), maker.Get("b")));
         maker.End();
         // END - Forward Declarations
-        
+
         Class testClass = maker.defineClass();
-        Evaluate exec = (Evaluate)testClass.newInstance();
+        Evaluate exec = (Evaluate) testClass.newInstance();
         assertEquals("Forward declare Add", 3, exec.eval());
     }
 }

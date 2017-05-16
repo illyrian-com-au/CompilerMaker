@@ -169,7 +169,7 @@ public class StringConversion implements Convertable, Assignable
     {
         if (ClassType.AUTO_STRING_TYPE.equals(buffer))
         {
-            maker.Call(buffer, "append", maker.Push(value));
+            maker.Call(buffer.getValue(), "append", maker.Push(value.getValue()));
             return buffer;
         }
         // Should not get here.
@@ -187,7 +187,7 @@ public class StringConversion implements Convertable, Assignable
     {
         if (ClassType.AUTO_STRING_TYPE.equals(buffer))
         {
-            maker.Call(buffer, "toString", maker.Push());
+            maker.Call(buffer.getValue(), "toString", maker.Push());
             return ClassType.STRING_TYPE;
         }
         // Should not get here.

@@ -50,7 +50,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
     private void failGetMethodAccess(ClassMaker maker, ClassType classType, String methodName, String message)
     {
         try {
-            maker.Call(classType, methodName, null);
+            maker.Call(classType.getValue(), methodName, null);
             fail("Expected ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals(message, ex.getMessage());

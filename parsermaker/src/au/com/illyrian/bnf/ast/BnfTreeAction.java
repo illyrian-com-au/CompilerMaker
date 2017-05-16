@@ -4,6 +4,7 @@ import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 
 public class BnfTreeAction extends BnfTreeBase
@@ -26,7 +27,7 @@ public class BnfTreeAction extends BnfTreeBase
     }
 
     @Override
-    public Type resolveType(BnfMakerVisitor visitor)
+    public Value resolveType(BnfMakerVisitor visitor)
     {
         return visitor.resolveType(this);
     }

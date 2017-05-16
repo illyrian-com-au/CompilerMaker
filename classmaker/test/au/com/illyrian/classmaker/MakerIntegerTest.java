@@ -32,6 +32,7 @@ import org.mozilla.classfile.ByteCode;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
 {
@@ -860,9 +861,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", byte.class, 0);
         maker.Declare("y", byte.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveAdd((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveAdd(op1.toPrimitive(), op2.toPrimitive()).getValue());
+       }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -884,9 +887,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", short.class, 0);
         maker.Declare("y", short.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveAdd((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveAdd(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -909,9 +914,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", char.class, 0);
         maker.Declare("y", char.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveAdd((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveAdd(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -978,9 +985,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", byte.class, 0);
         maker.Declare("y", byte.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveSubt((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveSubt(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1002,9 +1011,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", short.class, 0);
         maker.Declare("y", short.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveSubt((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveSubt(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1027,9 +1038,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", char.class, 0);
         maker.Declare("y", char.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveSubt((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveSubt(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1092,9 +1105,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", byte.class, 0);
         maker.Declare("y", byte.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveMult((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveMult(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1115,9 +1130,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", short.class, 0);
         maker.Declare("y", short.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveMult((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveMult(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1138,9 +1155,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", char.class, 0);
         maker.Declare("y", char.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveMult((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveMult(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1202,9 +1221,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", byte.class, 0);
         maker.Declare("y", byte.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveDiv((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveDiv(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1225,9 +1246,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", short.class, 0);
         maker.Declare("y", short.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveDiv((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveDiv(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1248,9 +1271,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", char.class, 0);
         maker.Declare("y", char.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveDiv((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveDiv(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1312,9 +1337,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", byte.class, 0);
         maker.Declare("y", byte.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveRem((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveRem(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1335,9 +1362,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", short.class, 0);
         maker.Declare("y", short.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveRem((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveRem(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1358,9 +1387,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", char.class, 0);
         maker.Declare("y", char.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveRem((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveRem(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1733,9 +1764,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", byte.class, 0);
         maker.Declare("y", byte.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveAnd((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveAnd(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1754,9 +1787,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", short.class, 0);
         maker.Declare("y", short.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveAnd((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveAnd(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1776,9 +1811,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", char.class, 0);
         maker.Declare("y", char.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveAnd((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveAnd(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1841,9 +1878,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", byte.class, 0);
         maker.Declare("y", byte.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveXor((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveXor(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1863,9 +1902,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", short.class, 0);
         maker.Declare("y", short.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveXor((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveXor(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1885,9 +1926,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", char.class, 0);
         maker.Declare("y", char.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveXor((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveXor(op1.toPrimitive(), op2.toPrimitive()).getValue());
+       }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1952,9 +1995,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", byte.class, 0);
         maker.Declare("y", byte.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveOr((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveOr(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1973,9 +2018,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", short.class, 0);
         maker.Declare("y", short.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveOr((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveOr(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -1995,9 +2042,11 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("x", char.class, 0);
         maker.Declare("y", char.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            Type op2 = maker.Get("y");
-            maker.Return(maker.primitiveOr((PrimitiveType)op1, (PrimitiveType)op2));
+        {
+            Value op1 = maker.Get("x");
+            Value op2 = maker.Get("y");
+            maker.Return(maker.primitiveOr(op1.toPrimitive(), op2.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -2035,8 +2084,10 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("unary", byte.class, ACC_PUBLIC);
         maker.Declare("x", byte.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            maker.Return(maker.primitiveInv((PrimitiveType)op1));
+        {
+            Value op1 = maker.Get("x");
+            maker.Return(maker.primitiveInv(op1.toPrimitive()).getValue());
+        }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -2054,8 +2105,10 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("unary", short.class, ACC_PUBLIC);
         maker.Declare("x", short.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            maker.Return(maker.primitiveInv((PrimitiveType)op1));
+        {
+            Value op1 = maker.Get("x");
+            maker.Return(maker.primitiveInv(op1.toPrimitive()).getValue());
+       }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -2073,8 +2126,10 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("unary", char.class, ACC_PUBLIC);
         maker.Declare("x", char.class, 0);
         maker.Begin();
-           Type op1 = maker.Get("x");
-            maker.Return(maker.primitiveInv((PrimitiveType)op1));
+        {
+            Value op1 = maker.Get("x");
+            maker.Return(maker.primitiveInv(op1.toPrimitive()).getValue());
+       }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -2092,8 +2147,10 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            maker.Return(maker.primitiveInv((PrimitiveType)op1));
+        {
+            Value op1 = maker.Get("x");
+            maker.Return(maker.primitiveInv(op1.toPrimitive()).getValue());
+       }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -2111,8 +2168,10 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("unary", long.class, ACC_PUBLIC);
         maker.Declare("x", long.class, 0);
         maker.Begin();
-            Type op1 = maker.Get("x");
-            maker.Return(maker.primitiveInv((PrimitiveType)op1));
+        {
+            Value op1 = maker.Get("x");
+            maker.Return(maker.primitiveInv(op1.toPrimitive()).getValue());
+       }
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -2378,9 +2437,8 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
             maker.Set(maker.This(), "x",
-            maker.primitiveShiftLeft(
-                            (PrimitiveType)maker.Get(maker.This(), "x"),
-                            (PrimitiveType)maker.Get(maker.This(), "y")));
+                    maker.primitiveShiftLeft(maker.Get(maker.This(), "x").toPrimitive(),
+                            maker.Get(maker.This(), "y").toPrimitive()).getValue());
             maker.Return();
         maker.End();
 
@@ -2407,9 +2465,8 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
             maker.Set(maker.This(), "x",
-            maker.primitiveShiftLeft(
-                            (PrimitiveType)maker.Get(maker.This(), "x"),
-                            (PrimitiveType)maker.Get(maker.This(), "y")));
+            maker.primitiveShiftLeft(maker.Get(maker.This(), "x").toPrimitive(),
+                      maker.Get(maker.This(), "y").toPrimitive()).getValue());
             maker.Return();
         maker.End();
 
@@ -2436,9 +2493,8 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
             maker.Set(maker.This(), "x",
-            maker.primitiveShiftLeft(
-                            (PrimitiveType)maker.Get(maker.This(), "x"),
-                            (PrimitiveType)maker.Get(maker.This(), "y")));
+            maker.primitiveShiftLeft(maker.Get(maker.This(), "x").toPrimitive(),
+                      maker.Get(maker.This(), "y").toPrimitive()).getValue());
             maker.Return();
         maker.End();
 
@@ -2565,9 +2621,8 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
             maker.Set(maker.This(), "x",
-            maker.primitiveShiftRight(
-                            (PrimitiveType)maker.Get(maker.This(), "x"),
-                            (PrimitiveType)maker.Get(maker.This(), "y")));
+            maker.primitiveShiftRight(maker.Get(maker.This(), "x").toPrimitive(),
+                    maker.Get(maker.This(), "y").toPrimitive()).getValue());
             maker.Return();
         maker.End();
 
@@ -2594,9 +2649,8 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
             maker.Set(maker.This(), "x",
-            maker.primitiveShiftRight(
-                            (PrimitiveType)maker.Get(maker.This(), "x"),
-                            (PrimitiveType)maker.Get(maker.This(), "y")));
+            maker.primitiveShiftRight(maker.Get(maker.This(), "x").toPrimitive(),
+                      maker.Get(maker.This(), "y").toPrimitive()).getValue());
             maker.Return();
         maker.End();
 
@@ -2623,9 +2677,8 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
             maker.Set(maker.This(), "x",
-            maker.primitiveShiftRight(
-                            (PrimitiveType)maker.Get(maker.This(), "x"),
-                            (PrimitiveType)maker.Get(maker.This(), "y")));
+                    maker.primitiveShiftRight(maker.Get(maker.This(), "x").toPrimitive(),
+                            maker.Get(maker.This(), "y").toPrimitive()).getValue());
             maker.Return();
         maker.End();
 
@@ -2752,9 +2805,8 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
             maker.Set(maker.This(), "x",
-            maker.primitiveUnsignedShiftRight(
-                            (PrimitiveType)maker.Get(maker.This(), "x"),
-                            (PrimitiveType)maker.Get(maker.This(), "y")));
+            maker.primitiveUnsignedShiftRight(maker.Get(maker.This(), "x").toPrimitive(),
+                       maker.Get(maker.This(), "y").toPrimitive()).getValue());
             maker.Return();
         maker.End();
 
@@ -2781,10 +2833,9 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
             maker.Set(maker.This(), "x",
-            maker.primitiveUnsignedShiftRight(
-                            (PrimitiveType)maker.Get(maker.This(), "x"),
-                            (PrimitiveType)maker.Get(maker.This(), "y")));
-            maker.Return();
+                    maker.primitiveUnsignedShiftRight(maker.Get(maker.This(), "x").toPrimitive(),
+                            maker.Get(maker.This(), "y").toPrimitive()).getValue());
+           maker.Return();
         maker.End();
 
         Class myClass = maker.defineClass();
@@ -2810,9 +2861,8 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
             maker.Set(maker.This(), "x",
-            maker.primitiveUnsignedShiftRight(
-                            (PrimitiveType)maker.Get(maker.This(), "x"),
-                            (PrimitiveType)maker.Get(maker.This(), "y")));
+                    maker.primitiveUnsignedShiftRight(maker.Get(maker.This(), "x").toPrimitive(),
+                            maker.Get(maker.This(), "y").toPrimitive()).getValue());
             maker.Return();
         maker.End();
 

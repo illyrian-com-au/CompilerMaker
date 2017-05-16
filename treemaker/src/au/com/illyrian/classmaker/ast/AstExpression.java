@@ -32,18 +32,18 @@ import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.DeclaredType;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public interface AstExpression extends ResolvePath, SourceLine
 {
-    public Type resolveType(AstExpressionVisitor visitor);
+    public Value resolveType(AstExpressionVisitor visitor);
 
-    public Type resolveTypeOrNull(AstExpressionVisitor visitor);
+    public Value resolveTypeOrNull(AstExpressionVisitor visitor);
     
-    public Type resolveNew(AstExpressionVisitor visitor);
+    public Value resolveNew(AstExpressionVisitor visitor);
     
-    public Type resolveArraySize(AstExpressionVisitor visitor);
+    public Value resolveArraySize(AstExpressionVisitor visitor);
     
     public String resolvePath(AstExpressionVisitor visitor);
     

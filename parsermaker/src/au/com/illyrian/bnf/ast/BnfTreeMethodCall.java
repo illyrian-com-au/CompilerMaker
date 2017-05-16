@@ -3,6 +3,7 @@ package au.com.illyrian.bnf.ast;
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class BnfTreeMethodCall extends BnfTreeBase <Type>
 {
@@ -34,7 +35,7 @@ public class BnfTreeMethodCall extends BnfTreeBase <Type>
         return visitor.resolveSequence(this, variable);
     }
 
-    public Type resolveType(BnfMakerVisitor visitor)
+    public Value resolveType(BnfMakerVisitor visitor)
     {
         return visitor.resolveType(this);
     }

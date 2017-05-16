@@ -32,7 +32,7 @@ import java.io.File;
 import junit.framework.TestCase;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class ClassMakerTest extends TestCase
 {
@@ -57,13 +57,9 @@ public class ClassMakerTest extends TestCase
             maker.Begin();
             maker.Init(maker.Super(), null);
 
-            // System.out.println("Hello World");
-//            maker.Call(maker.Get("System", "out"), "println",
-//                       maker.Push(maker.Literal("test.MyClass.<init> : Hello World")));
-            // FIXME - remove load
-            Type s1 = maker.Get("System", "out");
+            Value s1 = maker.Get("System", "out");
             CallStack s2 = maker.Push(maker.Literal("test.MyClass.<init> : Hello World"));
-            Type s3 = maker.Call(s1, "println", s2);
+            Value s3 = maker.Call(s1, "println", s2);
 
             // set id to 1
             maker.Set(maker.This(), "id", maker.Literal(1));

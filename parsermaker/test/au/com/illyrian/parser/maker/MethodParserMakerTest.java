@@ -10,7 +10,7 @@ import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 import au.com.illyrian.expressionparser.FuncA;
 import au.com.illyrian.expressionparser.FuncABC;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
@@ -99,9 +99,9 @@ public class MethodParserMakerTest extends ClassMakerTestCase
         return maker;
     }
     
-    void endMethod(ClassMaker maker, Object value)
+    void endMethod(ClassMaker maker, Value value)
     {
-        maker.Return((Type)value);
+        maker.Return(value);
         maker.End();
     }
 
@@ -117,7 +117,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
         return compile;
     }
 
-    private Type parseExpression(String input)
+    private Value parseExpression(String input)
     {
         Input lexer = new LexerInputString(input);
         OperatorPrecidenceParser parser = createParser();
@@ -131,7 +131,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     public void testGetZ() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("getZ()");
+        Value result = parseExpression("getZ()");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -145,7 +145,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     public void testSelfGetZ() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("self.getZ()");
+        Value result = parseExpression("self.getZ()");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -160,7 +160,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     public void testSetZ() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("setZ(a)");
+        Value result = parseExpression("setZ(a)");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -175,7 +175,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     public void testGetY() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("getY()");
+        Value result = parseExpression("getY()");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -188,7 +188,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     public void testSetxGety() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("setZ(getY())");
+        Value result = parseExpression("setZ(getY())");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -201,7 +201,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     public void testOtherSetxGety() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("other.setA(getY())");
+        Value result = parseExpression("other.setA(getY())");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -217,7 +217,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     public void testSetABC() throws Exception
     {
         methodFuncABC(maker);
-        Type result = parseExpression("set(a, b, c)");
+        Value result = parseExpression("set(a, b, c)");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -236,7 +236,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     public void testSelfSetABC() throws Exception
     {
         methodFuncABC(maker);
-        Type result = parseExpression("self.set(a, b, c)");
+        Value result = parseExpression("self.set(a, b, c)");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -256,7 +256,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     public void testOtherA() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("other.a");
+        Value result = parseExpression("other.a");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -274,7 +274,7 @@ public class MethodParserMakerTest extends ClassMakerTestCase
     public void testOtherGetA() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("other.getA()");
+        Value result = parseExpression("other.getA()");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();

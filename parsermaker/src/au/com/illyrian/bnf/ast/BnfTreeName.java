@@ -3,6 +3,7 @@ package au.com.illyrian.bnf.ast;
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class BnfTreeName extends BnfTreeBase <Type>
 {
@@ -42,7 +43,7 @@ public class BnfTreeName extends BnfTreeBase <Type>
         return visitor.resolveDeclaration(this);
     }
 
-    public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)
+    public Value resolveLookahead(BnfMakerVisitor visitor, int howFar)
     {
         return visitor.resolveLookahead(this, howFar);
     }
@@ -52,7 +53,7 @@ public class BnfTreeName extends BnfTreeBase <Type>
         return visitor.resolveSequence(this, variable);
     }
 
-    public Type resolveType(BnfMakerVisitor visitor)
+    public Value resolveType(BnfMakerVisitor visitor)
     {
         return visitor.resolveType(this);
     }

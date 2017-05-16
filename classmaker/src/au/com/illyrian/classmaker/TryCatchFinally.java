@@ -75,7 +75,7 @@ public class TryCatchFinally extends Statement
         maker.markLineNumber(); // possibly add a new line number entry.
 
         maker.Declare(name, exceptionType, 0);
-        maker.Eval(maker.Set(name, exceptionType));
+        maker.Eval(maker.Set(name, exceptionType.getValue()));
     }
 
     void endTryCatchBlock2()

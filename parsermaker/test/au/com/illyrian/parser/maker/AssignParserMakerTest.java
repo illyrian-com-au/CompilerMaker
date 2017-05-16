@@ -5,7 +5,7 @@ import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 import au.com.illyrian.expressionparser.FuncA;
 import au.com.illyrian.expressionparser.FuncABC;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
@@ -53,13 +53,13 @@ public class AssignParserMakerTest extends ClassMakerTestCase
         return maker;
     }
     
-    void endMethod(ClassMaker maker, Object value)
+    void endMethod(ClassMaker maker, Value value)
     {
-        maker.Return((Type)value);
+        maker.Return(value);
         maker.End();
     }
 
-    private Type parseExpression(String string)
+    private Value parseExpression(String string)
     {
         Input input = new LexerInputString(string);
         OperatorPrecidenceParser parser = createIncrementParser();
@@ -73,7 +73,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testGetLocal1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("a");
+        Value result = parseExpression("a");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -88,7 +88,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testSimpleMaths1() throws Exception
     {
         methodFuncABC(maker);
-        Type result = parseExpression("a * 3 + b / 2");
+        Value result = parseExpression("a * 3 + b / 2");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -103,7 +103,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testSimpleMaths2() throws Exception
     {
         methodFuncABC(maker);
-        Type result = parseExpression("a - b * c");
+        Value result = parseExpression("a - b * c");
         endMethod(maker, result);
         
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -119,7 +119,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testSimpleMaths3() throws Exception
     {
         methodFuncABC(maker);
-        Type result = parseExpression("a - -b - c");
+        Value result = parseExpression("a - -b - c");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -132,7 +132,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testSimpleMaths4() throws Exception
     {
         methodFuncABC(maker);
-        Type result = parseExpression("a / b + a % c");
+        Value result = parseExpression("a / b + a % c");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -145,7 +145,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testAssignLocal1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("a = 1");
+        Value result = parseExpression("a = 1");
         endMethod(maker, result);
 
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -161,7 +161,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testAssignLocal2() throws Exception
     {
         methodFuncABC(maker);
-        Type result = parseExpression("a = b * c");
+        Value result = parseExpression("a = b * c");
         endMethod(maker, result);
 
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -177,7 +177,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testAssignField1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("id = 2");
+        Value result = parseExpression("id = 2");
         endMethod(maker, result);
 
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -195,7 +195,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testAssignField2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("id = a");
+        Value result = parseExpression("id = a");
         endMethod(maker, result);
 
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -218,7 +218,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testAssignField3() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("id = a / 3");
+        Value result = parseExpression("id = a / 3");
         endMethod(maker, result);
 
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -241,7 +241,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testAssignField4() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("id = id + a");
+        Value result = parseExpression("id = id + a");
         endMethod(maker, result);
 
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -263,7 +263,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testIncLocal1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("++a");
+        Value result = parseExpression("++a");
         endMethod(maker, result);
 
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -278,7 +278,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testIncLocal2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("++a *2");
+        Value result = parseExpression("++a *2");
         endMethod(maker, result);
 
         assertEquals("full class name", "au.com.illyrian.parser.impl.Test", maker.getFullyQualifiedClassName());
@@ -293,7 +293,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testPostIncLocal1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("a++");
+        Value result = parseExpression("a++");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -305,7 +305,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testPostIncLocal2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("-a++");
+        Value result = parseExpression("-a++");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -317,7 +317,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testDecLocal1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("--a");
+        Value result = parseExpression("--a");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -329,7 +329,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testDecLocal2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("- --a");
+        Value result = parseExpression("- --a");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -341,7 +341,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testPostDecLocal1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("a-- - -1");
+        Value result = parseExpression("a-- - -1");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -353,7 +353,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testPostDecLocal2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("a--");
+        Value result = parseExpression("a--");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -365,7 +365,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testIncField1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("++id");
+        Value result = parseExpression("++id");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -381,7 +381,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testIncField2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("10 - ++id * 2");
+        Value result = parseExpression("10 - ++id * 2");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -396,7 +396,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testPostIncField1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("id++");
+        Value result = parseExpression("id++");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -411,7 +411,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testPostIncField2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("3 + -id++");
+        Value result = parseExpression("3 + -id++");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -426,7 +426,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testDecField1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("--id");
+        Value result = parseExpression("--id");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -441,7 +441,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testDecField2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("1 + --id - 1");
+        Value result = parseExpression("1 + --id - 1");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -456,7 +456,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testPostDecField1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("id--");
+        Value result = parseExpression("id--");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -471,7 +471,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testPostDecField2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("1 + id-- - 1");
+        Value result = parseExpression("1 + id-- - 1");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -488,7 +488,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testIncOtherField1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("++other.id");
+        Value result = parseExpression("++other.id");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -506,7 +506,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testIncOtherField2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("10 - ++other.id * 2");
+        Value result = parseExpression("10 - ++other.id * 2");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -523,7 +523,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testPostIncOtherField1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("other.id++");
+        Value result = parseExpression("other.id++");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -540,7 +540,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testPostIncOtherField2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("3 + -other.id++");
+        Value result = parseExpression("3 + -other.id++");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -557,7 +557,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testDecOtherField1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("--other.id");
+        Value result = parseExpression("--other.id");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -574,7 +574,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testDecOtherField2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("1 + --other.id - 1");
+        Value result = parseExpression("1 + --other.id - 1");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -591,7 +591,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testPostDecOtherField1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("other.id--");
+        Value result = parseExpression("other.id--");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();
@@ -608,7 +608,7 @@ public class AssignParserMakerTest extends ClassMakerTestCase
     public void testPostDecOtherField2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("1 + other.id-- - 1");
+        Value result = parseExpression("1 + other.id-- - 1");
         endMethod(maker, result);
 
         Class parserClass = maker.defineClass();

@@ -43,7 +43,7 @@ public class Type
     /** The java Class which this type is based upon */
     private Class javaClass = null;
     
-    private Value value;
+    private final Value value;
 
     /**
      * Base constructor for all ClassMaker types.
@@ -62,16 +62,6 @@ public class Type
         return value;
     }
     
-    public Type getType()
-    {
-        return this;
-    }
-
-    public Type toType()
-    {
-        return this;
-    }
-
     /**
      * Convert this <code>Type</code> to a <code>PrimitiveType</code>.
      * @return a <code>PrimitiveType</code> if appropriate; otherwise null

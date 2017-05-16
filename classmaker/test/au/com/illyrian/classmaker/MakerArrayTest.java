@@ -31,6 +31,7 @@ import java.lang.reflect.Field;
 
 import org.mozilla.classfile.ByteCode;
 
+import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 
@@ -1709,7 +1710,7 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Array index must be must be type int, short, byte or char, not double", ex.getMessage());
         }
         try {
-            maker.NewArray(maker.Literal("Hello"), maker.Literal((byte)5));
+            maker.NewArray(ClassType.STRING_TYPE, maker.Literal((byte)5));
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("java.lang.String is not a type of array", ex.getMessage());
@@ -1759,7 +1760,7 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Expected an array but was type int", ex.getMessage());
         }
         try {
-            maker.NewArray(maker.Get("x"),
+            maker.NewArray(PrimitiveType.INT_TYPE,
                             maker.Push(maker.Literal(3))
                                  .Push(maker.Literal(2)));
             fail("Should throw ClassMakerException");
@@ -1862,7 +1863,7 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
         } catch (ClassMakerException ex) {
             assertEquals("Array index must be must be type int, short, byte or char, not long", ex.getMessage());
         }
-        maker.Return(PrimitiveType.INT_TYPE);
+        maker.Return(PrimitiveType.INT_TYPE.getValue());
         maker.End();
 
         // MemberField

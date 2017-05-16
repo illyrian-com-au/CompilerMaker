@@ -32,7 +32,7 @@ import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.DeclaredType;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public abstract class AstExpressionBase implements AstExpression, LineNumber
@@ -49,7 +49,7 @@ public abstract class AstExpressionBase implements AstExpression, LineNumber
         setSourceLine(sourceLine);
     }
     
-    public Type resolveType(AstExpressionVisitor visitor)
+    public Value resolveType(AstExpressionVisitor visitor)
     {
         throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveType(visitor)");
     }
@@ -59,18 +59,18 @@ public abstract class AstExpressionBase implements AstExpression, LineNumber
         throw new IllegalStateException(getClass().getSimpleName() + " does not define resolvePath(visitor)");
     }
 
-    public Type resolveNew(AstExpressionVisitor visitor)
+    public Value resolveNew(AstExpressionVisitor visitor)
     {
         // FIXME Cannot apply new operator to expression: toString()
         throw new IllegalStateException("Cannot apply new operator to expression: " + toString());
     }
 
     /**
-     * Resolve AST to a Type or null if a Type cannot be determined.
+     * Resolve AST to a Value or null if a Value cannot be determined.
      * This method is overridden by DotOperator where a path may resolve to a
      * declared type; otherwise just use resolveType().
      */
-    public Type resolveTypeOrNull(AstExpressionVisitor visitor)
+    public Value resolveTypeOrNull(AstExpressionVisitor visitor)
     {
         return resolveType(visitor);
     }
@@ -110,7 +110,7 @@ public abstract class AstExpressionBase implements AstExpression, LineNumber
         throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveDeclaredType(visitor)");
     }
 
-    public Type resolveArraySize(AstExpressionVisitor visitor) {
+    public Value resolveArraySize(AstExpressionVisitor visitor) {
         throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveArraySize(visitor)");
     }
     

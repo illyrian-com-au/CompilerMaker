@@ -5,7 +5,7 @@ import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionFactory;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 import au.com.illyrian.expressionparser.FuncA;
 import au.com.illyrian.expressionparser.FuncABC;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
@@ -54,13 +54,13 @@ public class CastingParserMakerTest extends ClassMakerTestCase
         return maker;
     }
     
-    void endMethod(ClassMaker maker, Object value)
+    void endMethod(ClassMaker maker, Value value)
     {
-        maker.Return((Type)value);
+        maker.Return(value);
         maker.End();
     }
 
-    private Type parseExpression(String input)
+    private Value parseExpression(String input)
     {
         Input lexer = new LexerInputString(input);
         OperatorPrecidenceParser parser = createParser();
@@ -74,7 +74,7 @@ public class CastingParserMakerTest extends ClassMakerTestCase
     public void testCastingParser1() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("(byte)a");
+        Value result = parseExpression("(byte)a");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -86,7 +86,7 @@ public class CastingParserMakerTest extends ClassMakerTestCase
     public void testCastingParser2() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("(byte)(a + (char)2)");
+        Value result = parseExpression("(byte)(a + (char)2)");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -98,7 +98,7 @@ public class CastingParserMakerTest extends ClassMakerTestCase
     public void testCastingParser3() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("(short)id");
+        Value result = parseExpression("(short)id");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -112,7 +112,7 @@ public class CastingParserMakerTest extends ClassMakerTestCase
     public void testCastingParser4() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("(short) other.id");
+        Value result = parseExpression("(short) other.id");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();
@@ -126,7 +126,7 @@ public class CastingParserMakerTest extends ClassMakerTestCase
     public void testCastingParser5() throws Exception
     {
         methodFuncA(maker);
-        Type result = parseExpression("(byte)(short)(int)(long)3");
+        Value result = parseExpression("(byte)(short)(int)(long)3");
         endMethod(maker, result);
         
         Class parserClass = maker.defineClass();

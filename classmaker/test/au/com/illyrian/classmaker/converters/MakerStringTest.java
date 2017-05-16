@@ -91,9 +91,9 @@ public class MakerStringTest extends ClassMakerTestCase
         maker.Begin();
           maker.Declare("str", ClassType.STRING_TYPE, 0);
           ClassType stack = convert.newStringBuffer(maker);
-          stack = convert.append(maker, stack, maker.Literal("Hello World"));
+          stack = convert.append(maker, stack, maker.Literal("Hello World").getType());
           stack = convert.toString(maker,stack);
-          maker.Set("str", stack);
+          maker.Set("str", stack.getValue());
           maker.Return(maker.Get("str"));
         maker.End();
 

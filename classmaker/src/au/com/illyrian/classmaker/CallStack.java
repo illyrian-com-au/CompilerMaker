@@ -1,10 +1,11 @@
 package au.com.illyrian.classmaker;
 
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public interface CallStack {
 	
-    public CallStack Push(Type reference);
+    public CallStack Push(Value reference);
 	
     public Type[] toArray();
 

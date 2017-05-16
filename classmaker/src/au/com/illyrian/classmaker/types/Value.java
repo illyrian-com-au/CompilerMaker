@@ -12,27 +12,23 @@ public class Value
         return type;
     }
     
-    public boolean isPrimitive() {
-        return type.toPrimitive() != null;
+    public String getName() {
+        return type.getName();
     }
     
     public PrimitiveType toPrimitive() {
         return type.toPrimitive();
     }
     
-    public boolean isClass() {
-        return type.toClass() != null;
-    }
-    
     public ClassType toClass() {
         return type.toClass();
     }
     
-    public boolean isArray() {
-        return type.toArray() != null;
-    }
-    
     public ArrayType toArray() {
         return type.toArray();
-    }    
+    }
+    
+    public String toString() {
+        return type.toString();
+    }
 }

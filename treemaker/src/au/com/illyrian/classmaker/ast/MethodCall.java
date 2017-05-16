@@ -29,7 +29,7 @@ package au.com.illyrian.classmaker.ast;
 
 import au.com.illyrian.classmaker.CallStack;
 import au.com.illyrian.classmaker.SourceLine;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class MethodCall extends AstExpressionBase
 {
@@ -49,12 +49,12 @@ public class MethodCall extends AstExpressionBase
         this.name  = name;
     }
     
-    public Type resolveType(AstExpressionVisitor visitor)
+    public Value resolveType(AstExpressionVisitor visitor)
     {
         return visitor.resolveType(this);
     }
 
-    public Type resolveNew(AstExpressionVisitor visitor)
+    public Value resolveNew(AstExpressionVisitor visitor)
     {
         return visitor.resolveNew(this);
     }

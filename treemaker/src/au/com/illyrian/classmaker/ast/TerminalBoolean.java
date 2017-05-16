@@ -28,7 +28,7 @@
 package au.com.illyrian.classmaker.ast;
 
 import au.com.illyrian.classmaker.SourceLine;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 
 public class TerminalBoolean extends AstExpressionBase
@@ -56,7 +56,7 @@ public class TerminalBoolean extends AstExpressionBase
         return value;
     }
 
-    public Type resolveType(AstExpressionVisitor visitor)
+    public Value resolveType(AstExpressionVisitor visitor)
     {
         return visitor.resolveType(this);
     }

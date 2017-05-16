@@ -29,7 +29,7 @@ package au.com.illyrian.classmaker.ast;
 
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class AndThenOperator extends AstExpressionBase
 {
@@ -49,7 +49,7 @@ public class AndThenOperator extends AstExpressionBase
         rightOperand = right;
     }
     
-    public Type resolveType(AstExpressionVisitor visitor)
+    public Value resolveType(AstExpressionVisitor visitor)
     {
         return visitor.resolveType(this);
     }

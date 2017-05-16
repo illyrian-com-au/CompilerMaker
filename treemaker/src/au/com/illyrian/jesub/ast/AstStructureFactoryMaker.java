@@ -37,23 +37,23 @@ import au.com.illyrian.classmaker.ast.AstExpressionFactory;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
 import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.classmaker.ast.TerminalNumber;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class AstStructureFactoryMaker extends AstExpressionFactory implements ClassMakerLocation, AstClassAction
 {
-    protected ClassMaker  maker = null;
-    protected AstExpressionVisitor visitor = null; 
+    protected ClassMaker maker = null;
+    protected AstExpressionVisitor visitor = null;
 
     public AstStructureFactoryMaker(ClassMaker maker)
     {
-    	setClassMaker(maker);
+        setClassMaker(maker);
     }
-    
-    public void setClassMaker(ClassMaker classMaker) 
+
+    public void setClassMaker(ClassMaker classMaker)
     {
-    	maker = classMaker;
-    	visitor = new AstExpressionVisitor(maker);
-	}
+        maker = classMaker;
+        visitor = new AstExpressionVisitor(maker);
+    }
 
     public ClassMaker getClassMaker()
     {
@@ -64,207 +64,207 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
 
     public void Package(AstExpression packageName)
     {
-    	String path = packageName.resolvePath(visitor);
+        String path = packageName.resolvePath(visitor);
         maker.setPackageName(path);
     }
-    
+
     public void Import(AstExpression className)
     {
-    	String path = className.resolvePath(visitor);
+        String path = className.resolvePath(visitor);
         maker.Import(path);
     }
-    
+
     public int Modifier(String modifierName)
     {
-    	int modifiers = maker.addModifier(0, modifierName);
-    	return modifiers;
+        int modifiers = maker.addModifier(0, modifierName);
+        return modifiers;
     }
-    
+
     public int Modifier(int modifiers, String modifierName)
     {
-    	modifiers = maker.addModifier(modifiers, modifierName);
-    	return modifiers;
+        modifiers = maker.addModifier(modifiers, modifierName);
+        return modifiers;
     }
-    
+
     public void ClassName(int modifiers, TerminalName className)
     {
-    	maker.setClassModifiers(modifiers);
-    	maker.setSimpleClassName(className.getName());
+        maker.setClassModifiers(modifiers);
+        maker.setSimpleClassName(className.getName());
     }
-    
+
     public void Extends(AstExpression className)
     {
-    	String path = className.resolvePath(visitor);
+        String path = className.resolvePath(visitor);
         maker.Extends(path);
     }
-    
+
     public void Implements(AstExpression className)
     {
-    	String path = className.resolvePath(visitor);
+        String path = className.resolvePath(visitor);
         maker.Implements(path);
     }
-    
+
     public void Declare(AstExpression type, TerminalName name)
     {
         Declare(0, type, name);
     }
-    
+
     public void Declare(int modifiers, AstExpression type, TerminalName name)
     {
-    	String typeName = type.resolvePath(visitor);
-    	String varName = name.getName();
-    	maker.Declare(varName, typeName, modifiers);
+        String typeName = type.resolvePath(visitor);
+        String varName = name.getName();
+        maker.Declare(varName, typeName, modifiers);
     }
-    
-//    public void Method(AstExpression type, TerminalName name)
-//    {
-//        Method(popModifiers(), type, name);
-//    }
-    
+
+    //    public void Method(AstExpression type, TerminalName name)
+    //    {
+    //        Method(popModifiers(), type, name);
+    //    }
+
     public void Method(int modifiers, AstExpression type, TerminalName name)
     {
-    	String typeName = type.resolvePath(visitor);
-    	String varName = name.getName();
-    	maker.Method(varName, typeName, modifiers);
+        String typeName = type.resolvePath(visitor);
+        String varName = name.getName();
+        maker.Method(varName, typeName, modifiers);
     }
-    
+
     public Labelled Begin()
     {
-    	Labelled labeller = maker.Begin();
-    	return labeller;
+        Labelled labeller = maker.Begin();
+        return labeller;
     }
-    
+
     public void End()
     {
-    	maker.End();
+        maker.End();
     }
-    
+
     public void Return(AstExpression expr)
     {
-    	Type type = expr.resolveType(visitor);
-    	maker.Return(type);
+        Value type = expr.resolveType(visitor);
+        maker.Return(type);
     }
-    
+
     public void Return()
     {
-    	maker.Return();
+        maker.Return();
     }
-    
+
     public void Eval(AstExpression expr)
     {
-    	Type type = expr.resolveType(visitor);
-    	maker.Eval(type);
+        Value type = expr.resolveType(visitor);
+        maker.Eval(type);
     }
-    
+
     public Labelled If(AstExpression condition)
     {
-    	Type type = condition.resolveType(visitor);
-    	Labelled labeller = maker.If(type);
-    	return labeller;
+        Value type = condition.resolveType(visitor);
+        Labelled labeller = maker.If(type);
+        return labeller;
     }
-    
+
     public void Else()
     {
-    	maker.Else();
+        maker.Else();
     }
-    
+
     public void EndIf()
     {
-    	maker.EndIf();
+        maker.EndIf();
     }
-    
+
     public Labelled While(AstExpression condition)
     {
-    	Labelled label = maker.Loop();
-    	Type type = condition.resolveType(visitor);
-    	maker.While(type);
-    	return label;
+        Labelled label = maker.Loop();
+        Value type = condition.resolveType(visitor);
+        maker.While(type);
+        return label;
     }
-    
+
     public void EndWhile()
     {
-    	maker.EndLoop();
+        maker.EndLoop();
     }
 
     public Labelled For(AstExpression initialise, AstExpression condition, AstExpression increment)
     {
-    	Type type1 = (initialise == null) ? null : initialise.resolveType(visitor);
-    	ForWhile part1 = maker.For(type1);
-    	Type type2 = (condition == null) ? null : condition.resolveType(visitor);
-    	ForStep part2 = part1.While(type2);
-    	Type type3 = (increment == null) ? null : increment.resolveType(visitor);
-    	Labelled part3 = part2.Step(type3);
-    	return part3;
+        Value type1 = (initialise == null) ? null : initialise.resolveType(visitor);
+        ForWhile part1 = maker.For(type1);
+        Value type2 = (condition == null) ? null : condition.resolveType(visitor);
+        ForStep part2 = part1.While(type2);
+        Value type3 = (increment == null) ? null : increment.resolveType(visitor);
+        Labelled part3 = part2.Step(type3);
+        return part3;
     }
-    
+
     public void EndFor()
     {
-    	maker.EndFor();
+        maker.EndFor();
     }
 
     public void Break()
     {
-    	maker.Break();
+        maker.Break();
     }
 
     public void Break(TerminalName label)
     {
-    	maker.Break(label.getName());
+        maker.Break(label.getName());
     }
 
     public void Continue()
     {
-    	maker.Continue();
+        maker.Continue();
     }
 
     public void Continue(TerminalName label)
     {
-    	maker.Continue(label.getName());
+        maker.Continue(label.getName());
     }
 
-	public Labelled Switch(AstExpression expr) 
-	{
-    	Type type = expr.resolveType(visitor);
-		Labelled labeller = maker.Switch(type);
-		return labeller;
-	}
-    
+    public Labelled Switch(AstExpression expr)
+    {
+        Value type = expr.resolveType(visitor);
+        Labelled labeller = maker.Switch(type);
+        return labeller;
+    }
+
     public void Case(TerminalNumber value)
     {
-    	maker.Case(value.intValue());
+        maker.Case(value.intValue());
     }
 
     public void Default()
     {
-    	maker.Default();
+        maker.Default();
     }
 
     public void EndSwitch()
     {
-    	maker.EndSwitch();
+        maker.EndSwitch();
     }
 
     public Labelled Try()
     {
-    	Labelled labeller = maker.Try();
-    	return labeller;
+        Labelled labeller = maker.Try();
+        return labeller;
     }
 
     public void Catch(AstExpression type, TerminalName name)
     {
-    	String typeString = type.resolvePath(visitor);
-    	String nameString = name.getName();
-    	maker.Catch(typeString, nameString);
+        String typeString = type.resolvePath(visitor);
+        String nameString = name.getName();
+        maker.Catch(typeString, nameString);
     }
 
     public void Finally()
     {
-    	maker.Finally();
+        maker.Finally();
     }
 
     public void EndTry()
     {
-    	maker.EndTry();
+        maker.EndTry();
     }
 
 }

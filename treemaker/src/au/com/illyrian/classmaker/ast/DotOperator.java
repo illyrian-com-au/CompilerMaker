@@ -30,7 +30,7 @@ package au.com.illyrian.classmaker.ast;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.DeclaredType;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public class DotOperator extends AstExpressionBase
@@ -51,12 +51,12 @@ public class DotOperator extends AstExpressionBase
         rightOperand = right;
     }
     
-    public Type resolveType(AstExpressionVisitor visitor)
+    public Value resolveType(AstExpressionVisitor visitor)
     {
         return visitor.resolveType(this);
     }
     
-    public Type resolveTypeOrNull(AstExpressionVisitor visitor)
+    public Value resolveTypeOrNull(AstExpressionVisitor visitor)
     {
         return visitor.resolveTypeOrNull(this);
     }

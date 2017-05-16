@@ -51,6 +51,7 @@ public class BnfMakerTextVisitorTest extends BnfMakerTextBase
     public void testMethodParams2() {
         BnfTreeMethodCall tree = ast.MethodCall(ast.BnfName("error"), 
                 ast.Comma(ast.Literal("Hello"), ast.Literal("World")));
+        assertEquals("error(\"Hello\", \"World\")", tree.toString());
         visitor.resolveType(tree);
         String expected = "[Call(This(), \"error\", Push(Literal(\"Hello\")).Push(Literal(\"World\")))]";
         assertEquals(expected, maker.toString());

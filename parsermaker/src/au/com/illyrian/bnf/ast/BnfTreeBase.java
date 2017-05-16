@@ -3,6 +3,7 @@ package au.com.illyrian.bnf.ast;
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.ast.LineNumber;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public abstract class BnfTreeBase <T> implements BnfTree <T>, LineNumber
 {
@@ -42,12 +43,12 @@ public abstract class BnfTreeBase <T> implements BnfTree <T>, LineNumber
          throw new IllegalStateException("Cannot resolve Declaration: " + getClass().getSimpleName());
      }
 
-     public Type resolveLookahead(BnfMakerVisitor visitor, int howFar)
+     public Value resolveLookahead(BnfMakerVisitor visitor, int howFar)
      {
          throw new IllegalStateException("Cannot resolve Lookahead: " + getClass().getSimpleName());
      }
 
-     public Type resolveType(BnfMakerVisitor visitor)
+     public Value resolveType(BnfMakerVisitor visitor)
      {
          throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveType(visitor)");
      }

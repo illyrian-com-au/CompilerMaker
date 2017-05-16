@@ -240,8 +240,8 @@ public class MethodResolver
             for (int j = i + 1; j < len; j++)
             {
 //                System.out.println("against j=" + method[j].toString());
-                Type param_i = method[i].getReturnType().getType();
-                Type param_j = method[j].getReturnType().getType();
+                Type param_i = method[i].getReturnType();
+                Type param_j = method[j].getReturnType();
                 if (!param_i.equals(param_j))
                 {
                     // Remove the candidate with the less specific return type

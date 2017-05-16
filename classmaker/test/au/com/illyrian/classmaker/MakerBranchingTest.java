@@ -535,7 +535,7 @@ nl();        maker.End();
                 assertEquals("EndIf without a matching If", ex.getMessage());
             }
             try {
-                maker.If(PrimitiveType.INT_TYPE);
+                maker.If(PrimitiveType.INT_TYPE.getValue());
                 fail("If(INT)");
             } catch (ClassMakerException ex) {
                 assertEquals("If condition must be type boolean, not int", ex.getMessage());
@@ -648,7 +648,7 @@ nl();        maker.End();
               maker.Break();
             maker.EndIf();
             maker.Eval(maker.Set(maker.This(), "id", maker.Add(maker.Get(maker.This(), "id"), maker.Get("a"))));
-            maker.pop(maker.Dec("a"));
+            maker.Eval(maker.Dec("a"));
           maker.EndLoop();
           maker.Return(maker.Get(maker.This(), "id"));
         maker.End();
@@ -1162,7 +1162,7 @@ nl();        maker.End();
               assertEquals("Continue while not in a Loop", ex.getMessage());
           }
           try {
-              maker.While(PrimitiveType.BOOLEAN_TYPE);
+              maker.While(PrimitiveType.BOOLEAN_TYPE.getValue());
               fail("While without Loop");
           } catch (ClassMakerException ex) {
               assertEquals("While must be within a Loop", ex.getMessage());
@@ -1176,7 +1176,7 @@ nl();        maker.End();
 
           maker.Loop();
           try {
-              maker.While(PrimitiveType.INT_TYPE);
+              maker.While(PrimitiveType.INT_TYPE.getValue());
               fail("While(INT)");
           } catch (ClassMakerException ex) {
               assertEquals("While condition must be type boolean, not int", ex.getMessage());
@@ -1203,7 +1203,7 @@ nl();        maker.End();
               assertEquals("Continue while not in a Loop", ex.getMessage());
           }
           try {
-              maker.While(PrimitiveType.BOOLEAN_TYPE);
+              maker.While(PrimitiveType.BOOLEAN_TYPE.getValue());
               fail("While without Loop");
           } catch (ClassMakerException ex) {
               assertEquals("While must be within a Loop", ex.getMessage());
@@ -1241,9 +1241,9 @@ nl();        maker.End();
               assertEquals("EndFor without a matching For", ex.getMessage());
           }
 
-          maker.For(PrimitiveType.VOID_TYPE);
+          maker.For(PrimitiveType.VOID_TYPE.getValue());
           try {
-              maker.While(PrimitiveType.INT_TYPE);
+              maker.While(PrimitiveType.INT_TYPE.getValue());
               fail("While(INT)");
           } catch (ClassMakerException ex) {
               assertEquals("While condition must be type boolean, not int", ex.getMessage());

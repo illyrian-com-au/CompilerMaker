@@ -59,7 +59,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
     private void failSetObjectAccess(ClassMaker maker, ClassType classType, String fieldName, String message)
     {
         try {
-            maker.Set(classType, fieldName, PrimitiveType.INT_TYPE);
+            maker.Set(classType.getValue(), fieldName, PrimitiveType.INT_TYPE.getValue());
             fail("Expected ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals(message, ex.getMessage());
@@ -69,7 +69,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
     private void failGetObjectAccess(ClassMaker maker, ClassType classType, String fieldName, String message)
     {
         try {
-            maker.Get(classType, fieldName);
+            maker.Get(classType.getValue(), fieldName);
             fail("Expected ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals(message, ex.getMessage());
@@ -79,7 +79,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
     private void failIncObjectAccess(ClassMaker maker, ClassType classType, String fieldName, String message)
     {
         try {
-            maker.Inc(classType, fieldName);
+            maker.Inc(classType.getValue(), fieldName);
             fail("Expected ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals(message, ex.getMessage());
@@ -89,7 +89,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
     private void failDecObjectAccess(ClassMaker maker, ClassType classType, String fieldName, String message)
     {
         try {
-            maker.Dec(classType, fieldName);
+            maker.Dec(classType.getValue(), fieldName);
             fail("Expected ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals(message, ex.getMessage());
@@ -99,7 +99,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
     private void failPostIncObjectAccess(ClassMaker maker, ClassType classType, String fieldName, String message)
     {
         try {
-            maker.PostInc(classType, fieldName);
+            maker.PostInc(classType.getValue(), fieldName);
             fail("Expected ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals(message, ex.getMessage());
@@ -109,7 +109,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
     private void failPostDecObjectAccess(ClassMaker maker, ClassType classType, String fieldName, String message)
     {
         try {
-            maker.PostDec(classType, fieldName);
+            maker.PostDec(classType.getValue(), fieldName);
             fail("Expected ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals(message, ex.getMessage());
@@ -750,7 +750,7 @@ public class MakerFieldAccessTest extends ClassMakerTestCase implements ByteCode
     private void failSetStaticAccess(ClassMaker maker, String className, String fieldName, String message)
     {
         try {
-            maker.Set(className, fieldName, PrimitiveType.INT_TYPE);
+            maker.Set(className, fieldName, PrimitiveType.INT_TYPE.getValue());
             fail("Expected ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals(message, ex.getMessage());

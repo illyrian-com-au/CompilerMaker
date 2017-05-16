@@ -625,19 +625,19 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Cannot increment variable 'x' of type java.lang.String", ex.getMessage());
         }
         try {
-            maker.Get(PrimitiveType.INT_TYPE, "n");
+            maker.Get(PrimitiveType.INT_TYPE.getValue(), "n");
             fail("Expected class");
         } catch (ClassMakerException ex) {
             assertEquals("Expected a class but was type int", ex.getMessage());
         }
         try {
-            maker.Set(PrimitiveType.INT_TYPE, "id", PrimitiveType.INT_TYPE);
+            maker.Set(PrimitiveType.INT_TYPE.getValue(), "id", PrimitiveType.INT_TYPE.getValue());
             fail("Expected class");
         } catch (ClassMakerException ex) {
             assertEquals("Expected a class but was type int", ex.getMessage());
         }
         try {
-            maker.Set(maker.getFullyQualifiedClassName(), "n", PrimitiveType.INT_TYPE);
+            maker.Set(maker.getFullyQualifiedClassName(), "n", PrimitiveType.INT_TYPE.getValue());
             fail("Static not asiignable");
         } catch (ClassMakerException ex) {
             assertEquals("Static field \'n\' of type boolean cannot be assigned type int", ex.getMessage());
@@ -649,13 +649,13 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Class variable 'test.MyClass.id' is not static", ex.getMessage());
         }
         try {
-            maker.Set(maker.getFullyQualifiedClassName(), "id", PrimitiveType.INT_TYPE);
+            maker.Set(maker.getFullyQualifiedClassName(), "id", PrimitiveType.INT_TYPE.getValue());
             fail("Not static");
         } catch (ClassMakerException ex) {
             assertEquals("Class variable 'test.MyClass.id' is not static", ex.getMessage());
         }
         try {
-            maker.Set(maker.getFullyQualifiedClassName(), "n", PrimitiveType.INT_TYPE);
+            maker.Set(maker.getFullyQualifiedClassName(), "n", PrimitiveType.INT_TYPE.getValue());
             fail("Static not asiignable");
         } catch (ClassMakerException ex) {
             assertEquals("Static field 'n' of type boolean cannot be assigned type int", ex.getMessage());
@@ -1592,7 +1592,7 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Wrong message", "No local variable called 'a'", ex.getMessage());
         }
         try {
-            maker.Set("a", PrimitiveType.INT_TYPE);
+            maker.Set("a", PrimitiveType.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "No local variable called 'a'", ex.getMessage());
@@ -1604,7 +1604,7 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Wrong message", "Cannot find member field 'a' in class test.MyClass", ex.getMessage());
         }
         try {
-            maker.Set(maker.This(), "a", PrimitiveType.INT_TYPE);
+            maker.Set(maker.This(), "a", PrimitiveType.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Cannot find member field 'a' in class test.MyClass", ex.getMessage());
@@ -1651,7 +1651,7 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Wrong message", "Cannot find member field 'a' in class " + storeName, ex.getMessage());
         }
         try {
-            maker.Set(storeName, "a", PrimitiveType.INT_TYPE);
+            maker.Set(storeName, "a", PrimitiveType.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Cannot find member field 'a' in class " + storeName, ex.getMessage());
@@ -1663,7 +1663,7 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Wrong message", "Cannot assign type java.lang.Runnable to local variable \'store\' of type " + storeName, ex.getMessage());
         }
         try {
-            maker.Set("runnable", PrimitiveType.INT_TYPE);
+            maker.Set("runnable", PrimitiveType.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Cannot assign type int to local variable \'runnable\' of type java.lang.Runnable", ex.getMessage());

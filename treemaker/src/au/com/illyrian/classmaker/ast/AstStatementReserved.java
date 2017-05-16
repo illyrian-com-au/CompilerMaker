@@ -27,7 +27,7 @@
 
 package au.com.illyrian.classmaker.ast;
 
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class AstStatementReserved extends AstExpressionBase
 {
@@ -53,7 +53,7 @@ public class AstStatementReserved extends AstExpressionBase
         this.reservedWord = reservedWord;
     }
 
-    public Type resolveType(AstExpressionVisitor visitor)
+    public Value resolveType(AstExpressionVisitor visitor)
     {
         return visitor.resolveType(this);
     }

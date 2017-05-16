@@ -417,7 +417,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
             maker.Declare("a", int.class, 0);
         	maker.Set("a", maker.Literal(8));
         try {
-            maker.Return(PrimitiveType.INT_TYPE);
+            maker.Return(PrimitiveType.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
                 assertEquals("Method run returns void so must not return a value", ex.getMessage());
@@ -427,7 +427,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
     public void testReturnValueException() throws Exception
     {
         try {
-            maker.Return(PrimitiveType.INT_TYPE);
+            maker.Return(PrimitiveType.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
                 assertEquals("Return while not in a method", ex.getMessage());
@@ -443,7 +443,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
                 assertEquals("A call to Return or Throw must precede End()", ex.getMessage());
         }
         try {
-            maker.Return(PrimitiveType.VOID_TYPE);
+            maker.Return(PrimitiveType.VOID_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
                 assertEquals("Cannot return type void", ex.getMessage());

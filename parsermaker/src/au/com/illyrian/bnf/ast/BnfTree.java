@@ -3,17 +3,18 @@ package au.com.illyrian.bnf.ast;
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
 import au.com.illyrian.classmaker.ast.LineNumber;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public interface BnfTree <T> extends LineNumber
 {
     // BnfMakerVisitor methods
     public Type resolveDeclaration(BnfMakerVisitor visitor);
     
-    public Type resolveLookahead(BnfMakerVisitor visitor, int howFar);
-
     public Type resolveSequence(BnfMakerVisitor visitor, int variable);
 
-    public Type resolveType(BnfMakerVisitor visitor);
+    public Value resolveLookahead(BnfMakerVisitor visitor, int howFar);
+
+    public Value resolveType(BnfMakerVisitor visitor);
 
     // BnfMergeVisitor methods
     public BnfTree resolveMerge(BnfMergeVisitor visitor);

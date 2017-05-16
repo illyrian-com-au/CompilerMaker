@@ -28,7 +28,7 @@
 package au.com.illyrian.classmaker.ast;
 
 import au.com.illyrian.classmaker.SourceLine;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class BinaryOperator extends AstExpressionBase
 {
@@ -85,7 +85,7 @@ public class BinaryOperator extends AstExpressionBase
         return rightOperand;
     }
     
-    public Type resolveType(AstExpressionVisitor visitor)
+    public Value resolveType(AstExpressionVisitor visitor)
     {
         return visitor.resolveType(this);
     }

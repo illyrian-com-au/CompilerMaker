@@ -29,7 +29,7 @@ package au.com.illyrian.classmaker.ast;
 
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.DeclaredType;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class ArrayIndex extends AstExpressionBase
 {
@@ -49,7 +49,7 @@ public class ArrayIndex extends AstExpressionBase
         this.indexOperand = indexOperand;
     }
 
-    public Type resolveType(AstExpressionVisitor visitor)
+    public Value resolveType(AstExpressionVisitor visitor)
     {
         return visitor.resolveType(this);
     }
@@ -59,12 +59,12 @@ public class ArrayIndex extends AstExpressionBase
         return visitor.resolveDeclaredType(this);
     }
 
-    public Type resolveNew(AstExpressionVisitor visitor)
+    public Value resolveNew(AstExpressionVisitor visitor)
     {
         return visitor.resolveNew(this);
     }
 
-    public Type resolveArraySize(AstExpressionVisitor visitor) {
+    public Value resolveArraySize(AstExpressionVisitor visitor) {
         return visitor.resolveArraySize(this);
     }
     

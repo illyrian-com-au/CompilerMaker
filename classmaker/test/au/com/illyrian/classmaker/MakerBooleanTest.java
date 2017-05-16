@@ -30,7 +30,7 @@ package au.com.illyrian.classmaker;
 import org.mozilla.classfile.ByteCode;
 
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode
 {
@@ -138,12 +138,12 @@ public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("d", boolean.class, 0);
         maker.Begin();
         {
-        	Type a = maker.Get("a");
+        	Value a = maker.Get("a");
         	AndOrExpression aExpr = maker.AndThen(a);
-        	Type b = maker.Get("b");
+        	Value b = maker.Get("b");
         	AndOrExpression bExpr = maker.AndThen(aExpr, b);
-        	Type c = maker.Get("c");
-        	Type result = maker.Logic(bExpr, c);
+        	Value c = maker.Get("c");
+        	Value result = maker.Logic(bExpr, c);
         	maker.Return(result);
         }
         maker.End();
@@ -176,7 +176,7 @@ public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode
         	AndOrExpression aExpr = maker.AndThen(maker.Get("a"));
         	AndOrExpression bExpr = maker.AndThen(aExpr, maker.Get("b"));
         	AndOrExpression cExpr = maker.AndThen(bExpr, maker.Get("c"));
-        	Type result = maker.Logic(cExpr, maker.Get("d"));
+        	Value result = maker.Logic(cExpr, maker.Get("d"));
         	maker.Return(result);
         }
         maker.End();
@@ -237,7 +237,7 @@ public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode
         {
         	AndOrExpression aExpr = maker.OrElse(maker.Get("a"));
         	AndOrExpression bExpr = maker.OrElse(aExpr, maker.Get("b"));
-        	Type result = maker.Logic(bExpr, maker.Get("c"));
+        	Value result = maker.Logic(bExpr, maker.Get("c"));
         	maker.Return(result);
         }
         maker.End();
@@ -270,7 +270,7 @@ public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode
         	AndOrExpression aExpr = maker.OrElse(maker.Get("a"));
         	AndOrExpression bExpr = maker.OrElse(aExpr, maker.Get("b"));
         	AndOrExpression cExpr = maker.OrElse(bExpr, maker.Get("c"));
-        	Type result = maker.Logic(cExpr, maker.Get("d"));
+        	Value result = maker.Logic(cExpr, maker.Get("d"));
         	maker.Return(result);
         }
         maker.End();
@@ -308,12 +308,12 @@ public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("d", boolean.class, 0);
         maker.Begin();
         {
-        	Type a = maker.Get("a");
+        	Value a = maker.Get("a");
         	AndOrExpression aExpr = maker.AndThen(a);
-        	Type b = maker.Get("b");
+        	Value b = maker.Get("b");
         	AndOrExpression bExpr = maker.OrElse(aExpr, b);
-        	Type c = maker.Get("c");
-        	Type result = maker.Logic(bExpr, c);
+        	Value c = maker.Get("c");
+        	Value result = maker.Logic(bExpr, c);
         	maker.Return(result);
         }
         maker.End();
@@ -343,12 +343,12 @@ public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("d", boolean.class, 0);
         maker.Begin();
         {
-        	Type a = maker.Get("a");
+        	Value a = maker.Get("a");
         	AndOrExpression aExpr = maker.OrElse(a);
-        	Type b = maker.Get("b");
+        	Value b = maker.Get("b");
         	AndOrExpression bExpr = maker.AndThen(aExpr, b);
-        	Type c = maker.Get("c");
-        	Type result = maker.Logic(bExpr, c);
+        	Value c = maker.Get("c");
+        	Value result = maker.Logic(bExpr, c);
         	maker.Return(result);
         }
         maker.End();
@@ -381,7 +381,7 @@ public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode
         	AndOrExpression aExpr = maker.OrElse(maker.Get("a"));
         	AndOrExpression bExpr = maker.AndThen(aExpr, maker.Get("b"));
         	AndOrExpression cExpr = maker.AndThen(bExpr, maker.Get("c"));
-        	Type result = maker.Logic(cExpr, maker.Get("d"));
+        	Value result = maker.Logic(cExpr, maker.Get("d"));
         	maker.Return(result);
         }
         maker.End();
@@ -422,7 +422,7 @@ public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode
         	AndOrExpression aExpr = maker.OrElse(maker.Get("a"));
         	AndOrExpression bExpr = maker.OrElse(aExpr, maker.Get("b"));
         	AndOrExpression cExpr = maker.AndThen(bExpr, maker.Get("c"));
-        	Type result = maker.Logic(cExpr, maker.Get("d"));
+        	Value result = maker.Logic(cExpr, maker.Get("d"));
         	maker.Return(result);
         }
         maker.End();
@@ -463,7 +463,7 @@ public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode
         	AndOrExpression aExpr = maker.OrElse(maker.Get("a"));
         	AndOrExpression bExpr = maker.AndThen(aExpr, maker.Get("b"));
         	AndOrExpression cExpr = maker.OrElse(bExpr, maker.Get("c"));
-        	Type result = maker.Logic(cExpr, maker.Get("d"));
+        	Value result = maker.Logic(cExpr, maker.Get("d"));
         	maker.Return(result);
         }
         maker.End();
@@ -504,7 +504,7 @@ public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode
         	AndOrExpression aExpr = maker.AndThen(maker.Get("a"));
         	AndOrExpression bExpr = maker.OrElse(aExpr, maker.Get("b"));
         	AndOrExpression cExpr = maker.OrElse(bExpr, maker.Get("c"));
-        	Type result = maker.Logic(cExpr, maker.Get("d"));
+        	Value result = maker.Logic(cExpr, maker.Get("d"));
         	maker.Return(result);
         }
         maker.End();
@@ -545,7 +545,7 @@ public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode
         	AndOrExpression aExpr = maker.AndThen(maker.Get("a"));
         	AndOrExpression bExpr = maker.AndThen(aExpr, maker.Get("b"));
         	AndOrExpression cExpr = maker.OrElse(bExpr, maker.Get("c"));
-        	Type result = maker.Logic(cExpr, maker.Get("d"));
+        	Value result = maker.Logic(cExpr, maker.Get("d"));
         	maker.Return(result);
         }
         maker.End();
@@ -586,7 +586,7 @@ public class MakerBooleanTest extends ClassMakerTestCase implements ByteCode
         	AndOrExpression aExpr = maker.AndThen(maker.Get("a"));
         	AndOrExpression bExpr = maker.OrElse(aExpr, maker.Get("b"));
         	AndOrExpression cExpr = maker.AndThen(bExpr, maker.Get("c"));
-        	Type result = maker.Logic(cExpr, maker.Get("d"));
+        	Value result = maker.Logic(cExpr, maker.Get("d"));
         	maker.Return(result);
         }
         maker.End();

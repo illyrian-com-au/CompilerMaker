@@ -718,13 +718,13 @@ nl();   maker.End();
             assertEquals("Wrong message", "EndTry without Try block", ex.getMessage());
         }
         try {
-            maker.Throw(PrimitiveType.INT_TYPE);
+            maker.Throw(PrimitiveType.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Cannot throw type int", ex.getMessage());
         }
         try {
-            maker.Throw(ClassType.STRING_TYPE);
+            maker.Throw(ClassType.STRING_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Class java.lang.String cannot be thrown", ex.getMessage());

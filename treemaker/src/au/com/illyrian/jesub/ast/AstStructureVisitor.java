@@ -39,7 +39,7 @@ import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
 import au.com.illyrian.classmaker.ast.AstStatementReserved;
 import au.com.illyrian.classmaker.ast.ResolvePath;
 import au.com.illyrian.classmaker.types.DeclaredType;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 public class AstStructureVisitor extends AstExpressionVisitor
 {
@@ -281,7 +281,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
     public void resolveStatement(AstStatementEval statement)
     {
         try {
-            Type type = statement.getExpression().resolveType(this);
+            Value type = statement.getExpression().resolveType(this);
             getMaker().Eval(type);
         } catch (ClassMakerException ex) {
             addError(ex);
@@ -293,7 +293,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
         setSource(statement);
         try {
             if (statement.getExpression() != null) {
-                Type type = statement.getExpression().resolveType(this);
+                Value type = statement.getExpression().resolveType(this);
                 getMaker().Return(type);
             } else {
                 getMaker().Return();
@@ -307,7 +307,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
     {
         try {
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
-            Type type = statement.getCondition().resolveType(this);
+            Value type = statement.getCondition().resolveType(this);
             getMaker().If(type).setLabel(label);
             statement.getThenCode().resolveStatement(this);
             if (statement.getElseCode() != null) {
@@ -326,7 +326,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
         try {
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
             getMaker().Loop().setLabel(label);
-            Type cond = statement.getCondition().resolveType(this);
+            Value cond = statement.getCondition().resolveType(this);
             getMaker().While(cond);
             statement.getCode().resolveStatement(this);
             getMaker().EndLoop();
@@ -339,11 +339,11 @@ public class AstStructureVisitor extends AstExpressionVisitor
     {
         setSource(statement);
         try {
-            Type init = (statement.getInitialise() == null) ? null : statement.getInitialise().resolveType(this);
+            Value init = (statement.getInitialise() == null) ? null : statement.getInitialise().resolveType(this);
             ForWhile step1 = getMaker().For(init);
-            Type cond = (statement.getCondition() == null) ? null : statement.getCondition().resolveType(this);
+            Value cond = (statement.getCondition() == null) ? null : statement.getCondition().resolveType(this);
             ForStep step2 = step1.While(cond);
-            Type dec = (statement.getIncrement() == null) ? null : statement.getIncrement().resolveType(this);
+            Value dec = (statement.getIncrement() == null) ? null : statement.getIncrement().resolveType(this);
             Labelled step3 = step2.Step(dec);
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
             step3.setLabel(label);
@@ -385,7 +385,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
     {
         try {
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
-            Type cond = statement.getExpression().resolveType(this);
+            Value cond = statement.getExpression().resolveType(this);
             getMaker().Switch(cond).setLabel(label);
             statement.getCode().resolveStatement(this);
             getMaker().EndSwitch();

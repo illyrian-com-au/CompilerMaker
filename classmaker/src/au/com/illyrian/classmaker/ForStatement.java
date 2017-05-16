@@ -4,6 +4,7 @@ import org.mozilla.classfile.ByteCode;
 
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 /**
  * Represents a <code>For</code> statement.
@@ -48,13 +49,13 @@ class ForStatement extends LoopStatement implements ForWhile, ForStep
      * @param condition the type of the condition must be <code>boolean</code>
      * @return an interface for the <code>Step</code> clause
      */
-    public ForStep While(Type condition) throws ClassMakerException
+    public ForStep While(Value condition) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return this;
         maker.markLineNumber(); // possibly add a new line number entry.
         if (condition != null)
         {
-                if (!PrimitiveType.BOOLEAN_TYPE.equals(condition))
+                if (!PrimitiveType.BOOLEAN_TYPE.equals(condition.getType()))
                 {
                     throw maker.createException("ClassMaker.WhileConditionMustBeTypeBooleanNot_1", condition.getName());
                 }
@@ -80,7 +81,7 @@ class ForStatement extends LoopStatement implements ForWhile, ForStep
      * @param step the type of the Step expression
      * @return an interface to set a Label
      */
-    public Labelled Step(Type step) throws ClassMakerException
+    public Labelled Step(Value step) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return this;
         if (cfw.isDebugCode()) cfw.setDebugComment("For step");

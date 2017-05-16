@@ -29,7 +29,7 @@ package au.com.illyrian.classmaker.ast;
 
 import au.com.illyrian.classmaker.ClassMakerText;
 import au.com.illyrian.classmaker.ClassMakerIfc;
-import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 import junit.framework.TestCase;
 
 public class ExpressionOperatorTest extends TestCase
@@ -42,7 +42,7 @@ public class ExpressionOperatorTest extends TestCase
     {
         AstExpression expr = ast.Add(ast.Literal(1), ast.Literal(2));
         assertEquals("Wrong toString()", "(1 + 2)", expr.toString());
-        Type type = expr.resolveType(visitor);
+        Value type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Add(Literal(1), Literal(2))]", buf.toString());
     }
@@ -51,7 +51,7 @@ public class ExpressionOperatorTest extends TestCase
     {
     	AstExpression expr = ast.Add(ast.Add(ast.Add(ast.Literal(1), ast.Literal(2)), ast.Literal(3)), ast.Literal(4));
         assertEquals("Wrong toString()", "(((1 + 2) + 3) + 4)", expr.toString());
-        Type type = expr.resolveType(visitor);
+        Value type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Add(Add(Add(Literal(1), Literal(2)), Literal(3)), Literal(4))]", buf.toString());
     }
@@ -61,7 +61,7 @@ public class ExpressionOperatorTest extends TestCase
     	AstExpression expr = ast.Add(ast.Add(ast.Add(ast.Literal((byte)1), 
     				ast.Literal((short)2)), ast.Literal((long)3)), ast.Literal('A'));
         assertEquals("Wrong toString()", "(((1b + 2s) + 3l) + 'A')", expr.toString());
-        Type type = expr.resolveType(visitor);
+        Value type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(long)", type.toString());
         assertEquals("Wrong output", "[Add(Add(Add(Literal(1), Literal(2)), Literal(3l)), Literal('A'))]", buf.toString());
     }
@@ -70,7 +70,7 @@ public class ExpressionOperatorTest extends TestCase
     {
     	AstExpression expr = ast.Assign(ast.Name("x"), ast.Add(ast.Literal(3.141f), ast.Literal(9.87654321)));
         assertEquals("Wrong toString()", "(x = (3.141f + 9.87654321))", expr.toString());
-        Type type = expr.resolveType(visitor);
+        Value type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(double)", type.toString());
         assertEquals("Wrong output", "[Assign(\"x\", Add(Literal(3.141f), Literal(9.87654321)))]", buf.toString());
     }
@@ -79,7 +79,7 @@ public class ExpressionOperatorTest extends TestCase
     {
     	AstExpression expr = ast.Add(ast.Literal("Hello "), ast.Literal("World "));
         assertEquals("Wrong toString()", "(\"Hello \" + \"World \")", expr.toString());
-        Type type = expr.resolveType(visitor);
+        Value type = expr.resolveType(visitor);
         assertEquals("Wrong type", "ClassType(java.lang.String)", type.toString());
         assertEquals("Wrong output", "[Add(Literal(\"Hello \"), Literal(\"World \"))]", buf.toString());
     }
@@ -91,7 +91,7 @@ public class ExpressionOperatorTest extends TestCase
     					ast.Subt(ast.Add(ast.Literal(2), ast.Literal(3)),  ast.Literal(3)),  
     					ast.Literal(4))), ast.Literal(2)), ast.Literal(3));
         assertEquals("Wrong toString()", "((-((((2 + 3) - 3) * 4)) / 2) % 3)", expr.toString());
-        Type type = expr.resolveType(visitor);
+        Value type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Rem(Div(Neg(Mult(Subt(Add(Literal(2), Literal(3)), Literal(3)), Literal(4))), Literal(2)), Literal(3))]", buf.toString());
     }
@@ -100,7 +100,7 @@ public class ExpressionOperatorTest extends TestCase
     {
     	AstExpression expr = ast.USHR(ast.Inv(ast.SHR(ast.SHL(ast.Literal(299), ast.Literal(3)),  ast.Literal(2))), ast.Literal(4));
         assertEquals("Wrong toString()", "(~(((299 << 3) >> 2)) >>> 4)", expr.toString());
-        Type type = expr.resolveType(visitor);
+        Value type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[USHR(Inv(SHR(SHL(Literal(299), Literal(3)), Literal(2))), Literal(4))]", buf.toString());
     }
@@ -109,7 +109,7 @@ public class ExpressionOperatorTest extends TestCase
     {
     	AstExpression expr = ast.Xor(ast.Or(ast.Literal(2), ast.Literal(3)), ast.And(ast.Literal(2), ast.Literal(4)));
         assertEquals("Wrong toString()", "((2 | 3) ^ (2 & 4))", expr.toString());
-        Type type = expr.resolveType(visitor);
+        Value type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Xor(Or(Literal(2), Literal(3)), And(Literal(2), Literal(4)))]", buf.toString());
     }
@@ -118,7 +118,7 @@ public class ExpressionOperatorTest extends TestCase
     {
     	AstExpression expr =  ast.Not(ast.EQ(ast.GT(ast.Literal(2), ast.Literal(3)), ast.LT(ast.Literal(2), ast.Literal(4))));
         assertEquals("Wrong toString()", "!(((2 > 3) == (2 < 4)))", expr.toString());
-        Type type = expr.resolveType(visitor);
+        Value type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
         assertEquals("Wrong output", "[Not(EQ(GT(Literal(2), Literal(3)), LT(Literal(2), Literal(4))))]", buf.toString());
     }
@@ -127,7 +127,7 @@ public class ExpressionOperatorTest extends TestCase
     {
     	AstExpression expr = ast.NE(ast.GE(ast.Literal(2), ast.Literal(3)),ast.LE(ast.Literal(2), ast.Literal(4)));
         assertEquals("Wrong toString()", "((2 >= 3) != (2 <= 4))", expr.toString());
-        Type type = expr.resolveType(visitor);
+        Value type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
         assertEquals("Wrong output", "[NE(GE(Literal(2), Literal(3)), LE(Literal(2), Literal(4)))]", buf.toString());
     }
@@ -138,7 +138,7 @@ public class ExpressionOperatorTest extends TestCase
     			ast.Neg(ast.Div(ast.Neg(ast.Literal(3)), 
     			ast.Neg(ast.Mult(ast.Neg(ast.Literal(2)), ast.Neg(ast.Literal(3))))))));
         assertEquals("Wrong toString()", "-((-(2) - -((-(3) / -((-(2) * -(3)))))))", expr.toString());
-        Type type = expr.resolveType(visitor);
+        Value type = expr.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Neg(Subt(Neg(Literal(2)), Neg(Div(Neg(Literal(3)), Neg(Mult(Neg(Literal(2)), Neg(Literal(3))))))))]", buf.toString());
     }
