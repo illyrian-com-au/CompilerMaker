@@ -29,11 +29,11 @@ package au.com.illyrian.classmaker;
 
 import org.mozilla.classfile.ByteCode;
 
-import au.com.illyrian.classmaker.MakerMultiClassTest.Getter;
 import au.com.illyrian.classmaker.members.MakerMethod;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
+import au.com.illyrian.classmaker.types.Type;
 
 public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
 {
@@ -250,10 +250,10 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
     {
         maker.setPackageName("au.com.illyrian.classmaker");
         maker.setSimpleClassName("Test");
-        DeclaredType declared1 = maker.findDeclaredType("CallStack");
+        Type declared1 = maker.findType("CallStack");
         assertNotNull("Cannot find CallStack", declared1);
         assertEquals("Wrong class name", "au.com.illyrian.classmaker.CallStack", declared1.getName());
-        DeclaredType declared2 = maker.findDeclaredType("ClassMakerIfc");
+        Type declared2 = maker.findType("ClassMakerIfc");
         assertNotNull("Cannot find ClassMakerIfc", declared2);
         assertEquals("Wrong class name", "au.com.illyrian.classmaker.ClassMakerIfc", declared2.getName());
     }
@@ -280,13 +280,13 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
         assertNotNull(maker.stringToDeclaredType("java.util.Date"));
         maker.Import("java.sql.Date");
         try {
-            maker.stringToDeclaredType("Date");
+            maker.findType("Date");
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("'Date' is ambiguous; must use the fully qualified class name", ex.getMessage());
         }
         try {
-            maker.getAliasMapDeclared("Date");
+            maker.findImportedType("Date");
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("'Date' is ambiguous; must use the fully qualified class name", ex.getMessage());

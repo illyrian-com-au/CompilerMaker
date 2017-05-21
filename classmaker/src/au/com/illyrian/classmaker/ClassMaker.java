@@ -225,6 +225,8 @@ public class ClassMaker implements ClassMakerIfc
     Vector<MakerField>      localTable = new Vector<MakerField>();
     /** Short class names are mapped to class types as they are imported into the class being generated. */
     private HashMap<String, DeclaredType> aliasMap = new HashMap<String, DeclaredType>();
+    /** Short class names are mapped to class types as they are imported into the class being generated. */
+    private HashMap<String, ClassType> importMap = new HashMap<String, ClassType>();
     /** A reference to the method currently being generated. */
     private MakerMethod method = null;
     /** Has the class  declared a constructor. */
@@ -308,6 +310,7 @@ public class ClassMaker implements ClassMakerIfc
         setSimpleClassName(simpleName);
         setSourceFilename(sourceFile);
         getDeclaredType();
+        //getClassType();
     }
 
     /**
@@ -1307,6 +1310,7 @@ public class ClassMaker implements ClassMakerIfc
                 if (getPass() == FIRST_PASS)
                     hasConstructor = false;
             }
+            thisClassType.setModifiers(classModifiers);
             thisClassType.setConstructors(getDeclaredConstructors());
             thisClassType.setMethods(getDeclaredMethods());
             thisClassType.setInterfaces(getDeclaredInterfaces());
@@ -1537,14 +1541,20 @@ public class ClassMaker implements ClassMakerIfc
      */
     public void Import(String className) throws ClassMakerException
     {
-        DeclaredType declaredType = aliasMap.get(toDotName(className));
-        if (declaredType == null)
-        {
-        	DeclaredType declaredClass = stringToDeclaredClass(toDotName(className));
-        	addClassTypeAlias(declaredClass);
+        ClassType importedType = importMap.get(toDotName(className));
+        if (importedType == null) {
+            importedType = stringToClassType(toDotName(className));
+            addClassTypeAlias(importedType);
             if (log.isLoggable(Level.FINE))
-                log.finest("Import " + declaredClass);
+                log.finest("Import " + importedType);
         }
+//        DeclaredType declaredType = aliasMap.get(toDotName(className));
+//        if (declaredType == null) {
+//            DeclaredType declaredClass = stringToDeclaredClass(toDotName(className));
+//            addClassTypeAlias(declaredClass);
+//            if (log.isLoggable(Level.FINE))
+//                log.finest("Import " + declaredClass);
+//        }
     }
 
     /**
@@ -1653,29 +1663,6 @@ public class ClassMaker implements ClassMakerIfc
         return classType;
     }
 
-    DeclaredType getPackageDeclared(String className) throws ClassMakerException
-    {
-        DeclaredType declaredType = null;
-        if (packageName != null && !"".equals(packageName))
-        {
-            String classNameFQ = packageName + "." + className;
-            declaredType = getFactory().stringToDeclaredType(classNameFQ);
-        }
-        return declaredType;
-    }
-
-    DeclaredType getAliasMapDeclared(String className) throws ClassMakerException
-    {
-        DeclaredType declaredType = aliasMap.get(toDotName(className));
-        if (declaredType != null)
-        {
-            // The alias map uses NULL_TYPE if more than one class with the same simple class name has been imported.
-            if (ClassType.NULL_TYPE.equals(declaredType.getType()))
-                throw createException("ClassMaker.MustUseFullyQualifiedClassName_1", className);
-        }
-        return declaredType;
-    }
-    
     /**
      * Allows a <code>ClassType</code> to be found using the short class name.
      * </br>
@@ -1698,19 +1685,24 @@ public class ClassMaker implements ClassMakerIfc
         if (index > -1)
         {   // A simple name exists so add it to the alias map.
             String simpleName = className.substring(index+1);
-            DeclaredType aliasType = aliasMap.get(simpleName);
-            if (aliasType == null)
+            Type aliasType = importMap.get(simpleName);
+            if (aliasType == null) {
                 aliasMap.put(simpleName, new DeclaredType(classType));
-            else
-            {   // A clash of simple names exists so we must use fully qualified names.
-                if (!ClassType.NULL_TYPE.equals(aliasType.getType()))
+                importMap.put(simpleName, classType);
+                // FIXME add to importMap
+            } else {
+                // A clash of simple names exists so we must use fully qualified names.
+                if (!ClassType.NULL_TYPE.equals(aliasType))
                 {   // Use ClassType.NULL_TYPE as a marker to force fully qualified names.
                     aliasMap.put(simpleName, new DeclaredType(ClassType.NULL_TYPE));
+                    importMap.put(simpleName, ClassType.NULL_TYPE);
+                    // FIXME add to importMap
                 }
             }
         }
         // Add the fully qualified class name to the alias map.
         aliasMap.put(className, new DeclaredType(classType));
+        importMap.put(className, classType);
     }
 
     void addClassTypeAlias(DeclaredType declared)
@@ -1849,7 +1841,17 @@ public class ClassMaker implements ClassMakerIfc
     public void Method(String methodName, Type returnType, int methodModifiers) throws ClassMakerException
     {
         DeclaredType declared = getDeclaredType(returnType);
-        Method(methodName, declared, methodModifiers);
+        checkMethodModifiers(methodModifiers);
+        if (method != null)
+            throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toFullString());
+        method = new MakerMethod(getClassType(), methodName, declared, (short)methodModifiers);
+        
+        // Adjust the slots used to account for the this pointer, if present.
+        maxLocalSlots = method.isStatic() ? 0 : getDeclaredType().getSlotSize();
+        
+        // Determine whether the class declares a constructor.
+        if (INIT.equals(methodName))
+            hasConstructor = true;
     }
 
     /**
@@ -2171,33 +2173,33 @@ public class ClassMaker implements ClassMakerIfc
      */
     public Initialiser New(String className) throws ClassMakerException
     {
-        DeclaredType declared = null;
-        if (getClassFileWriter() != null)
-            declared = stringToDeclaredClass(className);
-        return New(declared);
+        Type type = null;
+        if (getClassFileWriter() != null) {
+            type = findType(className);
+        }
+        return New(type);
     }
 
-    public Initialiser New(Type classType) throws ClassMakerException
-    {
-        String className = classType.getName();
-        return New(className);
-    }
     /**
      * Creates a new instance of the class.
      * @param declared a declared type represents the type of class
      * @return an <code>Initialiser</code> for the instance
      */
-    public Initialiser New(DeclaredType declared) throws ClassMakerException
+    public Initialiser New(Type classType) throws ClassMakerException
     {
         Value reference = null;
         markLineNumber(); // possibly add a new line number entry.
         if (getClassFileWriter() != null)
         {
-            Type type = declared.getClassType();
-            cfw.add(ByteCode.NEW, toSlashName(type.getName()));
-            reference = type.getValue();
+            cfw.add(ByteCode.NEW, toSlashName(classType.getName()));
+            reference = classType.getValue();
         }
         return new InitialiserImpl(reference);
+    }
+
+    public Initialiser New(DeclaredType declared) throws ClassMakerException
+    {
+        return New(declared == null ? null : declared.getType());
     }
 
     /**
@@ -2314,10 +2316,10 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (getClassFileWriter() == null)
             return null;
-        DeclaredType declaredType = stringToDeclaredClass(className);
+        Type type = stringToClassType(className);
         if (actualParameters == null)
             actualParameters = Push();
-        return methodCall(declaredType.getType(), methodName, actualParameters, true).getValue();
+        return methodCall(type, methodName, actualParameters, true).getValue();
     }
 
     /**
@@ -3233,6 +3235,7 @@ public class ClassMaker implements ClassMakerIfc
         return field;
     }
     
+    // @Depricated
     public DeclaredType findDeclaredType(String name)
     {
         assertNotNull(name, "name");
@@ -3243,6 +3246,110 @@ public class ClassMaker implements ClassMakerIfc
         if (declared == null)
             declared = getFactory().stringToDeclaredType(name);
         return declared;
+    }
+    
+    // @Depricated
+    DeclaredType getPackageDeclared(String className) throws ClassMakerException
+    {
+        DeclaredType declaredType = null;
+        if (packageName != null && !"".equals(packageName))
+        {
+            String classNameFQ = packageName + "." + className;
+            declaredType = getFactory().stringToDeclaredType(classNameFQ);
+        }
+        return declaredType;
+    }
+
+    // @Depricated
+    DeclaredType getAliasMapDeclared(String className) throws ClassMakerException
+    {
+        DeclaredType declaredType = aliasMap.get(toDotName(className));
+        if (declaredType != null)
+        {
+            // The alias map uses NULL_TYPE if more than one class with the same simple class name has been imported.
+            if (ClassType.NULL_TYPE.equals(declaredType.getType()))
+                throw createException("ClassMaker.MustUseFullyQualifiedClassName_1", className);
+        }
+        return declaredType;
+    }
+    
+    public Type findType(String name)
+    {
+        assertNotNull(name, "name");
+        // The alias table maps simple class names to ClassTypes.
+        Type type = findImportedType(name);
+        if (type == null) {
+            type = findPackageType(name);
+        }
+        if (type == null) {
+            type = getFactory().stringToType(name);
+        }
+        return type;
+    }
+    
+    /**
+     * Converts a class name to a <code>ClassType</code>.
+     * </br>
+     * An existing <code>ClassType</code> is returned if the java class has been used previously.
+     * A simple class name will be successful if the class was previously imported.
+     * <code>Type</code>s are cached in the shared <code>ClassMakerFactory</code>.
+     * @param className the short or fully qualified name of the <code>Class</code>
+     * @return the <code>DeclaredType</code> associated with the className
+     * @throws ClassMakerException if the class does not exist
+     */
+    public ClassType stringToClassType(String className) throws ClassMakerException
+    {
+        Type type = findType(className);
+        if (type == null || type.toClass() == null)
+        {
+            throw createException("ClassMaker.NoClassTypeCalled_1", className);
+        }
+        return type.toClass();
+    }
+    
+    /**
+     * Converts a type name to a <code>Type</code>.
+     * </br>
+     * An existing Type is returned if a primitive type is named or the java class has been used previously.
+     * A simple class name will be successful if the class was imported.
+     * <code>Type</code>s are cached in the shared <code>ClassMakerFactory</code>.
+     * @param typeName the simple name or fully qualified name of the type
+     * @return the <code>Type</code> associated with the typeName
+     * @throws ClassMakerException if the type does not exist
+     */
+    public Type stringToType(String typeName) throws ClassMakerException
+    {
+        Type type = findType(typeName);
+        if (type == null)
+        {
+            throw createException("ClassMaker.NoTypeCalled_1", typeName);
+        }
+        return type;
+    }
+    
+    Type findPackageType(String className) throws ClassMakerException
+    {
+        Type classType = null;
+        if (packageName != null && !"".equals(packageName))
+        {
+            String classNameFQ = packageName + "." + className;
+            classType = getFactory().stringToType(classNameFQ);
+        }
+        return classType;
+    }
+
+    Type findImportedType(String className) throws ClassMakerException
+    {
+        DeclaredType declaredType = aliasMap.get(toDotName(className));
+        if (declaredType != null)
+        {
+            // The alias map uses NULL_TYPE if more than one class with the same simple class name has been imported.
+            if (ClassType.NULL_TYPE.equals(declaredType.getType()))
+                throw createException("ClassMaker.MustUseFullyQualifiedClassName_1", className);
+            return declaredType.getType();
+        } else {
+            return null;
+        }
     }
     
     /**
@@ -3257,8 +3364,7 @@ public class ClassMaker implements ClassMakerIfc
     public MakerField Find(String className, String fieldName) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
-        DeclaredType declared = stringToDeclaredClass(className); 
-        ClassType classType = declared.getClassType();
+        ClassType classType = stringToClassType(className);
         MakerField field = findField(classType, fieldName);
         if (field == null)
             throw createException("ClassMaker.CannotFindStaticFieldInClass_2", classType.getName(), fieldName);
@@ -3767,7 +3873,7 @@ public class ClassMaker implements ClassMakerIfc
      */
     public Value Cast(Value source, String target) throws ClassMakerException
     {
-        DeclaredType makerType = stringToDeclaredType(target);
+        Type makerType = stringToType(target);
         return Cast(source, makerType);
     }
 
@@ -3853,18 +3959,18 @@ public class ClassMaker implements ClassMakerIfc
         if (getClassFileWriter() == null) return null;
         if (cfw.isDebugCode()) 
         	setDebugComment("InstanceOf("+reference+", "+target+");");
-        DeclaredType declared = findDeclaredType(target);
+        Type type = findType(target);
         if (reference.toClass() == null)
             throw createException("ClassMaker.InstanceOfMustTestAClass_1", reference.getName());
-        if (declared == null || declared.getClassType() == null)
+        if (type == null || type.toClass() == null)
             throw createException("ClassMaker.CannotTestInstanceOfType_1", target);
-        return checkInstanceOf(reference.getType(), declared.getClassType()).getValue();
+        return checkInstanceOf(reference.getType(), type.toClass()).getValue();
     }
     
     Type checkInstanceOf(Type source, ClassType target) throws ClassMakerException
     {
         markLineNumber(); // possibly add a new line number entry.
-        String className = target.getName().replace('.', '/');
+        String className = toSlashName(target.getName());
         cfw.add(ByteCode.INSTANCEOF, className);
         return PrimitiveType.BOOLEAN_TYPE;
     }
@@ -7290,8 +7396,7 @@ public class ClassMaker implements ClassMakerIfc
     public void Catch(String exceptionName, String name)
     {
         TryCatchFinally stmt = topTryCatchFinally("ClassMaker.CatchWithoutTry");
-        DeclaredType declared = stringToDeclaredClass(exceptionName);
-        ClassType exceptionType = declared.getClassType();
+        ClassType exceptionType = stringToClassType(exceptionName);
         stmt.Catch(exceptionType, name);
     }
 

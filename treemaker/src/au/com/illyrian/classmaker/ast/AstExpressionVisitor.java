@@ -283,7 +283,7 @@ public class AstExpressionVisitor implements SourceLine
         if (tree.getParams() != null)
             stack = tree.getParams().resolveCallStack(this);
         setSource(tree);
-        return maker.New(declared).Init(stack);
+        return maker.New(declared.getType()).Init(stack);
     }
     
     public Value resolveNew(ArrayIndex tree)

@@ -449,7 +449,7 @@ public class ClassMakerFactory
      * @param typeName the fully qualified class name
      * @return the corresponding type
      */
-    private Type stringToType(String typeName)
+    public Type stringToType(String typeName)
     {
         Type type = getType(typeName);
         if (type == null)
