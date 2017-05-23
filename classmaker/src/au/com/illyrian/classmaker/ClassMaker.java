@@ -218,7 +218,7 @@ public class ClassMaker implements ClassMakerIfc
     /** A list of methods in the class being generated. */
     private Vector<MakerMethod>     methods    = new Vector<MakerMethod>();
     /** A list of interfaces implemented by the class being generated. */
-    private Vector<DeclaredType>    interfaces = new Vector<DeclaredType>();
+    private Vector<ClassType>       interfaces = new Vector<ClassType>();
     /** A list of member fields in the class being generated. */
     private Vector<MakerField>      fieldTable = new Vector<MakerField>();
     /** A list of local variables in the class being generated. */
@@ -310,7 +310,7 @@ public class ClassMaker implements ClassMakerIfc
         setSimpleClassName(simpleName);
         setSourceFilename(sourceFile);
         getDeclaredType();
-        //getClassType();
+        getClassType();
     }
 
     /**
@@ -495,7 +495,7 @@ public class ClassMaker implements ClassMakerIfc
      */
     protected ClassType defaultThisClass()
     {
-        ClassType classType = new ClassType(getFullyQualifiedClassName(), getSuperClass());
+        ClassType classType = new ClassType(getFullyQualifiedClassName());
         classType.setModifiers(classModifiers);
         getFactory().putType(getFullyQualifiedClassName(), classType);
         return classType;
@@ -643,9 +643,12 @@ public class ClassMaker implements ClassMakerIfc
             int mod = type.getModifiers();
             if (Modifier.isInterface(mod))
                 throw createException("ClassMaker.CannotExtendInterface", type.getName());
-        }
 
+            //ClassType classType = stringToClassType(className);
+            getClassType().setExtendsType(type);
+        }
         setSuperClass(declared);
+
     }
 
     /**
@@ -664,8 +667,14 @@ public class ClassMaker implements ClassMakerIfc
         int mod = javaClass.getModifiers();
         if (Modifier.isInterface(mod))
             throw createException("ClassMaker.CannotExtendInterface", javaClass.getName());
-            
+
         setSuperClass(classToDeclaredType(javaClass));
+            
+        if (getPass() != ClassMaker.FIRST_PASS)
+        {
+            ClassType classType = classToClassType(javaClass);
+            getClassType().setExtendsType(classType);
+        }
     }
 
     /** 
@@ -778,9 +787,9 @@ public class ClassMaker implements ClassMakerIfc
      * Gets the interfaces implemented by the generated class.
      * @return an array of implemented interfaces
      */
-    public DeclaredType[] getDeclaredInterfaces()
+    public ClassType[] getDeclaredInterfaces()
     {
-        return interfaces.toArray(ClassMakerFactory.DECLARED_TYPE_ARRAY);
+        return interfaces.toArray(ClassMakerFactory.CLASS_TYPE_ARRAY);
     }
 
     /**
@@ -1286,10 +1295,11 @@ public class ClassMaker implements ClassMakerIfc
         return thisClass;
     }
     
-    private void defineInterfaces(DeclaredType [] interfaces)
+    private void defineInterfaces(ClassType [] interfaces)
     {
-        for (DeclaredType declared : interfaces)
+        for (ClassType type : interfaces)
         {
+            DeclaredType declared = factory.typeToDeclaredType(type);
             declared.defineClass();
         }
     }
@@ -1310,14 +1320,14 @@ public class ClassMaker implements ClassMakerIfc
                 if (getPass() == FIRST_PASS)
                     hasConstructor = false;
             }
+            thisClassType.defaultExtendsType();
             thisClassType.setModifiers(classModifiers);
             thisClassType.setConstructors(getDeclaredConstructors());
             thisClassType.setMethods(getDeclaredMethods());
             thisClassType.setInterfaces(getDeclaredInterfaces());
             thisClassType.setFields(getDeclaredFields());
             
-            if (getPass() != FIRST_PASS)
-            {
+            if (getPass() != FIRST_PASS) {
                 checkClassMethodsAreConcrete();
                 checkInterfaceMethodsAreAbstract();
                 checkInterfaceMethodsAreImplemented();
@@ -2430,8 +2440,7 @@ public class ClassMaker implements ClassMakerIfc
         int mod = classType.getModifiers();
         if (!Modifier.isInterface(mod))
             throw createException("ClassMaker.CannotImplementClass", javaClass.getName());
-        DeclaredType declared = getFactory().typeToDeclaredType(classType);
-        implementsClassType(declared);
+        implementsClassType(classType);
     }
 
     /**
@@ -2440,11 +2449,10 @@ public class ClassMaker implements ClassMakerIfc
      */
     public void Implements(String className) throws ClassMakerException
     {
-        DeclaredType declared = stringToDeclaredType(className);
+        ClassType classType = stringToClassType(className);
         if (getPass() != ClassMaker.FIRST_PASS)
         {
-            ClassType classType = declared.getClassType();
-            if (declared.getClassType() == null)
+            if (classType == null)
             {
                 throw createException("ClassMaker.NoClassTypeCalled_1", className);
             }
@@ -2452,14 +2460,14 @@ public class ClassMaker implements ClassMakerIfc
             if (!Modifier.isInterface(mod))
                 throw createException("ClassMaker.CannotImplementClass", classType.getName());
         }
-        implementsClassType(declared);
+        implementsClassType(classType);
     }
 
     /**
      * Indicates that the class implements the named interface.
      * @param classType the type of the interface
      */
-    void implementsClassType(DeclaredType classType)
+    void implementsClassType(ClassType classType)
     {
         if (getClassFileWriter() != null)
         {
@@ -2678,8 +2686,9 @@ public class ClassMaker implements ClassMakerIfc
             if (isDebugCode())
             	setDebugComment("Super();");
             cfw.addLoadThis();
+            return superClass.getClassType().getValue();
         }
-        return superClass.getClassType().getValue();
+        return null;
     }
 
     /**

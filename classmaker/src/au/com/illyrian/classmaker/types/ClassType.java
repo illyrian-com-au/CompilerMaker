@@ -61,7 +61,7 @@ public class ClassType extends Type {
     private DeclaredType    extendsDeclaredType = null;
     private ClassType       extendsType = null;
     private String          packageName = null;
-    private DeclaredType [] interfaces = null;
+    private ClassType    [] interfaces = null;
     private MakerMethod  [] constructors = null;
     private MakerMethod  [] methods = null;
     private MakerMethod  [] allMethods = null;
@@ -86,6 +86,11 @@ public class ClassType extends Type {
         super(className, toSignature(className));
         this.extendsDeclaredType  = extendsType;
         extractPackageName(className);
+    }
+    
+    public ClassType(String className)
+    {
+        this(className, toSignature(className), null);
     }
     
     public ClassType(String className, ClassType extendsType)
@@ -151,15 +156,23 @@ public class ClassType extends Type {
     }
 
     /** The list of interfaces implemented by this class. */
-    public DeclaredType   [] getInterfaces()
+    public ClassType   [] getInterfaces()
     {
     	return interfaces;
     }
     
     /** Sets the list of interfaces implemented by this class. */
-    public void setInterfaces(DeclaredType [] interfaces)
+//    public void setInterfaces(DeclaredType [] declaredInterfaces)
+//    {
+//        int len = declaredInterfaces.length;
+//        interfaces = new ClassType [len];
+//        for (int i=0; i<len; i++) {
+//            interfaces[i] = declaredInterfaces[i].getClassType();
+//        }
+//    }
+    public void setInterfaces(ClassType [] interfaces)
     {
-    	this.interfaces = interfaces;
+        this.interfaces = interfaces;
     }
     
     /** The list of constructors for this class. */
@@ -237,6 +250,16 @@ public class ClassType extends Type {
         if (extendsType == null && extendsDeclaredType != null)
             extendsType = extendsDeclaredType.getClassType();
         return extendsType;
+    }
+    
+    public void setExtendsType(ClassType baseType) {
+        extendsType = baseType;
+    }
+    
+    public void defaultExtendsType() {
+        if (extendsType == null) {
+            extendsType = ClassType.OBJECT_TYPE;
+        }
     }
 
     /**

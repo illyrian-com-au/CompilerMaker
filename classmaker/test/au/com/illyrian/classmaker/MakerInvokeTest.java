@@ -513,7 +513,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
             maker.Implements("does.not.Exist");
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("No type called \'does.not.Exist\'", ex.getMessage());
+            assertEquals("No class type called \'does.not.Exist\'", ex.getMessage());
         }
     }
 
