@@ -665,13 +665,13 @@ public class ClassMakerFactory
     {
         String name = javaMethod.getName();
         short modifiers = (short)javaMethod.getModifiers();
-        DeclaredType returnType = classToDeclaredType(javaMethod.getReturnType());
+        Type returnType = classToType(javaMethod.getReturnType());
         MakerMethod method = new MakerMethod(classType, name, returnType, modifiers);
         Class[] params = javaMethod.getParameterTypes();
-        DeclaredType [] formalParams = new DeclaredType[params.length];
+        Type [] formalParams = new Type[params.length];
         for (int i=0; i<params.length; i++)
         {
-            DeclaredType param = classToDeclaredType(params[i]);
+            Type param = classToType(params[i]);
             formalParams[i] = param;
         }
         method.setFormalParams(formalParams);
@@ -686,13 +686,12 @@ public class ClassMakerFactory
     protected MakerMethod toMethod(ClassType classType, java.lang.reflect.Constructor javaMethod)
     {
         short modifiers = (short)javaMethod.getModifiers();
-        DeclaredType declaredVoid = typeToDeclaredType(PrimitiveType.VOID_TYPE);
-        MakerMethod method = new MakerMethod(classType, ClassMaker.INIT, declaredVoid, modifiers);
+        MakerMethod method = new MakerMethod(classType, ClassMaker.INIT, PrimitiveType.VOID_TYPE, modifiers);
         Class[] params = javaMethod.getParameterTypes();
-        DeclaredType [] formalParams = new DeclaredType[params.length];
+        Type [] formalParams = new Type[params.length];
         for (int i=0; i<params.length; i++)
         {
-            DeclaredType param = classToDeclaredType(params[i]);
+            Type param = classToType(params[i]);
             formalParams[i] = param;
         }
         method.setFormalParams(formalParams);
@@ -734,10 +733,9 @@ public class ClassMakerFactory
             {
                 String name = javaFields[i].getName();
                 Class fieldType = javaFields[i].getType();
-                //Type type = classToType(fieldType);
-                DeclaredType declared = classToDeclaredType(fieldType);
+                Type type = classToType(fieldType);
                 int modifiers = javaFields[i].getModifiers();
-                makerFields.add(new MakerField(classType, name, declared, modifiers));
+                makerFields.add(new MakerField(classType, name, type, modifiers));
             }
             javaClass = javaClass.getSuperclass();
         }

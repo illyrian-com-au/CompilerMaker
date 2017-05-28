@@ -41,7 +41,7 @@ public class MakerField
 {
     private final ClassType classType;
     private final String name;
-    private DeclaredType declared;
+    private final Type type;
     private final int    modifiers;
     private int    slot;
     private int    scopeLevel;
@@ -59,13 +59,12 @@ public class MakerField
      * @param type the type of the field
      * @param modifiers the modifiers on the variable or parameter
      */
-    public MakerField(String name, DeclaredType declared, int modifiers)
+    public MakerField(String name, Type type, int modifiers)
     {
-    	this.name = name;
-    	this.declared = declared;
-    	//this.type = declared.getType();
-    	this.modifiers = modifiers;
-    	this.classType = null;
+        this.classType = null;
+        this.name = name;
+        this.type = type;
+        this.modifiers = modifiers;
     }
     
     /**
@@ -90,13 +89,12 @@ public class MakerField
      * @param type the type of the field
      * @param modifiers the modifiers on the field
      */
-    public MakerField(ClassType classType, String name, DeclaredType declared, int modifiers)
+    public MakerField(ClassType classType, String name, Type type, int modifiers)
     {
-    	this.name = name;
-    	this.declared = declared;
-    	//this.type = declared.getType();
-    	this.modifiers = modifiers;
-    	this.classType = classType;
+        this.classType = classType;
+        this.name = name;
+        this.type = type;
+        this.modifiers = modifiers;
     }
     
     public boolean isLvalue()
@@ -126,24 +124,12 @@ public class MakerField
     	return name;
     }
 
-    public DeclaredType getDeclaredType()
-    {
-        if (declared == null)
-            throw new NullPointerException("DeclaredType has not been set for field \"" + getName() + "\"");
-        return declared;
-    }
-
     /** The type of the field or variable. */
     public Type getType()
     {
-    	return getDeclaredType().getType();
+    	return type;
     }
     
-//    public void setType(Type type)
-//    {
-//        this.type = type;
-//    }
-//    
     public MakerField toField()
     {
         return this;
@@ -249,6 +235,6 @@ public class MakerField
      */
     public String toString()
     {
-        return "MakerField(" + name + ", " + getDeclaredType().getName() + ")";
+        return "MakerField(" + name + ", " + type.getName() + ")";
     }
 }

@@ -5,7 +5,8 @@ import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.TerminalName;
-import au.com.illyrian.classmaker.types.DeclaredType;
+import au.com.illyrian.classmaker.types.ClassType;
+import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.jesub.ast.AstStructureFactoryMaker;
 
 public class AstStructureMakerTest extends ClassMakerTestCase
@@ -38,8 +39,8 @@ public class AstStructureMakerTest extends ClassMakerTestCase
         assertEquals("Package name:", "au.com.illyrian", maker.getPackageName());
         assertEquals("Class name:", "Test", maker.getSimpleClassName());
         assertEquals("Fully Qualified Class name:", "au.com.illyrian.Test", maker.getFullyQualifiedClassName());
-        DeclaredType declared1 = maker.findDeclaredType("AstStructure");
-        DeclaredType declared2 = maker.findDeclaredType("File");
+        Type declared1 = maker.findType("AstStructure");
+        Type declared2 = maker.findType("File");
         assertNotNull("findDeclaredType:", declared1);
         assertNotNull("findDeclaredType:", declared2);
         assertEquals("Imported name expected:", "au.com.illyrian.jesub.ast.AstStructure", declared1.getName());
@@ -71,7 +72,7 @@ public class AstStructureMakerTest extends ClassMakerTestCase
         assertEquals("Package name:", "au.com.illyrian.jesub.ast", maker.getPackageName());
         assertEquals("Class name:", "Test", maker.getSimpleClassName());
         assertEquals("Fully Qualified Class name:", "au.com.illyrian.jesub.ast.Test", maker.getFullyQualifiedClassName());
-        DeclaredType superClass = maker.getSuperClass();
+        ClassType superClass = maker.getSuperClass();
         assertEquals("Super class:", "au.com.illyrian.jesub.ast.AstStructureBase", superClass.getName());
     }
 
@@ -123,7 +124,7 @@ public class AstStructureMakerTest extends ClassMakerTestCase
         assertEquals("Package name:", "au.com.illyrian.jesub.maker", maker.getPackageName());
         assertEquals("Class name:", "Test", maker.getSimpleClassName());
         assertEquals("Fully Qualified Class name:", "au.com.illyrian.jesub.maker.Test", maker.getFullyQualifiedClassName());
-        DeclaredType superClass = maker.getSuperClass();
+        ClassType superClass = maker.getSuperClass();
         assertEquals("Super class:", "au.com.illyrian.jesub.maker.AstStructureMakerTest$FuncABC", superClass.getName());
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();
@@ -159,7 +160,7 @@ public class AstStructureMakerTest extends ClassMakerTestCase
         assertEquals("Package name:", "au.com.illyrian.jesub.maker", maker.getPackageName());
         assertEquals("Class name:", "Test", maker.getSimpleClassName());
         assertEquals("Fully Qualified Class name:", "au.com.illyrian.jesub.maker.Test", maker.getFullyQualifiedClassName());
-        DeclaredType superClass = maker.getSuperClass();
+        ClassType superClass = maker.getSuperClass();
         assertEquals("Super class:", "au.com.illyrian.jesub.maker.AstStructureMakerTest$FuncABC", superClass.getName());
         Class parserClass = maker.defineClass();
         Object instance = parserClass.newInstance();

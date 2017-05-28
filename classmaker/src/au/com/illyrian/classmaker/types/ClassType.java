@@ -75,29 +75,27 @@ public class ClassType extends Type {
         setModifiers(javaClass.getModifiers());
     }
     
+    public ClassType(String className)
+    {
+        this(className, toSignature(className), null);
+    }
+    
+    /**
+     * Constructor for a <code>ClassType</code>.
+     * @param className the name of the class
+     * @param extendsType the <code>ClassType</code> of the base class
+     */
+    public ClassType(String className, ClassType extendsType)
+    {
+        this(className, toSignature(className), extendsType);
+    }
+    
     /**
      * Constructor for a <code>ClassType</code>.
      * @param className the name of the class
      * @param signature the signature of the class
      * @param extendsType the <code>ClassType</code> of the base class
      */
-    public ClassType(String className, DeclaredType extendsType)
-    {
-        super(className, toSignature(className));
-        this.extendsDeclaredType  = extendsType;
-        extractPackageName(className);
-    }
-    
-    public ClassType(String className)
-    {
-        this(className, toSignature(className), null);
-    }
-    
-    public ClassType(String className, ClassType extendsType)
-    {
-        this(className, toSignature(className), extendsType);
-    }
-    
     protected ClassType(String className, String signature, ClassType extendsType)
     {
         super(className, signature);
@@ -247,8 +245,6 @@ public class ClassType extends Type {
      */
     public ClassType getExtendsType()
     {
-        if (extendsType == null && extendsDeclaredType != null)
-            extendsType = extendsDeclaredType.getClassType();
         return extendsType;
     }
     
@@ -256,10 +252,11 @@ public class ClassType extends Type {
         extendsType = baseType;
     }
     
-    public void defaultExtendsType() {
+    public ClassType defaultExtendsType() {
         if (extendsType == null) {
             extendsType = ClassType.OBJECT_TYPE;
         }
+        return extendsType;
     }
 
     /**

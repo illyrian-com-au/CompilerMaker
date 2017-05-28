@@ -315,11 +315,11 @@ public class ExpresssionBasicTest extends TestCase
 
     public void testStaticDec()
     {
-        DecrementOperator assign = ast.Dec(ast.Dot(ast.Name("Object"), ast.Name("Foo")));
-        assertEquals("Wrong toString()", "--(Object.Foo)", assign.toString());
+        DecrementOperator assign = ast.Dec(ast.Dot(ast.Name("Object"), ast.Name("foo")));
+        assertEquals("Wrong toString()", "--(Object.foo)", assign.toString());
         Value type = assign.resolveType(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
-        assertEquals("Wrong output", "[Dec(\"java.lang.Object\", \"Foo\")]", buf.toString());
+        assertEquals("Wrong output", "[Dec(\"java.lang.Object\", \"foo\")]", buf.toString());
     }
 
     public void testLocalPostInc()

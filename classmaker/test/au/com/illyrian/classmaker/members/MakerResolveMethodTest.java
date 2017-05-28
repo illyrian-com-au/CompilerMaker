@@ -117,17 +117,17 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
 
         MakerMethod method;
         method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push());
-        assertEquals("Did not find eval()", 0, method.getFormalDeclaredTypes().length);
+        assertEquals("Did not find eval()", 0, method.getFormalTypes().length);
 
         // Check assignment of primitives
         method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(PrimitiveType.INT_TYPE.getValue()));
-        assertEquals("Did not find eval(int)", 1, method.getFormalDeclaredTypes().length);
+        assertEquals("Did not find eval(int)", 1, method.getFormalTypes().length);
         method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(PrimitiveType.BYTE_TYPE.getValue()));
-        assertEquals("Did not find eval(int)", 1, method.getFormalDeclaredTypes().length);
+        assertEquals("Did not find eval(int)", 1, method.getFormalTypes().length);
         method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(PrimitiveType.SHORT_TYPE.getValue()));
-        assertEquals("Did not find eval(int)", 1, method.getFormalDeclaredTypes().length);
+        assertEquals("Did not find eval(int)", 1, method.getFormalTypes().length);
         method = maker.resolveMethod(maker.getClassType(), "eval", maker.Push(PrimitiveType.CHAR_TYPE.getValue()));
-        assertEquals("Did not find eval(int)", 1, method.getFormalDeclaredTypes().length);
+        assertEquals("Did not find eval(int)", 1, method.getFormalTypes().length);
 
         failToResolveMethod("eval", maker.Push(PrimitiveType.FLOAT_TYPE.getValue()));
         failToResolveMethod("eval", maker.Push(PrimitiveType.DOUBLE_TYPE.getValue()));
@@ -135,7 +135,7 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
 
         method = maker.resolveMethod(maker.getClassType(), "eval", 
                 maker.Push(PrimitiveType.INT_TYPE.getValue()).Push(PrimitiveType.INT_TYPE.getValue()));
-        assertEquals("Did not find eval(int,int)", 2, method.getFormalDeclaredTypes().length);
+        assertEquals("Did not find eval(int,int)", 2, method.getFormalTypes().length);
     }
 
     public void testResolveReferenceMethods() throws Exception
@@ -508,20 +508,18 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
     
     public void testFormalParameters()
     {
-        MakerMethod method = new MakerMethod(null, null, null, (short)0);
-        DeclaredType voidDeclared = factory.typeToDeclaredType(PrimitiveType.VOID_TYPE);
-        DeclaredType intDeclared = factory.typeToDeclaredType(PrimitiveType.INT_TYPE);
-        assertEquals("Wrong default method", "()V", method.createSignature(ClassMakerFactory.DECLARED_TYPE_ARRAY, voidDeclared));
-        assertEquals("Wrong integer method", "()I", method.createSignature(ClassMakerFactory.DECLARED_TYPE_ARRAY, intDeclared));
-        DeclaredType[] emptyParam = {};
-        assertEquals("Wrong default method", "()V", method.createSignature(emptyParam, voidDeclared));
-        assertEquals("Wrong integer method", "()I", method.createSignature(emptyParam, intDeclared));
-        DeclaredType[] intParam = {intDeclared};
-        assertEquals("Wrong default method", "(I)V", method.createSignature(intParam, voidDeclared));
-        assertEquals("Wrong integer method", "(I)I", method.createSignature(intParam, intDeclared));
-        DeclaredType[] intIntParam = {intDeclared, intDeclared};
-        assertEquals("Wrong default method", "(II)V", method.createSignature(intIntParam, voidDeclared));
-        assertEquals("Wrong integer method", "(II)I", method.createSignature(intIntParam, intDeclared));
+        MakerMethod method = new MakerMethod(null, null, (Type)null, (short)0);
+        assertEquals("Wrong default method", "()V", method.createSignature(ClassMakerFactory.TYPE_ARRAY, PrimitiveType.VOID_TYPE));
+        assertEquals("Wrong integer method", "()I", method.createSignature(ClassMakerFactory.TYPE_ARRAY, PrimitiveType.INT_TYPE));
+        Type[] emptyParam = {};
+        assertEquals("Wrong default method", "()V", method.createSignature(emptyParam, PrimitiveType.VOID_TYPE));
+        assertEquals("Wrong integer method", "()I", method.createSignature(emptyParam, PrimitiveType.INT_TYPE));
+        Type[] intParam = {PrimitiveType.INT_TYPE};
+        assertEquals("Wrong default method", "(I)V", method.createSignature(intParam, PrimitiveType.VOID_TYPE));
+        assertEquals("Wrong integer method", "(I)I", method.createSignature(intParam, PrimitiveType.INT_TYPE));
+        Type[] intIntParam = {PrimitiveType.INT_TYPE, PrimitiveType.INT_TYPE};
+        assertEquals("Wrong default method", "(II)V", method.createSignature(intIntParam, PrimitiveType.VOID_TYPE));
+        assertEquals("Wrong integer method", "(II)I", method.createSignature(intIntParam, PrimitiveType.INT_TYPE));
     }
 
 

@@ -242,7 +242,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     @Override
     public Value Get(String className, String fieldName)
             throws ClassMakerException {
-        DeclaredType declared = findDeclaredType(className);
+        Type declared = findType(className);
         if (declared == null)
             throw createException("Unknown Class path: " + className);
         String qualifiedName = declared.getName();
@@ -258,29 +258,28 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
 
     public MakerField Find(Value reference, String name)
             throws ClassMakerException {
-        DeclaredType declared = findDeclaredType(name);
-        if (declared != null && reference.toClass() != null)
-            return new MakerField(reference.toClass(), name, declared, 0);
+        Type valueType = findTypeOfValue(name);
+        if (valueType != null && reference.toClass() != null)
+            return new MakerField(reference.toClass(), name, valueType, 0);
         return null;
     }
 
     public MakerField Find(String className, String name)
             throws ClassMakerException {
-        Type type = findType(name);
-        DeclaredType declared = findDeclaredType(className);
-        if (declared == null)
+        Type classType = findType(className);
+        if (classType == null)
             throw createException("Unknown path: " + className);
-        if (type != null)
-            return new MakerField(declared.getClassType(), name, declared,
+        Type valueType = findTypeOfValue(name);
+        if (valueType != null)
+            return new MakerField(classType.toClass(), name, valueType,
                     ClassMaker.ACC_STATIC);
         return null;
     }
 
     public MakerField Find(String name) throws ClassMakerException {
-        Type type = findType(name);
+        Type type = findTypeOfValue(name);
         if (type != null) {
-            DeclaredType declared = new DeclaredType(type);
-            MakerField field = new MakerField(name, declared, 0);
+            MakerField field = new MakerField(name, type, 0);
             // ScopeLevel > 0 means variable is declared in a method.
             field.setScopeLevel(1);
             return field;
@@ -288,24 +287,6 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         return null;
     }
 
-    Type findType(String name) throws ClassMakerException {
-        if ("x".equals(name) || "y".equals(name) || "z".equals(name))
-            return ClassType.OBJECT_TYPE;
-        else if ("java".equals(name) || "lang".equals(name)
-                || "test".equals(name))
-            return null;
-        else if ("int".equals(name))
-            return null;
-        else if (name.indexOf('.') > -1)
-            return null; // This is a path
-        else if (name.endsWith("Object"))
-            return null;
-        else if (typeMap.containsKey(name)) 
-            return typeMap.get(name);
-        else
-            return PrimitiveType.INT_TYPE;
-    }
-    
     public void addType(String name, Class classType) {
         Type type = new ClassType(classType);
         typeMap.put(name, type);
@@ -323,6 +304,41 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         return declared;
     }
 
+    public Type findTypeOfValue(String name) throws ClassMakerException {
+        if ("x".equals(name) || "y".equals(name) || "z".equals(name))
+            return ClassType.OBJECT_TYPE;
+        else if ("java".equals(name) || "lang".equals(name)
+                || "test".equals(name))
+            return null;
+        else if ("int".equals(name))
+            return null;
+        else if (name.indexOf('.') > -1)
+            return null; // This is a path
+        else if (name.endsWith("Object"))
+            return null;
+        else if (typeMap.containsKey(name)) 
+            return typeMap.get(name);
+        else
+            return PrimitiveType.INT_TYPE;
+    }
+    
+    public Type findType(String typeName) throws ClassMakerException {
+        if (typeName.endsWith("Object"))
+            return ClassType.OBJECT_TYPE;
+        else if (typeName.endsWith("String"))
+            return ClassType.STRING_TYPE;
+        else if (typeName.endsWith("StringBuffer"))
+            return ClassType.STRING_BUFFER_TYPE;
+        else if (typeName.equals("int"))
+            return PrimitiveType.INT_TYPE;
+        else {
+            // FIXME Remove DeclaredType from MakerField constructor 
+            // then return null and fix Find(...).
+            //return null; 
+            return findTypeOfValue(typeName);
+        }
+    }
+    
     public DeclaredType findDeclaredType(String typeName)
             throws ClassMakerException {
         if (typeName.endsWith("Object"))
@@ -402,14 +418,6 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     }
 
     @Override
-    public void Declare(String name, DeclaredType type, int modifiers)
-            throws ClassMakerException {
-        String modStr = toModifierString(modifiers);
-        String returnType = type.getName();
-        println("  Declare(\"" + name + "\", \"" + returnType + "\", " + modStr + ");");
-    }
-    
-    @Override
     public void Declare(String name, Type type, int modifiers)
             throws ClassMakerException {
         String modStr = toModifierString(modifiers);
@@ -456,17 +464,17 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     @Override
     public Value Cast(Value source, String target) throws ClassMakerException {
         String ref = stack.pop();
-        DeclaredType result = findDeclaredType(target);
+        Type result = findType(target);
         stack.push("Cast(" + ref + ", \"" + target + "\")");
-        return result.getType().getValue();
+        return result.getValue();
     }
 
     @Override
     public Value Cast(Value source, Class target) throws ClassMakerException {
         String ref = stack.pop();
-        DeclaredType result = findDeclaredType(target.getCanonicalName());
+        Type result = findType(target.getCanonicalName());
         stack.push("Cast(" + ref + ", " + target.getCanonicalName() + ")");
-        return result.getType().getValue();
+        return result.getValue();
     }
 
     @Override
@@ -680,20 +688,15 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     }
 
     @Override
-    public Initialiser New(Type classType) throws ClassMakerException {
-        return New(classType.getName());
-    }
-
-    @Override
     public Initialiser New(String className) throws ClassMakerException {
-        DeclaredType declared = findDeclaredType(className);
-        return New(declared);
+        Type type = findType(className);
+        return New(type);
     }
 
     @Override
-    public Initialiser New(DeclaredType declared) throws ClassMakerException {
-        stack.push("New(" + declared.getName() + ")");
-        return new InitialiserImpl(declared.getClassType());
+    public Initialiser New(Type classType) throws ClassMakerException {
+        stack.push("New(" + classType.getName() + ")");
+        return new InitialiserImpl(classType.toClass());
     }
 
     @Override
@@ -706,36 +709,22 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
 
     @Override
     public Value NewArray(Type arrayType, Value size) {
-        DeclaredType declared = findDeclaredType(arrayType.getName());
-        return NewArray(declared, size);
-    }
-
-    @Override
-    public Value NewArray(DeclaredType arrayType, Value size) {
-        if (arrayType.getArrayType() == null)
+        if (arrayType.toArray() == null)
             throw new IllegalArgumentException("Value is not an ArrayType: " + arrayType);
         String operand2 = stack.pop();
         String operand1 = arrayType.getName();
         stack.push("NewArray(" + operand1 + ", " + operand2 + ")");
-        return arrayType.getArrayType().getValue();
+        return arrayType.getValue();
     }
 
     @Override
-    public Value NewArray(DeclaredType type, CallStack dimensions) {
-        String operand2 = stack.pop();
-        String operand1 = stack.pop();
-        stack.push("NewArray(" + operand1 + ", " + operand2 + ")");
-        return type.getArrayType().getValue();
-    }
-
-    @Override
-    public DeclaredType ArrayOf(Class javaClass) {
+    public ArrayType ArrayOf(Class javaClass) {
         return ArrayOf(javaClass.getName());
     }
 
     @Override
-    public DeclaredType ArrayOf(String typeName) {
-        DeclaredType declared = this.findDeclaredType(typeName);
+    public ArrayType ArrayOf(String typeName) {
+        Type declared = this.findType(typeName);
         return ArrayOf(declared);
     }
 

@@ -185,7 +185,7 @@ public class MethodResolver
         // Remove candidates with less specific parameters
         MakerMethod[] method = candidates.toArray(METHOD_ARRAY);
         int len = method.length;
-        int paramSize = method[0].getFormalDeclaredTypes().length;
+        int paramSize = method[0].getFormalTypes().length;
         for (int i = 0; i < len; i++)
         {
 //            System.out.println("Compare i=" + method[i].toString());

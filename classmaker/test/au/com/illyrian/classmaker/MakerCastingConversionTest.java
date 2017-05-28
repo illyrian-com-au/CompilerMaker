@@ -168,7 +168,7 @@ public class MakerCastingConversionTest extends ClassMakerTestCase implements By
 
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
-            maker.Set(maker.This(), "target", maker.Cast(maker.This(), maker.getDeclaredType()));
+            maker.Set(maker.This(), "target", maker.Cast(maker.This(), maker.getClassType()));
             maker.Set(maker.This(), "target", maker.This());
             maker.Set(maker.This(), "runner", maker.Cast(maker.This(), Runnable.class));
             maker.Set(maker.This(), "runner", maker.This());
@@ -192,7 +192,7 @@ public class MakerCastingConversionTest extends ClassMakerTestCase implements By
 
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
-            maker.Set(maker.This(), "target", maker.Cast(maker.Null(), maker.getDeclaredType()));
+            maker.Set(maker.This(), "target", maker.Cast(maker.Null(), maker.getClassType()));
             maker.Set(maker.This(), "target", maker.Null());
             maker.Set(maker.This(), "runner", maker.Cast(maker.Null(), Runnable.class));
             maker.Set(maker.This(), "runner", maker.Null());

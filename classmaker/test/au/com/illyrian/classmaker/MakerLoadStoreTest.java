@@ -1610,9 +1610,8 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Wrong message", "Cannot find member field 'a' in class test.MyClass", ex.getMessage());
         }
 
-        DeclaredType declaredVoid = maker.getDeclaredType(PrimitiveType.VOID_TYPE);
         try {
-            MakerField field = new MakerField("a", declaredVoid, 0);
+            MakerField field = new MakerField("a", PrimitiveType.VOID_TYPE, 0);
             field.setSlot(1);
             maker.loadLocal(field);
             fail("Should throw ClassMakerException");
@@ -1620,7 +1619,7 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Wrong message", "Don't know how to load type: void", ex.getMessage());
         }
         try {
-            MakerField field = new MakerField("a", declaredVoid, 0);
+            MakerField field = new MakerField("a", PrimitiveType.VOID_TYPE, 0);
             field.setSlot(1);
             maker.storeLocal(field, PrimitiveType.VOID_TYPE);
             fail("Should throw ClassMakerException");

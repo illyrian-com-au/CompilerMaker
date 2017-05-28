@@ -267,17 +267,17 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
             assertEquals("No class type called \'test.dummy\'", ex.getMessage());
         }
         maker.Import(java.util.Date.class);
-        assertNotNull(maker.stringToDeclaredType("java.util.Date"));
-        assertNotNull(maker.stringToDeclaredType("Date"));
+        assertNotNull(maker.stringToClassType("java.util.Date"));
+        assertNotNull(maker.stringToClassType("Date"));
         maker.Import(java.util.Date.class);
-        assertNotNull(maker.stringToDeclaredType("java.util.Date"));
-        assertNotNull(maker.stringToDeclaredType("Date"));
+        assertNotNull(maker.stringToClassType("java.util.Date"));
+        assertNotNull(maker.stringToClassType("Date"));
         maker.Import("java.util.Date");
-        assertNotNull(maker.stringToDeclaredType("java.util.Date"));
-        assertNotNull(maker.stringToDeclaredType("Date"));
+        assertNotNull(maker.stringToClassType("java.util.Date"));
+        assertNotNull(maker.stringToClassType("Date"));
         maker.Import(java.sql.Date.class);
-        assertNotNull(maker.stringToDeclaredType("java.sql.Date"));
-        assertNotNull(maker.stringToDeclaredType("java.util.Date"));
+        assertNotNull(maker.stringToClassType("java.sql.Date"));
+        assertNotNull(maker.stringToClassType("java.util.Date"));
         maker.Import("java.sql.Date");
         try {
             maker.findType("Date");

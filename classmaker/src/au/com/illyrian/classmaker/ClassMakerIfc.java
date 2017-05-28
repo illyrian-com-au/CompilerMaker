@@ -3,6 +3,7 @@ package au.com.illyrian.classmaker;
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.ClassMaker.Initialiser;
 import au.com.illyrian.classmaker.members.MakerField;
+import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
@@ -76,7 +77,6 @@ public interface ClassMakerIfc
      * @param declared a declared type represents the type of class
      * @return an <code>Initialiser</code> for the instance
      */
-    public Initialiser New(DeclaredType declared) throws ClassMakerException;
     public Initialiser New(Type type) throws ClassMakerException;
 
     /**
@@ -514,6 +514,7 @@ public interface ClassMakerIfc
      */
     public MakerField Find(String name) throws ClassMakerException;
 
+    public Type findType(String typeName) throws ClassMakerException;
     public DeclaredType findDeclaredType(String typeName) throws ClassMakerException;
 
     public DeclaredType stringToDeclaredClass(String typeName) throws ClassMakerException;
@@ -580,7 +581,6 @@ public interface ClassMakerIfc
      * @param type the type of the variable
      * @param modifiers bitmask of variable modifiers
      */
-    public void Declare(String name, DeclaredType type, int modifiers) throws ClassMakerException;
     public void Declare(String name, Type type, int modifiers) throws ClassMakerException;
 
     //################### Casting methods. ##################
@@ -996,23 +996,7 @@ public interface ClassMakerIfc
      * @param sizeType the type of the dimension
      * @return the type of the new array instance
      */
-    public Value NewArray(DeclaredType arrayType, Value size);
     public Value NewArray(Type arrayType, Value size);
-
-    /**
-     * Creates an multi-dimensional array using the dimensions on the stack.
-      <pre>
-       Value mint_array = ArrayOf(ArrayOf(ArrayOf(int.class)));
-       Declare("x", mint_array, 0);
-       // x = new int[3,2,2];
-       Set("x", NewArray(mint_array, Push(Literal(3)).Push(Literal(2)).Push(Literal(2))));
-      </pre>
-     * Note:
-     * @param array the type of array to be created
-     * @param dimensions the call stack
-     * @return an new instance of a multi-dimensional array
-     */
-    public Value NewArray(DeclaredType array, CallStack dimensions);
 
     /**
      * Finds a type representing an array of the given java class.
@@ -1022,7 +1006,7 @@ public interface ClassMakerIfc
      * @param javaClass the class of element in the array
      * @return an <code>Value</code> whose elements are of the given class
      */
-    public DeclaredType ArrayOf(Class javaClass);
+    public ArrayType ArrayOf(Class javaClass);
 
     /**
      * Finds a type representing an array of the given java class.
@@ -1032,20 +1016,9 @@ public interface ClassMakerIfc
      * @param typeName the class name of the element in the array
      * @return an <code>Value</code> whose elements are of the given class
      */
-    public DeclaredType ArrayOf(String typeName);
+    public ArrayType ArrayOf(String typeName);
 
-    /**
-     * Finds a type representing an array of the given type.
-      <pre>
-         Declare("intArray", ArrayOf(ClassMaker.INT_TYPE), 0);
-         Declare("processArray", ArrayOf(getClassType()), 0);
-      </pre>
-     * This method must be used when there is no concrete <code>Class</code>
-     * for the array element, for example when declaring an array of
-     * the class currently being generated.
-     * @param type the type of element in the array
-     * @return an <code>Value</code> whose elements are of the given type
-     */
+    // @Depricated
     public DeclaredType ArrayOf(DeclaredType type);
 
     /**
@@ -1060,7 +1033,7 @@ public interface ClassMakerIfc
      * @param type the type of element in the array
      * @return an <code>Value</code> whose elements are of the given type
      */
-     //public Type ArrayOf(Type type);
+     public ArrayType ArrayOf(Type type);
 
     /**
      * Gets a value from an array element.

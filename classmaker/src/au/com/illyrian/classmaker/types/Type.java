@@ -125,6 +125,11 @@ public class Type
         this.javaClass = javaClass;
     }
 
+    public short getSlotSize()
+    {
+        return (short)(PrimitiveType.DOUBLE_TYPE.equals(this) || PrimitiveType.LONG_TYPE.equals(this) ? 2 : 1);
+    }
+
     /**
      * A string that describes the type.
      */

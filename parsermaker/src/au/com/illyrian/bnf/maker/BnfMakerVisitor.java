@@ -52,9 +52,9 @@ public class BnfMakerVisitor extends AstExpressionVisitor
     public Type getDefaultType()
     {
         if (defaultType == null) {
-            DeclaredType declared = getMaker().findDeclaredType(defaultTypeName);
-            if (declared != null) {
-                setDefaultType(declared.getType());
+            Type type = getMaker().findType(defaultTypeName);
+            if (type != null) {
+                setDefaultType(type);
             } else {
                 throw new IllegalArgumentException("Unknown class type: " + defaultType);
             }

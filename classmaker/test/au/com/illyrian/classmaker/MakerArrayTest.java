@@ -31,6 +31,7 @@ import java.lang.reflect.Field;
 
 import org.mozilla.classfile.ByteCode;
 
+import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
@@ -2252,7 +2253,7 @@ public class MakerArrayTest extends ClassMakerTestCase implements ByteCode
         // Generate Class
         maker.Implements(MultiArray.class);
 
-        DeclaredType mint_array = maker.ArrayOf(maker.ArrayOf(maker.ArrayOf(int.class)));
+        ArrayType mint_array = maker.ArrayOf(maker.ArrayOf(maker.ArrayOf(int.class)));
         maker.Declare("values", mint_array, ACC_PUBLIC);
 
         // Generate public int [][][] create()

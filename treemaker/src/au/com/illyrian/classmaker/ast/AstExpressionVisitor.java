@@ -36,6 +36,8 @@ import au.com.illyrian.classmaker.ClassMakerException;
 import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.members.MakerField;
+import au.com.illyrian.classmaker.types.ArrayType;
+import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Value;
 
@@ -289,7 +291,7 @@ public class AstExpressionVisitor implements SourceLine
     public Value resolveNew(ArrayIndex tree)
     {
         DeclaredType declared = tree.getArrayOperand().resolveDeclaredType(this);
-        DeclaredType arrayType = maker.ArrayOf(declared);
+        ArrayType arrayType = maker.ArrayOf(declared.getType());
         Value size = resolveArraySize(tree);
         return maker.NewArray(arrayType, size);
     }
@@ -310,7 +312,7 @@ public class AstExpressionVisitor implements SourceLine
         DeclaredType declared = tree.getTypeName().resolveDeclaredType(this);
         Value indexType = tree.getDimensions().resolveType(this);
         setSource(tree);
-        return maker.NewArray(declared, indexType);
+        return maker.NewArray(declared.getType(), indexType);
     }
     
     public Value resolveType(AssignmentOperator tree)
@@ -530,7 +532,7 @@ public class AstExpressionVisitor implements SourceLine
             }
         } else {
             String path = tree.getLeftOperand().resolvePath(this);
-            DeclaredType declared = maker.findDeclaredType(path);
+            Type declared = maker.findType(path);
             if (declared != null)
             {
                 String name = tree.getRightOperand().resolvePath(this);

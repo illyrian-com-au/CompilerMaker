@@ -29,7 +29,6 @@ package au.com.illyrian.classmaker.members;
 
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Type;
 
 /**
@@ -40,9 +39,8 @@ import au.com.illyrian.classmaker.types.Type;
 public class MakerMethod {
     private final ClassType classType;
     private final String name;
-    private final DeclaredType   returnType;
+    private final Type   returnType;
     private final short  modifiers;
-    private DeclaredType [] formalParams;
     private Type [] formalParamTypes;
     private String signature;
     private boolean hasBody = true;
@@ -57,7 +55,7 @@ public class MakerMethod {
      * @param returnType the return <code>Type</code>
      * @param methodModifiers a bit-set of modifiers for the method
      */
-    public MakerMethod(ClassType classType, String methodName, DeclaredType returnType, short methodModifiers)
+    public MakerMethod(ClassType classType, String methodName, Type returnType, short methodModifiers)
     {
         this.classType = classType;
         this.name       = methodName;
@@ -74,13 +72,7 @@ public class MakerMethod {
     /** The return <code>Type</code> of the method. */
     public Type getReturnType()
     {
-    	return returnType.getType();
-    }
-
-    /** The return <code>Type</code> of the method. */
-    public DeclaredType getReturnDeclaredType()
-    {
-        return returnType;
+    	return returnType;
     }
 
     /**
@@ -141,22 +133,8 @@ public class MakerMethod {
      * The formal parameters for the method.
      * @return an array of <code>Type</code>s representing the formal parameters
      */
-    public DeclaredType[] getFormalDeclaredTypes()
-    {
-    	return (formalParams == null) ? new DeclaredType[0] : formalParams;
-    }
-    
     public Type[] getFormalTypes()
     {
-        if (formalParamTypes == null)
-        {
-            DeclaredType [] declaredTypes = getFormalDeclaredTypes();
-            formalParamTypes = new Type[declaredTypes.length];
-            for (int i=0; i<declaredTypes.length; i++)
-            {
-                formalParamTypes[i] = declaredTypes[i].getType();
-            }
-        }
         return formalParamTypes;
     }
 
@@ -167,11 +145,11 @@ public class MakerMethod {
      * @param params an array of <code>Type</code>s representing the formal parameters
      * @throws IllegalStateException if a signature has already been generated
      */
-    public void setFormalParams(DeclaredType[] params)
+    public void setFormalParams(Type[] params)
     {
         if (signature != null)
         	throw new IllegalStateException("Cannot set formal parameters for this method as a signature has already been generated.");
-        formalParams = params;
+        formalParamTypes = params;
     }
 
     /**
@@ -182,7 +160,7 @@ public class MakerMethod {
     public String getSignature()
     {
         if (signature == null)
-            signature = createSignature(formalParams, returnType);
+            signature = createSignature(formalParamTypes, returnType);
         return signature;
     }
     
@@ -193,7 +171,7 @@ public class MakerMethod {
      * @param returnType return type of the method
      * @return the method signature
      */
-    String createSignature(DeclaredType[] formalParameters, DeclaredType returnType)
+    String createSignature(Type[] formalParameters, Type returnType)
     {
         StringBuffer buf = new StringBuffer();
 
@@ -337,12 +315,12 @@ public class MakerMethod {
 
         buf.append(name);
         buf.append('(');
-        if (formalParams != null)
-            for (int i = 0; i < formalParams.length; i++)
+        if (formalParamTypes != null)
+            for (int i = 0; i < formalParamTypes.length; i++)
             {
                 if (i > 0)
                     buf.append(", ");
-                DeclaredType type = formalParams[i];
+                Type type = formalParamTypes[i];
                 if (type == null)
                     buf.append("null");
                 else
@@ -381,12 +359,12 @@ public class MakerMethod {
         buf.append(' ');
         buf.append(name);
         buf.append('(');
-        if (formalParams != null)
-            for (int i = 0; i < formalParams.length; i++)
+        if (formalParamTypes != null)
+            for (int i = 0; i < formalParamTypes.length; i++)
             {
                 if (i > 0)
                     buf.append(", ");
-                DeclaredType type = formalParams[i];
+                Type type = formalParamTypes[i];
                 if (type == null)
                     buf.append("null");
                 else

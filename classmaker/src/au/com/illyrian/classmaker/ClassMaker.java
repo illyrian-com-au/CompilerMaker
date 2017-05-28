@@ -309,7 +309,6 @@ public class ClassMaker implements ClassMakerIfc
         setPackageName(packageName);
         setSimpleClassName(simpleName);
         setSourceFilename(sourceFile);
-        getDeclaredType();
         getClassType();
     }
 
@@ -441,7 +440,7 @@ public class ClassMaker implements ClassMakerIfc
         if (cfw != null)
             throw createException("ClassMaker.ToLateToNameTheFullyQualifiedClass");
         this.fullyQualifiedClassName = className;
-        getDeclaredType();
+        getDeclaredType(); // FIXME remove
     }
 
     /**
@@ -519,9 +518,9 @@ public class ClassMaker implements ClassMakerIfc
      * </br>
      * Generates a default ClassType if one has not been set explicitly.
      * 
-     * The <code>Type</code> represents a reference to an instance of the
+     * The <code>Value</code> represents a reference to an instance of the
      * class that has been pushed onto the stack, such as may be used when accessing
-     * a non static member, while the <code>DeclaredType</code> represents the class, 
+     * a non static member, while the <code>ClassType</code> represents the class, 
      * such as may be used when accessing a static member.
      * 
      * @see #defaultThisClass()
@@ -602,11 +601,9 @@ public class ClassMaker implements ClassMakerIfc
      * @see #defaultSuperClass()
      * @return classType the ClassType of the super class
      */
-    public DeclaredType getSuperClass()
+    public ClassType getSuperClass()
     {
-        if (superClass == null)
-            setSuperClass(defaultSuperClass());
-        return superClass;
+        return getClassType().defaultExtendsType();
     }
 
     /** 
@@ -632,21 +629,21 @@ public class ClassMaker implements ClassMakerIfc
     {
         if (cfw != null)
             throw createException("ClassMaker.ToLateToExtendTheClass");
-        DeclaredType declared = stringToDeclaredType(className);
+        ClassType classType = stringToClassType(className);
         if (getPass() != ClassMaker.FIRST_PASS)
         {
-            ClassType type = declared.getClassType();
-            if (declared.getClassType() == null)
+            if (classType == null)
             {
                 throw createException("ClassMaker.NoClassTypeCalled_1", className);
             }
-            int mod = type.getModifiers();
+            int mod = classType.getModifiers();
             if (Modifier.isInterface(mod))
-                throw createException("ClassMaker.CannotExtendInterface", type.getName());
+                throw createException("ClassMaker.CannotExtendInterface", classType.getName());
 
-            //ClassType classType = stringToClassType(className);
-            getClassType().setExtendsType(type);
+            getClassType().setExtendsType(classType);
         }
+        // FIXME setSuperType(classType);
+        DeclaredType declared = stringToDeclaredType(className);
         setSuperClass(declared);
 
     }
@@ -752,7 +749,7 @@ public class ClassMaker implements ClassMakerIfc
         HashMap<String, MakerMethod> allMethods = new HashMap<String, MakerMethod>();
         ClassMakerFactory.addMethods(allMethods, getDeclaredMethods());
         
-    	getFactory().findJavaClassMethods(allMethods, getSuperClass().getClassType());
+    	getFactory().findJavaClassMethods(allMethods, getSuperClass());
         if (isInterface())
             getFactory().findJavaInterfaceMethods(allMethods, getClassType());
         return allMethods.values().toArray(ClassMakerFactory.METHOD_ARRAY);
@@ -1288,7 +1285,8 @@ public class ClassMaker implements ClassMakerIfc
         EndClass();  // declaredInterfaces is empty ???
         if (getPass() == FIRST_PASS)
             throw createException("ClassMaker.CannotDefineClassAfterFirstPhase");
-        getSuperClass().defineClass();
+        //getSuperClass().defineClass();
+        defineClassType(getClassType().getExtendsType());
         defineInterfaces(this.getDeclaredInterfaces());
         Class thisClass = getFactory().getClassLoader().defineClass(cfw.getClassName(), cfw.toByteArray());
         thisClassType.setJavaClass(thisClass);
@@ -1297,11 +1295,16 @@ public class ClassMaker implements ClassMakerIfc
     
     private void defineInterfaces(ClassType [] interfaces)
     {
-        for (ClassType type : interfaces)
-        {
-            DeclaredType declared = factory.typeToDeclaredType(type);
-            declared.defineClass();
+        for (ClassType type : interfaces) {
+            defineClassType(type);
         }
+    }
+    
+    private void defineClassType(ClassType classType)
+    {
+        // FIXME factory.defineClassType(classType);
+        DeclaredType declared = factory.typeToDeclaredType(classType);
+        declared.defineClass();
     }
     
     /**
@@ -1320,7 +1323,6 @@ public class ClassMaker implements ClassMakerIfc
                 if (getPass() == FIRST_PASS)
                     hasConstructor = false;
             }
-            thisClassType.defaultExtendsType();
             thisClassType.setModifiers(classModifiers);
             thisClassType.setConstructors(getDeclaredConstructors());
             thisClassType.setMethods(getDeclaredMethods());
@@ -1558,13 +1560,6 @@ public class ClassMaker implements ClassMakerIfc
             if (log.isLoggable(Level.FINE))
                 log.finest("Import " + importedType);
         }
-//        DeclaredType declaredType = aliasMap.get(toDotName(className));
-//        if (declaredType == null) {
-//            DeclaredType declaredClass = stringToDeclaredClass(toDotName(className));
-//            addClassTypeAlias(declaredClass);
-//            if (log.isLoggable(Level.FINE))
-//                log.finest("Import " + declaredClass);
-//        }
     }
 
     /**
@@ -1580,16 +1575,7 @@ public class ClassMaker implements ClassMakerIfc
             log.finest("Import " + javaClass.getName());
     }
 
-    /**
-     * Converts a class name to a <code>DeclaredType</code> containing a <code>ClassType</code>.
-     * </br>
-     * An existing <code>DeclaredType</code> is returned if the java class has been used previously.
-     * A simple class name will be successful if the class was previously imported.
-     * <code>DeclaredType</code>s are cached in the shared <code>ClassMakerFactory</code>.
-     * @param className the short or fully qualified name of the <code>Class</code>
-     * @return the <code>DeclaredType</code> associated with the className
-     * @throws ClassMakerException if the class does not exist
-     */
+    // @Depricated
     public DeclaredType stringToDeclaredClass(String className) throws ClassMakerException
     {
         DeclaredType declared = findDeclaredType(className);
@@ -1600,16 +1586,7 @@ public class ClassMaker implements ClassMakerIfc
         return declared;
     }
     
-    /**
-     * Converts a type name to a <code>DeclaredType</code> containing a <code>Type</code>.
-     * </br>
-     * An existing Type is returned if a primitive type is named or the java class has been used previously.
-     * A simple class name will be successful if the class was imported.
-     * <code>Type</code>s are cached in the shared <code>ClassMakerFactory</code>.
-     * @param typeName the simple name or fully qualified name of the type
-     * @return the <code>Type</code> associated with the typeName
-     * @throws ClassMakerException if the type does not exist
-     */
+    // @Depricated
     public DeclaredType stringToDeclaredType(String typeName) throws ClassMakerException
     {
         // The alias table maps simple class names to ClassTypes.
@@ -1639,6 +1616,7 @@ public class ClassMaker implements ClassMakerIfc
         throw createException("ClassMaker.NotAClass_1", javaClass.getSimpleName());
     }
 
+    // @Depricated
     public DeclaredType classToDeclaredType(Class javaClass) throws ClassMakerException
     {
         DeclaredType declared = getFactory().classToDeclaredType(javaClass);
@@ -1662,11 +1640,9 @@ public class ClassMaker implements ClassMakerIfc
      */
     ClassType getImported(String className) throws ClassMakerException
     {
-        DeclaredType declaredType = aliasMap.get(toDotName(className));
-        if (declaredType == null)
+        ClassType classType = importMap.get(toDotName(className));
+        if (classType == null)
             return null;
-        ClassType classType = declaredType.getType().toClass();
-        //ClassType classType = aliasMap.get(toDotName(className));
         // The alias map uses NULL_TYPE if more than one class with the same simple class name has been imported.
         if (ClassType.NULL_TYPE.equals(classType))
             throw createException("ClassMaker.MustUseFullyQualifiedClassName_1", className);
@@ -1687,7 +1663,7 @@ public class ClassMaker implements ClassMakerIfc
     void addClassTypeAlias(ClassType classType)
     {
         String className = toDotName(classType.getName());
-        if (aliasMap.get(className) != null)
+        if (importMap.get(className) != null)
             return;
         int index = className.lastIndexOf('$');
         if (index == -1)
@@ -1697,48 +1673,20 @@ public class ClassMaker implements ClassMakerIfc
             String simpleName = className.substring(index+1);
             Type aliasType = importMap.get(simpleName);
             if (aliasType == null) {
-                aliasMap.put(simpleName, new DeclaredType(classType));
+                //aliasMap.put(simpleName, new DeclaredType(classType));
                 importMap.put(simpleName, classType);
-                // FIXME add to importMap
             } else {
                 // A clash of simple names exists so we must use fully qualified names.
                 if (!ClassType.NULL_TYPE.equals(aliasType))
                 {   // Use ClassType.NULL_TYPE as a marker to force fully qualified names.
-                    aliasMap.put(simpleName, new DeclaredType(ClassType.NULL_TYPE));
+                    //aliasMap.put(simpleName, new DeclaredType(ClassType.NULL_TYPE));
                     importMap.put(simpleName, ClassType.NULL_TYPE);
-                    // FIXME add to importMap
                 }
             }
         }
         // Add the fully qualified class name to the alias map.
-        aliasMap.put(className, new DeclaredType(classType));
+        //aliasMap.put(className, new DeclaredType(classType));
         importMap.put(className, classType);
-    }
-
-    void addClassTypeAlias(DeclaredType declared)
-    {
-        String className = toDotName(declared.getName());
-        if (aliasMap.get(className) != null)
-            return;
-        int index = className.lastIndexOf('$');
-        if (index == -1)
-            index = className.lastIndexOf('.');
-        if (index > -1)
-        {   // A simple name exists so add it to the alias map.
-            String simpleName = className.substring(index+1);
-            DeclaredType aliasType = aliasMap.get(simpleName);
-            if (aliasType == null)
-                aliasMap.put(simpleName, declared);
-            else
-            {   // A clash of simple names exists so we must use fully qualified names.
-                if (!ClassType.NULL_TYPE.equals(aliasType.getType()))
-                {   // Use ClassType.NULL_TYPE as a marker to force fully qualified names.
-                    aliasMap.put(simpleName, new DeclaredType(ClassType.NULL_TYPE));
-                }
-            }
-        }
-        // Add the fully qualified class name to the alias map.
-        aliasMap.put(className, declared);
     }
 
     //##################### Method resolving ###################
@@ -1824,7 +1772,7 @@ public class ClassMaker implements ClassMakerIfc
      */
     public void Method(String methodName, Class returnType, int methodModifiers) throws ClassMakerException
     {
-        DeclaredType declared = getFactory().classToDeclaredType(returnType);
+        Type declared = getFactory().classToType(returnType);
         Method(methodName, declared, methodModifiers);
     }
 
@@ -1837,7 +1785,7 @@ public class ClassMaker implements ClassMakerIfc
      */
     public void Method(String methodName, String returnType, int methodModifiers) throws ClassMakerException
     {
-        DeclaredType type = stringToDeclaredType(returnType);
+        Type type = stringToType(returnType);
         Method(methodName, type, methodModifiers);
     }
 
@@ -1850,36 +1798,13 @@ public class ClassMaker implements ClassMakerIfc
      */
     public void Method(String methodName, Type returnType, int methodModifiers) throws ClassMakerException
     {
-        DeclaredType declared = getDeclaredType(returnType);
-        checkMethodModifiers(methodModifiers);
-        if (method != null)
-            throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toFullString());
-        method = new MakerMethod(getClassType(), methodName, declared, (short)methodModifiers);
-        
-        // Adjust the slots used to account for the this pointer, if present.
-        maxLocalSlots = method.isStatic() ? 0 : getDeclaredType().getSlotSize();
-        
-        // Determine whether the class declares a constructor.
-        if (INIT.equals(methodName))
-            hasConstructor = true;
-    }
-
-    /**
-     * Starts the declaration of a method with a <code>Class</code> representing the return type.
-     * @param methodName the name of the method to be generated
-     * @param returnType the return <code>Type</code> for the method
-     * @param methodModifiers appropriate modifiers include:
-     * <code>ACC_PUBLIC, ACC_PROTECTED, ACC_PRIVATE, ACC_STATIC, ACC_FINAL</code>
-     */
-    public void Method(String methodName, DeclaredType returnType, int methodModifiers) throws ClassMakerException
-    {
         checkMethodModifiers(methodModifiers);
         if (method != null)
             throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toFullString());
         method = new MakerMethod(getClassType(), methodName, returnType, (short)methodModifiers);
         
         // Adjust the slots used to account for the this pointer, if present.
-        maxLocalSlots = method.isStatic() ? 0 : getDeclaredType().getSlotSize();
+        maxLocalSlots = method.isStatic() ? 0 : getClassType().getSlotSize();
         
         // Determine whether the class declares a constructor.
         if (INIT.equals(methodName))
@@ -2155,12 +2080,12 @@ public class ClassMaker implements ClassMakerIfc
      * Creates a list of formal parameters for the method currently being generated.
      * @return an array of formal parameter <code>Type</code>s
      */
-    DeclaredType[] createFormalParameters()
+    Type[] createFormalParameters()
     {
         int size = localTable.size();
-        DeclaredType[] params = new DeclaredType[size];
+        Type[] params = new Type[size];
         for (int index = 0; index < size; index++)
-            params[index] = lookupLocal(index).getDeclaredType();
+            params[index] = lookupLocal(index).getType();
         return params;
     }
 
@@ -2205,11 +2130,6 @@ public class ClassMaker implements ClassMakerIfc
             reference = classType.getValue();
         }
         return new InitialiserImpl(reference);
-    }
-
-    public Initialiser New(DeclaredType declared) throws ClassMakerException
-    {
-        return New(declared == null ? null : declared.getType());
     }
 
     /**
@@ -2686,7 +2606,7 @@ public class ClassMaker implements ClassMakerIfc
             if (isDebugCode())
             	setDebugComment("Super();");
             cfw.addLoadThis();
-            return superClass.getClassType().getValue();
+            return getSuperClass().getValue();
         }
         return null;
     }
@@ -3125,17 +3045,17 @@ public class ClassMaker implements ClassMakerIfc
     	if (isDebugCode())
     		setDebugComment("Set(" + className + ", " + fieldName + ", " + valueType + ")");
         MakerField field = Find(className, fieldName);
-        Type declaredType = field.getType();
+        Type type = field.getType();
 
         // FIXME - check that field is static
-        if (!getFactory().getAssignmentConversion().isConvertable(valueType, declaredType))
+        if (!getFactory().getAssignmentConversion().isConvertable(valueType, type))
             throw createException("ClassMaker.StaticFieldOfTypeCannotBeAssignedType_3",
-                            field.getName(), declaredType.getName(), valueType.getName());
+                            field.getName(), type.getName(), valueType.getName());
 
         markLineNumber(); // possibly add a new line number entry.
-        getFactory().getAssignmentConversion().convertTo(this, valueType, declaredType);
+        getFactory().getAssignmentConversion().convertTo(this, valueType, type);
 
-        String signature = declaredType.getSignature();
+        String signature = type.getSignature();
         cfw.add(ByteCode.PUTSTATIC, field.getClassType().getName(), field.getName(), signature);
         return PrimitiveType.VOID_TYPE.getValue();
     }
@@ -3225,7 +3145,7 @@ public class ClassMaker implements ClassMakerIfc
      * Finds a named field in the given class.
      * </br>
      * Delegates to <code>findMemberField</code> and throws an <code>Exception</code> if the field is not found.
-     * @param reference should be a DeclaredType
+     * @param reference a Value representing a class reference on the stack
      * @param name name of the member field
      * @return the <code>MakerField</code> corresponding to the given name
      * @throws ClassMakerException if the field is not found
@@ -3303,7 +3223,7 @@ public class ClassMaker implements ClassMakerIfc
      * A simple class name will be successful if the class was previously imported.
      * <code>Type</code>s are cached in the shared <code>ClassMakerFactory</code>.
      * @param className the short or fully qualified name of the <code>Class</code>
-     * @return the <code>DeclaredType</code> associated with the className
+     * @return the <code>ClassType</code> associated with the className
      * @throws ClassMakerException if the class does not exist
      */
     public ClassType stringToClassType(String className) throws ClassMakerException
@@ -3349,13 +3269,13 @@ public class ClassMaker implements ClassMakerIfc
 
     Type findImportedType(String className) throws ClassMakerException
     {
-        DeclaredType declaredType = aliasMap.get(toDotName(className));
-        if (declaredType != null)
+        ClassType classType = importMap.get(toDotName(className));
+        if (classType != null)
         {
             // The alias map uses NULL_TYPE if more than one class with the same simple class name has been imported.
-            if (ClassType.NULL_TYPE.equals(declaredType.getType()))
+            if (ClassType.NULL_TYPE.equals(classType))
                 throw createException("ClassMaker.MustUseFullyQualifiedClassName_1", className);
-            return declaredType.getType();
+            return classType;
         } else {
             return null;
         }
@@ -3433,12 +3353,11 @@ public class ClassMaker implements ClassMakerIfc
      * @param modifiers access modifiers
      * @return index of the field in <code>fieldTable</code>
      */
-    int addMemberField(String name, DeclaredType declared, int modifiers)
+    int addMemberField(String name, Type type, int modifiers)
     {
         checkFieldModifiers(modifiers);
 
-       // DeclaredType declared = getDeclaredType(type);
-        MakerField field = new MakerField(getClassType(), name, declared, modifiers);
+        MakerField field = new MakerField(getClassType(), name, type, modifiers);
         int index = fieldTable.size();
         fieldTable.add(field);
         return index;
@@ -3479,7 +3398,7 @@ public class ClassMaker implements ClassMakerIfc
             if (field == null)
             {    
                 // Search fields declared in base classes
-                field = getFactory().findMemberField(getSuperClass().getClassType(), name);
+                field = getFactory().findMemberField(getSuperClass(), name);
             }
         }
         return field;
@@ -3577,13 +3496,13 @@ public class ClassMaker implements ClassMakerIfc
      * @param modifiers access modifiers for the variable
      * @return index into <code>localTable</code>
      */
-    int addLocal(String name, DeclaredType declared, int modifiers)
+    int addLocal(String name, Type type, int modifiers)
     {
-        MakerField field = new MakerField(name, declared, modifiers);
+        MakerField field = new MakerField(name, type, modifiers);
         field.setSlot(maxLocalSlots);
         field.setScopeLevel(getScopeLevel());
         // Adjust the number of slots used.
-        maxLocalSlots += declared.getSlotSize();
+        maxLocalSlots += type.getSlotSize();
         if (getClassFileWriter() != null)
             field.setStartPC(cfw.getCurrentCodeOffset());
         int index = localTable.size();
@@ -3763,19 +3682,8 @@ public class ClassMaker implements ClassMakerIfc
      */
     public void Declare(String name, String typeName, int modifiers) throws ClassMakerException
     {
-        DeclaredType type = stringToDeclaredType(typeName);
+        Type type = stringToType(typeName);
         Declare(name, type, modifiers);
-    }
-
-    /**
-     * 
-     * @param name the name of the variable
-     * @param type
-     * @param modifiers bitmask of variable modifiers
-     */
-    public void Declare(String name, DeclaredType type, int modifiers) throws ClassMakerException
-    {
-        declareVariable(name, type, modifiers);
     }
 
     /**
@@ -3804,17 +3712,16 @@ public class ClassMaker implements ClassMakerIfc
      */
     public void Declare(String name, Type type, int modifiers) throws ClassMakerException
     {
-        DeclaredType declared = getDeclaredType(type);
-        declareVariable(name, declared, modifiers);
+        declareVariable(name, type, modifiers);
     }
     
-    private  void declareVariable(String name, DeclaredType declared, int modifiers) throws ClassMakerException
+    private  void declareVariable(String name, Type type, int modifiers) throws ClassMakerException
     {
         if (getPass() != FIRST_PASS)
         {
-            Type type = declared.getType();
+//            Type type = declared.getType();
             if (PrimitiveType.VOID_TYPE.equals(type) || ClassType.NULL_TYPE.equals(type))
-                throw createException("ClassMaker.CannotDeclareType_1", declared.getName());
+                throw createException("ClassMaker.CannotDeclareType_1", type.getName());
         }
         if (!isInMethod())
         {   // Class Member Field
@@ -3823,18 +3730,18 @@ public class ClassMaker implements ClassMakerIfc
             {
             	if (field != null)
             	    throw createException("ClassMaker.DuplicateMemberFieldDeclaration_1", name);
-                addMemberField(name, declared, modifiers);
+                addMemberField(name, type, modifiers);
             }
             if (getClassFileWriter() != null)
             {
-                cfw.addField(name, declared.getSignature(), (short) modifiers);
+                cfw.addField(name, type.getSignature(), (short) modifiers);
             }
         }
         else
         {   // Local variable or parameter
             if (getPass() != SECOND_PASS && findLocalField(name)!= null)
                 throw createException("ClassMaker.DuplicateLocalVariableDeclaration_1", name);
-            addLocal(name, declared, modifiers);
+            addLocal(name, type, modifiers);
             if (getClassFileWriter() != null)
             {
                 MakerField local = findLocalField(name);
@@ -3863,7 +3770,7 @@ public class ClassMaker implements ClassMakerIfc
 
     //################### Casting methods. ##################
     /**
-     * Casts a reference from one type to another.
+     * Casts a value to a type represented by a string.
      * </br>
      * Performs a casting conversion between the source and target types.
      * The short or fully qualified name of the target class may be used.
@@ -3876,9 +3783,9 @@ public class ClassMaker implements ClassMakerIfc
      * <tr><td><code>(String)null<code></td>
      * <td><code>Cast(Null(), "String")</code></td></tr>
      * </table>
-     * @param source the type of the reference on top of the stack
+     * @param source the value on top of the stack
      * @param target the type into which to cast
-     * @return the target type
+     * @return the value cast to the target type
      */
     public Value Cast(Value source, String target) throws ClassMakerException
     {
@@ -3887,7 +3794,7 @@ public class ClassMaker implements ClassMakerIfc
     }
 
     /**
-     * Casts a reference from one type to another.
+     * Casts a value to a type represented by a Class.
      * </br>
      * Performs a casting conversion between the source and target types.
      * The following code is equivalent.
@@ -3898,41 +3805,35 @@ public class ClassMaker implements ClassMakerIfc
      * <tr><td><code>(String)null<code></td>
      * <td><code>Cast(Null(), String.class)</code></td></tr>
      * </table>
-     * @param source the type of the reference on top of the stack
+     * @param source the value on top of the stack
      * @param target the type into which to cast
-     * @return the target type
+     * @return the value cast to the target type
      */
     public Value Cast(Value source, Class target) throws ClassMakerException
     {
-        DeclaredType declared = getFactory().classToDeclaredType(target);
-        return Cast(source, declared);
-    }
-
-    public Value Cast(Value source, Type target) throws ClassMakerException
-    {
-        DeclaredType declared = getDeclaredType(target);
-        return Cast(source, declared);
+        Type type = getFactory().classToType(target);
+        return Cast(source, type);
     }
 
     /**
-     * Casts a reference from one type to another.
-     * </br>
+     * Casts a value from one Type to another.
      * Performs a casting conversion between the source and target types.
-     * @param source the type of the reference on top of the stack
+     * @param source the value on top of the stack
      * @param target the type into which to cast
-     * @return the target type
+     * @return the value cast to the target type
      */
-    public Value Cast(Value source, DeclaredType target) throws ClassMakerException
+    public Value Cast(Value source, Type target) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
         Type sourceType = source.getType();
-        if (cfw.isDebugCode()) 
+        if (cfw.isDebugCode()) {
             setDebugComment("Cast("+source+", "+target+");");
-        Type targetType = target.getType();
-        if (getFactory().getCastingConversion().isConvertable(sourceType, targetType))
-            return getFactory().getCastingConversion().convertTo(this, sourceType, targetType).getValue();
-        else
+        }
+        if (getFactory().getCastingConversion().isConvertable(sourceType, target)) {
+            return getFactory().getCastingConversion().convertTo(this, sourceType, target).getValue();
+        } else {
             throw createException("ClassMaker.CannotCastFromTypeToType_2", source.getName(), target.getName());
+        }
     }
 
     /**
@@ -5695,11 +5596,6 @@ public class ClassMaker implements ClassMakerIfc
         }
     }
 
-    public Value NewArray(DeclaredType arrayType, Value size)
-    {
-        return NewArray(arrayType.getType(), size);
-    }
-    
     /**
      * Creates an array using the dimension on the stack.
      * <pre>
@@ -5733,11 +5629,6 @@ public class ClassMaker implements ClassMakerIfc
             cfw.add(ByteCode.ANEWARRAY, className);
         }
         return array.getValue();
-    }
-
-    public Value NewArray(DeclaredType array, CallStack dimensions)
-    {
-        return NewArray(array.getType(), dimensions);
     }
 
     /**
@@ -5781,10 +5672,10 @@ public class ClassMaker implements ClassMakerIfc
      * @param javaClass the class of element in the array
      * @return an <code>ArrayType</code> whose elements are of the given class
      */
-    public DeclaredType ArrayOf(Class javaClass)
+    public ArrayType ArrayOf(Class javaClass)
     {
-        String typeName = classToName(javaClass);
-        return ArrayOf(typeName);
+        Type type = getFactory().classToType(javaClass);
+        return ArrayOf(type);
     }
 
     /**
@@ -5795,9 +5686,9 @@ public class ClassMaker implements ClassMakerIfc
      * @param typeName the class name of the element in the array
      * @return an <code>ArrayType</code> whose elements are of the given class
      */
-    public DeclaredType ArrayOf(String typeName)
+    public ArrayType ArrayOf(String typeName)
     {
-        DeclaredType type = stringToDeclaredType(typeName);
+        Type type = stringToType(typeName);
         return ArrayOf(type);
     }
 
@@ -7469,8 +7360,7 @@ public class ClassMaker implements ClassMakerIfc
      */
     protected int storeAnonymousValue(Type type) throws ClassMakerException
     {
-        DeclaredType declared = getDeclaredType(type);
-        int index = addLocal(null, declared, 0);
+        int index = addLocal(null, type, 0);
         MakerField local = lookupLocal(index);
         storeLocal(local, type);
         return index;
