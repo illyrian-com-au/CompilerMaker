@@ -108,7 +108,7 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
         parser.nextToken();
         AstExpression expr = (AstExpression)parser.expression();
     	AstStructureVisitor visitor = new AstStructureVisitor(maker);
-        return expr.resolveType(visitor);
+        return expr.resolveValue(visitor);
     }
 
     public void testEqual() throws Exception

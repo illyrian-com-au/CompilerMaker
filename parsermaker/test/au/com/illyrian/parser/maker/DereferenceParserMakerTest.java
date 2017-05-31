@@ -68,7 +68,7 @@ public class DereferenceParserMakerTest extends ClassMakerTestCase
         parser.nextToken();
         AstExpression expr = (AstExpression)parser.expression();
     	AstStructureVisitor visitor = new AstStructureVisitor(maker);
-        return expr.resolveType(visitor);
+        return expr.resolveValue(visitor);
     }
 
     public void testGetValue1() throws Exception

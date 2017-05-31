@@ -31,7 +31,7 @@ import au.com.illyrian.classmaker.CallStack;
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.members.MakerField;
-import au.com.illyrian.classmaker.types.DeclaredType;
+import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
@@ -49,9 +49,9 @@ public abstract class AstExpressionBase implements AstExpression, LineNumber
         setSourceLine(sourceLine);
     }
     
-    public Value resolveType(AstExpressionVisitor visitor)
+    public Value resolveValue(AstExpressionVisitor visitor)
     {
-        throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveType(visitor)");
+        throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveValue(visitor)");
     }
     
     public String resolvePath(AstExpressionVisitor visitor)
@@ -68,11 +68,11 @@ public abstract class AstExpressionBase implements AstExpression, LineNumber
     /**
      * Resolve AST to a Value or null if a Value cannot be determined.
      * This method is overridden by DotOperator where a path may resolve to a
-     * declared type; otherwise just use resolveType().
+     * declared type; otherwise just use resolveValue().
      */
-    public Value resolveTypeOrNull(AstExpressionVisitor visitor)
+    public Value resolveValueOrNull(AstExpressionVisitor visitor)
     {
-        return resolveType(visitor);
+        return resolveValue(visitor);
     }
     
     public MakerField resolveMakerField(AstExpressionVisitor visitor)
@@ -105,7 +105,7 @@ public abstract class AstExpressionBase implements AstExpression, LineNumber
         throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveImplements(visitor)");
     }
 
-    public DeclaredType resolveDeclaredType(AstExpressionVisitor visitor) 
+    public Type resolveType(AstExpressionVisitor visitor) 
     {
         throw new IllegalStateException(getClass().getSimpleName() + " does not define resolveDeclaredType(visitor)");
     }

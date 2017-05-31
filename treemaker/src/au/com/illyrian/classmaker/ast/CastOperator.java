@@ -48,9 +48,9 @@ public class CastOperator extends AstExpressionBase
         rightOperand = valueOperand;
     }
     
-    public Value resolveType(AstExpressionVisitor visitor)
+    public Value resolveValue(AstExpressionVisitor visitor)
     {
-        return visitor.resolveType(this);
+        return visitor.resolveValue(this);
     }
     
     public AstExpression getLeftOperand()

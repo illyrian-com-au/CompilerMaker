@@ -27,9 +27,6 @@
 
 package au.com.illyrian.classmaker;
 
-import java.io.File;
-
-import au.com.illyrian.classmaker.types.ClassType;
 
 public class MakerExtendsJavaClassTest extends ClassMakerTestCase
 {

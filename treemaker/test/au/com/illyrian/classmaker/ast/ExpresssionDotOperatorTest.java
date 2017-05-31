@@ -28,10 +28,9 @@
 package au.com.illyrian.classmaker.ast;
 
 import junit.framework.TestCase;
-import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerException;
-import au.com.illyrian.classmaker.ClassMakerText;
 import au.com.illyrian.classmaker.ClassMakerIfc;
+import au.com.illyrian.classmaker.ClassMakerText;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Value;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
@@ -45,7 +44,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     public void testFieldGet_xyza()
     {
     	AstExpression ast = build.Dot(build.Dot(build.Dot(build.Name("x"), build.Name("y")), build.Name("z")), build.Name("a"));
-        Value type = ast.resolveType(visitor);
+        Value type = ast.resolveValue(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Get(Get(Get(Get(\"x\"), \"y\"), \"z\"), \"a\")]", buf.toString());
     }
@@ -53,7 +52,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     public void testStaticGet_Xyza()
     {
     	AstExpression ast = build.Dot(build.Dot(build.Dot(build.Name("Object"), build.Name("y")), build.Name("z")), build.Name("a"));
-        Value type = ast.resolveType(visitor);
+        Value type = ast.resolveValue(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Get(Get(Get(\"java.lang.Object\", \"y\"), \"z\"), \"a\")]", buf.toString());
         assertTrue("Stack does not contain a Value", type == PrimitiveType.INT_TYPE.getValue());
@@ -62,7 +61,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     public void testStaticGet_JavaLangObject_a()
     {
     	AstExpression ast = build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Object")), build.Name("a"));
-        Value type = ast.resolveType(visitor);
+        Value type = ast.resolveValue(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong stack contents", "[Get(\"java.lang.Object\", \"a\")]", buf.toString());
     }
@@ -70,7 +69,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     public void testDotInc()
     {
     	AstExpression ast = build.Inc(build.Dot(build.Dot(build.Dot(build.Name("x"), build.Name("y")), build.Name("z")), build.Name("a")));
-        Value type = ast.resolveType(visitor);
+        Value type = ast.resolveValue(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong stack contents", "[Inc(Get(Get(Get(\"x\"), \"y\"), \"z\"), \"a\")]", buf.toString());
     }
@@ -78,7 +77,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     public void testStaticInc()
     {
     	AstExpression ast = build.Inc(build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Object")), build.Name("a")));
-        Value type = ast.resolveType(visitor);
+        Value type = ast.resolveValue(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong stack contents", "[Inc(\"java.lang.Object\", \"a\")]", buf.toString());
     }
@@ -86,7 +85,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     public void testDotDec()
     {
     	AstExpression ast = build.Dec(build.Dot(build.Dot(build.Dot(build.Name("x"), build.Name("y")), build.Name("z")), build.Name("a")));
-        Value type = ast.resolveType(visitor);
+        Value type = ast.resolveValue(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong stack contents", "[Dec(Get(Get(Get(\"x\"), \"y\"), \"z\"), \"a\")]", buf.toString());
     }
@@ -94,7 +93,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     public void testStaticDec()
     {
     	AstExpression ast = build.Dec(build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Object")), build.Name("a")));
-        Value type = ast.resolveType(visitor);
+        Value type = ast.resolveValue(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong stack contents", "[Dec(\"java.lang.Object\", \"a\")]", buf.toString());
     }
@@ -102,7 +101,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     public void testDotPostInc()
     {
     	AstExpression ast = build.PostInc(build.Dot(build.Dot(build.Dot(build.Name("x"), build.Name("y")), build.Name("z")), build.Name("a")));
-        Value type = ast.resolveType(visitor);
+        Value type = ast.resolveValue(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong stack contents", "[PostInc(Get(Get(Get(\"x\"), \"y\"), \"z\"), \"a\")]", buf.toString());
     }
@@ -110,7 +109,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     public void testStaticPostInc()
     {
     	AstExpression ast = build.PostInc(build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Object")), build.Name("a")));
-        Value type = ast.resolveType(visitor);
+        Value type = ast.resolveValue(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong stack contents", "[PostInc(\"java.lang.Object\", \"a\")]", buf.toString());
     }
@@ -118,7 +117,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     public void testDotPostDec()
     {
     	AstExpression ast = build.PostDec(build.Dot(build.Dot(build.Dot(build.Name("x"), build.Name("y")), build.Name("z")), build.Name("a")));
-        Value type = ast.resolveType(visitor);
+        Value type = ast.resolveValue(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong stack contents", "[PostDec(Get(Get(Get(\"x\"), \"y\"), \"z\"), \"a\")]", buf.toString());
     }
@@ -126,7 +125,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     public void testStaticPostDec()
     {
     	AstExpression ast = build.PostDec(build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Object")), build.Name("a")));
-        Value type = ast.resolveType(visitor);
+        Value type = ast.resolveValue(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong stack contents", "[PostDec(\"java.lang.Object\", \"a\")]", buf.toString());
     }
@@ -135,7 +134,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     {
     	AstExpression ast = build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Unknown")), build.Name("a"));
         try {
-            ast.resolveType(visitor);
+            ast.resolveValue(visitor);
             fail("Should throw ClassMakerException: " + ast);
         } catch (ClassMakerException e)
         {
@@ -147,7 +146,7 @@ public class ExpresssionDotOperatorTest extends TestCase
     {
     	AstExpression ast = build.Inc(build.Dot(build.Dot(build.Dot(build.Name("java"), build.Name("lang")), build.Name("Unknown")), build.Name("a")));
         try {
-            ast.resolveType(visitor);
+            ast.resolveValue(visitor);
             fail("Should throw ClassMakerException: " + ast);
         } catch (ClassMakerException e)
         {

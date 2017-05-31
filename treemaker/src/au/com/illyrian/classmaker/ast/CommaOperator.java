@@ -49,7 +49,7 @@ public class CommaOperator extends AstExpressionBase
         rightExpression = right;
     }
 
-    public Value resolveType(AstExpressionVisitor visitor)
+    public Value resolveValue(AstExpressionVisitor visitor)
     {
         return null;
     }

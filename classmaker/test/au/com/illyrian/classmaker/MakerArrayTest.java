@@ -33,7 +33,6 @@ import org.mozilla.classfile.ByteCode;
 
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 
 public class MakerArrayTest extends ClassMakerTestCase implements ByteCode

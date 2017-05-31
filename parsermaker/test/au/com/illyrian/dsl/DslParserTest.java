@@ -6,10 +6,9 @@ import java.io.StringWriter;
 
 import junit.framework.TestCase;
 import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.TokenType;
-import au.com.illyrian.parser.impl.ModuleContext;
 import au.com.illyrian.parser.impl.LexerInputStream;
+import au.com.illyrian.parser.impl.ModuleContext;
 
 public class DslParserTest extends TestCase
 {

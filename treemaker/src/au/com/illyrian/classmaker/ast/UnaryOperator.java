@@ -70,9 +70,9 @@ public class UnaryOperator extends AstExpressionBase
         return operand;
     }
 
-    public Value resolveType(AstExpressionVisitor visitor)
+    public Value resolveValue(AstExpressionVisitor visitor)
     {
-        return visitor.resolveType(this);
+        return visitor.resolveValue(this);
     }
 
     public String toString()

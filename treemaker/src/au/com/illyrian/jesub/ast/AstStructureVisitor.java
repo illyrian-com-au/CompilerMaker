@@ -38,7 +38,7 @@ import au.com.illyrian.classmaker.ast.AstExpressionLink;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
 import au.com.illyrian.classmaker.ast.AstStatementReserved;
 import au.com.illyrian.classmaker.ast.ResolvePath;
-import au.com.illyrian.classmaker.types.DeclaredType;
+import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
 
 public class AstStructureVisitor extends AstExpressionVisitor
@@ -218,7 +218,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
         setSource(member);
         try {
             int modifiers = resolveModifiers(member.getModifiers());
-            DeclaredType type = member.getType().resolveDeclaredType(this);
+            Type type = member.getType().resolveType(this);
             if (type == null)
                 throw new IllegalArgumentException("Cannot find declared type:" + member.getType());
             String name = member.getName().resolvePath(this);
@@ -281,7 +281,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
     public void resolveStatement(AstStatementEval statement)
     {
         try {
-            Value type = statement.getExpression().resolveType(this);
+            Value type = statement.getExpression().resolveValue(this);
             getMaker().Eval(type);
         } catch (ClassMakerException ex) {
             addError(ex);
@@ -293,7 +293,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
         setSource(statement);
         try {
             if (statement.getExpression() != null) {
-                Value type = statement.getExpression().resolveType(this);
+                Value type = statement.getExpression().resolveValue(this);
                 getMaker().Return(type);
             } else {
                 getMaker().Return();
@@ -307,7 +307,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
     {
         try {
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
-            Value type = statement.getCondition().resolveType(this);
+            Value type = statement.getCondition().resolveValue(this);
             getMaker().If(type).setLabel(label);
             statement.getThenCode().resolveStatement(this);
             if (statement.getElseCode() != null) {
@@ -326,7 +326,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
         try {
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
             getMaker().Loop().setLabel(label);
-            Value cond = statement.getCondition().resolveType(this);
+            Value cond = statement.getCondition().resolveValue(this);
             getMaker().While(cond);
             statement.getCode().resolveStatement(this);
             getMaker().EndLoop();
@@ -339,11 +339,11 @@ public class AstStructureVisitor extends AstExpressionVisitor
     {
         setSource(statement);
         try {
-            Value init = (statement.getInitialise() == null) ? null : statement.getInitialise().resolveType(this);
+            Value init = (statement.getInitialise() == null) ? null : statement.getInitialise().resolveValue(this);
             ForWhile step1 = getMaker().For(init);
-            Value cond = (statement.getCondition() == null) ? null : statement.getCondition().resolveType(this);
+            Value cond = (statement.getCondition() == null) ? null : statement.getCondition().resolveValue(this);
             ForStep step2 = step1.While(cond);
-            Value dec = (statement.getIncrement() == null) ? null : statement.getIncrement().resolveType(this);
+            Value dec = (statement.getIncrement() == null) ? null : statement.getIncrement().resolveValue(this);
             Labelled step3 = step2.Step(dec);
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
             step3.setLabel(label);
@@ -385,7 +385,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
     {
         try {
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
-            Value cond = statement.getExpression().resolveType(this);
+            Value cond = statement.getExpression().resolveValue(this);
             getMaker().Switch(cond).setLabel(label);
             statement.getCode().resolveStatement(this);
             getMaker().EndSwitch();

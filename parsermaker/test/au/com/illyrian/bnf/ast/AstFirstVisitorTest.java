@@ -3,7 +3,6 @@ package au.com.illyrian.bnf.ast;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Set;
 
 import junit.framework.TestCase;
 import au.com.illyrian.bnf.BnfParser;
@@ -51,6 +50,7 @@ public class AstFirstVisitorTest extends TestCase
         out.println("{");
         out.println("   rhyme ::= the fox ;");
         out.println("}");
+        out.close();
         BnfTree tree = parse(out.getReader());
         
         boolean hasEmpty = tree.resolveFirst(visitor, null);

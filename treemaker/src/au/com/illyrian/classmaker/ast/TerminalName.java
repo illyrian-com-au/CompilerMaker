@@ -27,9 +27,8 @@
 
 package au.com.illyrian.classmaker.ast;
 
-import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.members.MakerField;
-import au.com.illyrian.classmaker.types.DeclaredType;
+import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
@@ -48,19 +47,19 @@ public class TerminalName extends AstExpressionBase implements ResolvePath
         return name;
     }
 
-    public Value resolveType(AstExpressionVisitor visitor)
+    public Value resolveValue(AstExpressionVisitor visitor)
+    {
+        return visitor.resolveValue(this);
+    }
+
+    public Value resolveValueOrNull(AstExpressionVisitor visitor)
+    {
+        return visitor.resolveValueOrNull(this);
+    }
+
+    public Type resolveType(AstExpressionVisitor visitor)
     {
         return visitor.resolveType(this);
-    }
-
-    public Value resolveTypeOrNull(AstExpressionVisitor visitor)
-    {
-        return visitor.resolveTypeOrNull(this);
-    }
-
-    public DeclaredType resolveDeclaredType(AstExpressionVisitor visitor)
-    {
-        return visitor.resolveDeclaredType(this);
     }
 
     public MakerField resolveMakerField(AstExpressionVisitor visitor)

@@ -1,7 +1,6 @@
 package au.com.illyrian.classmaker.ast;
 
-import au.com.illyrian.classmaker.SourceLine;
-import au.com.illyrian.classmaker.types.DeclaredType;
+import au.com.illyrian.classmaker.types.Type;
 
 
 public class ArrayOf extends AstExpressionBase 
@@ -21,9 +20,9 @@ public class ArrayOf extends AstExpressionBase
         this.dimension = null;
     }
     
-    public DeclaredType resolveDeclaredType(AstExpressionVisitor visitor) 
+    public Type resolveType(AstExpressionVisitor visitor) 
     {
-        return visitor.resolveDeclaredType(this);
+        return visitor.resolveType(this);
     }
     
     public AstExpression getType() {

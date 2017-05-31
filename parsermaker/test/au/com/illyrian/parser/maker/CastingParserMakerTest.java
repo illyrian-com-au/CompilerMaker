@@ -68,7 +68,7 @@ public class CastingParserMakerTest extends ClassMakerTestCase
         parser.nextToken();
         AstExpression expr = (AstExpression)parser.expression();
     	AstStructureVisitor visitor = new AstStructureVisitor(maker);
-        return expr.resolveType(visitor);
+        return expr.resolveValue(visitor);
     }
 
     public void testCastingParser1() throws Exception

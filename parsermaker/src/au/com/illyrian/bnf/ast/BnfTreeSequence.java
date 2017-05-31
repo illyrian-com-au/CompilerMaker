@@ -1,7 +1,6 @@
 package au.com.illyrian.bnf.ast;
 
 import au.com.illyrian.bnf.maker.BnfMakerVisitor;
-import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
 

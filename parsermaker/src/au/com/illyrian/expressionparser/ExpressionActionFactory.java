@@ -32,7 +32,6 @@ import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
 import au.com.illyrian.classmaker.types.PrimitiveType;
-import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
 
 /**
@@ -112,7 +111,7 @@ public class ExpressionActionFactory
     {
     	AstExpression expr = (AstExpression)result;
     	AstExpressionVisitor visitor = new AstExpressionVisitor(maker);
-        Value value = expr.resolveType(visitor);
+        Value value = expr.resolveValue(visitor);
         
         getClassMaker().Return(value);
         getClassMaker().End();

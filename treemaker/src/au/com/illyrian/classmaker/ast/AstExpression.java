@@ -31,15 +31,15 @@ import au.com.illyrian.classmaker.CallStack;
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.SourceLine;
 import au.com.illyrian.classmaker.members.MakerField;
-import au.com.illyrian.classmaker.types.DeclaredType;
+import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
 import au.com.illyrian.jesub.ast.AstStructureVisitor;
 
 public interface AstExpression extends ResolvePath, SourceLine
 {
-    public Value resolveType(AstExpressionVisitor visitor);
+    public Value resolveValue(AstExpressionVisitor visitor);
 
-    public Value resolveTypeOrNull(AstExpressionVisitor visitor);
+    public Value resolveValueOrNull(AstExpressionVisitor visitor);
     
     public Value resolveNew(AstExpressionVisitor visitor);
     
@@ -59,7 +59,7 @@ public interface AstExpression extends ResolvePath, SourceLine
 
     public void resolveImplements(AstStructureVisitor visitor);
 
-    public DeclaredType resolveDeclaredType(AstExpressionVisitor visitor);
+    public Type resolveType(AstExpressionVisitor visitor);
     
     public MethodCall toMethodCall();
 

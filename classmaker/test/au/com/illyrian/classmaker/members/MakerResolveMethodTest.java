@@ -37,7 +37,6 @@ import au.com.illyrian.classmaker.ClassMakerException;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
@@ -73,11 +72,11 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
         }
         protected void addLocalClasses()
         {
-            addTypeAndDeclaredType(DESSERT); 
-            addTypeAndDeclaredType(CAKE);
-            addTypeAndDeclaredType(SCONE);
-            addTypeAndDeclaredType(CHOCOLATE_CAKE);
-            addTypeAndDeclaredType(BUTTERED_SCONE);
+            addType(DESSERT); 
+            addType(CAKE);
+            addType(SCONE);
+            addType(CHOCOLATE_CAKE);
+            addType(BUTTERED_SCONE);
         }
     }
 

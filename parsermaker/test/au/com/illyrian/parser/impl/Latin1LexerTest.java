@@ -5,11 +5,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Properties;
 
-import au.com.illyrian.parser.Input;
-import au.com.illyrian.parser.Lexer;
-import au.com.illyrian.parser.TokenType;
-import au.com.illyrian.parser.impl.LexerInputString;
 import junit.framework.TestCase;
+import au.com.illyrian.parser.Input;
+import au.com.illyrian.parser.TokenType;
 
 public class Latin1LexerTest extends TestCase
 {

@@ -29,7 +29,6 @@ package au.com.illyrian.classmaker.members;
 
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Type;
 
 /**

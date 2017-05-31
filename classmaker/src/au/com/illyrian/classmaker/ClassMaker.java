@@ -43,8 +43,6 @@ import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.members.MakerMethod;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.DeclaredType;
-import au.com.illyrian.classmaker.types.DeclaredTypeMaker;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
@@ -224,8 +222,6 @@ public class ClassMaker implements ClassMakerIfc
     /** A list of local variables in the class being generated. */
     Vector<MakerField>      localTable = new Vector<MakerField>();
     /** Short class names are mapped to class types as they are imported into the class being generated. */
-    private HashMap<String, DeclaredType> aliasMap = new HashMap<String, DeclaredType>();
-    /** Short class names are mapped to class types as they are imported into the class being generated. */
     private HashMap<String, ClassType> importMap = new HashMap<String, ClassType>();
     /** A reference to the method currently being generated. */
     private MakerMethod method = null;
@@ -244,10 +240,6 @@ public class ClassMaker implements ClassMakerIfc
     private String fullyQualifiedClassName;
     /** A reference to the type information for the class being generated. */
     private ClassType thisClassType;
-    /** A reference to the type declaration for the class being generated. */
-    private DeclaredTypeMaker thisDeclaredType;
-    /** A reference to the type declaration for the super class of the class being generated. */
-    private DeclaredType superClass;
     /** The modifiers for the class being generated. */
     private int classModifiers = ACC_PUBLIC;
 
@@ -276,8 +268,8 @@ public class ClassMaker implements ClassMakerIfc
             else
                 buf.append("? ");
         }
-        if (superClass != null)
-            buf.append("extends ").append(superClass.getName());
+        if (getSuperClass() != null)
+            buf.append("extends ").append(getSuperClass().getName());
         if (factory != null) {
             switch (getPass()) {
             case ONE_PASS: buf.append(", ONE_PASS"); break;
@@ -440,7 +432,7 @@ public class ClassMaker implements ClassMakerIfc
         if (cfw != null)
             throw createException("ClassMaker.ToLateToNameTheFullyQualifiedClass");
         this.fullyQualifiedClassName = className;
-        getDeclaredType(); // FIXME remove
+        getFactory().addClassMaker(this);
     }
 
     /**
@@ -534,67 +526,6 @@ public class ClassMaker implements ClassMakerIfc
     }
     
     /**
-     * Gets the DeclaredType of the generated class.
-     * </br>
-     * The <code>DeclaredType</code> is a wrapper around the <code>Type</code> of the class
-     * currently being generated. 
-     * 
-     * The <code>DeclaredType</code> represents the class, such as may be used when accessing
-     * a static member, while the <code>Type</code> represents a reference to an instance of the
-     * class that has been pushed onto the stack, such as may be used when accessing
-     * a non static member.
-     * 
-     * @see #getClassType()
-     * @return the ClassType of the generated class
-     */
-    public DeclaredType getDeclaredType()
-    {
-        if (thisDeclaredType == null)
-            thisDeclaredType = getFactory().createDeclaredTypeMaker(this);
-        return thisDeclaredType;
-    }
-
-    /**
-     * Gets the DeclaredType of the given Type.
-     * </br>
-     * The <code>DeclaredType</code> is a wrapper around the <code>Type</code> of the class
-     * currently being generated. 
-     * 
-     * The <code>DeclaredType</code> represents the class, such as may be used when accessing
-     * a static member, while the <code>Type</code> represents a reference to an instance of the
-     * class that has been pushed onto the stack, such as may be used when accessing
-     * a non static member.
-     * 
-     * @see #getClassType()
-     * @param type the Type to be converted to a DeclaredType
-     * @return the ClassType of the generated class
-     */
-    public DeclaredType getDeclaredType(Type type)
-    {
-        return getFactory().typeToDeclaredType(type);
-    }
-
-    /**
-     * Generates a ClassType for the super class of the generated class.
-     * </br>
-     * The default super class is <code>java.lang.Object</code>.
-     * @return the ClassType of the super class
-     */
-    protected DeclaredType defaultSuperClass()
-    {
-        return getDeclaredType(ClassType.OBJECT_TYPE);
-    }
-
-    /**
-     * Sets the ClassType for the super class of the generated class.
-     * @param classType the ClassType of the super class
-     */
-    protected void setSuperClass(DeclaredType classType)
-    {
-        superClass = classType;
-    }
-
-    /**
      * Gets the ClassType for the super class of the generated class.
      * </br>
      * Generates a default ClassType if one has not been set explicitly.
@@ -642,10 +573,6 @@ public class ClassMaker implements ClassMakerIfc
 
             getClassType().setExtendsType(classType);
         }
-        // FIXME setSuperType(classType);
-        DeclaredType declared = stringToDeclaredType(className);
-        setSuperClass(declared);
-
     }
 
     /**
@@ -665,8 +592,6 @@ public class ClassMaker implements ClassMakerIfc
         if (Modifier.isInterface(mod))
             throw createException("ClassMaker.CannotExtendInterface", javaClass.getName());
 
-        setSuperClass(classToDeclaredType(javaClass));
-            
         if (getPass() != ClassMaker.FIRST_PASS)
         {
             ClassType classType = classToClassType(javaClass);
@@ -1303,8 +1228,10 @@ public class ClassMaker implements ClassMakerIfc
     private void defineClassType(ClassType classType)
     {
         // FIXME factory.defineClassType(classType);
-        DeclaredType declared = factory.typeToDeclaredType(classType);
-        declared.defineClass();
+        ClassMaker maker = factory.findClassMaker(classType.getName());
+        if (maker != null) {
+            maker.defineClass();
+        }
     }
     
     /**
@@ -1575,30 +1502,6 @@ public class ClassMaker implements ClassMakerIfc
             log.finest("Import " + javaClass.getName());
     }
 
-    // @Depricated
-    public DeclaredType stringToDeclaredClass(String className) throws ClassMakerException
-    {
-        DeclaredType declared = findDeclaredType(className);
-        if (declared == null || declared.getClassType() == null)
-        {
-            throw createException("ClassMaker.NoClassTypeCalled_1", className);
-        }
-        return declared;
-    }
-    
-    // @Depricated
-    public DeclaredType stringToDeclaredType(String typeName) throws ClassMakerException
-    {
-        // The alias table maps simple class names to ClassTypes.
-        DeclaredType declared = findDeclaredType(typeName);
-        if (declared == null)
-        {
-            throw createException("ClassMaker.NoTypeCalled_1", typeName);
-        }
-        return declared;
-    }
-    
-
     /**
      * Finds or creates a <code>ClassType</code> wrapper around a java <code>Class</code>.
      * </br>
@@ -1614,15 +1517,6 @@ public class ClassMaker implements ClassMakerIfc
         if (type.toClass() != null)
             return type.toClass();
         throw createException("ClassMaker.NotAClass_1", javaClass.getSimpleName());
-    }
-
-    // @Depricated
-    public DeclaredType classToDeclaredType(Class javaClass) throws ClassMakerException
-    {
-        DeclaredType declared = getFactory().classToDeclaredType(javaClass);
-        if (declared == null)
-            throw createException("ClassMaker.NotAType_1", javaClass.getSimpleName());
-        return declared;
     }
 
     /**
@@ -1673,19 +1567,16 @@ public class ClassMaker implements ClassMakerIfc
             String simpleName = className.substring(index+1);
             Type aliasType = importMap.get(simpleName);
             if (aliasType == null) {
-                //aliasMap.put(simpleName, new DeclaredType(classType));
                 importMap.put(simpleName, classType);
             } else {
                 // A clash of simple names exists so we must use fully qualified names.
                 if (!ClassType.NULL_TYPE.equals(aliasType))
                 {   // Use ClassType.NULL_TYPE as a marker to force fully qualified names.
-                    //aliasMap.put(simpleName, new DeclaredType(ClassType.NULL_TYPE));
                     importMap.put(simpleName, ClassType.NULL_TYPE);
                 }
             }
         }
         // Add the fully qualified class name to the alias map.
-        //aliasMap.put(className, new DeclaredType(classType));
         importMap.put(className, classType);
     }
 
@@ -2060,6 +1951,8 @@ public class ClassMaker implements ClassMakerIfc
 
     /**
      * Checks whether a method is currently being generated.
+     * Variables declared before the method body will be considered formal parameters.
+     * Variables declared outside of a method will be treated as member fields.
      * @return true if generating a method
      */
     boolean isInMethod()
@@ -2068,8 +1961,9 @@ public class ClassMaker implements ClassMakerIfc
     }
 
     /**
-     * Checks whther a method is currently being generated.
-     * @return true if generating a method
+     * Checks whether a method body is currently being generated.
+     * Variable declared in the method body will be considered local.
+     * @return true if generating a method body
      */
     boolean isInBody()
     {
@@ -3162,44 +3056,6 @@ public class ClassMaker implements ClassMakerIfc
         if (field == null)
             throw createException("ClassMaker.CannotFindMemberFieldInClass_2", classType.getName(), name);
         return field;
-    }
-    
-    // @Depricated
-    public DeclaredType findDeclaredType(String name)
-    {
-        assertNotNull(name, "name");
-        // The alias table maps simple class names to ClassTypes.
-        DeclaredType declared = getAliasMapDeclared(name);
-        if (declared == null)
-            declared = getPackageDeclared(name);
-        if (declared == null)
-            declared = getFactory().stringToDeclaredType(name);
-        return declared;
-    }
-    
-    // @Depricated
-    DeclaredType getPackageDeclared(String className) throws ClassMakerException
-    {
-        DeclaredType declaredType = null;
-        if (packageName != null && !"".equals(packageName))
-        {
-            String classNameFQ = packageName + "." + className;
-            declaredType = getFactory().stringToDeclaredType(classNameFQ);
-        }
-        return declaredType;
-    }
-
-    // @Depricated
-    DeclaredType getAliasMapDeclared(String className) throws ClassMakerException
-    {
-        DeclaredType declaredType = aliasMap.get(toDotName(className));
-        if (declaredType != null)
-        {
-            // The alias map uses NULL_TYPE if more than one class with the same simple class name has been imported.
-            if (ClassType.NULL_TYPE.equals(declaredType.getType()))
-                throw createException("ClassMaker.MustUseFullyQualifiedClassName_1", className);
-        }
-        return declaredType;
     }
     
     public Type findType(String name)
@@ -5709,12 +5565,6 @@ public class ClassMaker implements ClassMakerIfc
         return getFactory().typeToArray(type);
     }
     
-    public DeclaredType ArrayOf(DeclaredType declared)
-    {
-        Type type = getFactory().typeToArray(declared.getType());
-        return getFactory().typeToDeclaredType(type);
-    }
-
     /**
      * Gets a value from an array element.
      * </br>

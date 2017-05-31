@@ -141,7 +141,7 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
 
     public void Return(AstExpression expr)
     {
-        Value type = expr.resolveType(visitor);
+        Value type = expr.resolveValue(visitor);
         maker.Return(type);
     }
 
@@ -152,13 +152,13 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
 
     public void Eval(AstExpression expr)
     {
-        Value type = expr.resolveType(visitor);
+        Value type = expr.resolveValue(visitor);
         maker.Eval(type);
     }
 
     public Labelled If(AstExpression condition)
     {
-        Value type = condition.resolveType(visitor);
+        Value type = condition.resolveValue(visitor);
         Labelled labeller = maker.If(type);
         return labeller;
     }
@@ -176,7 +176,7 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
     public Labelled While(AstExpression condition)
     {
         Labelled label = maker.Loop();
-        Value type = condition.resolveType(visitor);
+        Value type = condition.resolveValue(visitor);
         maker.While(type);
         return label;
     }
@@ -188,11 +188,11 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
 
     public Labelled For(AstExpression initialise, AstExpression condition, AstExpression increment)
     {
-        Value type1 = (initialise == null) ? null : initialise.resolveType(visitor);
+        Value type1 = (initialise == null) ? null : initialise.resolveValue(visitor);
         ForWhile part1 = maker.For(type1);
-        Value type2 = (condition == null) ? null : condition.resolveType(visitor);
+        Value type2 = (condition == null) ? null : condition.resolveValue(visitor);
         ForStep part2 = part1.While(type2);
-        Value type3 = (increment == null) ? null : increment.resolveType(visitor);
+        Value type3 = (increment == null) ? null : increment.resolveValue(visitor);
         Labelled part3 = part2.Step(type3);
         return part3;
     }
@@ -224,7 +224,7 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
 
     public Labelled Switch(AstExpression expr)
     {
-        Value type = expr.resolveType(visitor);
+        Value type = expr.resolveValue(visitor);
         Labelled labeller = maker.Switch(type);
         return labeller;
     }

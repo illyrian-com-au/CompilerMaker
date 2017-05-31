@@ -27,8 +27,6 @@
 
 package au.com.illyrian.classmaker.ast;
 
-import au.com.illyrian.classmaker.SourceLine;
-import au.com.illyrian.jesub.ast.AstStructureLink;
 
 public class AstExpressionFactory 
 {

@@ -4,7 +4,6 @@ package au.com.illyrian.domainparser;
 import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParseModule;
-import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.InvokeParser;
 import au.com.illyrian.parser.impl.Latin1Lexer;

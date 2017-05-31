@@ -7,14 +7,10 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import au.com.illyrian.bnf.BnfParser;
-import au.com.illyrian.bnf.ast.BnfMergeVisitor;
-import au.com.illyrian.bnf.ast.BnfTree;
-import au.com.illyrian.bnf.ast.BnfTreeFactory;
-import au.com.illyrian.bnf.ast.BnfTreeName;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.TokenType;
-import au.com.illyrian.parser.impl.ModuleContext;
 import au.com.illyrian.parser.impl.LexerInputStream;
+import au.com.illyrian.parser.impl.ModuleContext;
 import au.com.illyrian.test.StringReadWriter;
 
 public class AstMergeVisitorTest extends TestCase

@@ -4,7 +4,6 @@ import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.ClassMaker.Initialiser;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.ArrayType;
-import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
 
@@ -515,11 +514,6 @@ public interface ClassMakerIfc
     public MakerField Find(String name) throws ClassMakerException;
 
     public Type findType(String typeName) throws ClassMakerException;
-    public DeclaredType findDeclaredType(String typeName) throws ClassMakerException;
-
-    public DeclaredType stringToDeclaredClass(String typeName) throws ClassMakerException;
-    
-    public DeclaredType classToDeclaredType(Class javaClass) throws ClassMakerException;
 
     public MakerField findField(String name) throws ClassMakerException;
     
@@ -635,7 +629,7 @@ public interface ClassMakerIfc
     /**
      * Test whether the given reference is of the specified type.
      * @param reference the reference to be tested
-     * @param declared the DeclaredType to be tested against
+     * @param type the Type to be tested against
      * @return true if the instance is of the specified type; otherwise false 
      */
     public Value InstanceOf(Value reference, String target);
@@ -1017,9 +1011,6 @@ public interface ClassMakerIfc
      * @return an <code>Value</code> whose elements are of the given class
      */
     public ArrayType ArrayOf(String typeName);
-
-    // @Depricated
-    public DeclaredType ArrayOf(DeclaredType type);
 
     /**
      * Finds a type representing an array of the given type.

@@ -25,7 +25,6 @@ import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
 import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
@@ -158,8 +157,8 @@ public class BnfMakerVisitor extends AstExpressionVisitor
     public Type resolveDeclaration(BnfTreeTarget target)
     {
         String typeName = target.getType();
-        DeclaredType declared = getMaker().stringToDeclaredClass(typeName);
-        return declared.getType();
+        Type type = getMaker().findType(typeName);
+        return type;
     }
 
     public Type resolveDeclaration(BnfTreeName target)
@@ -429,7 +428,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
 
     public Value resolveType(BnfTreeAction tree)
     {
-        return tree.getExpression().resolveType(this);
+        return tree.getExpression().resolveValue(this);
     }
 
     public Value resolveType(AstExpression tree)

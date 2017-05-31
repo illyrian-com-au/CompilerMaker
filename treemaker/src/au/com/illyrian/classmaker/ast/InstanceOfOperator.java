@@ -48,9 +48,9 @@ public class InstanceOfOperator extends AstExpressionBase
         rightOperand = right;
     }
     
-    public Value resolveType(AstExpressionVisitor visitor)
+    public Value resolveValue(AstExpressionVisitor visitor)
     {
-        return visitor.resolveType(this);
+        return visitor.resolveValue(this);
     }
     
     public AstExpression getLeftOperand()

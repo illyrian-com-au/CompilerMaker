@@ -3,7 +3,6 @@ package au.com.illyrian.classmaker;
 import org.mozilla.classfile.ByteCode;
 
 import au.com.illyrian.classmaker.types.PrimitiveType;
-import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
 
 /**

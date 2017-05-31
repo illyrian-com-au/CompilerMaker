@@ -11,7 +11,6 @@ import au.com.illyrian.classmaker.ClassMaker.Initialiser;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
@@ -296,14 +295,6 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         }
     }
 
-    public DeclaredType stringToDeclaredClass(String typeName) {
-        DeclaredType declared = findDeclaredType(typeName);
-        if (declared == null) {
-            throw new IllegalArgumentException("Unknown type: " + typeName);
-        }
-        return declared;
-    }
-
     public Type findTypeOfValue(String name) throws ClassMakerException {
         if ("x".equals(name) || "y".equals(name) || "z".equals(name))
             return ClassType.OBJECT_TYPE;
@@ -339,30 +330,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         }
     }
     
-    public DeclaredType findDeclaredType(String typeName)
-            throws ClassMakerException {
-        if (typeName.endsWith("Object"))
-            return new DeclaredType(ClassType.OBJECT_TYPE);
-        else if (typeName.endsWith("String"))
-            return new DeclaredType(ClassType.STRING_TYPE);
-        else if (typeName.endsWith("StringBuffer"))
-            return new DeclaredType(ClassType.STRING_BUFFER_TYPE);
-        else if (typeName.equals("int"))
-            return new DeclaredType(PrimitiveType.INT_TYPE);
-        else {
-            Type type = findType(typeName);
-            if (type != null)
-                return new DeclaredType(type);
-        }
-        return null;
-    }
-
-    public DeclaredType classToDeclaredType(Class javaClass) throws ClassMakerException
-    {
-        return factory.classToDeclaredType(javaClass); 
-    }
-    
-    @Override
+     @Override
     public MakerField findField(String name) throws ClassMakerException {
         return Find(name);
     }
@@ -485,7 +453,6 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     @Override
     public Value InstanceOf(Value reference, String target) {
         String ref = stack.pop();
-        DeclaredType result = findDeclaredType(target);
         stack.push("InstanceOf(" + ref + ", \"" + target + "\")");
         return PrimitiveType.BOOLEAN_TYPE.getValue();
     }
@@ -726,11 +693,6 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     public ArrayType ArrayOf(String typeName) {
         Type declared = this.findType(typeName);
         return ArrayOf(declared);
-    }
-
-    @Override
-    public DeclaredType ArrayOf(DeclaredType type) {
-        return new DeclaredType(ArrayOf(type.getType()));
     }
 
     public ArrayType ArrayOf(Type type) {

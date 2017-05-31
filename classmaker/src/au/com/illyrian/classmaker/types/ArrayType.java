@@ -27,7 +27,6 @@
 
 package au.com.illyrian.classmaker.types;
 
-import au.com.illyrian.classmaker.ClassMaker;
 
 /**
  * The class for representing all array types in ClassMaker.

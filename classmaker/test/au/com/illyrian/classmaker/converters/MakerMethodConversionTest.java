@@ -209,11 +209,11 @@ public class MakerMethodConversionTest extends ClassMakerTestCase
 
         protected void addLocalClasses()
         {
-            addTypeAndDeclaredType(DESSERT); 
-            addTypeAndDeclaredType(CAKE);
-            addTypeAndDeclaredType(SCONE);
-            addTypeAndDeclaredType(CHOCOLATE_CAKE);
-            addTypeAndDeclaredType(BUTTERED_SCONE);
+            addType(DESSERT); 
+            addType(CAKE);
+            addType(SCONE);
+            addType(CHOCOLATE_CAKE);
+            addType(BUTTERED_SCONE);
 
             OBJECT_ARRAY  = addArrayOfType(ClassType.OBJECT_TYPE);
             DESSERT_ARRAY = addArrayOfType(DESSERT);

@@ -44,8 +44,6 @@ import au.com.illyrian.classmaker.members.MakerMethod;
 import au.com.illyrian.classmaker.members.MethodResolver;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.DeclaredType;
-import au.com.illyrian.classmaker.types.DeclaredTypeMaker;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 
@@ -72,12 +70,11 @@ public class ClassMakerFactory
 {
     private SimpleClassLoader loader = null;
     private HashMap<String, Type>         typeMap = new HashMap<String, Type>();
-    private HashMap<String, DeclaredType> declaredMap = new HashMap<String, DeclaredType>();
+    private HashMap<String, ClassMaker> classMakerMap = new HashMap<String, ClassMaker>();
 
     /** An empty prototype array of <code>Type</code> that may be provided to <code>Collection.toArray(Object[])</code>. */
     public static final Type[] TYPE_ARRAY = new Type[0];
     /** An empty prototype array of <code>ClassType</code>  that may be provided to <code>Collection.toArray(Object[])</code>. */
-    public static final DeclaredType[] DECLARED_TYPE_ARRAY = new DeclaredType[0];
     public static final ClassType[] CLASS_TYPE_ARRAY = new ClassType[0];
     /** An empty prototype array of <code>MakerMethod</code> that may be provided to <code>Collection.toArray(Object[])</code>. */
     public static final MakerMethod[] METHOD_ARRAY = new MakerMethod[0];
@@ -223,18 +220,14 @@ public class ClassMakerFactory
     {
         return typeMap.put(name, type);
     }
-
-    private DeclaredType getDeclaredType(String name)
-    {
-        return declaredMap.get(name);
+    
+    public ClassMaker findClassMaker(String className) {
+        return classMakerMap.get(className);
     }
-
-    private DeclaredType putDeclaredType(String name, DeclaredType declared)
-    {
-        Type type = getType(declared.getName());
-        if (type == null)
-            throw new IllegalArgumentException("DeclaredType is unknown as Type: " + declared.getName());
-        return declaredMap.put(name, declared);
+    
+    public void addClassMaker(ClassMaker maker) {
+        String className = maker.defaultFullyQualifiedClassName();
+        classMakerMap.put(className, maker);
     }
 
     public int incAnonomousClass()
@@ -245,29 +238,29 @@ public class ClassMakerFactory
     /** Adds all the standard PrimitiveTypes */
     protected void addPrimitives()
     {
-        addTypeAndDeclaredType(PrimitiveType.VOID_TYPE);
-        addTypeAndDeclaredType(PrimitiveType.BYTE_TYPE);
-        addTypeAndDeclaredType(PrimitiveType.CHAR_TYPE);
-        addTypeAndDeclaredType(PrimitiveType.DOUBLE_TYPE);
-        addTypeAndDeclaredType(PrimitiveType.FLOAT_TYPE);
-        addTypeAndDeclaredType(PrimitiveType.INT_TYPE);
-        addTypeAndDeclaredType(PrimitiveType.LONG_TYPE);
-        addTypeAndDeclaredType(PrimitiveType.SHORT_TYPE);
-        addTypeAndDeclaredType(PrimitiveType.BOOLEAN_TYPE);
+        addType(PrimitiveType.VOID_TYPE);
+        addType(PrimitiveType.BYTE_TYPE);
+        addType(PrimitiveType.CHAR_TYPE);
+        addType(PrimitiveType.DOUBLE_TYPE);
+        addType(PrimitiveType.FLOAT_TYPE);
+        addType(PrimitiveType.INT_TYPE);
+        addType(PrimitiveType.LONG_TYPE);
+        addType(PrimitiveType.SHORT_TYPE);
+        addType(PrimitiveType.BOOLEAN_TYPE);
     }
 
     /** Adds important Types representing standard java classes */
     protected void addStandardClasses()
     {
         // Prime the first objects in classTypeToString
-        addTypeAndDeclaredType(ClassType.NULL_TYPE);
-        addTypeAndDeclaredType(ClassType.OBJECT_TYPE);
-        addTypeAndDeclaredType(ClassType.STRING_TYPE);
-        addTypeAndDeclaredType(ClassType.AUTO_STRING_TYPE);
-        addTypeAndDeclaredType(ClassType.STRING_BUFFER_TYPE);
-        addTypeAndDeclaredType(ClassType.CLONEABLE_TYPE);
-        addTypeAndDeclaredType(ClassType.THROWABLE_TYPE);
-        addTypeAndDeclaredType(ClassType.CLASS_TYPE);
+        addType(ClassType.NULL_TYPE);
+        addType(ClassType.OBJECT_TYPE);
+        addType(ClassType.STRING_TYPE);
+        addType(ClassType.AUTO_STRING_TYPE);
+        addType(ClassType.STRING_BUFFER_TYPE);
+        addType(ClassType.CLONEABLE_TYPE);
+        addType(ClassType.THROWABLE_TYPE);
+        addType(ClassType.CLASS_TYPE);
     }
 
     /**
@@ -281,21 +274,19 @@ public class ClassMakerFactory
     protected PrimitiveType addPrimitiveType(int index, String name, String signature, Class javaClass)
     {
         PrimitiveType prim = new PrimitiveType(index, name, signature, javaClass);
-        addTypeAndDeclaredType(prim);
+        addType(prim);
         return prim;
     }
 
     /**
-     * Adds the Type to the type map and maps an equivalent DeclaredType.
+     * Adds the Type to the type map.
      * <br/>
      * @param type the Type to be mapped for future lookups 
      */
-    protected void addTypeAndDeclaredType(Type type)
+    protected void addType(Type type)
     {
         String name = type.getName();
         putType(name, type);
-        DeclaredType declared = new DeclaredType(type);
-        putDeclaredType(name, declared);
     }
 
     /**
@@ -312,17 +303,17 @@ public class ClassMakerFactory
         if (javaClass.isPrimitive()) // Should not get here
             throw new IllegalArgumentException(javaClass.getName() + " is not a class");
         ClassType type = new ClassType(javaClass);
-        addTypeAndDeclaredType(type);
+        addType(type);
         return type;
     }
     
-    protected DeclaredTypeMaker createDeclaredTypeMaker(ClassMaker maker)
-    {
-        DeclaredTypeMaker declared = new DeclaredTypeMaker(maker);
-        // Bypass check that Type exists.
-        declaredMap.put(maker.getFullyQualifiedClassName(), declared);
-        return declared;
-    }
+//    protected DeclaredTypeMaker createDeclaredTypeMaker(ClassMaker maker)
+//    {
+//        DeclaredTypeMaker declared = new DeclaredTypeMaker(maker);
+//        // Bypass check that Type exists.
+//        declaredMap.put(maker.getFullyQualifiedClassName(), declared);
+//        return declared;
+//    }
 
     /**
      * Fetches the ArrayType that holds the given element Type.
@@ -353,8 +344,6 @@ public class ClassMakerFactory
         String signature = "[" + arrayOfType.getSignature();
         ArrayType element = new ArrayType(name, signature, arrayOfType);
         putType(name, element);
-        DeclaredType declared = new DeclaredType(element);
-        putDeclaredType(name, declared);
         return element;
     }
 
@@ -372,8 +361,6 @@ public class ClassMakerFactory
         Type element = classToType(javaClass.getComponentType());
         ArrayType array = new ArrayType(name, signature, element);
         putType(name, array);
-        DeclaredType declared = new DeclaredType(array);
-        putDeclaredType(name, declared);
         return array;
     }
 
@@ -392,21 +379,6 @@ public class ClassMakerFactory
             return addArrayType(javaClass);
         else
             return addClassType(javaClass);
-    }
-    
-    public DeclaredType classToDeclaredType(Class javaClass)
-    {
-        Type type = classToType(javaClass);
-        DeclaredType declared = getDeclaredType(type.getName());
-        return declared;
-    }
-    
-    public DeclaredType typeToDeclaredType(Type type)
-    {
-        DeclaredType declared = getDeclaredType(type.getName());
-        if (type != declared.getType())
-            throw new IllegalStateException(declared + " does not contain the same instance of " + type);
-        return declared;
     }
     
     /**
@@ -438,9 +410,10 @@ public class ClassMakerFactory
     	if (className.indexOf('.') == -1)
     	{
     	    type = loadClass("java.lang." + className);
-    	    if (type != null)
+    	    if (type != null) {
     	        // Add another alias using the short name for the class.
-    	        putDeclaredType(className, new DeclaredType(type));
+    	        putType(className, type);
+    	    }
     	}
     	return type;
     }
@@ -462,17 +435,6 @@ public class ClassMakerFactory
         return type;
     }
     
-    public DeclaredType stringToDeclaredType(String typeName)
-    {
-        DeclaredType declared = getDeclaredType(typeName);
-        if (declared == null)
-        {
-            if (stringToType(typeName) != null)
-                declared = getDeclaredType(typeName);
-        }
-        return declared;
-    }
-
     /**
      * Creates a <code>ClassType</code> populated with methods declared in the given java class.
      * </br>
@@ -647,9 +609,8 @@ public class ClassMakerFactory
         // Add interface methods
         for (ClassType ifaceType : interfaces)
         {
-            //ClassType ifaceType = declared.getClassType();
             if (ifaceType == null)
-                throw new IllegalArgumentException("DeclaredType must refer to an interface");
+                throw new IllegalArgumentException("Type must refer to an interface");
             addMethods(allMethods, ifaceType.getMethods());
             // Recursively add methods from extended interfaces
             addInterfaceMethods(allMethods, ifaceType.getInterfaces());

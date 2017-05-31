@@ -201,9 +201,9 @@ public final class TerminalNumber extends AstExpressionBase
         return size;
     }
     
-    public Value resolveType(AstExpressionVisitor visitor)
+    public Value resolveValue(AstExpressionVisitor visitor)
     {
-        return visitor.resolveType(this);
+        return visitor.resolveValue(this);
     }
     
     public String toString()

@@ -31,7 +31,6 @@ import org.mozilla.classfile.ByteCode;
 
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.DeclaredType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 
 public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode

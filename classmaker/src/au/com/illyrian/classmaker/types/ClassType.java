@@ -58,7 +58,6 @@ public class ClassType extends Type {
     /** Reference to <code>Class</code> type */
     public static final ClassType CLASS_TYPE = new ClassType(Class.class);
 
-    private DeclaredType    extendsDeclaredType = null;
     private ClassType       extendsType = null;
     private String          packageName = null;
     private ClassType    [] interfaces = null;
@@ -230,16 +229,7 @@ public class ClassType extends Type {
         return (getModifiers() & ClassMaker.ACC_INTERFACE) == ClassMaker.ACC_INTERFACE;
     }
 
-    /**
-     * The base class for this class.
-     * @return the <code>ClassType</code> for the base class
-     */
-    public DeclaredType getExtendsDeclaredType()
-    {
-    	return extendsDeclaredType;
-    }
-
-    /**
+     /**
      * The base class for this class.
      * @return the <code>ClassType</code> for the base class
      */
