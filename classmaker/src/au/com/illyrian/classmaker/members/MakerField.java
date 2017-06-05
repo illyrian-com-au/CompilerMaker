@@ -30,6 +30,7 @@ package au.com.illyrian.classmaker.members;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.types.Value;
 
 /**
  * Retains information about fields created in a ClassMaker instance.
@@ -95,17 +96,20 @@ public class MakerField
         this.type = type;
         this.modifiers = modifiers;
     }
-    
-    public boolean isLvalue()
-    {
-        return true;
-    }
-    
+
+    /**
+     * Indicates this field is a local variable
+     * @return true if this field is a local variable
+     */
     public boolean isLocal()
     {
         return getScopeLevel() > 0;
     }
 
+    /**
+     * Indicates this field is a static variable
+     * @return true if this field is a static variable
+     */
     public boolean isStatic()
     {
         return (getModifiers() & ClassMaker.ACC_STATIC) == ClassMaker.ACC_STATIC;
@@ -129,12 +133,13 @@ public class MakerField
     	return type;
     }
     
-    public MakerField toField()
+    /** A representation of the Value held by this field. */
+    public Value getValue()
     {
-        return this;
+        return type.getValue();
     }
-
-    /** The modifiers for the variable or variable.
+    
+    /** The modifiers for the variable or field.
      * </br>
      *  See the constructors for valid modifiers.
      * @return A bit-set of modifiers for the variable or field

@@ -364,40 +364,6 @@ public interface ClassMakerIfc
     public Value Assign(String className, String fieldName, Value value) throws ClassMakerException;
 
     /**
-     * Sets a member variable to the value.
-     * </br>
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr><td>Java code</td><td>ClassMaker code</td></tr>
-     * <tr><td><code>obj.i = a;<code></td>
-     * <td><code>Eval(Set(Find("obj"), "i", Get("a")));</code></td></tr>
-     * </table>
-     * The value is subject to assignment conversion before it is set.
-     * @param type the type of the class containing the variable
-     * @param fieldName the name of the member variable
-     * @param valueType the type of the value to be set
-     * @return a <code>Value</code> representing <code>void</code>
-     */
-//    public Value Assign(Value lvalue, Value value) throws ClassMakerException;
-
-    /**
-     * Sets a member variable to the value.
-     * </br>
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr><td>Java code</td><td>ClassMaker code</td></tr>
-     * <tr><td><code>obj.i = a;<code></td>
-     * <td><code>Eval(Set(Find("obj"), "i", Get("a")));</code></td></tr>
-     * </table>
-     * The value is subject to assignment conversion before it is set.
-     * @param type the type of the class containing the variable
-     * @param fieldName the name of the member variable
-     * @param valueType the type of the value to be set
-     * @return a <code>Value</code> representing <code>void</code>
-     */
-   // public Value Set(Value lvalue, Value value) throws ClassMakerException;
-
-    /**
      * Sets the value on top of the stack to the named local variable or formal parameter.
      * </br>
      * The following code is equivalent.

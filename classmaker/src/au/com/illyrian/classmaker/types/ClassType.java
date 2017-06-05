@@ -74,6 +74,11 @@ public class ClassType extends Type {
         setModifiers(javaClass.getModifiers());
     }
     
+    /**
+     * Constructor for a <code>ClassType</code>.
+     * @param className the name of the class
+     * @param extendsType the <code>ClassType</code> of the base class
+     */
     public ClassType(String className)
     {
         this(className, toSignature(className), null);
@@ -103,7 +108,7 @@ public class ClassType extends Type {
     }
 
     
-    private static String toSignature(String className)
+    protected static String toSignature(String className)
     {
         return "L" + ClassMaker.toSlashName(className) + ";";
     }
@@ -159,14 +164,6 @@ public class ClassType extends Type {
     }
     
     /** Sets the list of interfaces implemented by this class. */
-//    public void setInterfaces(DeclaredType [] declaredInterfaces)
-//    {
-//        int len = declaredInterfaces.length;
-//        interfaces = new ClassType [len];
-//        for (int i=0; i<len; i++) {
-//            interfaces[i] = declaredInterfaces[i].getClassType();
-//        }
-//    }
     public void setInterfaces(ClassType [] interfaces)
     {
         this.interfaces = interfaces;
@@ -184,6 +181,28 @@ public class ClassType extends Type {
     	this.constructors = constructors;
     }
     
+    /**
+     * Creates an array of constructor descriptors for the given java class.
+     * </br>
+     * Only constructors in the most explicit class are returned.
+     * @param classType the ClassType that holds information about the class
+     */
+//    public void populateJavaClassConstructors(ClassType classType)
+//    {
+//        Class javaClass = classType.getJavaClass();
+//        if (javaClass != null)
+//        {
+//            java.lang.reflect.Constructor [] construct = javaClass.getDeclaredConstructors();
+//                MakerMethod [] constructors = new MakerMethod[construct.length];
+//            for (int i = 0; i < construct.length; i++)
+//            {
+//                java.lang.reflect.Constructor javaMethod = construct[i];
+//                constructors[i] = toMethod(classType, javaMethod);
+//            }
+//            classType.setConstructors(constructors);
+//        }
+//    }
+
     /** The list of methods implemented by this class. */
     public MakerMethod [] getMethods()
     {

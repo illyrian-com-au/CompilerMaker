@@ -307,14 +307,6 @@ public class ClassMakerFactory
         return type;
     }
     
-//    protected DeclaredTypeMaker createDeclaredTypeMaker(ClassMaker maker)
-//    {
-//        DeclaredTypeMaker declared = new DeclaredTypeMaker(maker);
-//        // Bypass check that Type exists.
-//        declaredMap.put(maker.getFullyQualifiedClassName(), declared);
-//        return declared;
-//    }
-
     /**
      * Fetches the ArrayType that holds the given element Type.
      * </br>
