@@ -60,14 +60,15 @@ public class MakerBranchingTest extends ClassMakerTestCase implements SourceLine
     public void setUp()
     {
         factory = new ClassMakerFactory();
-        maker = factory.createClassMaker(this);
+        maker = factory.createClassMaker();
+        maker.setSourceLine(this);
         maker.setFullyQualifiedClassName("MyClass");
     }
 
     // Generate default constructor
     public void defaultConstructor() throws Exception
     {
-        maker.Method("<init>", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("<init>", ClassMakerFactory.VOID_TYPE, ClassMakerConstants.ACC_PUBLIC);
         maker.Begin();
           maker.Init(maker.Super(), null);
         maker.Return();
@@ -94,13 +95,13 @@ public class MakerBranchingTest extends ClassMakerTestCase implements SourceLine
         int binary(int x, int y);
     }
 
-    public class IfBranchMaker extends ClassMakerBase
+    public class IfBranchMaker extends ClassMakerCode
     {
         public void code()
         {
             Implements(Unary.class);
 
-            Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+            Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
             Declare("a", int.class, 0);
             Begin();
               If(LT(Get("a"), Literal(0)));
@@ -111,13 +112,13 @@ public class MakerBranchingTest extends ClassMakerTestCase implements SourceLine
         }
     }
 
-    public class IfElseBranchMaker extends ClassMakerBase
+    public class IfElseBranchMaker extends ClassMakerCode
     {
         public void code()
         {
             Implements(Unary.class);
 
-            Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+            Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
             Declare("a", int.class, 0);
             Begin();
               If(LT(Get("a"), Literal(0)));
@@ -135,11 +136,11 @@ public class MakerBranchingTest extends ClassMakerTestCase implements SourceLine
     {
         maker.Implements(Binary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(137);maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-nl();   maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+nl(137);maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+nl();   maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Begin();
 nl();     maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
 nl();     maker.If(maker.NE(maker.Get("a"), maker.Get("b")));
@@ -160,11 +161,11 @@ nl();   maker.End();
     {
         maker.Implements(Binary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(162);maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-nl();   maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+nl(162);maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+nl();   maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Begin();
 nl();     maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
 nl();     maker.If(maker.Literal(true));
@@ -183,11 +184,11 @@ nl();   maker.End();
     {
         maker.Implements(Binary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(185);  maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();     maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-nl();     maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+nl(185);  maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();     maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+nl();     maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
 nl();     maker.Begin();
 nl();       maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
 nl();       maker.If(maker.Literal(false));
@@ -205,16 +206,17 @@ nl();     maker.End();
     public void testIfElseBranch() throws Exception
     {
         factory = new ClassMakerFactory();
-        maker = factory.createClassMaker(this);
+        maker = factory.createClassMaker();
+        maker.setSourceLine(this);
         maker.setFullyQualifiedClassName("MyClass");
 
         maker.Implements(Binary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(212);  maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();     maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-nl();     maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+nl(212);  maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();     maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+nl();     maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
 nl();     maker.Begin();
 nl();       maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
 nl();       maker.If(maker.EQ(maker.Get("a"), maker.Get("b")));
@@ -236,16 +238,17 @@ nl();     maker.End();
     public void testAndThen() throws Exception
     {
         factory = new ClassMakerFactory();
-        maker = factory.createClassMaker(this);
+        maker = factory.createClassMaker();
+        maker.setSourceLine(this);
         maker.setFullyQualifiedClassName("MyClass");
 
         maker.Implements(Binary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(239);  maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();     maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-nl();     maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+nl(239);  maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();     maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+nl();     maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
 nl();     maker.Begin();
 nl();       maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
 nl();       maker.If(maker.Logic(maker.AndThen(maker.LT(maker.Literal(1), maker.Get("a"))),
@@ -269,11 +272,11 @@ nl();     maker.End();
     {
         maker.Implements(Binary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(263);     maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-nl();        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+nl(263);     maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+nl();        maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
 nl();        maker.Begin();
 nl();          maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
 nl();          maker.If(maker.Logic(maker.OrElse(maker.GT(maker.Literal(1), maker.Get("a"))),
@@ -297,9 +300,9 @@ nl();        maker.End();
     {
         maker.Implements(Binary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-        maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
         maker.Begin();
         try {
           maker.If(maker.Literal(1));
@@ -342,11 +345,11 @@ nl();        maker.End();
     {
         maker.Implements(Binary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-        maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+        maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+        maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
           maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
           // infix:  (a>1 && a<3) || (b=0)
@@ -380,11 +383,11 @@ nl();        maker.End();
     {
         maker.Implements(Binary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-        maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+        maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+        maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
           maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
           // infix:  (a>1 && a<3) || (b>0 && b<2)
@@ -419,11 +422,11 @@ nl();        maker.End();
     {
         maker.Implements(Binary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-        maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+        maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+        maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
           maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
           // infix:  (a<2 || a>2) && (b<1 || b>1)
@@ -458,11 +461,11 @@ nl();        maker.End();
     {
         maker.Implements(Binary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-        maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+        maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+        maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
           maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
           // infix:  (a<1 || a>3) && (b>2)
@@ -495,9 +498,9 @@ nl();        maker.End();
         maker.Implements(Binary.class);
         defaultConstructor();
 
-        maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+        maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+        maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
           maker.If(maker.LE(maker.Get("a"), maker.Get("b")));
             maker.Return(maker.Literal(2));
@@ -518,9 +521,9 @@ nl();        maker.End();
         maker.Implements(Binary.class);
         defaultConstructor();
 
-        maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+        maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+        maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
             try {
                 maker.Else();
@@ -535,7 +538,7 @@ nl();        maker.End();
                 assertEquals("EndIf without a matching If", ex.getMessage());
             }
             try {
-                maker.If(PrimitiveType.INT_TYPE.getValue());
+                maker.If(ClassMakerFactory.INT_TYPE.getValue());
                 fail("If(INT)");
             } catch (ClassMakerException ex) {
                 assertEquals("If condition must be type boolean, not int", ex.getMessage());
@@ -565,11 +568,11 @@ nl();        maker.End();
     {
         maker.Implements(Binary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-        maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-        maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+        maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+        maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
           maker.Set(maker.This(), "id", maker.Literal(5));
           maker.If(maker.GT(maker.Get("a"), maker.Get("b")));
@@ -594,8 +597,8 @@ nl();        maker.End();
         maker.Implements(UnaryObject.class);
         defaultConstructor();
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", ClassType.OBJECT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.OBJECT_TYPE, 0);
         maker.Begin();
           maker.If(maker.NE(maker.Get("a"), maker.Null()));
             maker.Return(maker.Literal(2));
@@ -616,8 +619,8 @@ nl();        maker.End();
         maker.Implements(UnaryObject.class);
         defaultConstructor();
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", ClassType.OBJECT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.OBJECT_TYPE, 0);
         maker.Begin();
           maker.If(maker.EQ(maker.Get("a"), maker.Null()));
             maker.Return(maker.Literal(1));
@@ -637,10 +640,10 @@ nl();        maker.End();
     {
         maker.Implements(Unary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
           maker.Eval(maker.Set(maker.This(), "id", maker.Literal(0)));
           maker.Loop();
@@ -668,10 +671,10 @@ nl();        maker.End();
     {
         maker.Implements(Unary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
           maker.Eval(maker.Set(maker.This(), "id", maker.Literal(0)));
           maker.Loop();
@@ -701,13 +704,13 @@ nl();        maker.End();
         assertEquals("Wrong value for exec.unary()", 12, exec.unary(8));
     }
 
-    public class LoopBreakMaker extends ClassMakerBase
+    public class LoopBreakMaker extends ClassMakerCode
     {
         public void code()
         {
             Implements(Unary.class);
 
-            Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+            Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
             Declare("n", int.class, 0);
             Begin();
               Declare("x", int.class, 0);
@@ -741,13 +744,13 @@ nl();        maker.End();
     }
 
     // FIXME - also  implement as calls to ClassMaker.
-    public class FactorialMaker extends ClassMakerBase
+    public class FactorialMaker extends ClassMakerCode
     {
         public void code()
         {
             Implements(Unary.class);
 
-            Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+            Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
             Declare("n", int.class, 0);
             Begin();
               Declare("x", int.class, 0);
@@ -762,13 +765,13 @@ nl();        maker.End();
         }
     }
 
-    public class LabelMaker extends ClassMakerBase
+    public class LabelMaker extends ClassMakerCode
     {
         public void code()
         {
             Implements(Unary.class);
 
-            Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+            Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
             Declare("n", int.class, 0);
             Begin();
               Declare("x", int.class, 0);
@@ -787,13 +790,13 @@ nl();        maker.End();
         }
     }
 
-    public class ForWhileStepMaker extends ClassMakerBase
+    public class ForWhileStepMaker extends ClassMakerCode
     {
         public void code()
         {
             Implements(Unary.class);
 
-            Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+            Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
             Declare("n", int.class, 0);
             Begin();
               Declare("x", int.class, 0);
@@ -805,13 +808,13 @@ nl();        maker.End();
         }
     }
 
-    public class ForWhileMaker extends ClassMakerBase
+    public class ForWhileMaker extends ClassMakerCode
     {
         public void code()
         {
             Implements(Unary.class);
 
-            Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+            Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
             Declare("n", int.class, 0);
             Begin();
               Declare("x", int.class, 0);
@@ -825,13 +828,13 @@ nl();        maker.End();
     }
 
 
-    public class ForMaker extends ClassMakerBase
+    public class ForMaker extends ClassMakerCode
     {
         public void code()
         {
             Implements(Unary.class);
 
-            Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+            Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
             Declare("n", int.class, 0);
             Begin();
               Declare("x", int.class, 0);
@@ -912,11 +915,11 @@ nl();        maker.End();
     	ClassMakerFactory factory = new ClassMakerFactory();
         ClassMaker maker = factory.createClassMaker();
 
-        maker.setClassModifiers(ClassMaker.ACC_PUBLIC);
+        maker.setClassModifiers(ClassMakerConstants.ACC_PUBLIC);
         maker.setFullyQualifiedClassName("Factorial");
         maker.Implements(Unary.class);
 
-        maker.Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("n", int.class, 0);
         maker.Begin();
 	        maker.Declare("x", int.class, 0);
@@ -947,13 +950,13 @@ nl();        maker.End();
         assertEquals("Wrong value for exec.unary()", 40320, exec.unary(8));
     }
 
-    public class ForWhileStepContinueMaker extends ClassMakerBase
+    public class ForWhileStepContinueMaker extends ClassMakerCode
     {
         public void code()
         {
             Implements(Unary.class);
 
-            Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+            Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
             Declare("n", int.class, 0);
             Begin();
               Declare("x", int.class, 0);
@@ -984,13 +987,13 @@ nl();        maker.End();
         assertEquals("Wrong value for exec.unary()", 12, exec.unary(6));
     }
 
-    public class ForWhileContinueMaker extends ClassMakerBase
+    public class ForWhileContinueMaker extends ClassMakerCode
     {
         public void code()
         {
             Implements(Unary.class);
 
-            Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+            Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
             Declare("n", int.class, 0);
             Begin();
               Declare("x", int.class, 0);
@@ -1023,13 +1026,13 @@ nl();        maker.End();
         assertEquals("Wrong value for exec.unary()", 12, exec.unary(6));
     }
 
-    public class ForContinueMaker extends ClassMakerBase
+    public class ForContinueMaker extends ClassMakerCode
     {
         public void code()
         {
             Implements(Unary.class);
 
-            Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+            Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
             Declare("n", int.class, 0);
             Begin();
               Declare("x", int.class, 0);
@@ -1071,7 +1074,7 @@ nl();        maker.End();
     	
         maker.Implements(Unary.class);
 
-        maker.Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("n", int.class, 0);
         maker.Begin();
         {
@@ -1115,10 +1118,10 @@ nl();        maker.End();
     {
         maker.Implements(Unary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(1049);    maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
+nl(1049);    maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
 nl();        maker.Begin();
 nl();          maker.Eval(maker.Set(maker.This(), "id", maker.Literal(0)));
 nl();          maker.Loop();
@@ -1144,10 +1147,10 @@ nl();        maker.End();
     {
         maker.Implements(Unary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
           try {
               maker.Break();
@@ -1162,7 +1165,7 @@ nl();        maker.End();
               assertEquals("Continue while not in a Loop", ex.getMessage());
           }
           try {
-              maker.While(PrimitiveType.BOOLEAN_TYPE.getValue());
+              maker.While(ClassMakerFactory.BOOLEAN_TYPE.getValue());
               fail("While without Loop");
           } catch (ClassMakerException ex) {
               assertEquals("While must be within a Loop", ex.getMessage());
@@ -1176,7 +1179,7 @@ nl();        maker.End();
 
           maker.Loop();
           try {
-              maker.While(PrimitiveType.INT_TYPE.getValue());
+              maker.While(ClassMakerFactory.INT_TYPE.getValue());
               fail("While(INT)");
           } catch (ClassMakerException ex) {
               assertEquals("While condition must be type boolean, not int", ex.getMessage());
@@ -1203,7 +1206,7 @@ nl();        maker.End();
               assertEquals("Continue while not in a Loop", ex.getMessage());
           }
           try {
-              maker.While(PrimitiveType.BOOLEAN_TYPE.getValue());
+              maker.While(ClassMakerFactory.BOOLEAN_TYPE.getValue());
               fail("While without Loop");
           } catch (ClassMakerException ex) {
               assertEquals("While must be within a Loop", ex.getMessage());
@@ -1229,10 +1232,10 @@ nl();        maker.End();
     {
         maker.Implements(Unary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
           try {
               maker.EndFor();
@@ -1241,9 +1244,9 @@ nl();        maker.End();
               assertEquals("EndFor without a matching For", ex.getMessage());
           }
 
-          maker.For(PrimitiveType.VOID_TYPE.getValue());
+          maker.For(ClassMakerFactory.VOID_TYPE.getValue());
           try {
-              maker.While(PrimitiveType.INT_TYPE.getValue());
+              maker.While(ClassMakerFactory.INT_TYPE.getValue());
               fail("While(INT)");
           } catch (ClassMakerException ex) {
               assertEquals("While condition must be type boolean, not int", ex.getMessage());
@@ -1260,31 +1263,31 @@ nl();        maker.End();
     {
         maker.Implements(Binary.class);
         defaultConstructor();
-        maker.Declare("id", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(1194);  maker.Method("binary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();     maker.Declare("a", PrimitiveType.INT_TYPE, 0);
-nl();     maker.Declare("b", PrimitiveType.INT_TYPE, 0);
+nl(1194);  maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();     maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
+nl();     maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
 nl();     maker.Begin();
 nl();       maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
-nl();       maker.Declare("c", PrimitiveType.INT_TYPE, 0);
+nl();       maker.Declare("c", ClassMakerFactory.INT_TYPE, 0);
 nl();       maker.Set("c", maker.Add(maker.Get("a"), maker.Get("b")));
 nl();       maker.If(maker.EQ(maker.Get("a"), maker.Get("b")));
 nl();       maker.Begin();
-nl();         maker.Declare("z", PrimitiveType.INT_TYPE, 0);
+nl();         maker.Declare("z", ClassMakerFactory.INT_TYPE, 0);
 nl();         maker.Set("z", maker.Literal(1024));
-nl();         maker.Declare("d", PrimitiveType.INT_TYPE, 0);
+nl();         maker.Declare("d", ClassMakerFactory.INT_TYPE, 0);
 nl();         maker.Set("d", maker.Assign("c", maker.Get("a")));
 nl();         maker.Eval(maker.Set(maker.This(), "id", maker.Literal(3)));
 nl();       maker.End();
 nl();       maker.Else();
 nl();       maker.Begin();
-nl();         maker.Declare("z", PrimitiveType.INT_TYPE, 0);
+nl();         maker.Declare("z", ClassMakerFactory.INT_TYPE, 0);
 nl();         maker.Set("z", maker.Assign("c", maker.Get("b")));
 nl();         maker.Eval(maker.Set(maker.This(), "id", maker.Literal(2)));
 nl();       maker.End();
 nl();       maker.EndIf();
-nl();       maker.Declare("f", PrimitiveType.INT_TYPE, 0);
+nl();       maker.Declare("f", ClassMakerFactory.INT_TYPE, 0);
 nl();       maker.Set("f", maker.Add(maker.Get("a"), maker.Get("b")));
 nl();       maker.Return(maker.Get("f"));
 nl();     maker.End();

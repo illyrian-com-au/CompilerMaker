@@ -3,6 +3,7 @@ package au.com.illyrian.jesub.maker;
 import java.io.IOException;
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
@@ -41,7 +42,7 @@ public class AstStatementMakerTest extends ClassMakerTestCase
     void createClass(String name, Class impl) throws Exception
     {
         maker.setPackageName("au.com.illyrian.jesub.ast");
-        maker.setClassModifiers(ClassMaker.ACC_PUBLIC);
+        maker.setClassModifiers(ClassMakerConstants.ACC_PUBLIC);
         maker.setSimpleClassName(name);
         maker.Implements(impl);
     }

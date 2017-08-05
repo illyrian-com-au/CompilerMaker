@@ -36,6 +36,7 @@ package au.com.illyrian.classmaker.types;
  *   <LI><code>void.class</code></LI>
  *   <LI><code>byte.class</code></LI>
  *   <LI><code>char.class</code></LI>
+ *   <LI><code>short.class</code></LI>
  *   <LI><code>int.class</code></LI>
  *   <LI><code>long.class</code></LI>
  *   <LI><code>float.class</code></LI>
@@ -66,24 +67,6 @@ public class PrimitiveType extends Type
     public static final int SHORT_INDEX = 7;
     /** Case index for <code>boolean</code> type */
     public static final int BOOLEAN_INDEX = 8;
-
-    public static final PrimitiveType VOID_TYPE = new PrimitiveType(VOID_INDEX, "void", "V", void.class);
-    /** Reference to <code>byte</code> type */
-    public static final PrimitiveType BYTE_TYPE = new PrimitiveType(BYTE_INDEX, "byte", "B", byte.class);
-    /** Reference to <code>char</code> type */
-    public static final PrimitiveType CHAR_TYPE = new PrimitiveType(CHAR_INDEX, "char", "C", char.class);
-    /** Reference to <code>double</code> type */
-    public static final PrimitiveType DOUBLE_TYPE = new PrimitiveType(DOUBLE_INDEX, "double", "D", double.class);
-    /** Reference to <code>float</code> type */
-    public static final PrimitiveType FLOAT_TYPE = new PrimitiveType(FLOAT_INDEX, "float", "F", float.class);
-    /** Reference to <code>int</code> type */
-    public static final PrimitiveType INT_TYPE = new PrimitiveType(INT_INDEX, "int", "I", int.class);
-    /** Reference to <code>long</code> type */
-    public static final PrimitiveType LONG_TYPE = new PrimitiveType(LONG_INDEX, "long", "J", long.class);
-    /** Reference to <code>short</code> type */
-    public static final PrimitiveType SHORT_TYPE = new PrimitiveType(SHORT_INDEX, "short", "S", short.class);
-    /** Reference to <code>boolean</code> type */
-    public static final PrimitiveType BOOLEAN_TYPE = new PrimitiveType(BOOLEAN_INDEX, "boolean", "Z", boolean.class);
 
     /** An index associated with the primitive type that can be used in case statements. */
     public final int    index;

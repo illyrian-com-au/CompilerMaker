@@ -29,6 +29,7 @@ package au.com.illyrian.classmaker.ast;
 
 import junit.framework.TestCase;
 import au.com.illyrian.classmaker.ClassMakerException;
+import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.ClassMakerText;
 import au.com.illyrian.classmaker.types.PrimitiveType;
@@ -55,7 +56,7 @@ public class ExpresssionDotOperatorTest extends TestCase
         Value type = ast.resolveValue(visitor);
         assertEquals("Wrong type", "PrimitiveType(int)", type.toString());
         assertEquals("Wrong output", "[Get(Get(Get(\"java.lang.Object\", \"y\"), \"z\"), \"a\")]", buf.toString());
-        assertTrue("Stack does not contain a Value", type == PrimitiveType.INT_TYPE.getValue());
+        assertTrue("Stack does not contain a Value", type == ClassMakerFactory.INT_TYPE.getValue());
     }
 
     public void testStaticGet_JavaLangObject_a()

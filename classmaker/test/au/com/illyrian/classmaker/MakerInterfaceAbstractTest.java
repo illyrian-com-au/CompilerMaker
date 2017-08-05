@@ -34,7 +34,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
     public void setUp() throws Exception
     {
         super.setUp();
-        ClassMakerBase.setSharedFactory(null);
+        ClassMakerCode.setSharedFactory(null);
     }
 
     public static class BaseClass
@@ -46,7 +46,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
         public void setId(int value) {}
     }
 
-    public static class DerivedClassMaker extends ClassMakerBase
+    public static class DerivedClassMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -91,7 +91,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
         public abstract void setId(int value);
     }
 
-    public static class FullClassMaker extends ClassMakerBase
+    public static class FullClassMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -150,7 +150,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
         public void setId(int value);
     }
 
-    public static class BaseGenClassMaker extends ClassMakerBase
+    public static class BaseGenClassMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -172,7 +172,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
         }
     }
 
-    public static class DerivedGenClassMaker extends ClassMakerBase
+    public static class DerivedGenClassMaker extends ClassMakerCode
     {
         Class base;
         public DerivedGenClassMaker(Class baseClass)
@@ -219,7 +219,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
         assertEquals("Wrong initial value for myObj.getId()", 2, exec.getId());
     }
 
-    public static class AbstractClassMaker extends ClassMakerBase
+    public static class AbstractClassMaker extends ClassMakerCode
     {
         public int getModifiers()
         {
@@ -241,7 +241,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
         }
     }
 
-    public static class DerivedAbstractClassMaker extends ClassMakerBase
+    public static class DerivedAbstractClassMaker extends ClassMakerCode
     {
         Class base;
         public DerivedAbstractClassMaker(Class baseClass)
@@ -289,7 +289,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
         assertEquals("ClassName ", ABSTRACT_CLASS_NAME, baseClass.getName());
    }
 
-    public static class IncompleteAbstractClassMaker extends ClassMakerBase
+    public static class IncompleteAbstractClassMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -327,7 +327,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
         }
     }
 
-    public static class InterfaceClassMaker extends ClassMakerBase
+    public static class InterfaceClassMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -345,7 +345,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
         int exec(int x);
     }
 
-    public static class ExecutorClassMaker extends ClassMakerBase
+    public static class ExecutorClassMaker extends ClassMakerCode
     {
         public ExecutorClassMaker(Class interfaceClass)
         {
@@ -396,7 +396,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
    }
 
 
-    public static class ExtendsExecutorClassMaker extends ClassMakerBase
+    public static class ExtendsExecutorClassMaker extends ClassMakerCode
     {
         public ExtendsExecutorClassMaker(Class interfaceClass)
         {
@@ -426,7 +426,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
         }
     }
 
-    public static class ExtendsInterfaceClassMaker extends ClassMakerBase
+    public static class ExtendsInterfaceClassMaker extends ClassMakerCode
     {
         private Class ifaceClass;
         public ExtendsInterfaceClassMaker(Class interfaceClass)
@@ -477,7 +477,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
     {
         ClassMakerFactory factory = new ClassMakerFactory();
         ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
-        maker.Method("test", void.class, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_ABSTRACT);
+        maker.Method("test", void.class, ClassMakerConstants.ACC_PUBLIC | ClassMakerConstants.ACC_ABSTRACT);
         try {
             maker.Begin();
             fail("Should throw ClassMakerException");
@@ -576,7 +576,8 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
                 "To late to set the class type. Call method setClassType earlier.", ex.getMessage());
         }
 
-        ClassMaker maker2 = factory.createClassMaker(this);
+        ClassMaker maker2 = factory.createClassMaker();
+        maker2.setSourceLine(this);
         try {
             maker2.setSourceFilename("Dummy.java");
             fail("Should throw ClassMakerException");

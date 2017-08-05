@@ -70,8 +70,8 @@ public class StringConversion implements Convertable, Assignable
      */
     public boolean isConvertable(Type left, Type right)
     {
-        return (ClassType.STRING_TYPE.equals(left) || ClassType.STRING_TYPE.equals(right)
-             || ClassType.AUTO_STRING_TYPE == left || ClassType.AUTO_STRING_TYPE == right);
+        return (ClassMakerFactory.STRING_TYPE.equals(left) || ClassMakerFactory.STRING_TYPE.equals(right)
+             || ClassMakerFactory.AUTO_STRING_TYPE == left || ClassMakerFactory.AUTO_STRING_TYPE == right);
     }
 
     /**
@@ -91,7 +91,7 @@ public class StringConversion implements Convertable, Assignable
         if (isConvertable(left, right))
         {
             ClassType buf;
-            if (ClassType.AUTO_STRING_TYPE == left)
+            if (ClassMakerFactory.AUTO_STRING_TYPE == left)
                 buf = left.toClass();
             else
             {
@@ -127,7 +127,7 @@ public class StringConversion implements Convertable, Assignable
      */
     public boolean isAssignable(Type source, Type target)
     {
-        return (ClassType.AUTO_STRING_TYPE == source  && ClassType.STRING_TYPE.equals(target));
+        return (ClassMakerFactory.AUTO_STRING_TYPE == source  && ClassMakerFactory.STRING_TYPE.equals(target));
     }
 
     /**
@@ -155,7 +155,7 @@ public class StringConversion implements Convertable, Assignable
     protected ClassType newStringBuffer(ClassMaker maker)
     {
         maker.New(StringBuffer.class).Init(null);
-        return ClassType.AUTO_STRING_TYPE;
+        return ClassMakerFactory.AUTO_STRING_TYPE;
     }
 
     /**
@@ -167,7 +167,7 @@ public class StringConversion implements Convertable, Assignable
      */
     protected ClassType append(ClassMaker maker, ClassType buffer, Type value)
     {
-        if (ClassType.AUTO_STRING_TYPE.equals(buffer))
+        if (ClassMakerFactory.AUTO_STRING_TYPE.equals(buffer))
         {
             maker.Call(buffer.getValue(), "append", maker.Push(value.getValue()));
             return buffer;
@@ -185,10 +185,10 @@ public class StringConversion implements Convertable, Assignable
      */
     public ClassType toString(ClassMaker maker, ClassType buffer)
     {
-        if (ClassType.AUTO_STRING_TYPE.equals(buffer))
+        if (ClassMakerFactory.AUTO_STRING_TYPE.equals(buffer))
         {
             maker.Call(buffer.getValue(), "toString", maker.Push());
-            return ClassType.STRING_TYPE;
+            return ClassMakerFactory.STRING_TYPE;
         }
         // Should not get here.
         throw new IllegalArgumentException("buffer parameter to append method must be an automatic StringBuffer");

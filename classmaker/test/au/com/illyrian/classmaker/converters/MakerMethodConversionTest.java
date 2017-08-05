@@ -51,7 +51,7 @@ public class MakerMethodConversionTest extends ClassMakerTestCase
     // Generate default constructor
     public void defaultConstructor(ClassMaker maker) throws Exception
     {
-        maker.Method("<init>", PrimitiveType.VOID_TYPE, ByteCode.ACC_PUBLIC);
+        maker.Method("<init>", ClassMakerFactory.VOID_TYPE, ByteCode.ACC_PUBLIC);
         maker.Begin();
           maker.Init(maker.Super(), null);
         maker.Return();
@@ -75,119 +75,119 @@ public class MakerMethodConversionTest extends ClassMakerTestCase
     public void testIsConvertablePrimitive()
     {
         // byte
-        isConvertable(true,  PrimitiveType.BYTE_TYPE, PrimitiveType.BYTE_TYPE);
-        isConvertable(false, PrimitiveType.BYTE_TYPE, PrimitiveType.CHAR_TYPE);
-        isConvertable(false, PrimitiveType.BYTE_TYPE, PrimitiveType.DOUBLE_TYPE);
-        isConvertable(false, PrimitiveType.BYTE_TYPE, PrimitiveType.FLOAT_TYPE);
-        isConvertable(true,  PrimitiveType.BYTE_TYPE, PrimitiveType.INT_TYPE);
-        isConvertable(false, PrimitiveType.BYTE_TYPE, PrimitiveType.LONG_TYPE);
-        isConvertable(true,  PrimitiveType.BYTE_TYPE, PrimitiveType.SHORT_TYPE);
-        isConvertable(false, PrimitiveType.BYTE_TYPE, PrimitiveType.BOOLEAN_TYPE);
+        isConvertable(true,  ClassMakerFactory.BYTE_TYPE, ClassMakerFactory.BYTE_TYPE);
+        isConvertable(false, ClassMakerFactory.BYTE_TYPE, ClassMakerFactory.CHAR_TYPE);
+        isConvertable(false, ClassMakerFactory.BYTE_TYPE, ClassMakerFactory.DOUBLE_TYPE);
+        isConvertable(false, ClassMakerFactory.BYTE_TYPE, ClassMakerFactory.FLOAT_TYPE);
+        isConvertable(true,  ClassMakerFactory.BYTE_TYPE, ClassMakerFactory.INT_TYPE);
+        isConvertable(false, ClassMakerFactory.BYTE_TYPE, ClassMakerFactory.LONG_TYPE);
+        isConvertable(true,  ClassMakerFactory.BYTE_TYPE, ClassMakerFactory.SHORT_TYPE);
+        isConvertable(false, ClassMakerFactory.BYTE_TYPE, ClassMakerFactory.BOOLEAN_TYPE);
 
         // char
-        isConvertable(false, PrimitiveType.CHAR_TYPE, PrimitiveType.BYTE_TYPE);
-        isConvertable(true,  PrimitiveType.CHAR_TYPE, PrimitiveType.CHAR_TYPE);
-        isConvertable(false, PrimitiveType.CHAR_TYPE, PrimitiveType.DOUBLE_TYPE);
-        isConvertable(false, PrimitiveType.CHAR_TYPE, PrimitiveType.FLOAT_TYPE);
-        isConvertable(true,  PrimitiveType.CHAR_TYPE, PrimitiveType.INT_TYPE);
-        isConvertable(false, PrimitiveType.CHAR_TYPE, PrimitiveType.LONG_TYPE);
-        isConvertable(false, PrimitiveType.CHAR_TYPE, PrimitiveType.SHORT_TYPE);
-        isConvertable(false, PrimitiveType.CHAR_TYPE, PrimitiveType.BOOLEAN_TYPE);
+        isConvertable(false, ClassMakerFactory.CHAR_TYPE, ClassMakerFactory.BYTE_TYPE);
+        isConvertable(true,  ClassMakerFactory.CHAR_TYPE, ClassMakerFactory.CHAR_TYPE);
+        isConvertable(false, ClassMakerFactory.CHAR_TYPE, ClassMakerFactory.DOUBLE_TYPE);
+        isConvertable(false, ClassMakerFactory.CHAR_TYPE, ClassMakerFactory.FLOAT_TYPE);
+        isConvertable(true,  ClassMakerFactory.CHAR_TYPE, ClassMakerFactory.INT_TYPE);
+        isConvertable(false, ClassMakerFactory.CHAR_TYPE, ClassMakerFactory.LONG_TYPE);
+        isConvertable(false, ClassMakerFactory.CHAR_TYPE, ClassMakerFactory.SHORT_TYPE);
+        isConvertable(false, ClassMakerFactory.CHAR_TYPE, ClassMakerFactory.BOOLEAN_TYPE);
 
         // double
-        isConvertable(false, PrimitiveType.DOUBLE_TYPE, PrimitiveType.BYTE_TYPE);
-        isConvertable(false, PrimitiveType.DOUBLE_TYPE, PrimitiveType.CHAR_TYPE);
-        isConvertable(true,  PrimitiveType.DOUBLE_TYPE, PrimitiveType.DOUBLE_TYPE);
-        isConvertable(false, PrimitiveType.DOUBLE_TYPE, PrimitiveType.FLOAT_TYPE);
-        isConvertable(false, PrimitiveType.DOUBLE_TYPE, PrimitiveType.INT_TYPE);
-        isConvertable(false, PrimitiveType.DOUBLE_TYPE, PrimitiveType.LONG_TYPE);
-        isConvertable(false, PrimitiveType.DOUBLE_TYPE, PrimitiveType.SHORT_TYPE);
-        isConvertable(false, PrimitiveType.DOUBLE_TYPE, PrimitiveType.BOOLEAN_TYPE);
+        isConvertable(false, ClassMakerFactory.DOUBLE_TYPE, ClassMakerFactory.BYTE_TYPE);
+        isConvertable(false, ClassMakerFactory.DOUBLE_TYPE, ClassMakerFactory.CHAR_TYPE);
+        isConvertable(true,  ClassMakerFactory.DOUBLE_TYPE, ClassMakerFactory.DOUBLE_TYPE);
+        isConvertable(false, ClassMakerFactory.DOUBLE_TYPE, ClassMakerFactory.FLOAT_TYPE);
+        isConvertable(false, ClassMakerFactory.DOUBLE_TYPE, ClassMakerFactory.INT_TYPE);
+        isConvertable(false, ClassMakerFactory.DOUBLE_TYPE, ClassMakerFactory.LONG_TYPE);
+        isConvertable(false, ClassMakerFactory.DOUBLE_TYPE, ClassMakerFactory.SHORT_TYPE);
+        isConvertable(false, ClassMakerFactory.DOUBLE_TYPE, ClassMakerFactory.BOOLEAN_TYPE);
 
         // float
-        isConvertable(false, PrimitiveType.FLOAT_TYPE, PrimitiveType.BYTE_TYPE);
-        isConvertable(false, PrimitiveType.FLOAT_TYPE, PrimitiveType.CHAR_TYPE);
-        isConvertable(false, PrimitiveType.FLOAT_TYPE, PrimitiveType.DOUBLE_TYPE);
-        isConvertable(true,  PrimitiveType.FLOAT_TYPE, PrimitiveType.FLOAT_TYPE);
-        isConvertable(false, PrimitiveType.FLOAT_TYPE, PrimitiveType.INT_TYPE);
-        isConvertable(false, PrimitiveType.FLOAT_TYPE, PrimitiveType.LONG_TYPE);
-        isConvertable(false, PrimitiveType.FLOAT_TYPE, PrimitiveType.SHORT_TYPE);
-        isConvertable(false, PrimitiveType.FLOAT_TYPE, PrimitiveType.BOOLEAN_TYPE);
+        isConvertable(false, ClassMakerFactory.FLOAT_TYPE, ClassMakerFactory.BYTE_TYPE);
+        isConvertable(false, ClassMakerFactory.FLOAT_TYPE, ClassMakerFactory.CHAR_TYPE);
+        isConvertable(false, ClassMakerFactory.FLOAT_TYPE, ClassMakerFactory.DOUBLE_TYPE);
+        isConvertable(true,  ClassMakerFactory.FLOAT_TYPE, ClassMakerFactory.FLOAT_TYPE);
+        isConvertable(false, ClassMakerFactory.FLOAT_TYPE, ClassMakerFactory.INT_TYPE);
+        isConvertable(false, ClassMakerFactory.FLOAT_TYPE, ClassMakerFactory.LONG_TYPE);
+        isConvertable(false, ClassMakerFactory.FLOAT_TYPE, ClassMakerFactory.SHORT_TYPE);
+        isConvertable(false, ClassMakerFactory.FLOAT_TYPE, ClassMakerFactory.BOOLEAN_TYPE);
 
         // int
-        isConvertable(false, PrimitiveType.INT_TYPE, PrimitiveType.BYTE_TYPE);
-        isConvertable(false, PrimitiveType.INT_TYPE, PrimitiveType.CHAR_TYPE);
-        isConvertable(false, PrimitiveType.INT_TYPE, PrimitiveType.DOUBLE_TYPE);
-        isConvertable(false, PrimitiveType.INT_TYPE, PrimitiveType.FLOAT_TYPE);
-        isConvertable(true,  PrimitiveType.INT_TYPE, PrimitiveType.INT_TYPE);
-        isConvertable(false, PrimitiveType.INT_TYPE, PrimitiveType.LONG_TYPE);
-        isConvertable(false, PrimitiveType.INT_TYPE, PrimitiveType.SHORT_TYPE);
-        isConvertable(false, PrimitiveType.INT_TYPE, PrimitiveType.BOOLEAN_TYPE);
+        isConvertable(false, ClassMakerFactory.INT_TYPE, ClassMakerFactory.BYTE_TYPE);
+        isConvertable(false, ClassMakerFactory.INT_TYPE, ClassMakerFactory.CHAR_TYPE);
+        isConvertable(false, ClassMakerFactory.INT_TYPE, ClassMakerFactory.DOUBLE_TYPE);
+        isConvertable(false, ClassMakerFactory.INT_TYPE, ClassMakerFactory.FLOAT_TYPE);
+        isConvertable(true,  ClassMakerFactory.INT_TYPE, ClassMakerFactory.INT_TYPE);
+        isConvertable(false, ClassMakerFactory.INT_TYPE, ClassMakerFactory.LONG_TYPE);
+        isConvertable(false, ClassMakerFactory.INT_TYPE, ClassMakerFactory.SHORT_TYPE);
+        isConvertable(false, ClassMakerFactory.INT_TYPE, ClassMakerFactory.BOOLEAN_TYPE);
 
         // long
-        isConvertable(false, PrimitiveType.LONG_TYPE, PrimitiveType.BYTE_TYPE);
-        isConvertable(false, PrimitiveType.LONG_TYPE, PrimitiveType.CHAR_TYPE);
-        isConvertable(false, PrimitiveType.LONG_TYPE, PrimitiveType.DOUBLE_TYPE);
-        isConvertable(false, PrimitiveType.LONG_TYPE, PrimitiveType.FLOAT_TYPE);
-        isConvertable(false, PrimitiveType.LONG_TYPE, PrimitiveType.INT_TYPE);
-        isConvertable(true,  PrimitiveType.LONG_TYPE, PrimitiveType.LONG_TYPE);
-        isConvertable(false, PrimitiveType.LONG_TYPE, PrimitiveType.SHORT_TYPE);
-        isConvertable(false, PrimitiveType.LONG_TYPE, PrimitiveType.BOOLEAN_TYPE);
+        isConvertable(false, ClassMakerFactory.LONG_TYPE, ClassMakerFactory.BYTE_TYPE);
+        isConvertable(false, ClassMakerFactory.LONG_TYPE, ClassMakerFactory.CHAR_TYPE);
+        isConvertable(false, ClassMakerFactory.LONG_TYPE, ClassMakerFactory.DOUBLE_TYPE);
+        isConvertable(false, ClassMakerFactory.LONG_TYPE, ClassMakerFactory.FLOAT_TYPE);
+        isConvertable(false, ClassMakerFactory.LONG_TYPE, ClassMakerFactory.INT_TYPE);
+        isConvertable(true,  ClassMakerFactory.LONG_TYPE, ClassMakerFactory.LONG_TYPE);
+        isConvertable(false, ClassMakerFactory.LONG_TYPE, ClassMakerFactory.SHORT_TYPE);
+        isConvertable(false, ClassMakerFactory.LONG_TYPE, ClassMakerFactory.BOOLEAN_TYPE);
 
         // short
-        isConvertable(false, PrimitiveType.SHORT_TYPE, PrimitiveType.BYTE_TYPE);
-        isConvertable(false, PrimitiveType.SHORT_TYPE, PrimitiveType.CHAR_TYPE);
-        isConvertable(false, PrimitiveType.SHORT_TYPE, PrimitiveType.DOUBLE_TYPE);
-        isConvertable(false, PrimitiveType.SHORT_TYPE, PrimitiveType.FLOAT_TYPE);
-        isConvertable(true,  PrimitiveType.SHORT_TYPE, PrimitiveType.INT_TYPE);
-        isConvertable(false, PrimitiveType.SHORT_TYPE, PrimitiveType.LONG_TYPE);
-        isConvertable(true,  PrimitiveType.SHORT_TYPE, PrimitiveType.SHORT_TYPE);
-        isConvertable(false, PrimitiveType.SHORT_TYPE, PrimitiveType.BOOLEAN_TYPE);
+        isConvertable(false, ClassMakerFactory.SHORT_TYPE, ClassMakerFactory.BYTE_TYPE);
+        isConvertable(false, ClassMakerFactory.SHORT_TYPE, ClassMakerFactory.CHAR_TYPE);
+        isConvertable(false, ClassMakerFactory.SHORT_TYPE, ClassMakerFactory.DOUBLE_TYPE);
+        isConvertable(false, ClassMakerFactory.SHORT_TYPE, ClassMakerFactory.FLOAT_TYPE);
+        isConvertable(true,  ClassMakerFactory.SHORT_TYPE, ClassMakerFactory.INT_TYPE);
+        isConvertable(false, ClassMakerFactory.SHORT_TYPE, ClassMakerFactory.LONG_TYPE);
+        isConvertable(true,  ClassMakerFactory.SHORT_TYPE, ClassMakerFactory.SHORT_TYPE);
+        isConvertable(false, ClassMakerFactory.SHORT_TYPE, ClassMakerFactory.BOOLEAN_TYPE);
 
         // boolean
-        isConvertable(false, PrimitiveType.BOOLEAN_TYPE, PrimitiveType.BYTE_TYPE);
-        isConvertable(false, PrimitiveType.BOOLEAN_TYPE, PrimitiveType.CHAR_TYPE);
-        isConvertable(false, PrimitiveType.BOOLEAN_TYPE, PrimitiveType.DOUBLE_TYPE);
-        isConvertable(false, PrimitiveType.BOOLEAN_TYPE, PrimitiveType.FLOAT_TYPE);
-        isConvertable(false, PrimitiveType.BOOLEAN_TYPE, PrimitiveType.INT_TYPE);
-        isConvertable(false, PrimitiveType.BOOLEAN_TYPE, PrimitiveType.LONG_TYPE);
-        isConvertable(false, PrimitiveType.BOOLEAN_TYPE, PrimitiveType.SHORT_TYPE);
-        isConvertable(true,  PrimitiveType.BOOLEAN_TYPE, PrimitiveType.BOOLEAN_TYPE);
+        isConvertable(false, ClassMakerFactory.BOOLEAN_TYPE, ClassMakerFactory.BYTE_TYPE);
+        isConvertable(false, ClassMakerFactory.BOOLEAN_TYPE, ClassMakerFactory.CHAR_TYPE);
+        isConvertable(false, ClassMakerFactory.BOOLEAN_TYPE, ClassMakerFactory.DOUBLE_TYPE);
+        isConvertable(false, ClassMakerFactory.BOOLEAN_TYPE, ClassMakerFactory.FLOAT_TYPE);
+        isConvertable(false, ClassMakerFactory.BOOLEAN_TYPE, ClassMakerFactory.INT_TYPE);
+        isConvertable(false, ClassMakerFactory.BOOLEAN_TYPE, ClassMakerFactory.LONG_TYPE);
+        isConvertable(false, ClassMakerFactory.BOOLEAN_TYPE, ClassMakerFactory.SHORT_TYPE);
+        isConvertable(true,  ClassMakerFactory.BOOLEAN_TYPE, ClassMakerFactory.BOOLEAN_TYPE);
 
     }
 
     public void testIsAssignableClass()
     {
-        isConvertable(true,  ClassType.OBJECT_TYPE, ClassType.OBJECT_TYPE);
-        isConvertable(true,  ClassType.STRING_TYPE, ClassType.STRING_TYPE);
-        isConvertable(false, ClassType.OBJECT_TYPE, ClassType.STRING_TYPE);
-        isConvertable(true,  ClassType.STRING_TYPE, ClassType.OBJECT_TYPE);
+        isConvertable(true,  ClassMakerFactory.OBJECT_TYPE, ClassMakerFactory.OBJECT_TYPE);
+        isConvertable(true,  ClassMakerFactory.STRING_TYPE, ClassMakerFactory.STRING_TYPE);
+        isConvertable(false, ClassMakerFactory.OBJECT_TYPE, ClassMakerFactory.STRING_TYPE);
+        isConvertable(true,  ClassMakerFactory.STRING_TYPE, ClassMakerFactory.OBJECT_TYPE);
     }
 
     public void testIsAssignableArray()
     {
-        isConvertable(true,  factory.typeToArray(ClassType.OBJECT_TYPE), factory.typeToArray(ClassType.OBJECT_TYPE));
-        isConvertable(true,  factory.typeToArray(ClassType.STRING_TYPE), factory.typeToArray(ClassType.STRING_TYPE));
-        isConvertable(false, factory.typeToArray(ClassType.OBJECT_TYPE), factory.typeToArray(ClassType.STRING_TYPE));
-        isConvertable(true,  factory.typeToArray(ClassType.STRING_TYPE), factory.typeToArray(ClassType.OBJECT_TYPE));
+        isConvertable(true,  factory.typeToArray(ClassMakerFactory.OBJECT_TYPE), factory.typeToArray(ClassMakerFactory.OBJECT_TYPE));
+        isConvertable(true,  factory.typeToArray(ClassMakerFactory.STRING_TYPE), factory.typeToArray(ClassMakerFactory.STRING_TYPE));
+        isConvertable(false, factory.typeToArray(ClassMakerFactory.OBJECT_TYPE), factory.typeToArray(ClassMakerFactory.STRING_TYPE));
+        isConvertable(true,  factory.typeToArray(ClassMakerFactory.STRING_TYPE), factory.typeToArray(ClassMakerFactory.OBJECT_TYPE));
     }
 
     public void testPrimitiveConversion()
     {
-        assertTrue("byte -> byte", converter.isConvertable(PrimitiveType.BYTE_TYPE, PrimitiveType.BYTE_TYPE));
-        assertTrue("byte -> short", converter.isConvertable(PrimitiveType.BYTE_TYPE, PrimitiveType.SHORT_TYPE));
-        assertTrue("byte -> int", converter.isConvertable(PrimitiveType.BYTE_TYPE, PrimitiveType.INT_TYPE));
-        assertTrue("short -> short", converter.isConvertable(PrimitiveType.SHORT_TYPE, PrimitiveType.SHORT_TYPE));
-        assertTrue("short -> int", converter.isConvertable(PrimitiveType.SHORT_TYPE, PrimitiveType.INT_TYPE));
-        assertTrue("int -> int", converter.isConvertable(PrimitiveType.INT_TYPE, PrimitiveType.INT_TYPE));
-        assertTrue("char -> char", converter.isConvertable(PrimitiveType.CHAR_TYPE, PrimitiveType.CHAR_TYPE));
-        assertTrue("char -> int", converter.isConvertable(PrimitiveType.CHAR_TYPE, PrimitiveType.INT_TYPE));
-        assertTrue("long -> long", converter.isConvertable(PrimitiveType.LONG_TYPE, PrimitiveType.LONG_TYPE));
-        assertTrue("float -> float", converter.isConvertable(PrimitiveType.FLOAT_TYPE, PrimitiveType.FLOAT_TYPE));
-        assertTrue("double -> double", converter.isConvertable(PrimitiveType.DOUBLE_TYPE, PrimitiveType.DOUBLE_TYPE));
+        assertTrue("byte -> byte", converter.isConvertable(ClassMakerFactory.BYTE_TYPE, ClassMakerFactory.BYTE_TYPE));
+        assertTrue("byte -> short", converter.isConvertable(ClassMakerFactory.BYTE_TYPE, ClassMakerFactory.SHORT_TYPE));
+        assertTrue("byte -> int", converter.isConvertable(ClassMakerFactory.BYTE_TYPE, ClassMakerFactory.INT_TYPE));
+        assertTrue("short -> short", converter.isConvertable(ClassMakerFactory.SHORT_TYPE, ClassMakerFactory.SHORT_TYPE));
+        assertTrue("short -> int", converter.isConvertable(ClassMakerFactory.SHORT_TYPE, ClassMakerFactory.INT_TYPE));
+        assertTrue("int -> int", converter.isConvertable(ClassMakerFactory.INT_TYPE, ClassMakerFactory.INT_TYPE));
+        assertTrue("char -> char", converter.isConvertable(ClassMakerFactory.CHAR_TYPE, ClassMakerFactory.CHAR_TYPE));
+        assertTrue("char -> int", converter.isConvertable(ClassMakerFactory.CHAR_TYPE, ClassMakerFactory.INT_TYPE));
+        assertTrue("long -> long", converter.isConvertable(ClassMakerFactory.LONG_TYPE, ClassMakerFactory.LONG_TYPE));
+        assertTrue("float -> float", converter.isConvertable(ClassMakerFactory.FLOAT_TYPE, ClassMakerFactory.FLOAT_TYPE));
+        assertTrue("double -> double", converter.isConvertable(ClassMakerFactory.DOUBLE_TYPE, ClassMakerFactory.DOUBLE_TYPE));
     }
 
-    final ClassType DESSERT = new ClassType("test.Dessert", ClassType.OBJECT_TYPE);;
+    final ClassType DESSERT = new ClassType("test.Dessert", ClassMakerFactory.OBJECT_TYPE);;
     final ClassType CAKE = new ClassType("test.Cake", DESSERT);
     final ClassType SCONE = new ClassType("test.Scone", DESSERT);
     final ClassType CHOCOLATE_CAKE = new ClassType("test.ChocolateCake", CAKE);
@@ -215,7 +215,7 @@ public class MakerMethodConversionTest extends ClassMakerTestCase
             addType(CHOCOLATE_CAKE);
             addType(BUTTERED_SCONE);
 
-            OBJECT_ARRAY  = addArrayOfType(ClassType.OBJECT_TYPE);
+            OBJECT_ARRAY  = addArrayOfType(ClassMakerFactory.OBJECT_TYPE);
             DESSERT_ARRAY = addArrayOfType(DESSERT);
             CAKE_ARRAY    = addArrayOfType(CAKE);
             SCONE_ARRAY   = addArrayOfType(SCONE);
@@ -227,14 +227,14 @@ public class MakerMethodConversionTest extends ClassMakerTestCase
 
     public void testReferenceConversion()
     {
-        assertTrue("Dessert -> Object", converter.isConvertable(DESSERT, ClassType.OBJECT_TYPE));
-        assertTrue("Cake -> Object", converter.isConvertable(CAKE, ClassType.OBJECT_TYPE));
-        assertTrue("Scone -> Object", converter.isConvertable(SCONE, ClassType.OBJECT_TYPE));
+        assertTrue("Dessert -> Object", converter.isConvertable(DESSERT, ClassMakerFactory.OBJECT_TYPE));
+        assertTrue("Cake -> Object", converter.isConvertable(CAKE, ClassMakerFactory.OBJECT_TYPE));
+        assertTrue("Scone -> Object", converter.isConvertable(SCONE, ClassMakerFactory.OBJECT_TYPE));
         assertTrue("ButteredScone -> Scone", converter.isConvertable(BUTTERED_SCONE, SCONE));
         assertTrue("ChocolateCake -> Cake", converter.isConvertable(CHOCOLATE_CAKE, CAKE));
-        assertTrue("null -> Object", converter.isConvertable(ClassType.NULL_TYPE, ClassType.OBJECT_TYPE));
-        assertTrue("null -> Cake", converter.isConvertable(ClassType.NULL_TYPE, CAKE));
-        assertTrue("null -> ButteredScone", converter.isConvertable(ClassType.NULL_TYPE, BUTTERED_SCONE));
+        assertTrue("null -> Object", converter.isConvertable(ClassMakerFactory.NULL_TYPE, ClassMakerFactory.OBJECT_TYPE));
+        assertTrue("null -> Cake", converter.isConvertable(ClassMakerFactory.NULL_TYPE, CAKE));
+        assertTrue("null -> ButteredScone", converter.isConvertable(ClassMakerFactory.NULL_TYPE, BUTTERED_SCONE));
         // Not convertable
         assertFalse("ButteredScone -> Cake", converter.isConvertable(BUTTERED_SCONE, CAKE));
         assertFalse("Scone -> ChocolateCake", converter.isConvertable(SCONE, CHOCOLATE_CAKE));
@@ -242,15 +242,15 @@ public class MakerMethodConversionTest extends ClassMakerTestCase
 
     public void testArrayReferenceConversion()
     {
-        assertTrue("Dessert[] -> Object", converter.isConvertable(DESSERT_ARRAY, ClassType.OBJECT_TYPE));
+        assertTrue("Dessert[] -> Object", converter.isConvertable(DESSERT_ARRAY, ClassMakerFactory.OBJECT_TYPE));
         assertTrue("Cake[] -> Object[]", converter.isConvertable(CAKE_ARRAY, OBJECT_ARRAY));
-        assertTrue("Scone[] -> Object", converter.isConvertable(SCONE_ARRAY, ClassType.OBJECT_TYPE));
+        assertTrue("Scone[] -> Object", converter.isConvertable(SCONE_ARRAY, ClassMakerFactory.OBJECT_TYPE));
         assertTrue("ButteredScone[] -> Scone[]", converter.isConvertable(BUTTERED_SCONE_ARRAY, SCONE_ARRAY));
         assertTrue("ChocolateCake[] -> Cake[]", converter.isConvertable(CHOCOLATE_CAKE_ARRAY, CAKE_ARRAY));
-        assertTrue("null -> Object[]", converter.isConvertable(ClassType.NULL_TYPE, OBJECT_ARRAY));
-        assertTrue("null -> Cake[]", converter.isConvertable(ClassType.NULL_TYPE, CAKE_ARRAY));
-        assertTrue("null -> Scone[]", converter.isConvertable(ClassType.NULL_TYPE, SCONE_ARRAY));
-        assertTrue("null -> ButteredScone[]", converter.isConvertable(ClassType.NULL_TYPE, BUTTERED_SCONE_ARRAY));
+        assertTrue("null -> Object[]", converter.isConvertable(ClassMakerFactory.NULL_TYPE, OBJECT_ARRAY));
+        assertTrue("null -> Cake[]", converter.isConvertable(ClassMakerFactory.NULL_TYPE, CAKE_ARRAY));
+        assertTrue("null -> Scone[]", converter.isConvertable(ClassMakerFactory.NULL_TYPE, SCONE_ARRAY));
+        assertTrue("null -> ButteredScone[]", converter.isConvertable(ClassMakerFactory.NULL_TYPE, BUTTERED_SCONE_ARRAY));
         // Not convertable
         assertFalse("ButteredScone -> Cake", converter.isConvertable(BUTTERED_SCONE_ARRAY, CAKE_ARRAY));
         assertFalse("Scone -> ChocolateCake", converter.isConvertable(SCONE_ARRAY, CHOCOLATE_CAKE_ARRAY));

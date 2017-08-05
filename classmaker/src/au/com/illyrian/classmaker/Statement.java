@@ -32,7 +32,7 @@ abstract class Statement implements Labelled
         maker.statementStack = this;
     }
 
-    public ClassMaker getMaker()
+    public ClassMakerConstants getMaker()
     {
         return maker;
     }

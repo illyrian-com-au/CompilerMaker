@@ -1,6 +1,7 @@
 package au.com.illyrian.parser.maker;
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerException;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
@@ -42,36 +43,36 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
         return parser;
     }
 
-    ClassMaker methodFuncAB(ClassMaker maker)
+    ClassMakerConstants methodFuncAB(ClassMaker maker)
     {
         maker.setPackageName("au.com.illyrian.parser.impl");
         maker.setSimpleClassName("Test");
         maker.Implements(FuncAB.class);
-        maker.Method("f", boolean.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("f", boolean.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("a", int.class, 0);
         maker.Declare("b", int.class, 0);
         maker.Begin();
         return maker;
     }
     
-    ClassMaker methodBooleanAB(ClassMaker maker)
+    ClassMakerConstants methodBooleanAB(ClassMaker maker)
     {
         maker.setPackageName("au.com.illyrian.parser.impl");
         maker.setSimpleClassName("Test");
         maker.Implements(BooleanAB.class);
-        maker.Method("f", boolean.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("f", boolean.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("a", boolean.class, 0);
         maker.Declare("b", boolean.class, 0);
         maker.Begin();
         return maker;
     }
     
-    ClassMaker methodFuncABCD(ClassMaker maker)
+    ClassMakerConstants methodFuncABCD(ClassMaker maker)
     {
         maker.setPackageName("au.com.illyrian.parser.impl");
         maker.setSimpleClassName("Test");
         maker.Implements(FuncABCD.class);
-        maker.Method("f", boolean.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("f", boolean.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("a", int.class, 0);
         maker.Declare("b", int.class, 0);
         maker.Declare("c", int.class, 0);
@@ -80,12 +81,12 @@ public class RelativeParserMakerTest extends ClassMakerTestCase
         return maker;
     }
     
-    ClassMaker methodBooleanABCD(ClassMaker maker)
+    ClassMakerConstants methodBooleanABCD(ClassMaker maker)
     {
         maker.setPackageName("au.com.illyrian.parser.impl");
         maker.setSimpleClassName("Test");
         maker.Implements(BooleanABCD.class);
-        maker.Method("f", boolean.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("f", boolean.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("a", boolean.class, 0);
         maker.Declare("b", boolean.class, 0);
         maker.Declare("c", boolean.class, 0);

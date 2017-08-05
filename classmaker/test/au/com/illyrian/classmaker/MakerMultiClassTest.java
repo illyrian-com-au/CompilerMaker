@@ -13,7 +13,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
         public void setValue(int i);
     }
     
-    int[] TWO_PASS = {ClassMaker.FIRST_PASS, ClassMaker.SECOND_PASS};
+    int[] TWO_PASS = {ClassMakerConstants.FIRST_PASS, ClassMakerConstants.SECOND_PASS};
 
     /*
      * The base class is the same for all test routines.
@@ -28,9 +28,9 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
      */
     private void codeBase(ClassMaker maker)
     {
-        maker.Declare("val", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Declare("val", int.class, ClassMakerConstants.ACC_PUBLIC);
         
-        maker.Method(ClassMaker.INIT, PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method(ClassMaker.INIT, ClassMakerFactory.VOID_TYPE, ClassMakerConstants.ACC_PUBLIC);
         maker.Begin();
             maker.Init(maker.Super(), null);
             maker.Eval(maker.Assign(maker.This(), "val", maker.Literal(9)));
@@ -67,7 +67,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
         {
             factory.setPass(pass);
             maker.Implements(Getter.class);
-            maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+            maker.Method("getValue", int.class, ClassMakerConstants.ACC_PUBLIC);
             maker.Begin();
             {
                 maker.Declare("init", "Init", 0);
@@ -96,7 +96,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
         {
             factory.setPass(pass);
             maker.Implements(Getter.class);
-            maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+            maker.Method("getValue", int.class, ClassMakerConstants.ACC_PUBLIC);
             maker.Begin();
             {
                 maker.Declare("obj", "Init", 0);
@@ -104,7 +104,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
                 maker.Return(maker.Call(maker.This(), "getValue", maker.Push(maker.Get("obj"))));
             }
             maker.End();
-            maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+            maker.Method("getValue", int.class, ClassMakerConstants.ACC_PUBLIC);
             maker.Declare("init", "Init", 0);
             maker.Begin();
             {
@@ -133,12 +133,12 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
             factory.setPass(pass);
             maker.Implements(Getter.class);
             // Method to create an instance of class Init
-            maker.Method("getInit", "Init", ClassMaker.ACC_PUBLIC);
+            maker.Method("getInit", "Init", ClassMakerConstants.ACC_PUBLIC);
             maker.Begin();
                 maker.Return(maker.New("Init").Init(null));
             maker.End();
             // Method to get the value from an instance of class Init
-            maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+            maker.Method("getValue", int.class, ClassMakerConstants.ACC_PUBLIC);
             maker.Begin();
                 maker.Return(maker.Get(maker.Call(maker.This(), "getInit", null), "val"));
             maker.End();
@@ -165,7 +165,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
             factory.setPass(pass);
             maker.Implements(Getter.class);
             // Constructor initialises the init field with an instance of class Init.
-            maker.Method(ClassMaker.INIT, PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+            maker.Method(ClassMaker.INIT, ClassMakerFactory.VOID_TYPE, ClassMakerConstants.ACC_PUBLIC);
             maker.Begin(); 
             {
                 maker.Init(maker.Super(), null);
@@ -174,7 +174,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
             } 
             maker.End();
             // Gets the value from the init instance.
-            maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+            maker.Method("getValue", int.class, ClassMakerConstants.ACC_PUBLIC);
             maker.Begin();
             {
                 maker.Return(maker.Get(maker.Get(maker.This(), "init"), "val"));
@@ -204,7 +204,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
             factory.setPass(pass);
             maker.Extends("Init");
             maker.Implements(Getter.class);
-            maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+            maker.Method("getValue", int.class, ClassMakerConstants.ACC_PUBLIC);
             maker.Begin();
                 maker.Return(maker.Get(maker.This(), "val"));
             maker.End();
@@ -232,7 +232,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
             factory.setPass(pass);
             // class MakerValue
             maker.Implements(Getter.class);
-            maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+            maker.Method("getValue", int.class, ClassMakerConstants.ACC_PUBLIC);
             maker.Begin();
             {
                 maker.Return(maker.Call(maker.New("Init").Init(null), "setValue", maker.Push(maker.Literal(5))));
@@ -252,7 +252,7 @@ public class MakerMultiClassTest extends ClassMakerTestCase implements ByteCode
             codeBase(initMaker);
             
             // interface Initialiser
-            ifaceMaker.setClassModifiers(ClassMaker.ACC_INTERFACE);
+            ifaceMaker.setClassModifiers(ClassMakerConstants.ACC_INTERFACE);
             ifaceMaker.Method("setValue", int.class, ACC_PUBLIC | ACC_ABSTRACT);
             ifaceMaker.Declare("value", int.class, 0);
             ifaceMaker.Forward();

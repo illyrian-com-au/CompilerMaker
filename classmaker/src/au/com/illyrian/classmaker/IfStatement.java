@@ -38,7 +38,7 @@ class IfStatement extends Statement
     public void If(Value condition) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return;
-        if (!PrimitiveType.BOOLEAN_TYPE.equals(condition.getType()))
+        if (!ClassMakerFactory.BOOLEAN_TYPE.equals(condition.getType()))
         {
             dispose();
             throw maker.createException("ClassMaker.IfConditionMustBeBoolean_1", condition.getName());

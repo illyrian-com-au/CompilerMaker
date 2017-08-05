@@ -3,6 +3,7 @@ package au.com.illyrian.jesub.ast;
 import java.util.Vector;
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 
 public class AstVisitorClassMakerFactory extends AstStructureVisitor
@@ -39,7 +40,7 @@ public class AstVisitorClassMakerFactory extends AstStructureVisitor
         classMakers.add(maker);
     }
     
-    public ClassMaker[] getClassMakers()
+    public ClassMakerConstants[] getClassMakers()
     {
         return classMakers.toArray(CLASSES_PROTO);
     }
@@ -70,11 +71,11 @@ public class AstVisitorClassMakerFactory extends AstStructureVisitor
         {
             unit.getClassList().resolveDeclaration(this);
             
-            factory.setPass(ClassMaker.FIRST_PASS);
+            factory.setPass(ClassMakerConstants.FIRST_PASS);
             for (int i=0; i<declareClasses.size(); i++)
                 firstPass(declareClasses.get(i), classMakers.get(i));
 
-            factory.setPass(ClassMaker.SECOND_PASS);
+            factory.setPass(ClassMakerConstants.SECOND_PASS);
             for (int i=0; i<declareClasses.size(); i++)
                 secondPass(declareClasses.get(i), classMakers.get(i));
         }
@@ -87,7 +88,8 @@ public class AstVisitorClassMakerFactory extends AstStructureVisitor
         String className = unit.getClassName().getName();
         
         // Add to list of ClassMaker instances
-        ClassMaker maker = factory.createClassMaker(this);
+        ClassMaker maker = factory.createClassMaker();
+        maker.setSourceLine(this);
         addClassMaker(maker);
         maker.setSimpleClassName(className);
         maker.getFullyQualifiedClassName();

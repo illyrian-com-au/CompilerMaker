@@ -27,7 +27,7 @@
 
 package au.com.illyrian.jesub.ast;
 
-import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerException;
 import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.ForStep;
@@ -241,7 +241,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
                 getMaker().Begin();
                 // Do not process the body of the method if this is the first of
                 // two passes.
-                if (getMaker().getPass() != ClassMaker.FIRST_PASS)
+                if (getMaker().getPass() != ClassMakerConstants.FIRST_PASS)
                     method.getMethodBody().resolveStatement(this);
                 getMaker().End();
             } else

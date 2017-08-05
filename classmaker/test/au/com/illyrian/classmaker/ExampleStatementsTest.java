@@ -113,7 +113,7 @@ public class ExampleStatementsTest extends TestCase
         return x;
     }
     
-    public class StatementExampleMaker extends ClassMakerBase
+    public class StatementExampleMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -288,7 +288,7 @@ public class ExampleStatementsTest extends TestCase
     	int breakContinue(int i);
     }
     
-    public class BreakContinueExampleMaker extends ClassMakerBase
+    public class BreakContinueExampleMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -379,7 +379,7 @@ public class ExampleStatementsTest extends TestCase
     	int block(int i);
     }
     
-    public class BeginEndExampleMaker extends ClassMakerBase
+    public class BeginEndExampleMaker extends ClassMakerCode
     {
         public void code()
         {

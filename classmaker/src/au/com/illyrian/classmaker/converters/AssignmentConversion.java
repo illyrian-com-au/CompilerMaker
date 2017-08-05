@@ -115,21 +115,21 @@ public class AssignmentConversion extends MethodInvocationConversion implements 
         switch (source.index)
         {
         case PrimitiveType.BYTE_INDEX: // byte can be promoted to short or int ...
-            if (PrimitiveType.SHORT_TYPE.equals(target))
+            if (ClassMakerFactory.SHORT_TYPE.equals(target))
                 return true;
         case PrimitiveType.SHORT_INDEX: // short can be promoted to int ...
         case PrimitiveType.CHAR_INDEX: // char can be promoted to int ...
-            if (PrimitiveType.INT_TYPE.equals(target))
+            if (ClassMakerFactory.INT_TYPE.equals(target))
                 return true;
         case PrimitiveType.INT_INDEX: // int can be promoted to long, float or
                                     // double
-            if (PrimitiveType.LONG_TYPE.equals(target))
+            if (ClassMakerFactory.LONG_TYPE.equals(target))
                 return true;
         case PrimitiveType.LONG_INDEX: // long can be promoted to double
-            if (PrimitiveType.FLOAT_TYPE.equals(target))
+            if (ClassMakerFactory.FLOAT_TYPE.equals(target))
                 return true;
         case PrimitiveType.FLOAT_INDEX: // float can be promoted to double
-            if (PrimitiveType.DOUBLE_TYPE.equals(target))
+            if (ClassMakerFactory.DOUBLE_TYPE.equals(target))
                 return true;
             break;
         }
@@ -157,20 +157,20 @@ public class AssignmentConversion extends MethodInvocationConversion implements 
         switch (source.index)
         {
         case PrimitiveType.BYTE_INDEX: // byte can be promoted to short or int
-            if (PrimitiveType.SHORT_TYPE.equals(target))
+            if (ClassMakerFactory.SHORT_TYPE.equals(target))
                 return maker.toShort(source);
         case PrimitiveType.SHORT_INDEX: // short can be promoted to int
         case PrimitiveType.CHAR_INDEX:  // char can be promoted to int
-            if (PrimitiveType.INT_TYPE.equals(target))
+            if (ClassMakerFactory.INT_TYPE.equals(target))
                 return maker.toInt(source);
         case PrimitiveType.INT_INDEX: // int can be promoted to long, float or double
-            if (PrimitiveType.LONG_TYPE.equals(target))
+            if (ClassMakerFactory.LONG_TYPE.equals(target))
                 return maker.toLong(source);
         case PrimitiveType.LONG_INDEX: // long can be promoted to float or double
-            if (PrimitiveType.FLOAT_TYPE.equals(target))
+            if (ClassMakerFactory.FLOAT_TYPE.equals(target))
                 return maker.toFloat(source);
         case PrimitiveType.FLOAT_INDEX: // float can be promoted to double
-            if (PrimitiveType.DOUBLE_TYPE.equals(target))
+            if (ClassMakerFactory.DOUBLE_TYPE.equals(target))
                 return maker.toDouble(source);
         }
         // Should not get here. All calls to this method should be guarded by a call to isConvertable.

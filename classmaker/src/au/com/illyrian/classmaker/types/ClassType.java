@@ -28,6 +28,8 @@
 package au.com.illyrian.classmaker.types;
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
+import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.members.MakerMethod;
 
@@ -38,38 +40,18 @@ import au.com.illyrian.classmaker.members.MakerMethod;
  * and the interfaces that the class implements.
  */
 public class ClassType extends Type {
-    /** Reference to <code>null</code> type */
-    public static final ClassType NULL_TYPE = new ClassType("null", (ClassType)null);
-    /** Reference to <code>Object</code> type */
-    public static final ClassType OBJECT_TYPE = new ClassType(Object.class);
-    /** Reference to a special automatically created StringBuffer.
-     *  An automatically created StringBuffer results from concatenating
-     *  a String with any value or object.
-     */
-    public static final ClassType AUTO_STRING_TYPE = new ClassType(StringBuffer.class);
-    /** Reference to <code>String</code> type */
-    public static final ClassType STRING_TYPE = new ClassType(String.class);
-    /** Reference to <code>StringBuffer</code> type */
-    public static final ClassType STRING_BUFFER_TYPE = new ClassType(StringBuffer.class);
-    /** Reference to <code>Cloneable</code> type */
-    public static final ClassType CLONEABLE_TYPE = new ClassType(Cloneable.class);
-    /** Reference to <code>Throwable</code> type */
-    public static final ClassType THROWABLE_TYPE = new ClassType(Throwable.class);
-    /** Reference to <code>Class</code> type */
-    public static final ClassType CLASS_TYPE = new ClassType(Class.class);
-
-    private ClassType       extendsType = null;
-    private String          packageName = null;
-    private ClassType    [] interfaces = null;
-    private MakerMethod  [] constructors = null;
-    private MakerMethod  [] methods = null;
-    private MakerMethod  [] allMethods = null;
-    private MakerField   [] fields = null;
-    private int             modifiers = 0;
+    private ClassMakerFactory factory = null;
+    private String            packageName = null;
+    protected ClassType       extendsType = null;
+    protected ClassType   []  declaredInterfaces = null;
+    protected MakerMethod []  declaredConstructors = null;
+    protected MakerMethod []  declaredMethods = null;
+    protected MakerField  []  declaredFields = null;
+    private int               modifiers = 0;
 
     public ClassType(Class javaClass)
     {
-        this(ClassMaker.classToName(javaClass), OBJECT_TYPE);
+        this(ClassMaker.classToName(javaClass), null);
         setJavaClass(javaClass);
         setModifiers(javaClass.getModifiers());
     }
@@ -107,6 +89,18 @@ public class ClassType extends Type {
         extractPackageName(className);
     }
 
+    public ClassMakerFactory getFactory() {
+        if (factory == null) {
+            throw new NullPointerException("factory not set");
+        }
+        return factory;
+    }
+    
+    public void setFactory(ClassMakerFactory factory) {
+        if (this.factory == null) {
+            this.factory = factory;
+        }
+    }
     
     protected static String toSignature(String className)
     {
@@ -123,12 +117,13 @@ public class ClassType extends Type {
     }
 
     /**
-     * Finds a named field in the class.
+     * Finds a field declared within this class.
      * @param name the name of the field
      * @return a representation of the field
      */
-    public MakerField findField(String name)
+    public MakerField findDeclaredField(String name)
     {
+        MakerField [] fields = getDeclaredFields();
         if (fields != null) {
             for (int i = 0; i < fields.length; i++) {
                 if (name.equals(fields[i].getName())) {
@@ -137,6 +132,20 @@ public class ClassType extends Type {
             }
         }
         return null;
+    }
+
+    /**
+     * Finds a field within this class or a parent class.
+     * @param name the name of the field
+     * @return a representation of the field
+     */
+    public MakerField findField(String name)
+    {
+        MakerField field = findDeclaredField(name);
+        if (field == null && getExtendsType() != null) {
+            field = getExtendsType().findField(name);
+        }
+        return field;
     }
 
     /**
@@ -158,85 +167,94 @@ public class ClassType extends Type {
     }
 
     /** The list of interfaces implemented by this class. */
-    public ClassType   [] getInterfaces()
+    public ClassType [] getDeclaredInterfaces()
     {
-    	return interfaces;
+        if (declaredInterfaces == null) {
+            return populateDeclaredInterfaces();
+        }
+        return declaredInterfaces;
+    }
+    
+    ClassType [] populateDeclaredInterfaces() {
+        if (javaClass != null) {
+            ClassType [] interfaces = getFactory().getDeclaredInterfaces(this);
+            setDeclaredInterfaces(interfaces);
+        }
+        return declaredInterfaces;
     }
     
     /** Sets the list of interfaces implemented by this class. */
-    public void setInterfaces(ClassType [] interfaces)
+    public void setDeclaredInterfaces(ClassType [] interfaces)
     {
-        this.interfaces = interfaces;
-    }
-    
-    /** The list of constructors for this class. */
-    public MakerMethod [] getConstructors()
-    {
-    	return constructors;
-    }
-    
-    /** Sets the list of constructors for this class. */
-    public void setConstructors(MakerMethod [] constructors)
-    {
-    	this.constructors = constructors;
+        this.declaredInterfaces = interfaces;
     }
     
     /**
-     * Creates an array of constructor descriptors for the given java class.
-     * </br>
-     * Only constructors in the most explicit class are returned.
+     * An array of constructor descriptors for this class type.
+     * Only constructors in the most specific class are returned.
+     * 
      * @param classType the ClassType that holds information about the class
      */
-//    public void populateJavaClassConstructors(ClassType classType)
-//    {
-//        Class javaClass = classType.getJavaClass();
-//        if (javaClass != null)
-//        {
-//            java.lang.reflect.Constructor [] construct = javaClass.getDeclaredConstructors();
-//                MakerMethod [] constructors = new MakerMethod[construct.length];
-//            for (int i = 0; i < construct.length; i++)
-//            {
-//                java.lang.reflect.Constructor javaMethod = construct[i];
-//                constructors[i] = toMethod(classType, javaMethod);
-//            }
-//            classType.setConstructors(constructors);
-//        }
-//    }
-
+    public MakerMethod [] getDeclaredConstructors()
+    {
+        if (declaredConstructors == null) {
+            return populateDeclaredConstructors();
+        }
+    	return declaredConstructors;
+    }
+    
+    /** Sets the list of constructors for this class. */
+    public void setDeclaredConstructors(MakerMethod [] constructors)
+    {
+    	this.declaredConstructors = constructors;
+    }
+    
+    protected MakerMethod [] populateDeclaredConstructors() {
+        MakerMethod [] methods = getFactory().getDeclaredConstructors(this);
+        setDeclaredConstructors(methods);
+        return methods;
+    }
+    
     /** The list of methods implemented by this class. */
-    public MakerMethod [] getMethods()
+    public MakerMethod [] getDeclaredMethods()
     {
-    	return methods;
+        if (declaredMethods == null) {
+            return populateDeclaredMethods();
+        }
+    	return declaredMethods;
     }
     
+    protected MakerMethod [] populateDeclaredMethods() {
+        MakerMethod [] methods = getFactory().getDeclaredMethods(this);
+        setDeclaredMethods(methods);
+        return methods;
+    }
+
     /** Sets the list of methods implemented by this class. */
-    public void setMethods(MakerMethod [] methods)
+    public void setDeclaredMethods(MakerMethod [] methods)
     {
-    	this.methods = methods;
-    }
-    
-    /** The consolidated list of methods implemented by this class and all base classes. */
-    public MakerMethod [] getAllMethods()
-    {
-    	return allMethods;
-    }
-    
-    /** Sets the consolidated list of methods implemented by this class and all base classes. */
-    public void setAllMethods(MakerMethod [] allMethods)
-    {
-    	this.allMethods = allMethods;
+    	this.declaredMethods = methods;
     }
     
     /** The list of member fields in this class. */
-    public MakerField  [] getFields()
+    public MakerField [] getDeclaredFields()
     {
-    	return fields;
+        if (declaredFields == null) {
+            return populateDeclaredFields();
+        }
+    	return declaredFields;
+    }
+    
+    MakerField [] populateDeclaredFields() {
+        MakerField [] fields = getFactory().getDeclaredFields(this);
+        setDeclaredFields(fields);
+        return fields;
     }
 
     /** Sets the list of member fields in this class. */
-    public void setFields(MakerField [] fields)
+    public void setDeclaredFields(MakerField [] fields)
     {
-    	this.fields = fields;
+    	this.declaredFields = fields;
     }
     
     /**
@@ -245,7 +263,7 @@ public class ClassType extends Type {
      */
     public boolean isInterface()
     {
-        return (getModifiers() & ClassMaker.ACC_INTERFACE) == ClassMaker.ACC_INTERFACE;
+        return (getModifiers() & ClassMakerConstants.ACC_INTERFACE) == ClassMakerConstants.ACC_INTERFACE;
     }
 
      /**
@@ -254,6 +272,9 @@ public class ClassType extends Type {
      */
     public ClassType getExtendsType()
     {
+        if (extendsType == null) {
+            return populateExtendsType();
+        }
         return extendsType;
     }
     
@@ -261,9 +282,11 @@ public class ClassType extends Type {
         extendsType = baseType;
     }
     
-    public ClassType defaultExtendsType() {
-        if (extendsType == null) {
-            extendsType = ClassType.OBJECT_TYPE;
+    public ClassType populateExtendsType() {
+        if (javaClass.getSuperclass() == null) {
+            return null;
+        } else {
+            setExtendsType(getFactory().classToType(javaClass.getSuperclass()).toClass());
         }
         return extendsType;
     }
@@ -284,9 +307,15 @@ public class ClassType extends Type {
     void extractPackageName(String className)
     {
         int index = className.replace('/', '.').lastIndexOf('.');
-        if (index != -1)
+        if (index != -1) {
             packageName = className.substring(0, index);
-        else packageName = "";
+        } else {
+            packageName = "";
+        }
+    }
+    
+    public String getSimpleName() {
+        return javaClass.getSimpleName();
     }
 
     /**

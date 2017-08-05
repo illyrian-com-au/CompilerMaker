@@ -19,8 +19,9 @@ import au.com.illyrian.bnf.ast.BnfTreeRule;
 import au.com.illyrian.bnf.ast.BnfTreeSequence;
 import au.com.illyrian.bnf.ast.BnfTreeTarget;
 import au.com.illyrian.classmaker.CallStack;
-import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
+import au.com.illyrian.classmaker.ClassMakerConstants;
+import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
@@ -127,7 +128,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         setRuleSet(tree.getRuleSet());
         setLineNumber(tree);
         tree.getRules().resolveDeclaration(this);
-        return PrimitiveType.VOID_TYPE;
+        return ClassMakerFactory.VOID_TYPE;
     }
 
     public Type resolveDeclaration(BnfTreeList list)
@@ -136,7 +137,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         for (BnfTree rule : rules) {
             rule.resolveDeclaration(this);
         }
-        return PrimitiveType.VOID_TYPE;
+        return ClassMakerFactory.VOID_TYPE;
     }
 
     public Type resolveDeclaration(BnfTreeRule rule)
@@ -144,7 +145,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         Type returnType = rule.getTarget().resolveDeclaration(this);
         setLineNumber(rule);
         String methodName = rule.getTarget().getName();
-        if (getMaker().getPass() == ClassMaker.FIRST_PASS) {
+        if (getMaker().getPass() == ClassMakerConstants.FIRST_PASS) {
             returnType = methodForward(methodName, returnType);
         } else {
             returnType = methodBegin(methodName, returnType);
@@ -200,7 +201,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
             left.resolveSequence(this, variable);
             //getMaker().End();
         }
-        return PrimitiveType.VOID_TYPE;
+        return ClassMakerFactory.VOID_TYPE;
     }
 
     public Type resolveDeclaration(BnfTreeSequence seq) {
@@ -223,7 +224,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         }
         // Clear local variables going out of scope.
         localVariables.setSize(scopeSize);
-        return PrimitiveType.VOID_TYPE;
+        return ClassMakerFactory.VOID_TYPE;
     }
     
     public Type resolveSequence(BnfTreeAlternative tree, int variable) {
@@ -247,7 +248,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
 
     public Type resolveSequence(BnfTreeName tree, int variable) {
         setLineNumber(tree);
-        declare(variable, ClassType.STRING_TYPE);
+        declare(variable, ClassMakerFactory.STRING_TYPE);
         Value value = tree.resolveType(this);
         assign(variable, value);
         return value.getType();
@@ -265,23 +266,23 @@ public class BnfMakerVisitor extends AstExpressionVisitor
     boolean isOnlyOneOption() {
         return (isActionRequired() 
                 && localVariables.size() == 1
-                && localVariables.lastElement() != PrimitiveType.VOID_TYPE);
+                && localVariables.lastElement() != ClassMakerFactory.VOID_TYPE);
     }
 
     public Type resolveSequence(BnfTreeMethodCall call, int variable)
     {
         setLineNumber(call);
         getMaker().Eval(resolveType(call));
-        return PrimitiveType.VOID_TYPE;
+        return ClassMakerFactory.VOID_TYPE;
     }
 
     public Type resolveSequence(BnfTreeReserved reserved, int variable)
     {
         setLineNumber(reserved);
-        declare(variable, ClassType.STRING_TYPE);
+        declare(variable, ClassMakerFactory.STRING_TYPE);
         Value value = expect(reserved.getName());
         assign(variable, value);
-        return PrimitiveType.VOID_TYPE;
+        return ClassMakerFactory.VOID_TYPE;
     }
 
     public Type resolveSequence(BnfTreeNonterminal nonterm, int variable)
@@ -461,13 +462,13 @@ public class BnfMakerVisitor extends AstExpressionVisitor
     /************* Convenience Methods **************/
     
     Type methodForward(String methodName, Type returnType) {
-        getMaker().Method(methodName, returnType, ClassMaker.ACC_PUBLIC);
+        getMaker().Method(methodName, returnType, ClassMakerConstants.ACC_PUBLIC);
         getMaker().Forward();
         return returnType;
     }
     
     Type methodBegin(String methodName, Type returnType) {
-        getMaker().Method(methodName, returnType, ClassMaker.ACC_PUBLIC);
+        getMaker().Method(methodName, returnType, ClassMakerConstants.ACC_PUBLIC);
         getMaker().Begin();
         getMaker().Declare("$0", returnType, 0);
         return returnType;

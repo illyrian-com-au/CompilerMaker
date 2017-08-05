@@ -4,5 +4,5 @@ public interface ClassMakerLocation {
 
 	public void setClassMaker(ClassMaker classMaker);
 	
-	public ClassMaker getClassMaker();
+	public ClassMakerConstants getClassMaker();
 }

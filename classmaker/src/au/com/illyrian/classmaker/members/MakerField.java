@@ -27,7 +27,7 @@
 
 package au.com.illyrian.classmaker.members;
 
-import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
@@ -112,7 +112,7 @@ public class MakerField
      */
     public boolean isStatic()
     {
-        return (getModifiers() & ClassMaker.ACC_STATIC) == ClassMaker.ACC_STATIC;
+        return (getModifiers() & ClassMakerConstants.ACC_STATIC) == ClassMakerConstants.ACC_STATIC;
     }
 
     /** The type of the class containing the field. */

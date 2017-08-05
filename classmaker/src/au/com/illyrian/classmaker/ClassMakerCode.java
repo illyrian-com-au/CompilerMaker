@@ -100,7 +100,7 @@ import java.io.IOException;
  *
  * @author Donald Strong
  */
-public abstract class ClassMakerBase extends ClassMaker
+public abstract class ClassMakerCode extends ClassMaker
 {
     /* A ClassMakerFactory instance that is shared by all instances of ClassMakerBase. */
     private static ClassMakerFactory sharedFactory = null;
@@ -117,16 +117,16 @@ public abstract class ClassMakerBase extends ClassMaker
      * A default constructor will be provided for the generated class and the
      * <code>code()</code> method will be called to generate member fields and methods.
      */
-    protected ClassMakerBase()
+    protected ClassMakerCode()
     {
-        super(ClassMakerBase.getSharedFactory());
+        super(ClassMakerCode.getSharedFactory());
     }
 
     /**
      * Creates a <code>ClassMakerBase</code> instance given a <code>ClassMakerFactory</code>.
      * @param globalFactory the <code>ClassMakerFactory</code> instance that is used by all class generators
      */
-    protected ClassMakerBase(ClassMakerFactory globalFactory)
+    protected ClassMakerCode(ClassMakerFactory globalFactory)
     {
         super(globalFactory);
     }
@@ -136,7 +136,7 @@ public abstract class ClassMakerBase extends ClassMaker
      */
     public static void setSharedFactory(ClassMakerFactory factory)
     {
-        ClassMakerBase.sharedFactory = factory;
+        ClassMakerCode.sharedFactory = factory;
     }
 
     /**
@@ -145,9 +145,9 @@ public abstract class ClassMakerBase extends ClassMaker
      */
     public static ClassMakerFactory getSharedFactory()
     {
-        if (ClassMakerBase.sharedFactory == null)
-            ClassMakerBase.sharedFactory = new ClassMakerFactory();
-        return ClassMakerBase.sharedFactory;
+        if (ClassMakerCode.sharedFactory == null)
+            ClassMakerCode.sharedFactory = new ClassMakerFactory();
+        return ClassMakerCode.sharedFactory;
     }
 
     //############# Helper methods for derived classes #########
@@ -197,10 +197,10 @@ public abstract class ClassMakerBase extends ClassMaker
         {
             if (isTwoPass())
             {
-                getFactory().setPass(ClassMaker.FIRST_PASS);
+                getFactory().setPass(ClassMakerConstants.FIRST_PASS);
                 code();
                 super.EndClass();
-                getFactory().setPass(ClassMaker.SECOND_PASS);
+                getFactory().setPass(ClassMakerConstants.SECOND_PASS);
             }
             code();
             super.EndClass();

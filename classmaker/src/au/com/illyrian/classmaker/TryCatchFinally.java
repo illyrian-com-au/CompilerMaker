@@ -85,7 +85,7 @@ public class TryCatchFinally extends Statement
             endTryBlock = cfw.acquireLabel();
             cfw.markLabel(endTryBlock);
         }
-        finalyExceptionSlot = maker.storeAnonymousValue(ClassType.OBJECT_TYPE);
+        finalyExceptionSlot = maker.storeAnonymousValue(ClassMakerFactory.OBJECT_TYPE);
         // initialise slot
         // Jump over remaining catch and finally blocks.
         cfw.add(ByteCode.GOTO, endCatchBlock);
@@ -122,7 +122,7 @@ public class TryCatchFinally extends Statement
         // Store the exception pointer in an anonomous local variable.
         if (cfw.isDebugCode())
         	cfw.setDebugComment("Store reference to exception");
-        int finalyExceptionAddress = maker.storeAnonymousValue(ClassType.OBJECT_TYPE);
+        int finalyExceptionAddress = maker.storeAnonymousValue(ClassMakerFactory.OBJECT_TYPE);
 
         // Jump to the finally subroutine
         callFinallySubroutine();
@@ -141,7 +141,7 @@ public class TryCatchFinally extends Statement
         cfw.markLabel(finallySubroutine);
 
         // Store return address in an annonomous local variable.
-        finallyReturnSlot = maker.storeAnonymousValue(ClassType.OBJECT_TYPE);
+        finallyReturnSlot = maker.storeAnonymousValue(ClassMakerFactory.OBJECT_TYPE);
     }
 
     /**

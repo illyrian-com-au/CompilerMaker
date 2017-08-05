@@ -2,6 +2,7 @@ package au.com.illyrian.jesub;
 
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.ParseClass;
@@ -42,7 +43,7 @@ public class JesubParser extends OperatorPrecidenceParser
     implements ParseClass, ParseMembers, ParseExpression, ClassMakerLocation
 {
     JesubAction jesubAction = null;
-    ClassMaker classMaker = null;
+    ClassMakerConstants classMaker = null;
     
    /**
     * Public constructor for the search query parser. When no actions are provided the parser only performs validation.
@@ -110,7 +111,7 @@ public class JesubParser extends OperatorPrecidenceParser
         this.classMaker = classMaker;
     }
 
-    public ClassMaker getClassMaker()
+    public ClassMakerConstants getClassMaker()
     {
         return classMaker;
     }

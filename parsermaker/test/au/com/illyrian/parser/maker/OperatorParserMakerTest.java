@@ -1,6 +1,7 @@
 package au.com.illyrian.parser.maker;
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
@@ -27,20 +28,20 @@ public class OperatorParserMakerTest extends ClassMakerTestCase
         return parser;
     }
 
-    ClassMaker methodFuncA(ClassMaker maker)
+    ClassMakerConstants methodFuncA(ClassMaker maker)
     {
         maker.setPackageName("au.com.illyrian.parser.impl");
         maker.setSimpleClassName("Test");
         maker.Extends(FuncA.class);
-        maker.Declare("id", int.class, ClassMaker.ACC_PUBLIC);
-        maker.Declare("other", maker.getClassType(), ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", int.class, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("other", maker.getClassType(), ClassMakerConstants.ACC_PUBLIC);
         maker.Method("f", int.class, 0);
         maker.Declare("a", int.class, 0);
         maker.Begin();
         return maker;
     }
     
-    ClassMaker methodFuncABC(ClassMaker maker)
+    ClassMakerConstants methodFuncABC(ClassMaker maker)
     {
         maker.setPackageName("au.com.illyrian.parser.impl");
         maker.setSimpleClassName("Test");

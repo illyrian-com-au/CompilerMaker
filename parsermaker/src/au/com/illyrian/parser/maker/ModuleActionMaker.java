@@ -3,6 +3,7 @@ package au.com.illyrian.parser.maker;
 import java.util.Properties;
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.domainparser.ModuleAction;
 import au.com.illyrian.parser.CompilerContext;
@@ -24,7 +25,7 @@ public class ModuleActionMaker implements ModuleAction, ClassMakerLocation
     	maker = classMaker;
     }
 
-    public ClassMaker getClassMaker()
+    public ClassMakerConstants getClassMaker()
     {
         if (maker == null)
             throw new NullPointerException("classMaker is null.");

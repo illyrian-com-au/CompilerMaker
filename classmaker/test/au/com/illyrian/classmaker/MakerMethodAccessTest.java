@@ -40,7 +40,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
     // Generate default constructor
     public void defaultConstructor(ClassMaker maker)
     {
-        maker.Method("<init>", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("<init>", ClassMakerFactory.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
           maker.Init(maker.Super(), null);
         maker.Return();
@@ -57,7 +57,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         }
     }
 
-    static class TestMethodAccessMaker extends ClassMakerBase
+    static class TestMethodAccessMaker extends ClassMakerCode
     {
         public TestMethodAccessMaker(ClassMakerFactory factory, String className)
         {
@@ -135,7 +135,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
 
         defaultConstructor(maker);
 
-        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", ClassMakerFactory.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Access fields in other object
@@ -185,7 +185,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
 
         maker.Declare("testBase", otherClass, ACC_PUBLIC);
 
-        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", ClassMakerFactory.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Access fields in other object
@@ -232,7 +232,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
 
         defaultConstructor(maker);
 
-        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", ClassMakerFactory.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Access fields in same object
@@ -292,7 +292,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
 
         defaultConstructor(maker);
 
-        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", ClassMakerFactory.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Access fields in other object
@@ -343,7 +343,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
 
         defaultConstructor(maker);
 
-        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", ClassMakerFactory.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Access fields in other object
@@ -384,7 +384,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         maker.Declare("test", maker.getClassType(), ACC_PUBLIC);
         maker.Declare("publicInt", int.class, ACC_PUBLIC);
         maker.Declare("protectedInt", int.class, ACC_PUBLIC);
-        maker.Declare("packageInt", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Declare("packageInt", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("privateInt", int.class, ACC_PUBLIC);
 
         maker.Method("getPublicInt", int.class, ACC_PUBLIC);
@@ -410,7 +410,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
 
         defaultConstructor(maker);
 
-        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", ClassMakerFactory.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Access fields in self
@@ -476,7 +476,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         maker.Declare("packageStatic", int.class,  ACC_PUBLIC | ACC_STATIC);
         maker.Declare("privateStatic", int.class, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", ClassMakerFactory.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Access methods in other object
@@ -527,7 +527,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         maker.Declare("packageStatic", int.class,  ACC_PUBLIC | ACC_STATIC);
         maker.Declare("privateStatic", int.class, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", ClassMakerFactory.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Access methods in other object
@@ -576,7 +576,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         maker.Declare("packageStatic", int.class,  ACC_PUBLIC | ACC_STATIC);
         maker.Declare("privateStatic", int.class, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", ClassMakerFactory.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Access methods in other object
@@ -638,7 +638,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
             maker.Return(maker.Literal(24));
         maker.End();
 
-        maker.Method("run", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("run", ClassMakerFactory.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
         {
             // Access methods in other object

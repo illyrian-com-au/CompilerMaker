@@ -27,6 +27,8 @@
 
 package au.com.illyrian.classmaker;
 
+import java.lang.reflect.Method;
+
 import org.mozilla.classfile.ByteCode;
 
 import au.com.illyrian.classmaker.members.MakerMethod;
@@ -112,6 +114,95 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
         {
             id = value;
         }
+    }
+
+    private void assertObjectMethods(Method[] methods) {
+        assertContains("public java.lang.String java.lang.Object.toString()", methods);
+        assertContains("public final void java.lang.Object.wait(long,int) throws java.lang.InterruptedException", methods);
+        assertContains("public final native void java.lang.Object.wait(long) throws java.lang.InterruptedException", methods); 
+        assertContains("public final void java.lang.Object.wait() throws java.lang.InterruptedException", methods);
+        assertContains("public boolean java.lang.Object.equals(java.lang.Object)", methods);
+        assertContains("public java.lang.String java.lang.Object.toString()", methods);
+        assertContains("public native int java.lang.Object.hashCode()", methods);
+        assertContains("public final native java.lang.Class java.lang.Object.getClass()", methods); 
+        assertContains("public final native void java.lang.Object.notify()", methods);
+        assertContains("public final native void java.lang.Object.notifyAll()", methods);
+    }
+    
+    public void testJavaClassMethods() {
+        Class object = Object.class;
+        assertFalse("isInterface", object.isInterface());
+        Method [] methodsO = object.getMethods(); 
+        assertEquals("No of methods", 9, methodsO.length);
+        assertObjectMethods(methodsO);
+
+        Method [] declaredO = object.getDeclaredMethods(); 
+        assertEquals("No of methods", 12, declaredO.length);
+        assertContains("public final void java.lang.Object.wait(long,int) throws java.lang.InterruptedException", declaredO);
+        assertContains("protected native java.lang.Object java.lang.Object.clone() throws java.lang.CloneNotSupportedException", declaredO);
+        assertContains("private static native void java.lang.Object.registerNatives()", declaredO);
+        assertObjectMethods(declaredO);
+
+        Class runnable = RunnableClass.class;
+        assertFalse("isInterface", runnable.isInterface());
+        Method [] methodsR = runnable.getMethods(); 
+        assertEquals("No of methods", 13, methodsR.length);
+        assertContains("public void au.com.illyrian.classmaker.MakerInvokeTest$RunnableClass.run()", methodsR);
+        assertContains("public static int au.com.illyrian.classmaker.MakerInvokeTest$RunnableClass.add(int,int)", methodsR); 
+        assertContains("public int au.com.illyrian.classmaker.MakerInvokeTest$RunnableClass.getId()", methodsR);
+        assertContains("public void au.com.illyrian.classmaker.MakerInvokeTest$RunnableClass.setId(int)", methodsR);
+        assertObjectMethods(methodsR);
+
+        Method [] declaredR = runnable.getDeclaredMethods(); 
+        assertEquals("No of methods", 4, declaredR.length);
+        assertContains("public void au.com.illyrian.classmaker.MakerInvokeTest$RunnableClass.run()", declaredR);
+        assertContains("public static int au.com.illyrian.classmaker.MakerInvokeTest$RunnableClass.add(int,int)", declaredR); 
+        assertContains("public int au.com.illyrian.classmaker.MakerInvokeTest$RunnableClass.getId()", declaredR);
+        assertContains("public void au.com.illyrian.classmaker.MakerInvokeTest$RunnableClass.setId(int)", declaredR);
+
+        Class stat = StaticClass.class;
+        assertFalse("isInterface", stat.isInterface());
+        Method [] methodsS = stat.getMethods(); 
+        assertEquals("No of methods", 11, methodsS.length);
+        assertContains("public static int au.com.illyrian.classmaker.MakerInvokeTest$StaticClass.getId()", methodsS);
+        assertContains("public static void au.com.illyrian.classmaker.MakerInvokeTest$StaticClass.setId(int)", methodsS);
+        assertObjectMethods(methodsS);
+
+        Method [] declaredS = stat.getDeclaredMethods(); 
+        assertEquals("No of methods", 2, declaredS.length);
+        assertContains("public static int au.com.illyrian.classmaker.MakerInvokeTest$StaticClass.getId()", declaredS);
+        assertContains("public static void au.com.illyrian.classmaker.MakerInvokeTest$StaticClass.setId(int)", declaredS);
+    }
+    
+    private void assertObjectMakerMethods(MakerMethod[] methods) {
+        assertContains("public java.lang.String toString()", methods);
+        assertContains("public final native void wait(long)", methods); 
+        assertContains("public final void wait()", methods);
+        assertContains("public final void wait(long, int)", methods);
+        assertContains("public boolean equals(java.lang.Object)", methods);
+        assertContains("public java.lang.String toString()", methods);
+        assertContains("public native int hashCode()", methods);
+        assertContains("public final native java.lang.Class getClass()", methods); 
+        assertContains("public final native void notify()", methods);
+        assertContains("public final native void notifyAll()", methods);
+    }
+    
+    public void testClassTypeMethods()
+    {
+        ClassType execTypeO = maker.classToClassType(Object.class);
+        assertFalse("isInterface", execTypeO.isInterface());
+        //MakerMethod [] methodsO =  execTypeO.getAllMethods();
+        MakerMethod [] methodsO = maker.getAllClassMethods(execTypeO);
+        // FIXME - should not include clone() and wait(int, long) which are protected
+        assertEquals("No of methods", /*9*/ 12, methodsO.length);
+        assertObjectMakerMethods(methodsO);
+
+        MakerMethod [] declaredO = execTypeO.getDeclaredMethods();
+        assertEquals("No of methods", 12, declaredO.length);
+        assertContains("protected void finalize()", declaredO);
+        assertContains("protected native java.lang.Object clone()", declaredO);
+        assertContains("private static native void registerNatives()", declaredO);
+        assertObjectMakerMethods(declaredO);
     }
 
     // Generate public void run()
@@ -319,7 +410,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
     {
         String className = BINARY_CLASS;
         ClassMaker submaker = factory.createClassMaker("au/com/illyrian/classmaker", "BinaryClass", className + ".java");
-        submaker.setClassModifiers(ClassMaker.ACC_PUBLIC);
+        submaker.setClassModifiers(ClassMakerConstants.ACC_PUBLIC);
         submaker.Implements(Binary.class);
 
         submaker.Method("binary", int.class, ACC_PUBLIC);
@@ -347,7 +438,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
         // Create the class that gets called.
         Class binClass = binaryOperatorClass();
 
-        maker.Declare("val", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Declare("val", int.class, ClassMakerConstants.ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("a", int.class, 0);
@@ -379,7 +470,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
         // Create the class that gets called.
         Class binClass = binaryOperatorClass();
 
-        maker.Declare("val", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Declare("val", int.class, ClassMakerConstants.ACC_PUBLIC);
 
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("a", int.class, 0);
@@ -416,7 +507,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
             maker.Declare("a", int.class, 0);
         	maker.Set("a", maker.Literal(8));
         try {
-            maker.Return(PrimitiveType.INT_TYPE.getValue());
+            maker.Return(ClassMakerFactory.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
                 assertEquals("Method run returns void so must not return a value", ex.getMessage());
@@ -426,7 +517,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
     public void testReturnValueException() throws Exception
     {
         try {
-            maker.Return(PrimitiveType.INT_TYPE.getValue());
+            maker.Return(ClassMakerFactory.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
                 assertEquals("Return while not in a method", ex.getMessage());
@@ -442,7 +533,7 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
                 assertEquals("A call to Return or Throw must precede End()", ex.getMessage());
         }
         try {
-            maker.Return(PrimitiveType.VOID_TYPE.getValue());
+            maker.Return(ClassMakerFactory.VOID_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
                 assertEquals("Cannot return type void", ex.getMessage());
@@ -550,29 +641,28 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
     {
         maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
 
-        factory.setPass(ClassMaker.FIRST_PASS);
+        factory.setPass(ClassMakerConstants.FIRST_PASS);
         assertNull("Should return null: maker.getClassFileWriter()", maker.getClassFileWriter());
 
         code(maker);
         maker.EndClass();
 
-        assertEquals("Number of interfaces", 1, maker.getClassType().getInterfaces().length);
-        assertEquals("Number of fields", 1, maker.getClassType().getFields().length);
-        assertEquals("Number of methods", 2, maker.getClassType().getMethods().length);
-        // All methods are not available until second pass.
-        assertNull("Number of methods",  maker.getClassType().getAllMethods());
-        assertEquals("Number of constructors", 1, maker.getClassType().getConstructors().length);
+        assertEquals("Number of interfaces", 1, maker.getDeclaredInterfaces().length);
+        assertEquals("Number of fields", 1, maker.getDeclaredFields().length);
+        assertEquals("Number of methods", 2, maker.getDeclaredMethods().length);
+        assertEquals("Number of constructors", 1, maker.getDeclaredConstructors().length);
+        assertEquals("Number of methods", 14, maker.getAllClassMethods(maker.getClassType()).length);
 
-        factory.setPass(ClassMaker.SECOND_PASS);
+        factory.setPass(ClassMakerConstants.SECOND_PASS);
         assertNotNull("Should not be null : maker.getClassFileWriter()", maker.getClassFileWriter());
         code(maker);
         maker.EndClass();
 
-        assertEquals("Number of interfaces", 1, maker.getClassType().getInterfaces().length);
-        assertEquals("Number of fields", 1, maker.getClassType().getFields().length);
-        assertEquals("Number of methods", 2, maker.getClassType().getMethods().length);
-        assertEquals("Number of methods", 13, maker.getClassType().getAllMethods().length);
-        assertEquals("Number of constructors", 1, maker.getClassType().getConstructors().length);
+        assertEquals("Number of interfaces", 1, maker.getDeclaredInterfaces().length);
+        assertEquals("Number of fields", 1, maker.getDeclaredFields().length);
+        assertEquals("Number of methods", 2, maker.getDeclaredMethods().length);
+        assertEquals("Number of constructors", 1, maker.getDeclaredConstructors().length);
+        assertEquals("Number of methods", 14, maker.getAllClassMethods(maker.getClassType()).length);
 
         Class myClass = maker.defineClass();
         Eval exec = (Eval)myClass.newInstance();
@@ -597,20 +687,66 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
     
     public void testFindInterfaceMethods()
     {
+        ClassType execTypeR = maker.classToClassType(Runnable.class);
+        assertTrue("isInterface", execTypeR.isInterface());
+        //MakerMethod [] methodsR =  execTypeR.getAllMethods();
+        MakerMethod [] methodsR =  maker.getAllInterfaceMethods(execTypeR);
+        assertEquals("No of methods", 1, methodsR.length);
+        assertContains("public abstract void run()", methodsR);
+
         ClassType execTypeA = maker.classToClassType(ExecutableAA.class);
         assertTrue("isInterface", execTypeA.isInterface());
-        MakerMethod [] methodsA = maker.getMethods(execTypeA); 
-        assertEquals("No of methods", 14, methodsA.length);
-        assertContains("void run()", methodsA);
-        assertContains("void runA()", methodsA);
-        assertContains("void execA()", methodsA);
+        MakerMethod [] methodsA = maker.getAllInterfaceMethods(execTypeA);
+        assertEquals("No of methods", 3, methodsA.length);
+        assertContains("public abstract void run()", methodsA);
+        assertContains("public abstract void runA()", methodsA);
+        assertContains("public abstract void execA()", methodsA);
         
-        ClassType execTypeB = maker.classToClassType(ExecutableAB.class);
-        assertTrue("isInterface", execTypeB.isInterface());
-        MakerMethod [] methodsB = maker.getMethods(execTypeB); 
-        assertEquals("No of methods", 13, methodsB.length);
-        assertContains("void run()", methodsB);
-        assertContains("void execB()", methodsB);
+        ClassType execTypeAB = maker.classToClassType(ExecutableAB.class);
+        assertTrue("isInterface", execTypeAB.isInterface());
+        MakerMethod [] methodsAB = maker.getAllInterfaceMethods(execTypeAB); 
+        assertEquals("No of methods", 2, methodsAB.length);
+        assertContains("public abstract void run()", methodsAB);
+        assertContains("public abstract void execB()", methodsAB);
+        
+        ClassType execTypeAA = maker.classToClassType(ExecutableAA.class);
+        assertTrue("isInterface", execTypeAA.isInterface());
+        MakerMethod [] methodsAA = maker.getAllInterfaceMethods(execTypeAA); 
+        assertEquals("No of methods", 3, methodsAA.length);
+        assertContains("public abstract void run()", methodsAA);
+        assertContains("public abstract void runA()", methodsAA);
+        assertContains("public abstract void execA()", methodsAA);
+    }
+    
+    public void testJavaInterfaceMethods() {
+        Class runnable = Runnable.class;
+        assertTrue("isInterface", runnable.isInterface());
+        Method [] methodsR = runnable.getMethods(); 
+        assertEquals("No of methods", 1, methodsR.length);
+        assertContains("public abstract void java.lang.Runnable.run()", methodsR);
+
+        Class execJavaA = InterfaceA.class;
+        assertTrue("isInterface", execJavaA.isInterface());
+        Method [] methodsA = execJavaA.getMethods(); 
+        assertEquals("No of methods", 2, methodsA.length);
+        assertContains("public abstract void java.lang.Runnable.run()", methodsA);
+        assertContains("public abstract void au.com.illyrian.classmaker.MakerInvokeTest$InterfaceA.runA()", methodsA);
+
+
+        Class execJavaAB = ExecutableAB.class;
+        assertTrue("isInterface", execJavaAB.isInterface());
+        Method [] methodsAB = execJavaAB.getMethods(); 
+        assertEquals("No of methods", 2, methodsAB.length);
+        assertContains("public abstract void java.lang.Runnable.run()", methodsAB);
+        assertContains("public abstract void au.com.illyrian.classmaker.MakerInvokeTest$ExecutableAB.execB()", methodsAB);
+
+        Class execJavaAA = ExecutableAA.class;
+        assertTrue("isInterface", execJavaAA.isInterface());
+        Method [] methodsAA = execJavaAA.getMethods(); 
+        assertEquals("No of methods", 3, methodsAA.length);
+        assertContains("public abstract void java.lang.Runnable.run()", methodsAA);
+        assertContains("public abstract void au.com.illyrian.classmaker.MakerInvokeTest$InterfaceA.runA()", methodsAA);
+        assertContains("public abstract void au.com.illyrian.classmaker.MakerInvokeTest$ExecutableAA.execA()", methodsAA);
     }
     
     public void assertContains(String find, Object [] list)
@@ -647,20 +783,20 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
 
     public void testMthodExceptions() throws Exception
     {
-        maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("getValue", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Begin();
         {
             maker.Return(maker.Literal(1));
         }
         try {
-            maker.Method("getNext", int.class, ClassMaker.ACC_PUBLIC);
+            maker.Method("getNext", int.class, ClassMakerConstants.ACC_PUBLIC);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Missing End() for previous method: public int getValue()", ex.getMessage());
         }
         maker.End();
 
-        maker.Method("getNext", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("getNext", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Begin();
         {
             maker.Return(maker.Literal(2));

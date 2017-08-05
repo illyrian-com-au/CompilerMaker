@@ -28,6 +28,7 @@
 package au.com.illyrian.jesub.ast;
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.classmaker.ForStep;
 import au.com.illyrian.classmaker.ForWhile;
@@ -55,7 +56,7 @@ public class AstStructureFactoryMaker extends AstExpressionFactory implements Cl
         visitor = new AstExpressionVisitor(maker);
     }
 
-    public ClassMaker getClassMaker()
+    public ClassMakerConstants getClassMaker()
     {
         if (maker == null)
             throw new NullPointerException("classMaker is null.");

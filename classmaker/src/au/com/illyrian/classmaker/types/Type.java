@@ -27,6 +27,8 @@
 
 package au.com.illyrian.classmaker.types;
 
+import au.com.illyrian.classmaker.ClassMakerFactory;
+
 /**
  * Base class for all ClassMaker types.
  *
@@ -35,13 +37,13 @@ package au.com.illyrian.classmaker.types;
 public class Type
 {
     /** The name of the type */
-    private final String name;
+    final String name;
 
     /** The JVM signature for the type */
-    private final String signature;
+    final String signature;
 
     /** The java Class which this type is based upon */
-    private Class javaClass = null;
+    Class javaClass = null;
     
     private final Value value;
 
@@ -127,7 +129,7 @@ public class Type
 
     public short getSlotSize()
     {
-        return (short)(PrimitiveType.DOUBLE_TYPE.equals(this) || PrimitiveType.LONG_TYPE.equals(this) ? 2 : 1);
+        return (short)(ClassMakerFactory.DOUBLE_TYPE.equals(this) || ClassMakerFactory.LONG_TYPE.equals(this) ? 2 : 1);
     }
 
     /**

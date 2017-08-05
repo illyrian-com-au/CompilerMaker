@@ -88,7 +88,7 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     // Generate default constructor
     public void defaultConstructor()
     {
-        maker.Method("<init>", PrimitiveType.VOID_TYPE, ACC_PUBLIC);
+        maker.Method("<init>", ClassMakerFactory.VOID_TYPE, ACC_PUBLIC);
         maker.Begin();
           maker.Init(maker.Super(), null);
         maker.Return();
@@ -99,8 +99,8 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(UnaryInt.class);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.Get("x"));
         maker.End();
@@ -116,10 +116,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(UnaryInt.class);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
-        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
+        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
         maker.Set("a", maker.Get("x"));
         maker.Return(maker.Get("a"));
         maker.End();
@@ -135,10 +135,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(UnaryInt.class);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
-        maker.Declare("a", PrimitiveType.INT_TYPE, 0);
+        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
         maker.Return(maker.Assign("a", maker.Get("x")));
         maker.End();
 
@@ -152,10 +152,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntGetField() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.Get(maker.This(), "id"));
         maker.End();
@@ -172,10 +172,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntGetSetThisField() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.Literal(0));
@@ -198,10 +198,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntFindAssignThisField() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.Assign(maker.This(), "id", maker.Get("x")));
         maker.End();
@@ -224,10 +224,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     {
         maker.Implements(UnaryInt.class);
         maker.Declare("other", maker.getClassType(), ACC_PUBLIC);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.Assign(maker.Get(maker.This(), "other"), "id", maker.Get("x")));
         maker.End();
@@ -256,10 +256,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntSetField() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.Literal(0));
@@ -283,10 +283,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntSetGetStatic() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.getFullyQualifiedClassName(), "id", maker.Get("x"));
         maker.Return(maker.Get(maker.getFullyQualifiedClassName(), "id"));
@@ -307,11 +307,11 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntSetGetStaticField() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("n", PrimitiveType.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("n", ClassMakerFactory.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         // MyClass.n = MyClass.n + 10;
         maker.Set(maker.getFullyQualifiedClassName(), "n", maker.Add(maker.Get(maker.getFullyQualifiedClassName(), "n"), maker.Literal(10)));
@@ -336,10 +336,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntInc() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Inc("x"));
         maker.Return(maker.Get("x"));
@@ -357,10 +357,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntDec() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Dec("x"));
         maker.Return(maker.Get("x"));
@@ -378,10 +378,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntPostInc() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.PostInc("x"));
         maker.Return(maker.Get("x"));
@@ -399,10 +399,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntPostDec() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.PostDec("x"));
         maker.Return(maker.Get("x"));
@@ -420,10 +420,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntIncField() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.Inc(maker.This(), "id"));
@@ -450,10 +450,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntDecField() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.Dec(maker.This(), "id"));
@@ -471,10 +471,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntIncPostField() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.PostInc(maker.This(), "id"));
@@ -501,10 +501,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntPostDecField() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.PostDec(maker.This(), "id"));
@@ -522,10 +522,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntIncStatic() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.Inc(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -543,10 +543,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntDecStatic() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.Dec(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -564,10 +564,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntIncPostStatic() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.PostInc(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -585,10 +585,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testIntPostDecStatic() throws Exception
     {
         maker.Implements(UnaryInt.class);
-        maker.Declare("id", PrimitiveType.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.INT_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.INT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.PostDec(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -608,7 +608,7 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
         maker.Declare("id", String.class, ACC_PUBLIC);
         maker.Declare("n", boolean.class, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
         maker.Declare("x", String.class, 0);
         maker.Begin();
         try {
@@ -624,19 +624,19 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Cannot increment variable 'x' of type java.lang.String", ex.getMessage());
         }
         try {
-            maker.Get(PrimitiveType.INT_TYPE.getValue(), "n");
+            maker.Get(ClassMakerFactory.INT_TYPE.getValue(), "n");
             fail("Expected class");
         } catch (ClassMakerException ex) {
             assertEquals("Expected a class but was type int", ex.getMessage());
         }
         try {
-            maker.Set(PrimitiveType.INT_TYPE.getValue(), "id", PrimitiveType.INT_TYPE.getValue());
+            maker.Set(ClassMakerFactory.INT_TYPE.getValue(), "id", ClassMakerFactory.INT_TYPE.getValue());
             fail("Expected class");
         } catch (ClassMakerException ex) {
             assertEquals("Expected a class but was type int", ex.getMessage());
         }
         try {
-            maker.Set(maker.getFullyQualifiedClassName(), "n", PrimitiveType.INT_TYPE.getValue());
+            maker.Set(maker.getFullyQualifiedClassName(), "n", ClassMakerFactory.INT_TYPE.getValue());
             fail("Static not asiignable");
         } catch (ClassMakerException ex) {
             assertEquals("Static field \'n\' of type boolean cannot be assigned type int", ex.getMessage());
@@ -648,13 +648,13 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Class variable 'test.MyClass.id' is not static", ex.getMessage());
         }
         try {
-            maker.Set(maker.getFullyQualifiedClassName(), "id", PrimitiveType.INT_TYPE.getValue());
+            maker.Set(maker.getFullyQualifiedClassName(), "id", ClassMakerFactory.INT_TYPE.getValue());
             fail("Not static");
         } catch (ClassMakerException ex) {
             assertEquals("Class variable 'test.MyClass.id' is not static", ex.getMessage());
         }
         try {
-            maker.Set(maker.getFullyQualifiedClassName(), "n", PrimitiveType.INT_TYPE.getValue());
+            maker.Set(maker.getFullyQualifiedClassName(), "n", ClassMakerFactory.INT_TYPE.getValue());
             fail("Static not asiignable");
         } catch (ClassMakerException ex) {
             assertEquals("Static field 'n' of type boolean cannot be assigned type int", ex.getMessage());
@@ -667,10 +667,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatSetGetField() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.Get(maker.This(), "id"));
@@ -691,10 +691,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatInc() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Inc("x"));
         maker.Return(maker.Get("x"));
@@ -712,10 +712,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatDec() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Dec("x"));
         maker.Return(maker.Get("x"));
@@ -733,10 +733,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatPostInc() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.PostInc("x"));
         maker.Return(maker.Get("x"));
@@ -754,10 +754,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatPostDec() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.PostDec("x"));
         maker.Return(maker.Get("x"));
@@ -775,10 +775,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatIncField() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.Inc(maker.This(), "id"));
@@ -796,10 +796,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatDecField() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.Dec(maker.This(), "id"));
@@ -817,10 +817,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatIncPostField() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.PostInc(maker.This(), "id"));
@@ -838,10 +838,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatPostDecField() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.PostDec(maker.This(), "id"));
@@ -860,10 +860,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatSetGetStatic() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Set(maker.getFullyQualifiedClassName(), "id", maker.Get("x"));
         maker.Return(maker.Get(maker.getFullyQualifiedClassName(), "id"));
@@ -884,10 +884,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatIncStatic() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.Inc(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -905,10 +905,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatDecStatic() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.Dec(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -926,10 +926,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatIncPostStatic() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.PostInc(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -947,10 +947,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testFloatPostDecStatic() throws Exception
     {
         maker.Implements(UnaryFloat.class);
-        maker.Declare("id", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.FLOAT_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.FLOAT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.FLOAT_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.FLOAT_TYPE, 0);
         maker.Begin();
         maker.Return(maker.PostDec(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -970,10 +970,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongSetGetField() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.Get(maker.This(), "id"));
@@ -994,10 +994,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongInc() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Inc("x"));
         maker.Return(maker.Get("x"));
@@ -1015,10 +1015,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongDec() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Dec("x"));
         maker.Return(maker.Get("x"));
@@ -1036,10 +1036,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongPostInc() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.PostInc("x"));
         maker.Return(maker.Get("x"));
@@ -1057,10 +1057,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongPostDec() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.PostDec("x"));
         maker.Return(maker.Get("x"));
@@ -1078,10 +1078,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongIncField() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.Inc(maker.This(), "id"));
@@ -1099,10 +1099,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongDecField() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.Dec(maker.This(), "id"));
@@ -1120,10 +1120,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongIncPostField() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.PostInc(maker.This(), "id"));
@@ -1141,10 +1141,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongPostDecField() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.PostDec(maker.This(), "id"));
@@ -1163,10 +1163,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongSetGetStatic() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Set(maker.getFullyQualifiedClassName(), "id", maker.Get("x"));
         maker.Return(maker.Get(maker.getFullyQualifiedClassName(), "id"));
@@ -1187,10 +1187,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongIncStatic() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Return(maker.Inc(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -1208,10 +1208,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongDecStatic() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Return(maker.Dec(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -1229,10 +1229,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongIncPostStatic() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Return(maker.PostInc(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -1250,10 +1250,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testLongPostDecStatic() throws Exception
     {
         maker.Implements(UnaryLong.class);
-        maker.Declare("id", PrimitiveType.LONG_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.LONG_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.LONG_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.LONG_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.LONG_TYPE, 0);
         maker.Begin();
         maker.Return(maker.PostDec(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -1273,10 +1273,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoubleSetGetField() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.Get(maker.This(), "id"));
@@ -1297,10 +1297,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoubleInc() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Inc("x"));
         maker.Return(maker.Get("x"));
@@ -1318,10 +1318,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoubleDec() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Dec("x"));
         maker.Return(maker.Get("x"));
@@ -1339,10 +1339,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoublePostInc() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.PostInc("x"));
         maker.Return(maker.Get("x"));
@@ -1360,10 +1360,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoublePostDec() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.PostDec("x"));
         maker.Return(maker.Get("x"));
@@ -1381,10 +1381,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoubleIncField() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.Inc(maker.This(), "id"));
@@ -1402,10 +1402,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoubleDecField() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.Dec(maker.This(), "id"));
@@ -1423,10 +1423,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoubleIncPostField() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.PostInc(maker.This(), "id"));
@@ -1444,10 +1444,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoublePostDecField() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Set(maker.This(), "id", maker.Get("x"));
         maker.Return(maker.PostDec(maker.This(), "id"));
@@ -1466,10 +1466,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoubleSetGetStatic() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Set(maker.getFullyQualifiedClassName(), "id", maker.Get("x"));
         maker.Return(maker.Get(maker.getFullyQualifiedClassName(), "id"));
@@ -1490,10 +1490,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoubleIncStatic() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Return(maker.Inc(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -1511,10 +1511,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoubleDecStatic() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Return(maker.Dec(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -1532,10 +1532,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoubleIncPostStatic() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Return(maker.PostInc(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -1553,10 +1553,10 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
     public void testDoublePostDecStatic() throws Exception
     {
         maker.Implements(UnaryDouble.class);
-        maker.Declare("id", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC | ACC_STATIC);
+        maker.Declare("id", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC | ACC_STATIC);
 
-        maker.Method("unary", PrimitiveType.DOUBLE_TYPE, ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.DOUBLE_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.DOUBLE_TYPE, ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.DOUBLE_TYPE, 0);
         maker.Begin();
         maker.Return(maker.PostDec(maker.getFullyQualifiedClassName(), "id"));
         maker.End();
@@ -1591,7 +1591,7 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Wrong message", "No local variable called 'a'", ex.getMessage());
         }
         try {
-            maker.Set("a", PrimitiveType.INT_TYPE.getValue());
+            maker.Set("a", ClassMakerFactory.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "No local variable called 'a'", ex.getMessage());
@@ -1603,14 +1603,14 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Wrong message", "Cannot find member field 'a' in class test.MyClass", ex.getMessage());
         }
         try {
-            maker.Set(maker.This(), "a", PrimitiveType.INT_TYPE.getValue());
+            maker.Set(maker.This(), "a", ClassMakerFactory.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Cannot find member field 'a' in class test.MyClass", ex.getMessage());
         }
 
         try {
-            MakerField field = new MakerField("a", PrimitiveType.VOID_TYPE, 0);
+            MakerField field = new MakerField("a", ClassMakerFactory.VOID_TYPE, 0);
             field.setSlot(1);
             maker.loadLocal(field);
             fail("Should throw ClassMakerException");
@@ -1618,9 +1618,9 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Wrong message", "Don't know how to load type: void", ex.getMessage());
         }
         try {
-            MakerField field = new MakerField("a", PrimitiveType.VOID_TYPE, 0);
+            MakerField field = new MakerField("a", ClassMakerFactory.VOID_TYPE, 0);
             field.setSlot(1);
-            maker.storeLocal(field, PrimitiveType.VOID_TYPE);
+            maker.storeLocal(field, ClassMakerFactory.VOID_TYPE);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Don't know how to store type: void", ex.getMessage());
@@ -1632,7 +1632,7 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Wrong message", "Cannot declare a variable of type void", ex.getMessage());
         }
         try {
-            maker.Declare("store", ClassType.NULL_TYPE, 0);
+            maker.Declare("store", ClassMakerFactory.NULL_TYPE, 0);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Cannot declare a variable of type null", ex.getMessage());
@@ -1646,13 +1646,13 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             maker.Get(storeName, "a");
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("Wrong message", "Cannot find member field 'a' in class " + storeName, ex.getMessage());
+            assertEquals("Wrong message", "Cannot find static field 'a' in class " + storeName, ex.getMessage());
         }
         try {
-            maker.Set(storeName, "a", PrimitiveType.INT_TYPE.getValue());
+            maker.Set(storeName, "a", ClassMakerFactory.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
-            assertEquals("Wrong message", "Cannot find member field 'a' in class " + storeName, ex.getMessage());
+            assertEquals("Wrong message", "Cannot find static field 'a' in class " + storeName, ex.getMessage());
         }
         try {
             maker.Set("store", maker.Get("runnable"));
@@ -1661,7 +1661,7 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Wrong message", "Cannot assign type java.lang.Runnable to local variable \'store\' of type " + storeName, ex.getMessage());
         }
         try {
-            maker.Set("runnable", PrimitiveType.INT_TYPE.getValue());
+            maker.Set("runnable", ClassMakerFactory.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Cannot assign type int to local variable \'runnable\' of type java.lang.Runnable", ex.getMessage());

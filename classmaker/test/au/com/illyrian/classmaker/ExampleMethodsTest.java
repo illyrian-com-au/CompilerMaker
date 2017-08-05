@@ -40,7 +40,7 @@ public class ExampleMethodsTest extends TestCase
         String getName();
     }
 
-    public class AccessMaker extends ClassMakerBase
+    public class AccessMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -154,7 +154,7 @@ public class ExampleMethodsTest extends TestCase
         public void exec();
     }
 
-    public class InvocationMaker extends ClassMakerBase
+    public class InvocationMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -190,7 +190,7 @@ public class ExampleMethodsTest extends TestCase
     public void testMethodInvocation() throws Exception
     {
         ExampleMethodsTest.instance = null;
-        ClassMakerBase.setSharedFactory(null);
+        ClassMakerCode.setSharedFactory(null);
         ExampleMethodsTest.setInstance(null);
         InvocationMaker maker = new InvocationMaker();
         Class invocationClass = maker.defineClass();
@@ -211,7 +211,7 @@ public class ExampleMethodsTest extends TestCase
         long binary(long a, long b);
     }
 
-    public class MultiplyMaker extends ClassMakerBase
+    public class MultiplyMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -230,7 +230,7 @@ public class ExampleMethodsTest extends TestCase
 
     public void testBinaryMultiply() throws Exception
     {
-        ClassMakerBase.setSharedFactory(null);
+        ClassMakerCode.setSharedFactory(null);
         ClassMaker maker = new MultiplyMaker();
         Class multiplyClass = maker.defineClass();
         Binary exec = (Binary) multiplyClass.newInstance();
@@ -260,7 +260,7 @@ public class ExampleMethodsTest extends TestCase
         }
     }
 
-    public static class LinkMaker extends ClassMakerBase
+    public static class LinkMaker extends ClassMakerCode
     {
         public static final String linkName = "au.com.illyrian.classmaker.ExampleMethodsTest$Link";
 
@@ -311,7 +311,7 @@ public class ExampleMethodsTest extends TestCase
 
     public void testLink() throws Exception
     {
-        ClassMakerBase.setSharedFactory(null);
+        ClassMakerCode.setSharedFactory(null);
         ClassMaker maker = new LinkMaker();
         Class linkClass = maker.defineClass();
 
@@ -333,23 +333,23 @@ public class ExampleMethodsTest extends TestCase
 
     public void testForwardDeclaration() throws Exception
     {
-        ClassMakerBase.setSharedFactory(null);
+        ClassMakerCode.setSharedFactory(null);
         ClassMakerFactory factory = new ClassMakerFactory();
         ClassMaker maker = factory.createClassMaker("test", "Unary", null);
         maker.Implements(Evaluate.class);
 
         // BEGIN - Forward Declarations
-        maker.Method("add", int.class, ClassMaker.ACC_PRIVATE);
+        maker.Method("add", int.class, ClassMakerConstants.ACC_PRIVATE);
         maker.Declare("a", int.class, 0);
         maker.Declare("b", int.class, 0);
         maker.Forward();
 
-        maker.Method("eval", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Begin();
         maker.Return(maker.Call(maker.This(), "add", maker.Push(maker.Literal(1)).Push(maker.Literal(2))));
         maker.End();
 
-        maker.Method("add", int.class, ClassMaker.ACC_PRIVATE);
+        maker.Method("add", int.class, ClassMakerConstants.ACC_PRIVATE);
         maker.Declare("a", int.class, 0);
         maker.Declare("b", int.class, 0);
         maker.Begin();

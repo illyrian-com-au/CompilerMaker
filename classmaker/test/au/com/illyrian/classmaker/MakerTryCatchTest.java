@@ -59,7 +59,7 @@ public class MakerTryCatchTest extends ClassMakerTestCase
     // Generate default constructor
     public void defaultConstructor()
     {   nl(60);
-        maker.Method("<init>", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC); nl();
+        maker.Method("<init>", ClassMakerFactory.VOID_TYPE, ClassMakerConstants.ACC_PUBLIC); nl();
         maker.Begin();                      nl();
           maker.Init(maker.Super(), null);  nl();
           maker.Return();                   nl();
@@ -116,8 +116,8 @@ public class MakerTryCatchTest extends ClassMakerTestCase
 nl(115);
 nl();   maker.Implements(Unary.class);
 nl();   maker.Import(ILLEGAL_ARGUMENT_EXCEPTION);
-nl();   maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+nl();   maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Begin();
 nl();   {
 nl();       // IllegalArgumentException ex;
@@ -143,8 +143,8 @@ nl();   maker.End();
 nl(142);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(FILE_NOT_FOUND_EXCEPTION);
-nl();   maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+nl();   maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Begin();
 nl();   {
 nl();       // IllegalArgumentException ex;
@@ -186,7 +186,7 @@ nl();   maker.End();
     {
         maker.Implements(UnaryChecked.class);
 
-        maker.Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("a", int.class, 0);
         maker.Begin();
         {
@@ -248,9 +248,9 @@ nl();   maker.End();
 nl(247);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
-nl();   maker.Declare("func", UNARY_CHECKED, ClassMaker.ACC_PUBLIC);
-nl();   maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+nl();   maker.Declare("func", UNARY_CHECKED, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Begin();
 nl();   {
 nl();       // return this.func.unary(x);
@@ -289,9 +289,9 @@ nl(287);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
 nl();   maker.Import(FILE_NOT_FOUND_EXCEPTION);
-nl();   maker.Declare("func", UNARY_CHECKED, ClassMaker.ACC_PUBLIC);
-nl();   maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+nl();   maker.Declare("func", UNARY_CHECKED, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Begin();
 nl();   {
 nl();       maker.Try();
@@ -328,9 +328,9 @@ nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
 nl();   maker.Import(FILE_NOT_FOUND_EXCEPTION);
 nl();   maker.Import(ILLEGAL_ARGUMENT_EXCEPTION);
-nl();   maker.Declare("func", UNARY_CHECKED, ClassMaker.ACC_PUBLIC);
-nl();   maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+nl();   maker.Declare("func", UNARY_CHECKED, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Begin();
 nl();   {
 nl();       maker.Try();
@@ -370,10 +370,10 @@ nl();   maker.End();
 nl(369);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
-nl();   maker.Declare("func", UNARY_CHECKED, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("val", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+nl();   maker.Declare("func", UNARY_CHECKED, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("val", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Begin();
 nl();   {
 nl();       maker.Try();
@@ -414,10 +414,10 @@ nl(412);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
 nl();   maker.Import(FILE_NOT_FOUND_EXCEPTION);
-nl();   maker.Declare("func", UNARY_CHECKED, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("val", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+nl();   maker.Declare("func", UNARY_CHECKED, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("val", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Begin();
 nl();   {
 nl();       maker.Try();
@@ -472,10 +472,10 @@ nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
 nl();   maker.Import(FILE_NOT_FOUND_EXCEPTION);
 nl();   maker.Import(ILLEGAL_ARGUMENT_EXCEPTION);
-nl();   maker.Declare("func", UNARY_CHECKED, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("val", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+nl();   maker.Declare("func", UNARY_CHECKED, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("val", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Begin();
 nl();   {
 nl();       maker.Try();
@@ -529,10 +529,10 @@ nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
 nl();   maker.Import(FILE_NOT_FOUND_EXCEPTION);
 nl();   maker.Import(ILLEGAL_ARGUMENT_EXCEPTION);
-nl();   maker.Declare("func", UNARY_CHECKED, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("val", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();   maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+nl();   maker.Declare("func", UNARY_CHECKED, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("val", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();   maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Begin();
 nl();   {
 nl();       maker.Try();
@@ -586,13 +586,13 @@ nl();   maker.End();
         };
     }
 
-    public class TryCatchFinallyMaker extends ClassMakerBase
+    public class TryCatchFinallyMaker extends ClassMakerCode
     {
         public void code()
         {
             Implements(UnaryChecked.class);
             Import(FileNotFoundException.class);
-            Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+            Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
             Declare("x", int.class, 0);
             Begin();
             {
@@ -649,30 +649,36 @@ nl();   maker.End();
     {
         maker = factory.createClassMaker();
         maker.setPackageName(getClass().getPackage().getName());
-        maker.setClassModifiers(ClassMaker.ACC_PUBLIC);
+        maker.setClassModifiers(ClassMakerConstants.ACC_PUBLIC);
         maker.setSimpleClassName("Test");
         maker.Extends(Unreliable.class);
         maker.Implements(Unary.class);
         
-        maker.Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
 
         // Method body
         maker.Begin();
         {
             maker.Declare("y", int.class, 0);
-        	maker.Try(); 
-        	{
-        	    maker.Eval(maker.Call(maker.This(), "f", maker.Push(maker.Get("x"))));
-        	    maker.Eval(maker.Assign("y", maker.Get("x")));
-        	} maker.Catch(IOException.class, "ex1"); {
-        	    maker.Eval(maker.Assign("y", maker.Literal(-10)));
-        	} maker.Catch("IllegalStateException", "ex2"); {
-        	    maker.Eval(maker.Assign("y", maker.Literal(-100)));
-        	} maker.Finally(); {
-        		maker.Eval(maker.Inc("y"));
-        	}
-        	maker.EndTry();
+            maker.Try();
+            {
+                maker.Eval(maker.Call(maker.This(), "f", maker.Push(maker.Get("x"))));
+                maker.Eval(maker.Assign("y", maker.Get("x")));
+            }
+            maker.Catch(IOException.class, "ex1");
+            {
+                maker.Eval(maker.Assign("y", maker.Literal(-10)));
+            }
+            maker.Catch("IllegalStateException", "ex2");
+            {
+                maker.Eval(maker.Assign("y", maker.Literal(-100)));
+            }
+            maker.Finally();
+            {
+                maker.Eval(maker.Inc("y"));
+            }
+            maker.EndTry();
             maker.Return(maker.Get("y"));
         }
         maker.End();
@@ -690,7 +696,7 @@ nl();   maker.End();
     public void testTryException() throws Exception
     {
 
-        maker.Method("unary", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("x", Runnable.class, 0);
         maker.Begin();
         try {
@@ -718,13 +724,13 @@ nl();   maker.End();
             assertEquals("Wrong message", "EndTry without Try block", ex.getMessage());
         }
         try {
-            maker.Throw(PrimitiveType.INT_TYPE.getValue());
+            maker.Throw(ClassMakerFactory.INT_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Cannot throw type int", ex.getMessage());
         }
         try {
-            maker.Throw(ClassType.STRING_TYPE.getValue());
+            maker.Throw(ClassMakerFactory.STRING_TYPE.getValue());
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Class java.lang.String cannot be thrown", ex.getMessage());

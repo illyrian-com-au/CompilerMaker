@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 import au.com.illyrian.bnf.BnfParser;
 import au.com.illyrian.bnf.ast.BnfTreeParser;
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.TerminalName;
@@ -54,11 +55,11 @@ public class ModuleParserTest extends TestCase
         assertEquals("token", TokenType.END, parserTree.getLexer().nextToken());
         assertNotNull("Nothing returned from parser", tree);
         
-        factory.setPass(ClassMaker.FIRST_PASS);
+        factory.setPass(ClassMakerConstants.FIRST_PASS);
         tree.resolveDeclaration(visitor);
         maker.EndClass();
         
-        factory.setPass(ClassMaker.SECOND_PASS);
+        factory.setPass(ClassMakerConstants.SECOND_PASS);
         tree.resolveDeclaration(visitor);
         maker.EndClass();
         

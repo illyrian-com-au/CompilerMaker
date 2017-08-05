@@ -28,6 +28,7 @@
 package au.com.illyrian.classmaker.members;
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.Type;
 
@@ -200,7 +201,7 @@ public class MakerMethod {
      */
     public boolean isStatic()
     {
-        return (modifiers & ClassMaker.ACC_STATIC) > 0;
+        return (modifiers & ClassMakerConstants.ACC_STATIC) > 0;
     }
 
     /** 
@@ -211,7 +212,7 @@ public class MakerMethod {
      */
     public boolean isAbstract()
     {
-        return (modifiers & ClassMaker.ACC_ABSTRACT) > 0;
+        return (modifiers & ClassMakerConstants.ACC_ABSTRACT) > 0;
     }
 
     /** 
@@ -222,7 +223,7 @@ public class MakerMethod {
      */
     public boolean isPublic()
     {
-        return (modifiers & ClassMaker.ACC_PUBLIC) > 0;
+        return (modifiers & ClassMakerConstants.ACC_PUBLIC) > 0;
     }
 
     /** 
@@ -233,7 +234,7 @@ public class MakerMethod {
      */
     public boolean isProtected()
     {
-        return (modifiers & ClassMaker.ACC_PROTECTED) > 0;
+        return (modifiers & ClassMakerConstants.ACC_PROTECTED) > 0;
     }
 
     /** 
@@ -244,7 +245,7 @@ public class MakerMethod {
      */
     public boolean isPrivate()
     {
-        return (modifiers & ClassMaker.ACC_PRIVATE) > 0;
+        return (modifiers & ClassMakerConstants.ACC_PRIVATE) > 0;
     }
 
     /** 
@@ -257,7 +258,7 @@ public class MakerMethod {
      */
     public boolean isPackage()
     {
-        return ((ClassMaker.MASK_ACCESS) & modifiers) == 0;
+        return ((ClassMakerConstants.MASK_ACCESS) & modifiers) == 0;
     }
 
     /**
@@ -305,72 +306,52 @@ public class MakerMethod {
     }
 
     /**
-     * Creates a string representing the field.
-     * <br/>
-     * E.g. MakerMethod resolveMethod(maker, methods, name, actualParameters)
+     * Creates a descriptor for the method suitable for display. <br/>
+     * 
+     * @param name the name of the method
+     * @param params the formal parameter Types
+     * @param returnType the return Type of the method
+     * @param modifiers a bit mask of the method modifiers
+     * @return a string describing the method
+     */
+    public static String toMethodString(String name, Type[] params, Type returnType, int modifiers)
+    {
+        StringBuffer buf = new StringBuffer();
+        if (modifiers != 0) {
+            buf.append(ClassMaker.toModifierString(modifiers));
+        }
+        buf.append((returnType != null) ? returnType.getName() : "void");
+        buf.append(' ');
+        buf.append(name);
+        buf.append('(');
+        if (params != null)
+            for (int i = 0; i < params.length; i++) {
+                if (i > 0)
+                    buf.append(", ");
+                Type type = params[i];
+                if (type == null)
+                    buf.append("null");
+                else
+                    buf.append(ClassMaker.toDotName(type.getName()));
+            }
+        buf.append(')');
+        return buf.toString();
+    }
+
+    /**
+     * Creates a string representing the method without modifiers.
+     * This representation is suitable for lookups on the method as the modifiers may change on overridden methods.
      */
     public String toShortString()
     {
-        StringBuffer buf = new StringBuffer();
-
-        buf.append(name);
-        buf.append('(');
-        if (formalParamTypes != null)
-            for (int i = 0; i < formalParamTypes.length; i++)
-            {
-                if (i > 0)
-                    buf.append(", ");
-                Type type = formalParamTypes[i];
-                if (type == null)
-                    buf.append("null");
-                else
-                    buf.append(ClassMaker.toDotName(type.getName()));
-            }
-        buf.append(')');
-        return buf.toString();
-    }
-
-    public String toFullString()
-    {
-        StringBuffer buf = new StringBuffer();
-
-        buf.append(ClassMaker.toModifierString(getModifiers()));
-        buf.append((returnType != null) ? returnType.getName() : "void");
-        buf.append(' ');
-        buf.append(toShortString());
-        return buf.toString();
+        return toMethodString(getName(), getFormalTypes(), getReturnType(), 0);
     }
 
     /**
      * Creates a string representing the field.
-     * <br/>
-     * E.g. MakerMethod resolveMethod(maker, methods, name, actualParameters)
-     */
-    /**
-     * Creates a string representing the field.
-     * <br/>
-     * E.g. MakerMethod resolveMethod(maker, methods, name, actualParameters)
      */
     public String toString()
     {
-        StringBuffer buf = new StringBuffer();
-
-        buf.append((returnType != null) ? returnType.getName() : "void");
-        buf.append(' ');
-        buf.append(name);
-        buf.append('(');
-        if (formalParamTypes != null)
-            for (int i = 0; i < formalParamTypes.length; i++)
-            {
-                if (i > 0)
-                    buf.append(", ");
-                Type type = formalParamTypes[i];
-                if (type == null)
-                    buf.append("null");
-                else
-                    buf.append(ClassMaker.toDotName(type.getName()));
-            }
-        buf.append(')');
-        return buf.toString();
+        return toMethodString(getName(), getFormalTypes(), getReturnType(), getModifiers());
     }
 }

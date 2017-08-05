@@ -6,6 +6,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.ast.AstExpression;
@@ -70,27 +71,27 @@ public class MethodParserMakerTest extends ClassMakerTestCase
         static public int getId() {return id;}
     }
 
-    ClassMaker methodFuncA(ClassMaker maker)
+    ClassMakerConstants methodFuncA(ClassMaker maker)
     {
         maker.setPackageName("au.com.illyrian.parser.impl");
         maker.setSimpleClassName("Test");
         maker.Extends(FuncA.class);
-        maker.Declare("id", int.class, ClassMaker.ACC_PUBLIC);
-        maker.Declare("const", int.class, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_STATIC);
-        maker.Declare("self", maker.getClassType(), ClassMaker.ACC_PUBLIC);
-        maker.Declare("other", Other.class, ClassMaker.ACC_PUBLIC);
-        maker.Method("f", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Declare("id", int.class, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("const", int.class, ClassMakerConstants.ACC_PUBLIC | ClassMakerConstants.ACC_STATIC);
+        maker.Declare("self", maker.getClassType(), ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("other", Other.class, ClassMakerConstants.ACC_PUBLIC);
+        maker.Method("f", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("a", int.class, 0);
         maker.Begin();
         return maker;
     }
     
-    ClassMaker methodFuncABC(ClassMaker maker)
+    ClassMakerConstants methodFuncABC(ClassMaker maker)
     {
         maker.setPackageName("au.com.illyrian.parser.impl");
         maker.setSimpleClassName("Test");
         maker.Extends(FuncABC.class);
-        maker.Declare("self", maker.getClassType(), ClassMaker.ACC_PUBLIC);
+        maker.Declare("self", maker.getClassType(), ClassMakerConstants.ACC_PUBLIC);
         maker.Method("f", int.class, 0);
         maker.Declare("a", int.class, 0);
         maker.Declare("b", int.class, 0);

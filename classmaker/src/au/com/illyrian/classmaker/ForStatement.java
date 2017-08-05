@@ -54,7 +54,7 @@ class ForStatement extends LoopStatement implements ForWhile, ForStep
         maker.markLineNumber(); // possibly add a new line number entry.
         if (condition != null)
         {
-                if (!PrimitiveType.BOOLEAN_TYPE.equals(condition.getType()))
+                if (!ClassMakerFactory.BOOLEAN_TYPE.equals(condition.getType()))
                 {
                     throw maker.createException("ClassMaker.WhileConditionMustBeTypeBooleanNot_1", condition.getName());
                 }

@@ -7,11 +7,9 @@ import java.util.HashMap;
 import java.util.Stack;
 
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
-import au.com.illyrian.classmaker.ClassMaker.Initialiser;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
 
@@ -26,8 +24,8 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
 
     public ClassMakerText(Writer out) {
         super(out);
-        typeMap.put("match()", PrimitiveType.BOOLEAN_TYPE);
-        typeMap.put("expect()", ClassType.STRING_TYPE);
+        typeMap.put("match()", ClassMakerFactory.BOOLEAN_TYPE);
+        typeMap.put("expect()", ClassMakerFactory.STRING_TYPE);
     }
     
     @Override
@@ -71,7 +69,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         stack.push("Call(\"" + className + "\", \"" + methodName + "\", "
                 + parameters + ")");
         Type returnType = typeMap.get(methodName + "()");
-        return (returnType == null) ? ClassType.OBJECT_TYPE.getValue() : returnType.getValue();
+        return (returnType == null) ? ClassMakerFactory.OBJECT_TYPE.getValue() : returnType.getValue();
     }
 
     @Override
@@ -82,7 +80,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         stack.push("Call(" + refType + ", \"" + methodName + "\", "
                 + parameters + ")");
         Type returnType = typeMap.get(methodName + "()");
-        return (returnType == null) ? ClassType.OBJECT_TYPE.getValue() : returnType.getValue();
+        return (returnType == null) ? ClassMakerFactory.OBJECT_TYPE.getValue() : returnType.getValue();
     }
 
     private String processCallStack(int count) {
@@ -98,73 +96,73 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     @Override
     public Value This() throws ClassMakerException {
         stack.push("This()");
-        return ClassType.OBJECT_TYPE.getValue();
+        return ClassMakerFactory.OBJECT_TYPE.getValue();
     }
 
     @Override
     public Value Super() throws ClassMakerException {
         stack.push("Super()");
-        return ClassType.OBJECT_TYPE.getValue();
+        return ClassMakerFactory.OBJECT_TYPE.getValue();
     }
 
     @Override
     public Value Null() throws ClassMakerException {
         stack.push("Null()");
-        return ClassType.NULL_TYPE.getValue();
+        return ClassMakerFactory.NULL_TYPE.getValue();
     }
 
     @Override
     public Value Literal(double value) throws ClassMakerException {
         stack.push("Literal(" + value + ")");
-        return PrimitiveType.DOUBLE_TYPE.getValue();
+        return ClassMakerFactory.DOUBLE_TYPE.getValue();
     }
 
     @Override
     public Value Literal(float value) throws ClassMakerException {
         stack.push("Literal(" + value + "f)");
-        return PrimitiveType.FLOAT_TYPE.getValue();
+        return ClassMakerFactory.FLOAT_TYPE.getValue();
     }
 
     @Override
     public Value Literal(long value) throws ClassMakerException {
         stack.push("Literal(" + value + "l)");
-        return PrimitiveType.LONG_TYPE.getValue();
+        return ClassMakerFactory.LONG_TYPE.getValue();
     }
 
     @Override
     public Value Literal(int value) throws ClassMakerException {
         stack.push("Literal(" + value + ")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
     public Value Literal(char value) throws ClassMakerException {
         stack.push("Literal(\'" + (char) value + "\')");
-        return PrimitiveType.CHAR_TYPE.getValue();
+        return ClassMakerFactory.CHAR_TYPE.getValue();
     }
 
     @Override
     public Value Literal(byte value) throws ClassMakerException {
         stack.push("Literal(" + value + ")");
-        return PrimitiveType.BYTE_TYPE.getValue();
+        return ClassMakerFactory.BYTE_TYPE.getValue();
     }
 
     @Override
     public Value Literal(short value) throws ClassMakerException {
         stack.push("Literal(" + value + ")");
-        return PrimitiveType.SHORT_TYPE.getValue();
+        return ClassMakerFactory.SHORT_TYPE.getValue();
     }
 
     @Override
     public Value Literal(boolean value) throws ClassMakerException {
         stack.push("Literal(" + value + ")");
-        return PrimitiveType.BOOLEAN_TYPE.getValue();
+        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     @Override
     public Value Literal(String value) throws ClassMakerException {
         stack.push("Literal(\"" + value + "\")");
-        return ClassType.STRING_TYPE.getValue();
+        return ClassMakerFactory.STRING_TYPE.getValue();
     }
 
     @Override
@@ -221,13 +219,13 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     private Value get(String fieldName) {
         if ("x".equals(fieldName) || "y".equals(fieldName)
                 || "z".equals(fieldName))
-            return ClassType.OBJECT_TYPE.getValue();
+            return ClassMakerFactory.OBJECT_TYPE.getValue();
         else if ("this".equals(fieldName) || "super".equals(fieldName))
-            return ClassType.OBJECT_TYPE.getValue();
+            return ClassMakerFactory.OBJECT_TYPE.getValue();
         else if ("class".equals(fieldName))
-            return ClassType.CLASS_TYPE.getValue();
+            return ClassMakerFactory.CLASS_TYPE.getValue();
         else
-            return PrimitiveType.INT_TYPE.getValue();
+            return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
@@ -271,7 +269,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         Type valueType = findTypeOfValue(name);
         if (valueType != null)
             return new MakerField(classType.toClass(), name, valueType,
-                    ClassMaker.ACC_STATIC);
+                    ClassMakerConstants.ACC_STATIC);
         return null;
     }
 
@@ -297,7 +295,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
 
     public Type findTypeOfValue(String name) throws ClassMakerException {
         if ("x".equals(name) || "y".equals(name) || "z".equals(name))
-            return ClassType.OBJECT_TYPE;
+            return ClassMakerFactory.OBJECT_TYPE;
         else if ("java".equals(name) || "lang".equals(name)
                 || "test".equals(name))
             return null;
@@ -310,18 +308,18 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         else if (typeMap.containsKey(name)) 
             return typeMap.get(name);
         else
-            return PrimitiveType.INT_TYPE;
+            return ClassMakerFactory.INT_TYPE;
     }
     
     public Type findType(String typeName) throws ClassMakerException {
         if (typeName.endsWith("Object"))
-            return ClassType.OBJECT_TYPE;
+            return ClassMakerFactory.OBJECT_TYPE;
         else if (typeName.endsWith("String"))
-            return ClassType.STRING_TYPE;
+            return ClassMakerFactory.STRING_TYPE;
         else if (typeName.endsWith("StringBuffer"))
-            return ClassType.STRING_BUFFER_TYPE;
+            return ClassMakerFactory.STRING_BUFFER_TYPE;
         else if (typeName.equals("int"))
-            return PrimitiveType.INT_TYPE;
+            return ClassMakerFactory.INT_TYPE;
         else {
             // FIXME Remove DeclaredType from MakerField constructor 
             // then return null and fix Find(...).
@@ -398,17 +396,17 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
             return "0";
         }
         StringBuffer buf = new StringBuffer();
-        appendModifier(buf, modifiers, ClassMaker.ACC_PUBLIC, "ACC_PUBLIC");
-        appendModifier(buf, modifiers, ClassMaker.ACC_PROTECTED, "ACC_PROTECTED");
-        appendModifier(buf, modifiers, ClassMaker.ACC_PRIVATE, "ACC_PRIVATE");
-        appendModifier(buf, modifiers, ClassMaker.ACC_STATIC, "ACC_STATIC");
-        appendModifier(buf, modifiers, ClassMaker.ACC_FINAL, "ACC_FINAL");
-        appendModifier(buf, modifiers, ClassMaker.ACC_SYNCHRONIZED, "ACC_SYNCHRONIZED");
-        appendModifier(buf, modifiers, ClassMaker.ACC_VOLATILE, "ACC_VOLATILE");
-        appendModifier(buf, modifiers, ClassMaker.ACC_TRANSIENT, "ACC_TRANSIENT");
-        appendModifier(buf, modifiers, ClassMaker.ACC_NATIVE, "ACC_NATIVE");
-        appendModifier(buf, modifiers, ClassMaker.ACC_ABSTRACT, "ACC_ABSTRACT");
-        appendModifier(buf, modifiers, ClassMaker.ACC_STRICTFP, "ACC_STRICTFP");
+        appendModifier(buf, modifiers, ClassMakerConstants.ACC_PUBLIC, "ACC_PUBLIC");
+        appendModifier(buf, modifiers, ClassMakerConstants.ACC_PROTECTED, "ACC_PROTECTED");
+        appendModifier(buf, modifiers, ClassMakerConstants.ACC_PRIVATE, "ACC_PRIVATE");
+        appendModifier(buf, modifiers, ClassMakerConstants.ACC_STATIC, "ACC_STATIC");
+        appendModifier(buf, modifiers, ClassMakerConstants.ACC_FINAL, "ACC_FINAL");
+        appendModifier(buf, modifiers, ClassMakerConstants.ACC_SYNCHRONIZED, "ACC_SYNCHRONIZED");
+        appendModifier(buf, modifiers, ClassMakerConstants.ACC_VOLATILE, "ACC_VOLATILE");
+        appendModifier(buf, modifiers, ClassMakerConstants.ACC_TRANSIENT, "ACC_TRANSIENT");
+        appendModifier(buf, modifiers, ClassMakerConstants.ACC_NATIVE, "ACC_NATIVE");
+        appendModifier(buf, modifiers, ClassMakerConstants.ACC_ABSTRACT, "ACC_ABSTRACT");
+        appendModifier(buf, modifiers, ClassMakerConstants.ACC_STRICTFP, "ACC_STRICTFP");
         return buf.toString();
 
     }
@@ -454,25 +452,25 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     public Value InstanceOf(Value reference, String target) {
         String ref = stack.pop();
         stack.push("InstanceOf(" + ref + ", \"" + target + "\")");
-        return PrimitiveType.BOOLEAN_TYPE.getValue();
+        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     private Type promote(Value value1, Value value2) {
         Type type1 = value1.getType();
         Type type2 = value2.getType();
-        if (ClassType.STRING_TYPE.equals(type1)
-                || ClassType.STRING_TYPE.equals(type2))
-            return ClassType.STRING_TYPE;
-        else if (PrimitiveType.DOUBLE_TYPE.equals(type1)
-                || PrimitiveType.DOUBLE_TYPE.equals(type2))
-            return PrimitiveType.DOUBLE_TYPE;
-        else if (PrimitiveType.FLOAT_TYPE.equals(type1)
-                || PrimitiveType.FLOAT_TYPE.equals(type2))
-            return PrimitiveType.FLOAT_TYPE;
-        else if (PrimitiveType.LONG_TYPE.equals(type1)
-                || PrimitiveType.LONG_TYPE.equals(type2))
-            return PrimitiveType.LONG_TYPE;
-        return PrimitiveType.INT_TYPE;
+        if (ClassMakerFactory.STRING_TYPE.equals(type1)
+                || ClassMakerFactory.STRING_TYPE.equals(type2))
+            return ClassMakerFactory.STRING_TYPE;
+        else if (ClassMakerFactory.DOUBLE_TYPE.equals(type1)
+                || ClassMakerFactory.DOUBLE_TYPE.equals(type2))
+            return ClassMakerFactory.DOUBLE_TYPE;
+        else if (ClassMakerFactory.FLOAT_TYPE.equals(type1)
+                || ClassMakerFactory.FLOAT_TYPE.equals(type2))
+            return ClassMakerFactory.FLOAT_TYPE;
+        else if (ClassMakerFactory.LONG_TYPE.equals(type1)
+                || ClassMakerFactory.LONG_TYPE.equals(type2))
+            return ClassMakerFactory.LONG_TYPE;
+        return ClassMakerFactory.INT_TYPE;
     }
 
     @Override
@@ -582,7 +580,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String operand2 = stack.pop();
         String operand1 = stack.pop();
         stack.push("GT(" + operand1 + ", " + operand2 + ")");
-        return PrimitiveType.BOOLEAN_TYPE.getValue();
+        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     @Override
@@ -590,7 +588,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String operand2 = stack.pop();
         String operand1 = stack.pop();
         stack.push("GE(" + operand1 + ", " + operand2 + ")");
-        return PrimitiveType.BOOLEAN_TYPE.getValue();
+        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     @Override
@@ -598,7 +596,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String operand2 = stack.pop();
         String operand1 = stack.pop();
         stack.push("LE(" + operand1 + ", " + operand2 + ")");
-        return PrimitiveType.BOOLEAN_TYPE.getValue();
+        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     @Override
@@ -606,7 +604,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String operand2 = stack.pop();
         String operand1 = stack.pop();
         stack.push("LT(" + operand1 + ", " + operand2 + ")");
-        return PrimitiveType.BOOLEAN_TYPE.getValue();
+        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     @Override
@@ -614,7 +612,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String operand2 = stack.pop();
         String operand1 = stack.pop();
         stack.push("EQ(" + operand1 + ", " + operand2 + ")");
-        return PrimitiveType.BOOLEAN_TYPE.getValue();
+        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     @Override
@@ -622,17 +620,17 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String operand2 = stack.pop();
         String operand1 = stack.pop();
         stack.push("NE(" + operand1 + ", " + operand2 + ")");
-        return PrimitiveType.BOOLEAN_TYPE.getValue();
+        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     @Override
     public Value Not(Value value) {
         String operand1 = stack.pop();
         stack.push("Not(" + operand1 + ")");
-        return PrimitiveType.BOOLEAN_TYPE.getValue();
+        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
     
-    public class InitialiserImpl implements ClassMaker.Initialiser
+    public class InitialiserImpl implements Initialiser
     {
         final ClassType classType;
 
@@ -735,85 +733,85 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     public Value Length(Value arrayRef) {
         String ref = stack.pop();
         stack.push("Length(" + ref + ")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
     public Value Inc(String name) throws ClassMakerException {
         stack.push("Inc(\"" + name + "\")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
     public Value Inc(Value reference, String name) throws ClassMakerException {
         String ref = stack.pop();
         stack.push("Inc(" + ref + ", \"" + name + "\")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
     public Value Inc(String className, String name) throws ClassMakerException {
         stack.push("Inc(\"" + className + "\", \"" + name + "\")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
     public Value Dec(String name) throws ClassMakerException {
         stack.push("Dec(\"" + name + "\")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
     public Value Dec(Value reference, String name) throws ClassMakerException {
         String ref = stack.pop();
         stack.push("Dec(" + ref + ", \"" + name + "\")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
     public Value Dec(String className, String name) throws ClassMakerException {
         stack.push("Dec(\"" + className + "\", \"" + name + "\")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
     public Value PostInc(String name) throws ClassMakerException {
         stack.push("PostInc(\"" + name + "\")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
     public Value PostInc(Value reference, String name) throws ClassMakerException {
         String ref = stack.pop();
         stack.push("PostInc(" + ref + ", \"" + name + "\")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
     public Value PostInc(String className, String name)
             throws ClassMakerException {
         stack.push("PostInc(\"" + className + "\", \"" + name + "\")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
     public Value PostDec(String name) throws ClassMakerException {
         stack.push("PostDec(\"" + name + "\")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
     public Value PostDec(Value reference, String name) throws ClassMakerException {
         String ref = stack.pop();
         stack.push("PostDec(" + ref + ", \"" + name + "\")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
     public Value PostDec(String className, String name)
             throws ClassMakerException {
         stack.push("PostDec(\"" + className + "\", \"" + name + "\")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
@@ -821,7 +819,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String operand2 = stack.pop();
         String operand1 = stack.pop();
         stack.push("IncAt(" + operand1 + ", " + operand2 + ")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
@@ -829,7 +827,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String operand2 = stack.pop();
         String operand1 = stack.pop();
         stack.push("DecAt(" + operand1 + ", " + operand2 + ")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
@@ -837,7 +835,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String operand2 = stack.pop();
         String operand1 = stack.pop();
         stack.push("PostIncAt(" + operand1 + ", " + operand2 + ")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
 
     @Override
@@ -845,7 +843,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String operand2 = stack.pop();
         String operand1 = stack.pop();
         stack.push("PostDecAt(" + operand1 + ", " + operand2 + ")");
-        return PrimitiveType.INT_TYPE.getValue();
+        return ClassMakerFactory.INT_TYPE.getValue();
     }
     
     public class CallStackText implements CallStack
@@ -933,7 +931,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String operand2 = stack.pop();
         String operand1 = stack.pop();
         stack.push("Logic(" + operand1 + ", " + operand2 + ")");
-        return PrimitiveType.BOOLEAN_TYPE.getValue();
+        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     @Override
@@ -1088,7 +1086,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     @Override
     public int getPass()
     {
-        return ClassMaker.ONE_PASS;
+        return ClassMakerConstants.ONE_PASS;
     }
 
     @Override

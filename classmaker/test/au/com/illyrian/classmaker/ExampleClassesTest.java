@@ -40,7 +40,7 @@ public class ExampleClassesTest extends TestCase
     protected void setUp() throws Exception {
         // Use separate factories to avoid duplicates in class loaded.
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMakerBase.setSharedFactory(factory);
+        ClassMakerCode.setSharedFactory(factory);
     }
     
     // BEGIN Import Example 1
@@ -91,7 +91,7 @@ public class ExampleClassesTest extends TestCase
         maker.Import("java.io.IOException");
         maker.Implements(Openable.class);
 
-        maker.Method("open", "FileOutputStream", ClassMaker.ACC_PUBLIC);
+        maker.Method("open", "FileOutputStream", ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("file", "File", 0);
         maker.Begin();
         {
@@ -128,7 +128,7 @@ public class ExampleClassesTest extends TestCase
         int square(int a);
     }
 
-    public class SquareTestMaker extends ClassMakerBase
+    public class SquareTestMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -163,7 +163,7 @@ public class ExampleClassesTest extends TestCase
 
         maker.Implements(Unary.class);
 
-        maker.Method("eval", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("eval", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("a", int.class, 0);
         maker.Declare("b", int.class, 0);
         maker.Begin();
@@ -183,7 +183,7 @@ public class ExampleClassesTest extends TestCase
         // Create interface test.Unary
         ClassMaker maker1 = factory.createClassMaker("test", "Unary", null);
         maker1.setIsInterface();
-        maker1.Method("square", int.class, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_ABSTRACT);
+        maker1.Method("square", int.class, ClassMakerConstants.ACC_PUBLIC | ClassMakerConstants.ACC_ABSTRACT);
         maker1.Declare("a", int.class, 0);
         maker1.Forward();
         maker1.EndClass();
@@ -192,7 +192,7 @@ public class ExampleClassesTest extends TestCase
         ClassMaker maker2 = factory.createClassMaker("test", "SquareTest", null);
         maker2.Implements("test.Unary");
 
-        maker2.Method("square", int.class, ClassMaker.ACC_PUBLIC);
+        maker2.Method("square", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker2.Declare("a", int.class, 0);
         maker2.Begin();
         maker2.Return(maker2.Mult(maker2.Get("a"), maker2.Get("a")));
@@ -202,9 +202,9 @@ public class ExampleClassesTest extends TestCase
         // Create a class that calls test.Unary
         ClassMaker maker3 = factory.createClassMaker("test", "UnaryTest", null);
         maker3.Implements(Square.class);
-        maker3.Declare("test", "test.Unary", ClassMaker.ACC_PUBLIC);
+        maker3.Declare("test", "test.Unary", ClassMakerConstants.ACC_PUBLIC);
 
-        maker3.Method("square", int.class, ClassMaker.ACC_PUBLIC);
+        maker3.Method("square", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker3.Declare("a", int.class, 0);
         maker3.Begin();
         maker3.Return(maker3.Call(maker3.Get(maker3.This(), "test"), "square", maker3.Push(maker3.Get("a"))));

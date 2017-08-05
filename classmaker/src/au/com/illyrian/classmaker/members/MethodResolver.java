@@ -27,6 +27,7 @@
 
 package au.com.illyrian.classmaker.members;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -89,7 +90,8 @@ public class MethodResolver
             throw new IllegalArgumentException("CallStack cannot be null.");
         }
 
-        Vector<MakerMethod> candidates = findMethods(methods, name);
+        Vector<MakerMethod> candidates = new Vector<MakerMethod>();
+        Collections.addAll(candidates, methods);
         if (candidates.size() == 0)
             throw maker.createException("ClassMaker.NoMethodCalled_1", name);
         removeIncompatableCandidates(candidates, actualParameters);
@@ -101,7 +103,7 @@ public class MethodResolver
         if (candidates.size() != 1)
         {
             throw maker.createException("ClassMaker.CannotResolveMethodCall_1",
-                 ClassMaker.toMethodString(name, (Type[]) actualParameters.toArray(), null));
+                 MakerMethod.toMethodString(name, (Type[]) actualParameters.toArray(), null, 0));
         }
         return candidates.firstElement();
     }

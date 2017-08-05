@@ -110,7 +110,7 @@ public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteC
         
         maker.Declare("stack", entryName, 0);
         
-        maker.Method(ClassMaker.INIT, PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method(ClassMaker.INIT, ClassMakerFactory.VOID_TYPE, ClassMakerConstants.ACC_PUBLIC);
         maker.Begin();
         {
             maker.Init(maker.Super(), null);
@@ -119,7 +119,7 @@ public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteC
         }
         maker.End();
 
-        maker.Method("insert", void.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("insert", void.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("key", int.class, 0);
         maker.Begin();
         {
@@ -130,7 +130,7 @@ public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteC
         }
         maker.End();
 
-        maker.Method("insert", entryName, ClassMaker.ACC_PRIVATE);
+        maker.Method("insert", entryName, ClassMakerConstants.ACC_PRIVATE);
         maker.Declare("key", int.class, 0);
         maker.Declare("list", entryName, 0);
         maker.Begin();
@@ -156,7 +156,7 @@ public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteC
         }
         maker.End();
 
-        maker.Method("find", Value.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("find", Value.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("key", int.class, 0);
         maker.Begin();
         {
@@ -196,7 +196,7 @@ public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteC
         maker.Declare("key", int.class, 0);
         maker.Declare("next", entryName, 0);
 
-        maker.Method(ClassMaker.INIT, PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+        maker.Method(ClassMaker.INIT, ClassMakerFactory.VOID_TYPE, ClassMakerConstants.ACC_PUBLIC);
         maker.Declare("key", int.class, 0);
         maker.Declare("next", entryName, 0);
         maker.Begin();
@@ -208,7 +208,7 @@ public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteC
         }
         maker.End();
 
-        maker.Method("getValue", int.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("getValue", int.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Begin();
         {
             maker.Return(maker.Get(maker.This(), "key"));
@@ -226,11 +226,11 @@ public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteC
         ClassMaker listMaker = factory.createClassMaker("test", "MakerList", null);
         ClassMaker entryMaker = factory.createClassMaker("test", "MakerEntry", null);
 
-        factory.setPass(ClassMaker.FIRST_PASS);
+        factory.setPass(ClassMakerConstants.FIRST_PASS);
         codeEntry(entryMaker, "MakerEntry");
         codeList(listMaker, "MakerEntry");
         
-        factory.setPass(ClassMaker.SECOND_PASS);
+        factory.setPass(ClassMakerConstants.SECOND_PASS);
         codeEntry(entryMaker, "MakerEntry");
         codeList(listMaker, "MakerEntry");
         
@@ -268,11 +268,11 @@ public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteC
         ClassMaker listMaker = factory.createClassMaker("test", "MakerList", null);
         ClassMaker entryMaker = factory.createClassMaker("test", "MakerEntry", null);
 
-        factory.setPass(ClassMaker.FIRST_PASS);
+        factory.setPass(ClassMakerConstants.FIRST_PASS);
         codeList(listMaker, "MakerEntry");
         codeEntry(entryMaker, "MakerEntry");
         
-        factory.setPass(ClassMaker.SECOND_PASS);
+        factory.setPass(ClassMakerConstants.SECOND_PASS);
         codeList(listMaker, "MakerEntry");
         codeEntry(entryMaker, "MakerEntry");
         

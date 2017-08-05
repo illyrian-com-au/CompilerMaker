@@ -33,7 +33,7 @@ public class MakerExtendsJavaClassTest extends ClassMakerTestCase
     public void setUp() throws Exception
     {
         super.setUp();
-        ClassMakerBase.setSharedFactory(null);
+        ClassMakerCode.setSharedFactory(null);
     }
     
     public static interface FuncABC {
@@ -55,7 +55,7 @@ public class MakerExtendsJavaClassTest extends ClassMakerTestCase
         public int funcC(int c) { return Integer.MAX_VALUE;}
     }
 
-    public static class DerivedBaseClassMaker extends ClassMakerBase
+    public static class DerivedBaseClassMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -94,7 +94,7 @@ public class MakerExtendsJavaClassTest extends ClassMakerTestCase
         public void setOneId(int value) {oneId = value;}
     }
 
-   public static class DerivedOneClassMaker extends ClassMakerBase
+   public static class DerivedOneClassMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -148,7 +148,7 @@ public class MakerExtendsJavaClassTest extends ClassMakerTestCase
         assertEquals("Wrong value baseId", 200, getIntField(myClass, exec, "baseId"));
    }
 
-    public static class DerivedTwoClassMaker extends ClassMakerBase
+    public static class DerivedTwoClassMaker extends ClassMakerCode
     {
         private final Class extendsType;
         

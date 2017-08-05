@@ -77,7 +77,7 @@ class LoopStatement extends Statement
     public ForStep While(Type condition) throws ClassMakerException
     {
         if (getClassFileWriter() == null) return null;
-        if (!PrimitiveType.BOOLEAN_TYPE.equals(condition))
+        if (!ClassMakerFactory.BOOLEAN_TYPE.equals(condition))
         {
             throw maker.createException("ClassMaker.WhileConditionMustBeTypeBooleanNot_1", condition.getName());
         }

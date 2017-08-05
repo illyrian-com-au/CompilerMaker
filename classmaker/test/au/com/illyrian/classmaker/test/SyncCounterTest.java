@@ -1,8 +1,8 @@
 package au.com.illyrian.classmaker.test;
 
 import junit.framework.TestCase;
-import au.com.illyrian.classmaker.ClassMaker;
-import au.com.illyrian.classmaker.ClassMakerBase;
+import au.com.illyrian.classmaker.ClassMakerCode;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 
 public class SyncCounterTest extends TestCase 
 {
@@ -90,12 +90,12 @@ public class SyncCounterTest extends TestCase
         assertEquals("Wrong count", 20, counter.count);
     }
     
-    public static class CounterMaker extends ClassMakerBase
+    public static class CounterMaker extends ClassMakerCode
     {
         public void code()
         {
             Extends(CounterBase.class);
-            Method("add", void.class, ClassMaker.ACC_PUBLIC | ClassMaker.ACC_SYNCHRONIZED);
+            Method("add", void.class, ClassMakerConstants.ACC_PUBLIC | ClassMakerConstants.ACC_SYNCHRONIZED);
             Declare("value", long.class, 0);
             Begin();
             {

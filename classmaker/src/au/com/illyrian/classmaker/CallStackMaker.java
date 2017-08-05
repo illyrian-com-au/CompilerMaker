@@ -40,7 +40,7 @@ public class CallStackMaker implements CallStack
         }
         Type type = value.getType();
         // Convert automatically created StringBuffers back to Strings as they are pushed onto the stack.
-        if (type == ClassType.AUTO_STRING_TYPE)
+        if (type == ClassMakerFactory.AUTO_STRING_TYPE)
             type = this.classMaker.getFactory().getStringConversion().toString(this.classMaker, type.toClass());
         stack.add(type);
         return this;

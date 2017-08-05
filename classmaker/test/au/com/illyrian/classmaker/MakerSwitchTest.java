@@ -62,7 +62,7 @@ public class MakerSwitchTest extends ClassMakerTestCase
     // Generate default constructor
     public void defaultConstructor()
     {
-nl(65);      maker.Method("<init>", PrimitiveType.VOID_TYPE, ClassMaker.ACC_PUBLIC);
+nl(65);      maker.Method("<init>", ClassMakerFactory.VOID_TYPE, ClassMakerConstants.ACC_PUBLIC);
 nl();        maker.Begin();
 nl();        maker.Init(maker.Super(), null);
 nl();        maker.Return();
@@ -72,11 +72,11 @@ nl();        maker.End();
     public void testTableSwitchMethod() throws Exception
     {
 nl(74);   maker.Implements(Unary.class);
-nl();     maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();     maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+nl();     maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();     maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
 nl();     maker.Begin();
 nl();     {
-nl();         maker.Declare("y", PrimitiveType.INT_TYPE, 0);
+nl();         maker.Declare("y", ClassMakerFactory.INT_TYPE, 0);
 nl();         maker.Set("y", maker.Literal(0));
 nl();         maker.Switch(maker.Get("x"));
 nl();         {
@@ -115,11 +115,11 @@ nl();   maker.End();
     public void testLookupSwitchMethod() throws Exception
     {
 nl(117);   maker.Implements(Unary.class);
-nl();     maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-nl();     maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+nl();     maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+nl();     maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
 nl();     maker.Begin();
 nl();     {
-nl();         maker.Declare("y", PrimitiveType.INT_TYPE, 0);
+nl();         maker.Declare("y", ClassMakerFactory.INT_TYPE, 0);
 nl();         maker.Set("y", maker.Literal(0));
 nl();         maker.Switch(maker.Get("x"));
 nl();         {
@@ -165,7 +165,7 @@ nl();   maker.End();
     {
         maker.Implements(Runnable.class);
         
-        maker.Method("run", void.class, ClassMaker.ACC_PUBLIC);
+        maker.Method("run", void.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Begin();
 	        maker.Begin().setLabel("outer");
 		        maker.Break("outer");
@@ -242,7 +242,7 @@ nl();   maker.End();
     {
     	maker.Implements(BreakContinueIface.class);
         
-    	maker.Method("breakContinue", int.class, ClassMaker.ACC_PUBLIC);
+    	maker.Method("breakContinue", int.class, ClassMakerConstants.ACC_PUBLIC);
     	maker.Declare("i", int.class, 0);
 nl(247);    maker.Begin();
 nl();       	maker.Declare("n", int.class, 0);
@@ -301,8 +301,8 @@ nl();       maker.End();
 
     public void testSwitchExceptions() throws Exception
     {
-        maker.Method("unary", PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
-        maker.Declare("x", PrimitiveType.INT_TYPE, 0);
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("x", ClassMakerFactory.INT_TYPE, 0);
         Labelled labelled = maker.Begin();
         try {
             labelled.setLabel("test");
@@ -341,7 +341,7 @@ nl();       maker.End();
             assertEquals("Wrong message", "EndSwitch while not in a Switch statement", ex.getMessage());
         }
 
-        maker.Declare("l", PrimitiveType.LONG_TYPE, 0);
+        maker.Declare("l", ClassMakerFactory.LONG_TYPE, 0);
         try {
             maker.Switch(maker.Get("l"));
             fail("Should throw ClassMakerException");

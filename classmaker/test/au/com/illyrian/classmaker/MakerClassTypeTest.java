@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 public class MakerClassTypeTest extends TestCase
 {
     ClassMakerFactory factory;
-    ClassMaker maker;
+    ClassMakerConstants maker;
 
     public void setUp() throws Exception
     {
@@ -68,7 +68,7 @@ public class MakerClassTypeTest extends TestCase
 
     public void testObject() throws Exception
     {
-        ClassType type = ClassType.OBJECT_TYPE;
+        ClassType type = ClassMakerFactory.OBJECT_TYPE;
         Class object = Object.class;
         //Object obj = new Integer(3);
         assertEquals("getName", object.getName(), type.getName());
@@ -87,7 +87,7 @@ public class MakerClassTypeTest extends TestCase
         //assertEquals("getDeclaredMethod()", object.getDeclaredMethod("foo", int.class), type.getName());
         //assertEquals("getField", object.getField("foo"), type.getField("foo")); // Field in this class or super class
         //assertEquals("getMethod", object.getMethod("foo", int.class), type.getMethod());
-        //assertEquals("getSimpleName", object.getSimpleName(), type.getSimpleName());
+        assertEquals("getSimpleName", object.getSimpleName(), type.getSimpleName());
         //assertEquals("getSuperclass", object.getSuperclass(), type.getSuperclass());
         //assertEquals("isArray", object.isArray(), type.isArray());
         //assertEquals("isAssignableFrom", object.isAssignableFrom(int.class), type.getName());

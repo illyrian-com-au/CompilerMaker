@@ -27,6 +27,8 @@
 
 package au.com.illyrian.classmaker.types;
 
+import au.com.illyrian.classmaker.ClassMakerFactory;
+
 
 /**
  * The class for representing all array types in ClassMaker.
@@ -36,37 +38,37 @@ package au.com.illyrian.classmaker.types;
  */
 public class ArrayType extends ClassType
 {
-    private Type    arrayOfType;
+    private Type    componentType;
     
     /**
      * Constructor for an <code>ArrayType</code>.
      * @param name the name of the array
      * @param signature the signature of the class
-     * @param arrayOfType the <code>Type</code> the array elements
+     * @param componentType the <code>Type</code> the array elements
      */
 
-    public ArrayType(String name, String signature, Type arrayOfType)
+    public ArrayType(String name, String signature, Type componentType)
     {
-        super(name, signature, ClassType.OBJECT_TYPE);
-        this.arrayOfType = arrayOfType;
+        super(name, signature, ClassMakerFactory.OBJECT_TYPE);
+        this.componentType = componentType;
     }
 
     /**
      * Get the <code>Type</code> of the array element.
      * @return the type of the array element
      */
-    public Type getArrayOfType()
+    public Type getComponentType()
     {
-    	return arrayOfType;
+    	return componentType;
     }
     
     /**
      * Set the <code>Type</code> of the array element. 
      * @param type the type of the array element
      */
-    public void setArrayOfType(Type type)
+    public void setComponentType(Type type)
     {
-    	arrayOfType = type;
+    	componentType = type;
     }
     
     /**

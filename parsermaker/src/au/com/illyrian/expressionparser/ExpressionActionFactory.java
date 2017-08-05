@@ -28,6 +28,8 @@
 package au.com.illyrian.expressionparser;
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
+import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerLocation;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
@@ -62,7 +64,7 @@ public class ExpressionActionFactory
 
     public Object declareFunctionName(String identifier)
     {
-        getClassMaker().Method(identifier, PrimitiveType.INT_TYPE, ClassMaker.ACC_PUBLIC);
+        getClassMaker().Method(identifier, ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
         return null;
     }
 

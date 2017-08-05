@@ -160,11 +160,11 @@ public class MakerNewTest extends ClassMakerTestCase implements ByteCode
         ClassMaker maker = factory.createClassMaker("test", "MainClass3", null);
         ClassMaker factMaker = factory.createClassMaker("test", "GenFactorial3", null);
 
-        factory.setPass(ClassMaker.FIRST_PASS);
+        factory.setPass(ClassMakerConstants.FIRST_PASS);
         mainCode(maker, "GenFactorial3");
         factorialCode(factMaker);
         
-        factory.setPass(ClassMaker.SECOND_PASS);
+        factory.setPass(ClassMakerConstants.SECOND_PASS);
         mainCode(maker, "GenFactorial3");
         factorialCode(factMaker);
         
@@ -186,11 +186,11 @@ public class MakerNewTest extends ClassMakerTestCase implements ByteCode
         ClassMaker maker = factory.createClassMaker("test", "MainClass4", null);
         ClassMaker factMaker = factory.createClassMaker("test", "GenFactorial4", null);
 
-        factory.setPass(ClassMaker.FIRST_PASS);
+        factory.setPass(ClassMakerConstants.FIRST_PASS);
         mainCodeForward(maker, "GenFactorial4");
         factorialCode(factMaker);
         
-        factory.setPass(ClassMaker.SECOND_PASS);
+        factory.setPass(ClassMakerConstants.SECOND_PASS);
         mainCodeForward(maker, "GenFactorial4");
         factorialCode(factMaker);
         

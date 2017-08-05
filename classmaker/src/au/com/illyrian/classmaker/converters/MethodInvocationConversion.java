@@ -28,6 +28,7 @@
 package au.com.illyrian.classmaker.converters;
 
 import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
@@ -82,11 +83,11 @@ public class MethodInvocationConversion implements Convertable
         switch (source.index)
         {
         case PrimitiveType.BYTE_INDEX: // byte can be promoted to short or int
-            if (PrimitiveType.SHORT_TYPE.equals(target))
+            if (ClassMakerFactory.SHORT_TYPE.equals(target))
                 return true;
         case PrimitiveType.SHORT_INDEX: // short can be promoted to int
         case PrimitiveType.CHAR_INDEX:  // char can be promoted to int
-            if (PrimitiveType.INT_TYPE.equals(target))
+            if (ClassMakerFactory.INT_TYPE.equals(target))
                 return true;
         }
         return false;
@@ -117,11 +118,11 @@ public class MethodInvocationConversion implements Convertable
         // From any class type to class type Object.
         // From any interface type to type Object.
         // From any array type to type Object.
-        if (ClassType.OBJECT_TYPE.equals(target))
+        if (ClassMakerFactory.OBJECT_TYPE.equals(target))
             return true;
 
         // From the null type to any class type, interface type, or array type.
-        if (ClassType.NULL_TYPE.equals(source))
+        if (ClassMakerFactory.NULL_TYPE.equals(source))
             return true;
 
         // From any array type SC[] to any array type TC[], provided that SC and TC are
@@ -161,9 +162,9 @@ public class MethodInvocationConversion implements Convertable
             // implements K.
             // From any interface type J to any interface type K, provided that
             // J is a sub-interface of K.
-            if (baseClass.getInterfaces() != null)
-                for (int i = 0; i < baseClass.getInterfaces().length; i++)
-                    if (target.equals(baseClass.getInterfaces()[i]))
+            if (baseClass.getDeclaredInterfaces() != null)
+                for (int i = 0; i < baseClass.getDeclaredInterfaces().length; i++)
+                    if (target.equals(baseClass.getDeclaredInterfaces()[i]))
                         return true;
 
             // Handle the switch from ClassType to Class
@@ -232,19 +233,19 @@ public class MethodInvocationConversion implements Convertable
     protected boolean isWideningArrayConvertable(ArrayType source, ClassType target)
     {
         // From any array type to type Object
-        if (ClassType.OBJECT_TYPE.equals(target))
+        if (ClassMakerFactory.OBJECT_TYPE.equals(target))
             return true;
 
         // From any array type to type Cloneable
-        if (ClassType.CLONEABLE_TYPE.equals(target))
+        if (ClassMakerFactory.CLONEABLE_TYPE.equals(target))
             return true;
 
         // From any array type SC[] to any array type TC[], provided that SC and TC are
         // reference types and there is a widening conversion from SC to TC.
         if (ClassMaker.isArray(target))
         {
-            Type sourceOfType = source.getArrayOfType();
-            Type targetOfType = target.toArray().getArrayOfType();
+            Type sourceOfType = source.getComponentType();
+            Type targetOfType = target.toArray().getComponentType();
             if (!ClassMaker.isPrimitive(sourceOfType) && !ClassMaker.isPrimitive(targetOfType))
                 return isConvertable(sourceOfType, targetOfType);
         }
@@ -291,7 +292,7 @@ public class MethodInvocationConversion implements Convertable
      * @param target the <code>Type</code> to which to convert
      * @return the target <code>Type</code>
      */
-    public Type wideningReferenceConversion(ClassMaker maker, ClassType source, ClassType target)
+    public Type wideningReferenceConversion(ClassMakerConstants maker, ClassType source, ClassType target)
     {
         if (isWideningReferenceConvertable(source, target))
             return target;
