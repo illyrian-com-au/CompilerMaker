@@ -1,17 +1,16 @@
 package au.com.illyrian.classmaker;
 
-import org.mozilla.classfile.ByteCode;
-
-import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Value;
 
 /**
  * Represents an <code>If Then Else </code> statement.
- * Manages the jump labels and generates the bytecode for the <code>If</code> statement.
+ * Manages the jump labels and generates the bytecode for the <code>If</code>
+ * statement.
  */
 class IfStatement extends Statement
 {
-    protected IfStatement(ClassMaker maker) {
+    protected IfStatement(ClassMaker maker)
+    {
         super(maker);
     }
 
@@ -37,39 +36,44 @@ class IfStatement extends Statement
      */
     public void If(Value condition) throws ClassMakerException
     {
-        if (getClassFileWriter() == null) return;
-        if (!ClassMakerFactory.BOOLEAN_TYPE.equals(condition.getType()))
-        {
+        if (isFirstPass()) {
+            return;
+        }
+        if (!ClassMakerFactory.BOOLEAN_TYPE.equals(condition.getType())) {
             dispose();
             throw maker.createException("ClassMaker.IfConditionMustBeBoolean_1", condition.getName());
         }
         maker.markLineNumber(); // possibly add a new line number entry.
-        if (maker.isDebugCode()) maker.setDebugComment("If");
-
-        endStatement = cfw.acquireLabel();
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("If");
+        }
+        endStatement = acquireLabel();
         // Boolean value on stack will be 1 to execute Then block or 0 to
         // execute Else block.
-        jumpThen = cfw.acquireLabel();
-        cfw.add(ByteCode.IFEQ, jumpThen); // Jump over Then block if equal to zero.
+        jumpThen = acquireLabel();
+        jumpIfEqualZero(jumpThen); // Jump over Then block if equal to zero.
     }
 
     /**
      * Begins an <code>Else</code> clause of an <code>If</code> statement.
-     * The subsequent code block is executed if the <code>condition</code> in the
-     * <code>If</code> clause evaluated to <code>false</code>.
+     * The subsequent code block is executed if the <code>condition</code> in
+     * the <code>If</code> clause evaluated to <code>false</code>.
      */
     public void Else() throws ClassMakerException
     {
-        if (getClassFileWriter() == null) return;
-        if (jumpElse != 0)
+        if (isFirstPass()) {
+            return;
+        }
+        if (jumpElse != 0) {
             throw maker.createException("ClassMaker.ElseCalledTwice");
+        }
         maker.markLineNumber(); // possibly add a new line number entry.
-        if (maker.isDebugCode()) maker.setDebugComment("Else");
-
-        jumpElse = cfw.acquireLabel();
-        cfw.add(ByteCode.GOTO, jumpElse);
-        cfw.markLabel(jumpThen);
-        jumpThen = 0;
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("Else");
+        }
+        jumpElse = acquireLabel();
+        jumpTo(jumpElse);
+        markLabel(jumpThen);
     }
 
     /**
@@ -78,27 +82,24 @@ class IfStatement extends Statement
      */
     public void EndIf() throws ClassMakerException
     {
-        if (getClassFileWriter() != null)
-        {
+        if (!isFirstPass()) {
             maker.markLineNumber(); // possibly add a new line number entry.
-            if (maker.isDebugCode()) maker.setDebugComment("End If");
-
-            if (jumpElse != 0)
-            {
-                cfw.markLabel(jumpElse);
+            if (maker.isDebugCode()) {
+                maker.setDebugComment("End If");
             }
-            else
-            {
-                cfw.markLabel(jumpThen);
+            if (jumpElse != 0) {
+                markLabel(jumpElse);
+            } else {
+                markLabel(jumpThen);
             }
-            cfw.markLabel(endStatement);
+            markLabel(endStatement);
         }
         // Pop IfStatement off statement stack.
         dispose();
     }
-    
+
     protected int getStatementEnd()
     {
-    	return endStatement;
+        return endStatement;
     }
 }

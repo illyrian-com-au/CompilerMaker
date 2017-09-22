@@ -65,6 +65,30 @@ public class Type
     }
     
     /**
+     * Determines whether the <code>Type</code> is an interface.
+     * 
+     * @param type
+     *            the type to be tested
+     * @return true if <code>Type</code> implements a class
+     */
+    public static boolean isInterface(Type type) {
+        if (type != null && type.toClass() != null)
+            return type.toClass().isInterface();
+        return false;
+    }
+
+    /**
+     * Determines whether the <code>Type</code> is a primitive type.
+     * 
+     * @param type
+     *            the type to be tested
+     * @return true if <code>Type</code> is a primitive type
+     */
+    public static boolean isPrimitive(Type type) {
+        return type != null && type.toPrimitive() != null;
+    }
+
+    /**
      * Convert this <code>Type</code> to a <code>PrimitiveType</code>.
      * @return a <code>PrimitiveType</code> if appropriate; otherwise null
      */
@@ -74,12 +98,34 @@ public class Type
     }
 
     /**
+     * Determines whether the <code>Type</code> is a class.
+     * 
+     * @param type
+     *            the type to be tested
+     * @return true if <code>Type</code> implements a class
+     */
+    public static boolean isClass(Type type) {
+        return type != null && type.toClass() != null;
+    }
+
+    /**
      * Convert this <code>Type</code> to a <code>ClassType</code>.
      * @return a <code>ClassType</code> if appropriate; otherwise null
      */
     public ClassType toClass()
     {
         return null;
+    }
+
+    /**
+     * Determines whether the <code>Type</code> is an array.
+     * 
+     * @param type
+     *            the type to be tested
+     * @return true if <code>Type</code> implements a array
+     */
+    public static boolean isArray(Type type) {
+        return type != null && type.toArray() != null;
     }
 
     /**

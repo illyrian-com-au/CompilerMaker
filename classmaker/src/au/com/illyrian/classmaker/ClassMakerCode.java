@@ -30,6 +30,8 @@ package au.com.illyrian.classmaker;
 import java.io.File;
 import java.io.IOException;
 
+import au.com.illyrian.classmaker.util.MakerUtil;
+
 /**
  * The simplest way to use ClassMaker is to derive a class from ClassMakerBase 
  * and implement the <code>code()</code> method.
@@ -165,9 +167,9 @@ public abstract class ClassMakerCode extends ClassMaker
         if (makerName.endsWith("Maker"))
         {
             int offset = makerName.length() - "Maker".length();
-            return toDotName(makerName.substring(0, offset));
+            return MakerUtil.toDotName(makerName.substring(0, offset));
         }
-        return toDotName(makerName) + "_$";
+        return MakerUtil.toDotName(makerName) + "_$";
     }
 
     /**

@@ -1070,7 +1070,7 @@ nl();        maker.End();
 
     public void testForLoopBreakMaker() throws Exception
     {
-    	maker.getClassFileWriter().setDebugCodeOutput(System.out);
+    	maker.setDebugCodeOutput(System.out);
     	
         maker.Implements(Unary.class);
 

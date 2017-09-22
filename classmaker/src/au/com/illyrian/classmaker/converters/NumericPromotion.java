@@ -70,7 +70,7 @@ public class NumericPromotion extends AssignmentConversion implements Convertabl
      */
     public boolean isConvertable(Type op)
     {
-        return (ClassMaker.isPrimitive(op)
+        return (Type.isPrimitive(op)
              && isWideningIntegerConvertable(op.toPrimitive(), ClassMakerFactory.INT_TYPE));
     }
 
@@ -84,7 +84,7 @@ public class NumericPromotion extends AssignmentConversion implements Convertabl
      */
     public Type convertTo(ClassMakerConstants maker, Type op)
     {
-        if (ClassMaker.isPrimitive(op))
+        if (Type.isPrimitive(op))
         {
             // Assume a conversion from byte, short or char -> int.
             if (isWideningIntegerConvertable(op.toPrimitive(), ClassMakerFactory.INT_TYPE))
@@ -108,7 +108,7 @@ public class NumericPromotion extends AssignmentConversion implements Convertabl
      */
     public boolean isConvertable(Type left, Type right)
     {
-        if (ClassMaker.isPrimitive(left) && ClassMaker.isPrimitive(right))
+        if (Type.isPrimitive(left) && Type.isPrimitive(right))
         {
             if (isWideningIntegerConvertable(left.toPrimitive(), ClassMakerFactory.INT_TYPE))
                 left = ClassMakerFactory.INT_TYPE;
@@ -136,7 +136,7 @@ public class NumericPromotion extends AssignmentConversion implements Convertabl
     public Type convertTo(ClassMaker maker, Type left, Type right)
     {
         Type promotedType = left;
-        if (ClassMaker.isPrimitive(left) && ClassMaker.isPrimitive(right))
+        if (Type.isPrimitive(left) && Type.isPrimitive(right))
         {
             // Assume a conversion from byte, short or char -> int.
             if (isWideningIntegerConvertable(left.toPrimitive(), ClassMakerFactory.INT_TYPE))
@@ -151,10 +151,10 @@ public class NumericPromotion extends AssignmentConversion implements Convertabl
             // Now convert to wider types int -> long -> float -> double.
             if (isWideningPrimitiveConvertable(left.toPrimitive(), right.toPrimitive()))
             { // Promoting Left operand to the type of the right operand.
-                maker.swap(left, right);
+                maker.getGen().swap(left, right);
                 promotedType = this.wideningPrimitiveConversion(maker, left.toPrimitive(), right.toPrimitive());
                 // Swap stack back again.
-                maker.swap(right, promotedType);
+                maker.getGen().swap(right, promotedType);
             } else if (isWideningPrimitiveConvertable(right.toPrimitive(), left.toPrimitive()))
             { // Promoting Right operand to the type of the left operand.
                 promotedType = this.wideningPrimitiveConversion(maker, right.toPrimitive(), left.toPrimitive());

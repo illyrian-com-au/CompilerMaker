@@ -128,19 +128,19 @@ public class CastingConversion extends AssignmentConversion implements Convertab
             switch (target.index)
             {
             case PrimitiveType.BYTE_INDEX:
-                return maker.toByte(source);
+                return maker.getGen().toByte(source);
             case PrimitiveType.SHORT_INDEX:
-                return maker.toShort(source);
+                return maker.getGen().toShort(source);
             case PrimitiveType.CHAR_INDEX:
-                return maker.toChar(source);
+                return maker.getGen().toChar(source);
             case PrimitiveType.INT_INDEX:
-                return maker.toInt(source);
+                return maker.getGen().toInt(source);
             case PrimitiveType.LONG_INDEX:
-                return maker.toLong(source);
+                return maker.getGen().toLong(source);
             case PrimitiveType.FLOAT_INDEX:
-                return maker.toFloat(source);
+                return maker.getGen().toFloat(source);
             case PrimitiveType.DOUBLE_INDEX:
-                return maker.toDouble(source);
+                return maker.getGen().toDouble(source);
             }
         }
         // Should not get here. All calls to this method should be guarded by a call to isConvertable.
@@ -170,7 +170,7 @@ public class CastingConversion extends AssignmentConversion implements Convertab
         if (ClassMakerFactory.OBJECT_TYPE.equals(source))
             return true;
 
-        if (ClassMaker.isArray(target))
+        if (Type.isArray(target))
         {
             // A narrowing array conversion is the opposite of the widening
             // array conversion.
@@ -198,7 +198,7 @@ public class CastingConversion extends AssignmentConversion implements Convertab
     protected Type narrowingReferenceConversion(ClassMaker maker, ClassType source, ClassType target)
     {
         if (isNarrowingReferenceConvertable(source, target))
-            return maker.toReference(source, target);
+            return maker.getGen().toReference(source, target);
         // Should not get here. All calls to this method should be guarded by a call to isConvertable.
         throw new IllegalArgumentException("Cannot apply a Narrowing Reference Conversion from type " + source.getName() + " to type " + target.getName());
     }
@@ -223,7 +223,7 @@ public class CastingConversion extends AssignmentConversion implements Convertab
         // Identity conversion.
         if (source.equals(target))
             return true;
-        else if (ClassMaker.isPrimitive(source) && ClassMaker.isPrimitive(target))
+        else if (Type.isPrimitive(source) && Type.isPrimitive(target))
         {
             if (isWideningPrimitiveConvertable(source.toPrimitive(), target.toPrimitive()))
                 return true;
@@ -231,7 +231,7 @@ public class CastingConversion extends AssignmentConversion implements Convertab
             if (isNarrowingPrimitiveConvertable(source.toPrimitive(), target.toPrimitive()))
                 return true;
         }
-        else if (ClassMaker.isClass(source) && ClassMaker.isClass(target))
+        else if (Type.isClass(source) && Type.isClass(target))
         {
             if (isWideningReferenceConvertable(source.toClass(), target.toClass()))
                 return true;
@@ -255,7 +255,7 @@ public class CastingConversion extends AssignmentConversion implements Convertab
         // Identity conversion.
         if (source.equals(target))
             return target;
-        else if (ClassMaker.isPrimitive(source) && ClassMaker.isPrimitive(target))
+        else if (Type.isPrimitive(source) && Type.isPrimitive(target))
         {
             if (isWideningPrimitiveConvertable(source.toPrimitive(), target.toPrimitive()))
                 return wideningPrimitiveConversion(maker, source.toPrimitive(), target.toPrimitive());
@@ -263,7 +263,7 @@ public class CastingConversion extends AssignmentConversion implements Convertab
             if (isNarrowingPrimitiveConvertable(source.toPrimitive(), target.toPrimitive()))
                 return narrowingPrimitiveConversion(maker, source.toPrimitive(), target.toPrimitive());
         }
-        else if (ClassMaker.isClass(source) && ClassMaker.isClass(target))
+        else if (Type.isClass(source) && Type.isClass(target))
         {
             if (isWideningReferenceConvertable(source.toClass(), target.toClass()))
                 return wideningReferenceConversion(maker, source.toClass(), target.toClass());

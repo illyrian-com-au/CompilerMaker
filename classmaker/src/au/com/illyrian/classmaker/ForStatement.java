@@ -2,7 +2,6 @@ package au.com.illyrian.classmaker;
 
 import org.mozilla.classfile.ByteCode;
 
-import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Value;
 
 /**
@@ -30,13 +29,16 @@ class ForStatement extends LoopStatement implements ForWhile, ForStep
     /** Top of the For loop statement. */
     public void Loop() throws ClassMakerException
     {
-        if (getClassFileWriter() == null) return;
+        if (isFirstPass()) {
+            return;
+        }
         maker.markLineNumber(); // possibly add a new line number entry.
-        beginLoop = cfw.acquireLabel();
-        endLoop = cfw.acquireLabel();
-        if (cfw.isDebugCode()) cfw.setDebugComment("For loop");
-        cfw.markLabel(beginLoop);
-        cfw.add(ByteCode.NOP);
+        beginLoop = acquireLabel();
+        endLoop = acquireLabel();
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("For loop");
+        }
+        markLabel(beginLoop);
     }
 
     /**
@@ -50,23 +52,26 @@ class ForStatement extends LoopStatement implements ForWhile, ForStep
      */
     public ForStep While(Value condition) throws ClassMakerException
     {
-        if (getClassFileWriter() == null) return this;
+        if (isFirstPass()) {
+            return this;
+        }
         maker.markLineNumber(); // possibly add a new line number entry.
         if (condition != null)
         {
-                if (!ClassMakerFactory.BOOLEAN_TYPE.equals(condition.getType()))
-                {
-                    throw maker.createException("ClassMaker.WhileConditionMustBeTypeBooleanNot_1", condition.getName());
-                }
-                if (cfw.isDebugCode()) cfw.setDebugComment("For while");
-                // Boolean value on stack will be 1 (true) to continute Loop or 0 (false) to exit Loop.
-                cfw.add(ByteCode.IFEQ, endLoop);   // Break out of the loop if equal to zero.
-    	
+            if (!ClassMakerFactory.BOOLEAN_TYPE.equals(condition.getType()))
+            {
+                throw maker.createException("ClassMaker.WhileConditionMustBeTypeBooleanNot_1", condition.getName());
+            }
+            if (maker.isDebugCode()) {
+                maker.setDebugComment("For while");
+            }
+            // Boolean value on stack will be 1 (true) to continue Loop or 0 (false) to exit Loop.
+            jumpIfEqualZero(endLoop);
         }
-        endStep = cfw.acquireLabel();
-        beginStep = cfw.acquireLabel();
-        cfw.add(ByteCode.GOTO, endStep);
-        cfw.markLabel(beginStep);
+        endStep = acquireLabel();
+        beginStep = acquireLabel();
+        jumpTo(endStep);
+        markLabel(beginStep);
         breakCount++;
         calledWhile = true;
         return this;
@@ -82,14 +87,19 @@ class ForStatement extends LoopStatement implements ForWhile, ForStep
      */
     public Labelled Step(Value step) throws ClassMakerException
     {
-        if (getClassFileWriter() == null) return this;
-        if (cfw.isDebugCode()) cfw.setDebugComment("For step");
-        if (step != null)
+        if (isFirstPass()) {
+            return this;
+        }
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("For step");
+        }
+        if (step != null) {
             maker.Eval(step);
+        }
         maker.markLineNumber(); // possibly add a new line number entry.
 
-        cfw.add(ByteCode.GOTO, beginLoop);
-        cfw.markLabel(endStep);
+        jumpTo(beginLoop);
+        markLabel(endStep);
         calledStep = true;
         return this;
     }
@@ -103,27 +113,28 @@ class ForStatement extends LoopStatement implements ForWhile, ForStep
      */
     public void EndLoop() throws ClassMakerException
     {
-        if (getClassFileWriter() != null)
+        if (!isFirstPass())
         {
             if (breakCount == 0)
                 throw maker.createException("ClassMaker.ForDoesNotContainBreak");
             maker.markLineNumber(); // possibly add a new line number entry.
 
-            if (cfw.isDebugCode()) cfw.setDebugComment("For end");
+            if (maker.isDebugCode()) maker.setDebugComment("For end");
             // Handles a For() statement with or without While() and Step() clauses.
             if (!calledWhile)
             {
-                cfw.add(ByteCode.GOTO, beginLoop);
+                jumpTo(beginLoop);
             }
             else if (!calledStep)
             {
-                cfw.add(ByteCode.GOTO, beginLoop);
-                cfw.markLabel(endStep);
-                cfw.add(ByteCode.GOTO, beginStep);
+                jumpTo(beginLoop);
+                markLabel(endStep);
+                jumpTo(beginStep);
             }
-            else
-                cfw.add(ByteCode.GOTO, beginStep);
-            cfw.markLabel(endLoop);
+            else {
+                jumpTo(beginStep);
+            }
+            markLabel(endLoop);
         }
         // Pop ForStatement off the stack.
         dispose();
@@ -134,11 +145,12 @@ class ForStatement extends LoopStatement implements ForWhile, ForStep
      */
     protected void continueLoop()
     {
-        if (!calledWhile)
-            // Jumps to the begining of the loop
-            cfw.add(ByteCode.GOTO, beginLoop);
-        else
-            // Jumps to the Step code and then to the begining of the loop
-            cfw.add(ByteCode.GOTO, beginStep);
+        if (!calledWhile) {
+            // Jumps to the beginning of the loop
+            jumpTo(beginLoop);
+        } else {
+            // Jumps to the Step code and then to the beginning of the loop
+            jumpTo(beginStep);
+        }
     }
 }

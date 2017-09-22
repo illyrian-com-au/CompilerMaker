@@ -44,6 +44,7 @@ import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.util.MakerUtil;
 
 /**
  * The ClassMakerFactory contains services that are shared between all ClassMaker instances.
@@ -378,8 +379,8 @@ public class ClassMakerFactory
      */
     protected ArrayType addArrayType(Class javaClass)
     {
-        String name = ClassMaker.classToName(javaClass);
-        String signature = ClassMaker.classToSignature(javaClass);
+        String name = MakerUtil.classToName(javaClass);
+        String signature = MakerUtil.classToSignature(javaClass);
         Type element = classToType(javaClass.getComponentType());
         ArrayType array = new ArrayType(name, signature, element);
         array.setJavaClass(javaClass);
@@ -397,7 +398,7 @@ public class ClassMakerFactory
         if (javaClass == null) {
             throw new NullPointerException("Expected a java Class instance");
         }
-        String className = ClassMaker.classToName(javaClass);
+        String className = MakerUtil.classToName(javaClass);
         Type type = getType(className);
         if (type != null) {
             return type;
@@ -417,7 +418,7 @@ public class ClassMakerFactory
     {
         try
         {
-            String name = ClassMaker.toDotName(className);
+            String name = MakerUtil.toDotName(className);
             Class javaClass = getClassLoader().loadClass(name);
             return classToType(javaClass);
         } catch (ClassNotFoundException ex) {

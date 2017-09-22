@@ -97,15 +97,15 @@ public class StringConversion implements Convertable, Assignable
             {
                 // Stack contents
                 // left, right
-                maker.swap(left, right);
+                maker.getGen().swap(left, right);
                 // right, left
                 buf = newStringBuffer(maker);
                 // right, left, buf
-                maker.swap(left, buf);
+                maker.getGen().swap(left, buf);
                 // right, buf, left
                 buf = append(maker, buf, left);
                 // right, buf
-                maker.swap(right, buf);
+                maker.getGen().swap(right, buf);
             }
 
             // buf, right

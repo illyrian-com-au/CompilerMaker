@@ -532,7 +532,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
     {
         ClassMakerFactory factory = new ClassMakerFactory();
         ClassMaker maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
-        maker.getClassFileWriter();
+        maker.getGen();
         try {
             maker.Extends(Object.class);
             fail("Should throw ClassMakerException");

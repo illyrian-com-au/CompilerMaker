@@ -35,7 +35,7 @@ public class CallStackMaker implements CallStack
      */
     public CallStack Push(Value value) throws ClassMakerException
     {
-        if (classMaker.getClassFileWriter() == null) {
+        if (classMaker.isFirstPass()) {
             return this;
         }
         Type type = value.getType();

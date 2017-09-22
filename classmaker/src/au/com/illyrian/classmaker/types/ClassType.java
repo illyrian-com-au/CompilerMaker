@@ -32,6 +32,7 @@ import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.members.MakerMethod;
+import au.com.illyrian.classmaker.util.MakerUtil;
 
 /**
  * The class for representing all java class types.
@@ -51,7 +52,7 @@ public class ClassType extends Type {
 
     public ClassType(Class javaClass)
     {
-        this(ClassMaker.classToName(javaClass), null);
+        this(MakerUtil.classToName(javaClass), null);
         setJavaClass(javaClass);
         setModifiers(javaClass.getModifiers());
     }
@@ -104,7 +105,7 @@ public class ClassType extends Type {
     
     protected static String toSignature(String className)
     {
-        return "L" + ClassMaker.toSlashName(className) + ";";
+        return "L" + MakerUtil.toSlashName(className) + ";";
     }
 
     /**

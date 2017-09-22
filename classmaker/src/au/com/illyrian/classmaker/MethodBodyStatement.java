@@ -55,8 +55,10 @@ class MethodBodyStatement extends ScopeStatement
      */
     public void End() throws ClassMakerException
     {
-        // Save local variable descriptors to be used by the debugger.
-        maker.exitScope(getScopeLevel());
+        if (!isFirstPass()) {
+            // Save local variable descriptors to be used by the debugger.
+            maker.exitScope(getScopeLevel());
+        }
         maker.EndMethod();
         // Pop ScopeStatement off statement stack.
         dispose();

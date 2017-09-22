@@ -12,6 +12,7 @@ import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
+import au.com.illyrian.classmaker.util.MakerUtil;
 
 public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     ClassMakerFactory factory = new ClassMakerFactory();
@@ -335,7 +336,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
 
     @Override
     public int addModifier(int modifiers, String modifierName) {
-        int mod = ClassMaker.fromModifierString(modifierName);
+        int mod = MakerUtil.fromModifierString(modifierName);
         stack.push("addModifier(" + modifiers + ", \"" + modifierName + "\")");
         return modifiers | mod;
     }
@@ -1071,8 +1072,8 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     }
 
     @Override
-    public ClassMakerException createException(String msg) {
-        return new ClassMakerException(null, msg);
+    public ClassMakerException createException(String key, String ... values) {
+        return new ClassMakerException(null, key);
     }
 
     public String toString() {

@@ -127,18 +127,6 @@ public interface ClassMakerIfc
      */
     public Value Call(Value reference, String methodName, CallStack actualParameters) throws ClassMakerException;
 
-    /**
-     * Calls a method from the class instance on top of the stack that is appropriate for the actual parameters.
-     * </br>
-     * Uses <code>MethodResolver</code> to determine the appropriate method for the actual parameters and
-     * then determines whether the method is private, static, virtual or an interface method and
-     * uses the appropriate invocation.
-     * @param type the type of the reference on top of the stack
-     * @param actualParameters the types of the actual parameters in the call stack
-     * @return the return type of the called method
-     */
-    //public Value Call(Pushable actualParameters) throws ClassMakerException;
-
     // Special references
     /**
      * Pushes a reference to <code>this</code> class onto the stack.
@@ -1562,8 +1550,16 @@ public interface ClassMakerIfc
      */
     public void EndTry() throws ClassMakerException;
 
-    // Exception handling
-    public ClassMakerException createException(String msg);
+    /**
+     * Creates an exception with a variable number of parameters to the error message.
+     * </br>
+     * The resource bundle is <code>ExceptionMessages.properties</code>.
+     * 
+     * @param key the key to lookup in the resource bundle
+     * @param values a variable list of values to be substituted into the error message
+     * @return a formatted ClassMakerException
+     */
+    public ClassMakerException createException(String key, String ... values);
 
     /**
      * Get the current pass for the class generator.

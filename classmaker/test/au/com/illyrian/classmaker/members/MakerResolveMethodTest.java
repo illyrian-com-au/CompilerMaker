@@ -42,6 +42,7 @@ import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
+import au.com.illyrian.classmaker.util.MakerUtil;
 
 public class MakerResolveMethodTest extends ClassMakerTestCase
 {
@@ -494,8 +495,8 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
 
     protected String toString(int modifiers, String name, Class left, Class right)
     {
-        return ClassMaker.toModifierString(modifiers) + "void " + name 
-                + "(" + ClassMaker.classToName(left) + ", " + ClassMaker.classToName(right) + ")";
+        return MakerUtil.toModifierString(modifiers) + "void " + name 
+                + "(" + MakerUtil.classToName(left) + ", " + MakerUtil.classToName(right) + ")";
     }
 
     protected String toString(String name, Class left, Class right)

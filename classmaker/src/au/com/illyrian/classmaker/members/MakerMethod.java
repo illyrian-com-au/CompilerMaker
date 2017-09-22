@@ -31,6 +31,7 @@ import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.util.MakerUtil;
 
 /**
  * Retains information about methods created in a ClassMaker instance.
@@ -318,7 +319,7 @@ public class MakerMethod {
     {
         StringBuffer buf = new StringBuffer();
         if (modifiers != 0) {
-            buf.append(ClassMaker.toModifierString(modifiers));
+            buf.append(MakerUtil.toModifierString(modifiers));
         }
         buf.append((returnType != null) ? returnType.getName() : "void");
         buf.append(' ');
@@ -332,7 +333,7 @@ public class MakerMethod {
                 if (type == null)
                     buf.append("null");
                 else
-                    buf.append(ClassMaker.toDotName(type.getName()));
+                    buf.append(MakerUtil.toDotName(type.getName()));
             }
         buf.append(')');
         return buf.toString();

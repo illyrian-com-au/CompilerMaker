@@ -14,8 +14,9 @@ class ScopeStatement extends Statement
 
     public void Begin()
     {
-        if (getClassFileWriter() != null) 
-            blockEnd = cfw.acquireLabel();
+        if (!isFirstPass()) {
+            blockEnd = acquireLabel();
+        }
     }
 
     /**
@@ -25,10 +26,11 @@ class ScopeStatement extends Statement
      */
     public void End() throws ClassMakerException
     {
-        if (getClassFileWriter() != null) 
-            cfw.markLabel(blockEnd);
-        // Save local variable descriptors to be used by the debugger.
-        maker.exitScope(getScopeLevel());
+        if (!isFirstPass()) { 
+            markLabel(blockEnd);
+            // Save local variable descriptors to be used by the debugger.
+            maker.exitScope(getScopeLevel());
+        }
         // Pop ScopeStatement off statement stack.
         dispose();
     }

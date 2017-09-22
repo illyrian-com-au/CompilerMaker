@@ -34,6 +34,7 @@ import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
+import au.com.illyrian.classmaker.util.MakerUtil;
 
 /**
  * A conversion strategy that may be applied to each parameter of a method invocation.
@@ -127,7 +128,7 @@ public class MethodInvocationConversion implements Convertable
 
         // From any array type SC[] to any array type TC[], provided that SC and TC are
         // reference types and there is a widening conversion from SC to TC.
-        if (ClassMaker.isArray(source))
+        if (Type.isArray(source))
             return isWideningArrayConvertable(source.toArray(), target);
 
         // This predicate applies if source is a class or interface.
@@ -220,7 +221,7 @@ public class MethodInvocationConversion implements Convertable
      */
     private boolean equals(Class source, ClassType target)
     {
-        return (target.getName().equals(ClassMaker.classToName(source)));
+        return (target.getName().equals(MakerUtil.classToName(source)));
     }
 
     /**
@@ -242,11 +243,11 @@ public class MethodInvocationConversion implements Convertable
 
         // From any array type SC[] to any array type TC[], provided that SC and TC are
         // reference types and there is a widening conversion from SC to TC.
-        if (ClassMaker.isArray(target))
+        if (Type.isArray(target))
         {
             Type sourceOfType = source.getComponentType();
             Type targetOfType = target.toArray().getComponentType();
-            if (!ClassMaker.isPrimitive(sourceOfType) && !ClassMaker.isPrimitive(targetOfType))
+            if (!Type.isPrimitive(sourceOfType) && !Type.isPrimitive(targetOfType))
                 return isConvertable(sourceOfType, targetOfType);
         }
         return false;
@@ -272,11 +273,11 @@ public class MethodInvocationConversion implements Convertable
             return true;
 
         // Widening Integer Conversion
-        if (ClassMaker.isPrimitive(source) && ClassMaker.isPrimitive(target))
+        if (Type.isPrimitive(source) && Type.isPrimitive(target))
             return isWideningIntegerConvertable(source.toPrimitive(), target.toPrimitive());
 
         // Widening Reference conversion
-        if (ClassMaker.isClass(source) && ClassMaker.isClass(target))
+        if (Type.isClass(source) && Type.isClass(target))
             return isWideningReferenceConvertable(source.toClass(), target.toClass());
 
         return false;

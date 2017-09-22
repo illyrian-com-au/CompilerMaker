@@ -32,7 +32,6 @@ import org.mozilla.classfile.ClassFileWriter;
 
 public class MakerFloatTest extends ClassMakerTestCase implements ByteCode
 {
-    ClassFileWriter cfw;
     ClassMaker maker;
     ClassMakerFactory factory;
 
@@ -40,7 +39,6 @@ public class MakerFloatTest extends ClassMakerTestCase implements ByteCode
     {
         factory = new ClassMakerFactory();
         maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
-        cfw = maker.getClassFileWriter();
     }
 
     // Generate default constructor

@@ -82,13 +82,10 @@ public class ExceptionFactory
      * @param key the key to lookup in the resource bundle
      * @return a message from the resource bundle
      */
-    public String getString(String key)
-    {
-        try
-        {
+    public String getString(String key) {
+        try {
             return resourceBundle.getString(key);
-        } catch (MissingResourceException e)
-        {
+        } catch (MissingResourceException e) {
             return '!' + key + '!';
         }
     }
@@ -103,7 +100,7 @@ public class ExceptionFactory
      *
      * The strings from the <code>values</code> array are substituted, as appropriate.
      *
-     * @param source an interface to provide the source filename and line number
+     * @param source the source filename and line number
      * @param key the key used to lookup a message in the resource bundle
      * @param values values to be substituted into position holders in the message
      * @return a ClassMakerException with a message translated from the resource bundle
@@ -111,8 +108,9 @@ public class ExceptionFactory
     public ClassMakerException createException(SourceLine source, String key, String [] values)
     {
         String msg = getString(key);
-        if (values != null)
+        if (values != null) {
             msg = Translator.translate(msg, values);
+        }
         return new ClassMakerException(source, msg);
     }
 }

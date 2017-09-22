@@ -1,7 +1,5 @@
 package au.com.illyrian.classmaker;
 
-import org.mozilla.classfile.ByteCode;
-import org.mozilla.classfile.ClassFileWriter;
 
 /**
  * <code>Statement</code> instances form a stack of nested statements in a method.
@@ -12,8 +10,6 @@ abstract class Statement implements Labelled
 {
     protected final ClassMaker maker;
     
-    protected final ClassFileWriter cfw;
-
     /* Next Statement down the statement stack. */
     private Statement next = null;
 
@@ -24,37 +20,35 @@ abstract class Statement implements Labelled
     protected int labelTarget;
 
     /** The default constructor pushes this instance onto the statement stack. */
-    public Statement(ClassMaker maker)
-    {
+    public Statement(ClassMaker maker) {
         this.maker = maker;
-        this.cfw = maker.getClassFileWriter();
         next = maker.statementStack;
         maker.statementStack = this;
     }
 
-    public ClassMakerConstants getMaker()
-    {
+    public ClassMakerConstants getMaker() {
         return maker;
     }
     
-    public ClassFileWriter getClassFileWriter() {
-        return maker.getClassFileWriter();
+    public boolean isFirstPass() {
+        return maker.isFirstPass();
+    }
+    
+    public ClassGenerator getGen() {
+        return maker.getGen();
     }
 
     /** Is there another <code>Statement</code> nested around this one? */
-    boolean hasNext()
-    {
+    boolean hasNext() {
         return next != null;
     }
 
     /** Gets the <code>Statement</code> nested around this one. */
-    Statement getNext()
-    {
+    Statement getNext() {
         return next;
     }
 
-    public int getScopeLevel()
-    {
+    public int getScopeLevel() {
         if (next == null)
             throw new IllegalStateException("Statement Stack should start with class MethodBodyStatement");
         return next.getScopeLevel();
@@ -76,32 +70,66 @@ abstract class Statement implements Labelled
      */
     protected Statement jumpToTarget(String jumpType, String label)
     {
-        if (ClassMaker.BREAK.equals(jumpType) && getLabel() != null && getLabel().equals(label))
-        {   // Break jumps to the end of the loop
-            cfw.add(ByteCode.GOTO, getStatementEnd());
+        if (ClassMaker.BREAK.equals(jumpType) && getLabel() != null && getLabel().equals(label)) {
+            // Break jumps to the end of the loop
+            jumpTo(getStatementEnd());
+            //cfw.add(ByteCode.GOTO, getStatementEnd());
             return this;
-        }
-        else if (hasNext())
+        } else if (hasNext()) {
             return getNext().jumpToTarget(jumpType, label);
-        else
+        } else {
             return null;
+        }
+    }
+    
+    /**
+     * Create a location holder where a jump label can be stored.
+     * This allows forward jumps as the jump label can be used before the target location 
+     * is reached in the byte code stream.
+     * @return an offset to the jump label
+     */
+    protected int acquireLabel() {
+        return getGen().acquireLabel();
+    }
+    
+    /**
+     * Mark the location of a jump label.
+     * This method is called at the target point in the byte code stream.
+     * The PC counter is stored in the location holder.
+     * @param jumpLabel an offset to the jump label
+     */
+    protected void markLabel(int jumpLabel) {
+        getGen().markLabel(jumpLabel);
+    }
+    
+    /** 
+     * Jump to the given label if the value on top of the stack is zero.
+     * @param jumpLabel an offset to the jump label
+     */
+    protected void jumpIfEqualZero(int jumpLabel) {
+        getGen().jumpIfEqualZero(jumpLabel);
+    }
+    
+    /**
+     * Unconditional jump to the given label.
+     * @param jumpLabel
+     */
+    protected void jumpTo(int jumpLabel) {
+        getGen().jumpTo(jumpLabel);
     }
 
     /* Implements Labelled. */
-    public void setLabel(String label)
-    {
+    public void setLabel(String label) {
         this.label = label;
     }
 
     /* Implements Labelled. */
-    public String getLabel()
-    {
+    public String getLabel() {
         return label;
     }
 
     /** Pops the Statement off the stack. */
-    protected void dispose()
-    {
+    protected void dispose() {
         if (maker.statementStack != this) // Should not get here.
             throw new IllegalStateException("Can only dispose of top most Statement.");
         maker.statementStack = getNext();

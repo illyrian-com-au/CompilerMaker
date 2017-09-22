@@ -34,15 +34,18 @@ class SwitchStatement extends Statement
      */
     public void Switch(Type switchType)
     {
-        if (cfw == null) return;
+        if (isFirstPass()) {
+            return;
+        }
         checkSwitchType(switchType);
         maker.markLineNumber(); // possibly add a new line number entry.
         startLineNumber = (short)maker.getSourceLine().getLineNumber();
-        beginSwitch = cfw.acquireLabel();
-        endSwitch = cfw.acquireLabel();
-        if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Switch("+switchType+");");
-        cfw.add(ByteCode.GOTO, beginSwitch);
+        beginSwitch = acquireLabel();
+        endSwitch = acquireLabel();
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("Switch("+switchType+");");
+        }
+        jumpTo(beginSwitch);
     }
 
     /**
@@ -55,12 +58,15 @@ class SwitchStatement extends Statement
      */
     public void Case(int caseKey)
     {
-        if (cfw == null) return;
-        if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Case("+caseKey+");");
+        if (isFirstPass()) {
+            return;
+        }
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("Case("+caseKey+");");
+        }
         maker.markLineNumber(); // possibly add a new line number entry.
-        int caseLabel = cfw.acquireLabel();
-        cfw.markLabel(caseLabel);
+        int caseLabel = acquireLabel();
+        markLabel(caseLabel);
 
         insertCaseKey(caseKey, caseLabel);
     }
@@ -74,15 +80,19 @@ class SwitchStatement extends Statement
      */
     public void Default()
     {
-        if (getClassFileWriter() == null) return;
-        if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("Default();");
-        if (defaultSwitch != 0)
+        if (isFirstPass()) {
+            return;
+        }
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("Default();");
+        }
+        if (defaultSwitch != 0) {
             throw maker.createException("ClassMaker.MoreThanOneDefaultInSwitch");
+        }
         maker.markLineNumber(); // possibly add a new line number entry.
 
-        defaultSwitch = cfw.acquireLabel();
-        cfw.markLabel(defaultSwitch);
+        defaultSwitch = acquireLabel();
+        markLabel(defaultSwitch);
     }
 
     /**
@@ -97,26 +107,30 @@ class SwitchStatement extends Statement
      */
     public void EndSwitch()
     {
-        if (cfw == null) return;
-        if (caseSize == 0)
-        	throw maker.createException("ClassMaker.NoCaseClauseInSwitch");
-        if (cfw.isDebugCode()) 
-        	cfw.setDebugComment("EndSwitch();");
+        if (isFirstPass()) {
+            return;
+        }
+        if (caseSize == 0) {
+            throw maker.createException("ClassMaker.NoCaseClauseInSwitch");
+        }
+        if (maker.isDebugCode()) { 
+            maker.setDebugComment("EndSwitch();");
+        }
         if (defaultSwitch == 0)
         {   // Ensure there is a default option that does nothing.
-        	maker.Default();
-        	maker.Break();
+            maker.Default();
+            maker.Break();
         }
 
-        cfw.addLineNumberEntry(startLineNumber);
-        cfw.markLabel(beginSwitch);
+        getGen().markLineNumber(startLineNumber);
+        markLabel(beginSwitch);
         // Use a Table Switch if the keys are contiguous; otherwise use a Lookup Switch.
-        if (isContiguous())
-        	createTableSwitch();
-        else
-        	createLookupSwitch();
-
-        cfw.markLabel(endSwitch);
+        if (isContiguous()) {
+            createTableSwitch();
+        } else {
+            createLookupSwitch();
+        }
+        markLabel(endSwitch);
         dispose();
     }
     
@@ -139,17 +153,18 @@ class SwitchStatement extends Statement
      */
     protected void checkSwitchType(Type switchType)
     {
-        if (!ClassMaker.isIntegerType(switchType))
+        if (!ClassMaker.isIntegerType(switchType)) {
             throw maker.createException("ClassMaker.SwitchTypeMustBeNumberNot_1", switchType.getName());
+        }
     }
 
     /** Returns <code>true</code> if the case keys form a contigous sequence. */
     protected boolean isContiguous()
     {
-        for (int i = 2; i < caseSize; i += 2)
-        {
-            if (cases[i - 2] + 1 != cases[i])
+        for (int i = 2; i < caseSize; i += 2) {
+            if (cases[i - 2] + 1 != cases[i]) {
                 return false;
+            }
         }
         return true;
     }
@@ -162,21 +177,19 @@ class SwitchStatement extends Statement
     protected void insertCaseKey(int key, int label)
     {
         // Expand array if required.
-        if (caseSize + 2 > cases.length)
+        if (caseSize + 2 > cases.length) {
             expand();
-
+        }
         // insert key & label into correct place in array.
         int i;
-        for (i = caseSize; i > 0; i -= 2)
-        {
-            if (cases[i - 2] > key)
-            {
+        for (i = caseSize; i > 0; i -= 2) {
+            if (cases[i - 2] > key) {
                 cases[i] = cases[i - 2];
                 cases[i + 1] = cases[i - 1];
                 continue;
-            }
-            else if (cases[i - 2] == key)
+            } else if (cases[i - 2] == key) {
                 throw maker.createException("ClassMaker.DuplicateCaseKey_1", Integer.toString(key));
+            }
             break;
         }
         cases[i] = key;
@@ -185,50 +198,15 @@ class SwitchStatement extends Statement
     }
 
     /** Generates the bytecode for a <code>Switch<code> statement with contiguous keys. */
-   protected void createTableSwitch()
-   {
-	   if (cfw.isDebugCode()) 
-		   cfw.setDebugComment("Table Switch");
-        int low = cases[0];
-        int high = cases[caseSize - 2];
-        int startSwitch = cfw.addTableSwitch(low, high);
-        cfw.addTableSwitchDefaultLabel(startSwitch, defaultSwitch);
-        //int prev = cases[0] - 1;
-        int prev = -1; // first key is always zero
-        for (int i = 0; i < caseSize; i += 2)
-        {
-            int entry = i / 2;
-            int key = cases[i] - low;
-            int label = cases[i + 1];
-            if (prev == key)
-                throw new IllegalStateException("TableSwitch duplicate case key:" + key);
-            if (prev + 1 != key)
-                throw new IllegalStateException("TableSwitch case keys are not contiguous, case " + prev + ": case" + key + ":");
-            cfw.addTableSwitchCaseLabel(startSwitch, entry, label);
-            prev = key;
-        }
+    protected void createTableSwitch()
+    {
+       getGen().createTableSwitch(cases, caseSize, defaultSwitch);
     }
 
-   /** Generates the bytecode for a <code>Switch<code> statement with <b>non-</b>contiguous keys. */
+    /** Generates the bytecode for a <code>Switch<code> statement with <b>non-</b>contiguous keys. */
     protected void createLookupSwitch()
     {
- 	   if (cfw.isDebugCode()) 
-		   cfw.setDebugComment("Lookup Switch");
-        int startSwitch = cfw.addLookupSwitch(caseSize / 2);
-        cfw.addLookupSwitchDefaultLabel(startSwitch, defaultSwitch);
-        int prev = cases[0] - 1;
-        for (int i = 0; i < caseSize; i += 2)
-        {
-            int entry = i / 2;
-            int key = cases[i];
-            int label = cases[i + 1];
-            if (prev == key)
-                throw new IllegalStateException("LookupSwitch duplicate case key:" + key);
-            if (prev > key)
-                throw new IllegalStateException("TableSwitch case keys must be in ascending order, case " + prev + ": case " + key + ":");
-            cfw.addLookupSwitchCaseLabel(startSwitch, entry, key, label);
-            prev = key;
-        }
+        getGen().createLookupSwitch(cases, caseSize, defaultSwitch);
     }
 
     /**
@@ -244,7 +222,7 @@ class SwitchStatement extends Statement
     {
         if (ClassMaker.BREAK.equals(jumpTarget) && (label == null || label.equals(this.label)))
         {
-            cfw.add(ByteCode.GOTO, endSwitch);
+            jumpTo(endSwitch);
             return this;
         }
         return super.jumpToTarget(jumpTarget, label);

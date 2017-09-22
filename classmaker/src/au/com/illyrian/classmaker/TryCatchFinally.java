@@ -1,9 +1,6 @@
 package au.com.illyrian.classmaker;
 
-import org.mozilla.classfile.ByteCode;
-
 import au.com.illyrian.classmaker.members.MakerField;
-import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.Type;
 
 /**
@@ -24,11 +21,9 @@ public class TryCatchFinally extends Statement
 
     /* Reference to the finally subroutine which is called from many places. */
     int finallySubroutine = 0;
-    int startFinallyBlock = 0;
 
-    /* An anonomous local variable holds the return PC for the finally subroutine. */
+    /* An anonymous local variable holds the return PC for the finally subroutine. */
     int finallyReturnSlot = 0;
-    int endFinallyBlock = 0;
     
     int finalyExceptionSlot = -1;
     
@@ -43,12 +38,15 @@ public class TryCatchFinally extends Statement
      */
     public void Try()
     {
-        if (cfw == null) return;
-        if (cfw.isDebugCode())
-        	cfw.setDebugComment("Try();");
-        startTryBlock = cfw.acquireLabel();
-        endCatchBlock = cfw.acquireLabel();
-        cfw.markLabel(startTryBlock);
+        if (isFirstPass()) {
+            return;
+        }
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("Try();");
+        }
+        startTryBlock = acquireLabel();
+        endCatchBlock = acquireLabel();
+        markLabel(startTryBlock);
     }
 
     /**
@@ -61,19 +59,23 @@ public class TryCatchFinally extends Statement
      */
     public void Catch(Type exceptionType, String name) throws ClassMakerException
     {
-        if (cfw == null) return;
-        if (cfw.isDebugCode())
-        	cfw.setDebugComment("Catch(" + exceptionType + ", " + name  + ");");
+        if (isFirstPass()) {
+            return;
+        }
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("Catch(" + exceptionType + ", " + name  + ");");
+        }
         endTryCatchBlock();
 
         // catch (Exception ex)
-        int catchBlock = cfw.acquireLabel();
+        int catchBlock = acquireLabel();
         String exceptionName = exceptionType.getName();
-        cfw.addExceptionHandler(startTryBlock, endTryBlock, catchBlock, exceptionName);
-        cfw.markLabel(catchBlock);
-        cfw.adjustStackTop(1); // exception pointer pushed onto stack.
+        getGen().catchException(startTryBlock, endTryBlock, catchBlock, exceptionName);
+
+        markLabel(catchBlock);
         maker.markLineNumber(); // possibly add a new line number entry.
 
+        // Store the exception reference in a local variable
         maker.Declare(name, exceptionType, 0);
         maker.Eval(maker.Set(name, exceptionType.getValue()));
     }
@@ -82,13 +84,12 @@ public class TryCatchFinally extends Statement
     {
         if (endTryBlock == 0)
         {
-            endTryBlock = cfw.acquireLabel();
-            cfw.markLabel(endTryBlock);
+            endTryBlock = acquireLabel();
+            markLabel(endTryBlock);
         }
         finalyExceptionSlot = maker.storeAnonymousValue(ClassMakerFactory.OBJECT_TYPE);
-        // initialise slot
         // Jump over remaining catch and finally blocks.
-        cfw.add(ByteCode.GOTO, endCatchBlock);
+        jumpTo(endCatchBlock);
     }
 
    /**
@@ -105,42 +106,51 @@ public class TryCatchFinally extends Statement
      */
     public void Finally()
     {
-        if (cfw == null) return;
-        if (cfw.isDebugCode())
-        	cfw.setDebugComment("Finally();");
+        if (isFirstPass()) {
+            return;
+        }
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("Finally();");
+        }
         endTryCatchBlock();
 
-        // Start finaly block
-        int catchBlockAll = cfw.acquireLabel();
-        cfw.addExceptionHandler(startTryBlock, catchBlockAll, catchBlockAll, null);
-        cfw.markLabel(catchBlockAll);
-        // An exception pointer has been pushed onto the stack.
-        cfw.adjustStackTop(1);
-        finallySubroutine = cfw.acquireLabel();
-        maker.markLineNumber(); // possibly add a new line number entry.
+        // Start finally block
+        int catchBlockAll = acquireLabel();
+        getGen().catchException(startTryBlock, catchBlockAll, catchBlockAll, null);
 
-        // Store the exception pointer in an anonomous local variable.
-        if (cfw.isDebugCode())
-        	cfw.setDebugComment("Store reference to exception");
+        markLabel(catchBlockAll);
+        finallySubroutine = acquireLabel();
+
+        maker.markLineNumber(); // possibly add a new line number entry.
+        // Store the exception pointer in an anonymous local variable.
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("Store reference to exception");
+        }
         int finalyExceptionAddress = maker.storeAnonymousValue(ClassMakerFactory.OBJECT_TYPE);
 
         // Jump to the finally subroutine
-        callFinallySubroutine();
-
-        // Rethrow the exception.
-        if (cfw.isDebugCode())
-        	cfw.setDebugComment("Load reference to exception");
+        if (finallySubroutine != 0) {
+            getGen().callFinallySubroutine(finallySubroutine);
+        }
+ 
+        // Re-throw the exception.
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("Load reference to exception");
+        }
+        maker.markLineNumber(); // possibly add a new line number entry.
         maker.loadAnonymousValue(finalyExceptionAddress);
-        if (cfw.isDebugCode())
-        	cfw.setDebugComment("Rethrow exception");
-        cfw.add(ByteCode.ATHROW);
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("Rethrow exception");
+        }
+        getGen().Throw(ClassMakerFactory.OBJECT_TYPE);
 
-        // Finaly subroutine
-        if (cfw.isDebugCode())
-        	cfw.setDebugComment("finally subroutine");
-        cfw.markLabel(finallySubroutine);
+        // Finally subroutine
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("finally subroutine");
+        }
+        markLabel(finallySubroutine);
 
-        // Store return address in an annonomous local variable.
+        // Store return address in an anonomous local variable.
         finallyReturnSlot = maker.storeAnonymousValue(ClassMakerFactory.OBJECT_TYPE);
     }
 
@@ -151,17 +161,18 @@ public class TryCatchFinally extends Statement
      */
     public void EndTry()
     {
-        if (cfw != null)
-        {
-            if (cfw.isDebugCode()) 
-            	cfw.setDebugComment("EndTry();");
-            if (finallyReturnSlot != 0)
-            {
-                MakerField local = maker.localTable.get(finallyReturnSlot);
-                cfw.add(ByteCode.RET, local.getSlot());
+        if (!isFirstPass()) {
+            if (maker.isDebugCode())  {
+            	maker.setDebugComment("EndTry();");
             }
-            cfw.markLabel(endCatchBlock);
-            callFinallySubroutine();
+            if (finallyReturnSlot != 0) {
+                MakerField local = maker.localTable.get(finallyReturnSlot);
+                getGen().returnFinallySubroutine(local.getSlot());
+            }
+            markLabel(endCatchBlock);
+            if (finallySubroutine != 0) {
+                getGen().callFinallySubroutine(finallySubroutine);
+            }
         }
         dispose();
     }
@@ -175,28 +186,14 @@ public class TryCatchFinally extends Statement
      */
     void endTryCatchBlock()
     {
-        if (endTryBlock == 0)
-        {
-            endTryBlock = cfw.acquireLabel();
-            cfw.markLabel(endTryBlock);
+        if (endTryBlock == 0) {
+            endTryBlock = acquireLabel();
+            markLabel(endTryBlock);
         }
         // Jump over remaining catch and finally blocks.
-        cfw.add(ByteCode.GOTO, endCatchBlock);
+        jumpTo(endCatchBlock);
     }
 
-    /**
-     * Jump to the finally subroutine.
-     */
-    void callFinallySubroutine()
-    {
-        if (finallySubroutine != 0)
-        {
-        	if (cfw.isDebugCode())
-        	    cfw.setDebugComment("jump to finally subroutine");
-            cfw.add(ByteCode.JSR, finallySubroutine);
-        }
-    }
-    
     protected int getStatementEnd()
     {
     	return endCatchBlock;

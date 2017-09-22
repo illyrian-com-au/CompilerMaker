@@ -30,8 +30,6 @@ package au.com.illyrian.classmaker;
 import org.mozilla.classfile.ByteCode;
 
 import au.com.illyrian.classmaker.members.MakerField;
-import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.PrimitiveType;
 
 public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
 {
@@ -1612,18 +1610,18 @@ public class MakerLoadStoreTest extends ClassMakerTestCase implements ByteCode
         try {
             MakerField field = new MakerField("a", ClassMakerFactory.VOID_TYPE, 0);
             field.setSlot(1);
-            maker.loadLocal(field);
+            maker.getGen().loadLocal(field);
             fail("Should throw ClassMakerException");
-        } catch (ClassMakerException ex) {
-            assertEquals("Wrong message", "Don't know how to load type: void", ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            assertEquals("Do not know how to load local PrimitiveType(void)", ex.getMessage());
         }
         try {
             MakerField field = new MakerField("a", ClassMakerFactory.VOID_TYPE, 0);
             field.setSlot(1);
-            maker.storeLocal(field, ClassMakerFactory.VOID_TYPE);
+            maker.getGen().storeLocal(field);
             fail("Should throw ClassMakerException");
-        } catch (ClassMakerException ex) {
-            assertEquals("Wrong message", "Don't know how to store type: void", ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            assertEquals("Do not know how to store local PrimitiveType(void)", ex.getMessage());
         }
         try {
             maker.Declare("store", void.class, 0);

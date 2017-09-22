@@ -30,6 +30,7 @@ package au.com.illyrian.classmaker;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Vector;
@@ -48,6 +49,7 @@ import au.com.illyrian.classmaker.types.MakerClassType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
+import au.com.illyrian.classmaker.util.MakerUtil;
 
 /**
  * A ClassMaker instance is used to generate a class suitable to be loaded into
@@ -94,15 +96,12 @@ import au.com.illyrian.classmaker.types.Value;
  * <td>
  * 
  * <pre>
- * public interface Unary
- * {
+ * public interface Unary {
  *     int unary(int a);
  * }
  * 
- * public class Factorial implements Unary
- * {
- *     public int unary(int n)
- *     {
+ * public class Factorial implements Unary {
+ *     public int unary(int n) {
  *         int x;
  *         x = 1;
  *         while (n &gt; 0) {
@@ -148,8 +147,7 @@ import au.com.illyrian.classmaker.types.Value;
  *
  * @author Donald Strong
  */
-public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
-{
+public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     private static final Logger log = Logger.getLogger(ClassMaker.class.getName());
 
     /* Bitmask for class modifier to indicate that the class follows java 1.3+ (?) semantics for method invocation. */
@@ -221,29 +219,31 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
     private int classModifiers = ACC_PUBLIC;
 
     // Fields - external references
-    /* The ClassFileWriter instance that is used to generate byte-code for the class. */
-    private ClassFileWriter cfw;
+    /* The code generator for this instance */
+    private ClassGenerator gen;
+    /* Remember the PrintStream for debug code */
+    private PrintStream debugCodePrintStream = null;
     /* A ClassMakerFactory instance that may be shared with other instances of ClassMaker. */
     private final ClassMakerFactory factory;
 
     /** The name of the source file relative to the source path */
-    private int previousLineNumber = 0;
     private SourceLine sourceLine;
-    private LocalSourceLine localSourceLine;
+    private SourceLineImpl localSourceLine;
 
     //#################### Constructors #################
 
     /**
-     * Creates a <code>ClassMaker</code> instance given a <code>ClassMakerFactory</code>.
+     * Creates a <code>ClassMaker</code> instance given a
+     * <code>ClassMakerFactory</code>.
      * 
      * The <code>ClassMakerFactory</code> provides shared services for all
      * instances of <code>ClassMaker</code>.
      * 
-     * @param globalFactory the <code>ClassMakerFactory</code> instance that is used by
+     * @param globalFactory
+     *            the <code>ClassMakerFactory</code> instance that is used by
      *            all class generators
      */
-    protected ClassMaker(ClassMakerFactory globalFactory)
-    {
+    protected ClassMaker(ClassMakerFactory globalFactory) {
         factory = globalFactory;
     }
 
@@ -257,8 +257,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return the name of the package
      */
-    protected String defaultPackageName()
-    {
+    protected String defaultPackageName() {
         return "";
     }
 
@@ -270,10 +269,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if it is too late to call this method
      */
-    public void setPackageName(String packageName) throws ClassMakerException
-    {
-        if (cfw != null)
+    public void setPackageName(String packageName) throws ClassMakerException {
+        if (isGeneratingCode()) {
             throw createException("ClassMaker.ToLateToNameThePackage");
+        }
         this.packageName = packageName;
     }
 
@@ -285,8 +284,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @see #defaultPackageName()
      * @return the name of the class
      */
-    public String getPackageName()
-    {
+    public String getPackageName() {
         if (packageName == null)
             setPackageName(defaultPackageName());
         return packageName;
@@ -302,8 +300,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return the name of the generated class
      */
-    protected String defaultSimpleClassName()
-    {
+    protected String defaultSimpleClassName() {
         return getClass().getSimpleName() + "_$" + getFactory().incAnonomousClass();
     }
 
@@ -315,9 +312,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if it is too late to call this method
      */
-    public void setSimpleClassName(String className) throws ClassMakerException
-    {
-        if (cfw != null)
+    public void setSimpleClassName(String className) throws ClassMakerException {
+        if (isGeneratingCode())
             throw createException("ClassMaker.ToLateToNameTheClass");
         this.simpleClassName = className;
     }
@@ -330,8 +326,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @see #defaultFullyQualifiedClassName()
      * @return the name of the class
      */
-    public String getSimpleClassName()
-    {
+    public String getSimpleClassName() {
         if (simpleClassName == null)
             setSimpleClassName(defaultSimpleClassName());
         return simpleClassName;
@@ -346,8 +341,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return the name of the generated class
      */
-    protected String defaultFullyQualifiedClassName()
-    {
+    protected String defaultFullyQualifiedClassName() {
         String packageName = getPackageName();
         String simpleClassName = getSimpleClassName();
         return (packageName == null || "".equals(packageName)) ? simpleClassName : packageName + "." + simpleClassName;
@@ -361,9 +355,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if it is too late to call this method
      */
-    public void setFullyQualifiedClassName(String className) throws ClassMakerException
-    {
-        if (cfw != null)
+    public void setFullyQualifiedClassName(String className) throws ClassMakerException {
+        if (isGeneratingCode())
             throw createException("ClassMaker.ToLateToNameTheFullyQualifiedClass");
         this.fullyQualifiedClassName = className;
         getFactory().addClassMaker(this);
@@ -377,8 +370,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @see #defaultFullyQualifiedClassName()
      * @return the name of the class
      */
-    public String getFullyQualifiedClassName()
-    {
+    public String getFullyQualifiedClassName() {
         if (fullyQualifiedClassName == null)
             setFullyQualifiedClassName(defaultFullyQualifiedClassName());
         return fullyQualifiedClassName;
@@ -389,9 +381,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return the name of the source file relative to the source path
      */
-    protected String defaultSourceFilename()
-    {
-        return ClassMaker.toSlashName(getFullyQualifiedClassName()) + ".java";
+    protected String defaultSourceFilename() {
+        return MakerUtil.toSlashName(getFullyQualifiedClassName()) + ".java";
     }
 
     /**
@@ -402,20 +393,18 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if it is too late to call this method
      */
-    public void setSourceFilename(String filename) throws ClassMakerException
-    {
-        if (cfw != null)
+    public void setSourceFilename(String filename) throws ClassMakerException {
+        if (isGeneratingCode())
             throw createException("ClassMaker.ToLateToNameTheSourceFilename");
         if (sourceLine != null)
             throw createException("ClassMaker.CannotSetSourceFilename");
-        localSourceLine = new LocalSourceLine();
+        localSourceLine = new SourceLineImpl();
         localSourceLine.setFilename(filename);
         sourceLine = localSourceLine;
     }
 
     /** The signature of the generated class. */
-    public String getClassSignature()
-    {
+    public String getClassSignature() {
         return getClassType().getSignature();
     }
 
@@ -424,8 +413,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return the ClassType of the generated class
      */
-    protected ClassType defaultThisClass()
-    {
+    protected ClassType defaultThisClass() {
         ClassType classType = new MakerClassType(this);
         classType.setModifiers(classModifiers);
         getFactory().addType(classType);
@@ -440,9 +428,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if it is too late to call this method
      */
-    protected void setClassType(ClassType classType)
-    {
-        if (cfw != null)
+    protected void setClassType(ClassType classType) {
+        if (isGeneratingCode())
             throw createException("ClassMaker.ToLateToSetClassType");
         thisClassType = classType;
         addClassTypeAlias(classType);
@@ -463,8 +450,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @see #defaultThisClass()
      * @return the ClassType of the generated class
      */
-    public ClassType getClassType()
-    {
+    public ClassType getClassType() {
         if (thisClassType == null)
             setClassType(defaultThisClass());
         return thisClassType;
@@ -478,8 +464,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @see #defaultSuperClass()
      * @return classType the ClassType of the super class
      */
-    public ClassType getSuperClass()
-    {
+    public ClassType getSuperClass() {
         return getClassType().getExtendsType();
     }
 
@@ -491,8 +476,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return true if two passes should be used; otherwise false
      */
-    public boolean isTwoPass()
-    {
+    public boolean isTwoPass() {
         return (getPass() != ClassMakerConstants.ONE_PASS);
     }
 
@@ -507,10 +491,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if it is too late to call this method
      */
-    public void Extends(String className) throws ClassMakerException
-    {
-        if (cfw != null)
+    public void Extends(String className) throws ClassMakerException {
+        if (isGeneratingCode()) {
             throw createException("ClassMaker.ToLateToExtendTheClass");
+        }
         ClassType classType = stringToClassType(className);
         if (getPass() != ClassMakerConstants.FIRST_PASS) {
             if (classType == null) {
@@ -538,9 +522,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if it is too late to call this method
      */
-    public void Extends(Class javaClass) throws ClassMakerException
-    {
-        if (cfw != null)
+    public void Extends(Class javaClass) throws ClassMakerException {
+        if (isGeneratingCode())
             throw createException("ClassMaker.ToLateToExtendTheClass");
         int mod = javaClass.getModifiers();
         if (Modifier.isInterface(mod))
@@ -552,20 +535,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         }
     }
 
-    /**
-     * Creates an instance of the ClassFileWriter if one has not been set.
-     * 
-     * @return a ClassFileWriter instance
-     */
-    protected ClassFileWriter defaultClassFileWriter()
-    {
-        String className = getClassType().getName();
-        String extendsClassName = getSuperClass().getName();
-        String sourceFile = getSourceLine().getFilename();
-        ClassFileWriter writer = new ClassFileWriter(toSlashName(className), toSlashName(extendsClassName), sourceFile);
-        // Setting the Super bit is required for class files after Java 1.2.
-        writer.setFlags((short) (getModifiers() | MASK_SUPER));
-        return writer;
+    private ClassGenerator defaultClassGenerator() {
+        return new ClassGenerator(this);
     }
 
     /**
@@ -574,43 +545,52 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param classFileWriter
      *            the ClassFileWriter instance
      */
-    protected void setClassFileWriter(ClassFileWriter classFileWriter)
-    {
-        cfw = classFileWriter;
+    public void setClassGenerator(ClassGenerator classGenerator) {
+        if (debugCodePrintStream != null) {
+            classGenerator.setDebugCodeOutput(debugCodePrintStream);
+        }
+        gen = classGenerator;
     }
 
-    /**
-     * Each <code>ClassMaker</code> instance has its own
-     * <code>ClassFileWriter</code>.
-     * </br>
-     * Generates a default ClassFileWriter if one has not been set explicitly.
-     * 
-     * @see #defaultClassFileWriter()
-     * @return the
-     *         <code>ClassFileWriter<code> instance for this <code>ClassMaker<code>
-     */
-    protected ClassFileWriter getClassFileWriter()
-    {
-        if (cfw == null && getPass() != FIRST_PASS)
-            setClassFileWriter(defaultClassFileWriter());
-        return cfw;
+    public ClassGenerator getGen() {
+        if (gen == null && !isFirstPass()) {
+            setClassGenerator(defaultClassGenerator());
+        }
+        return gen;
     }
 
-    protected boolean isDebugCode()
-    {
-        if (getClassFileWriter() != null)
-            return cfw.isDebugCode();
+    public boolean isGeneratingCode() {
+        return gen != null;
+    }
+
+    protected boolean isFirstPass() {
+        return getPass() == FIRST_PASS;
+    }
+
+    protected boolean isDebugCode() {
+        if (getGen() != null) {
+            return getGen().isDebugCode();
+        }
         return false;
     }
 
-    protected void setDebugComment(String comment)
-    {
-        cfw.setDebugComment(comment);
+    protected void setDebugComment(String comment) {
+        if (getGen() != null) {
+            getGen().setDebugComment(comment);
+        }
+    }
+
+    public void setDebugCodeOutput(PrintStream printStream) {
+        if (getGen() != null) {
+            getGen().setDebugCodeOutput(printStream);
+        } else {
+            // Remember for when the ClassGenerator is set.
+            debugCodePrintStream = printStream;
+        }
     }
 
     /** <code>ClassMaker</code>s share a common <code>ClassMakerFactory</code>. */
-    public ClassMakerFactory getFactory()
-    {
+    public ClassMakerFactory getFactory() {
         return factory;
     }
 
@@ -621,8 +601,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return an array of declared methods.
      */
-    public MakerMethod[] getDeclaredMethods()
-    {
+    public MakerMethod[] getDeclaredMethods() {
         return methods.toArray(ClassMakerFactory.METHOD_ARRAY);
     }
 
@@ -631,8 +610,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return an array of declared methods.
      */
-    MakerMethod[] getAllClassMethods(ClassType classType)
-    {
+    MakerMethod[] getAllClassMethods(ClassType classType) {
         MakerMethodCollector allMethods = new MakerMethodCollector();
         allMethods.includeClassMethods(classType);
         return allMethods.toArray();
@@ -643,8 +621,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return an array of declared methods.
      */
-    MakerMethod[] getAllInterfaceMethods(ClassType classType)
-    {
+    MakerMethod[] getAllInterfaceMethods(ClassType classType) {
         MakerMethodCollector allMethods = new MakerMethodCollector();
         allMethods.includeInterfaceMethods(classType);
         return allMethods.toArray();
@@ -655,8 +632,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return an array of declared constructors.
      */
-    public MakerMethod[] getDeclaredConstructors()
-    {
+    public MakerMethod[] getDeclaredConstructors() {
         return constructors.toArray(ClassMakerFactory.METHOD_ARRAY);
     }
 
@@ -665,8 +641,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return an array of implemented interfaces
      */
-    public ClassType[] getDeclaredInterfaces()
-    {
+    public ClassType[] getDeclaredInterfaces() {
         return interfaces.toArray(ClassMakerFactory.CLASS_TYPE_ARRAY);
     }
 
@@ -675,8 +650,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return an array of member fields
      */
-    public MakerField[] getDeclaredFields()
-    {
+    public MakerField[] getDeclaredFields() {
         return fieldTable.toArray(ClassMakerFactory.FIELD_ARRAY);
     }
 
@@ -687,14 +661,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            an index into <code>localTable</code>
      * @return the indexed local field
      */
-    MakerField lookupLocal(int index)
-    {
+    MakerField lookupLocal(int index) {
         return localTable.get(index);
     }
 
     /** The class modifiers for the generated class. */
-    public int getModifiers()
-    {
+    public int getModifiers() {
         return getClassType().getModifiers();
     }
 
@@ -706,8 +678,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            <code>ACC_PUBLIC, ACC_PROTECTED, ACC_PRIVATE, ACC_STATIC, ACC_FINAL</code>
      *            and <code>ACC_ABSTRACT</code>
      */
-    public void setClassModifiers(int modifiers)
-    {
+    public void setClassModifiers(int modifiers) {
         if ((modifiers & ClassMakerConstants.ACC_INTERFACE) == ClassMakerConstants.ACC_INTERFACE) {
             checkInterfaceModifiers(modifiers);
             // Interface always has modifiers ACC_PUBLIC, ACC_INTERFACE and ACC_ABSTRACT
@@ -726,8 +697,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return true if the generated class is abstract
      */
-    public boolean isAbstract()
-    {
+    public boolean isAbstract() {
         return (getModifiers() & ClassMakerConstants.ACC_ABSTRACT) == ClassMakerConstants.ACC_ABSTRACT;
     }
 
@@ -736,16 +706,14 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return true if the generated class is an interface
      */
-    public boolean isInterface()
-    {
+    public boolean isInterface() {
         return (getModifiers() & ClassMakerConstants.ACC_INTERFACE) == ClassMakerConstants.ACC_INTERFACE;
     }
 
     /**
      * Sets the class modifiers to turn this class into an interface.
      */
-    public void setIsInterface()
-    {
+    public void setIsInterface() {
         setClassModifiers(ACC_INTERFACE);
     }
 
@@ -767,11 +735,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the bit mask includes an invalid modifier
      */
-    protected void checkClassModifiers(int modifiers) throws ClassMakerException
-    {
+    protected void checkClassModifiers(int modifiers) throws ClassMakerException {
         int wrongModifiers = modifiers & (~MASK_CLASS);
         if (wrongModifiers != 0)
-            throw createException("ClassMaker.InvalidClassModifier_1", toModifierString(wrongModifiers));
+            throw createException("ClassMaker.InvalidClassModifier_1", MakerUtil.toModifierString(wrongModifiers));
         checkMultipleAccessModifiers(modifiers);
         if (((modifiers & ClassMakerConstants.ACC_FINAL) == ClassMakerConstants.ACC_FINAL)
                 && ((modifiers & ClassMakerConstants.ACC_ABSTRACT) == ClassMakerConstants.ACC_ABSTRACT))
@@ -793,11 +760,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the bit mask includes an invalid modifier
      */
-    protected void checkInterfaceModifiers(int modifiers) throws ClassMakerException
-    {
+    protected void checkInterfaceModifiers(int modifiers) throws ClassMakerException {
         int wrongModifiers = modifiers & (~MASK_INTERFACE);
         if (wrongModifiers != 0)
-            throw createException("ClassMaker.InvalidInterfaceModifier_1", toModifierString(wrongModifiers));
+            throw createException("ClassMaker.InvalidInterfaceModifier_1", MakerUtil.toModifierString(wrongModifiers));
         checkMultipleAccessModifiers(modifiers);
     }
 
@@ -823,17 +789,16 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the bit mask includes an invalid modifier
      */
-    protected void checkMethodModifiers(int modifiers) throws ClassMakerException
-    {
+    protected void checkMethodModifiers(int modifiers) throws ClassMakerException {
         // Check that the list contains valid modifiers
         int wrongModifiers = modifiers & (~MASK_METHOD);
         if (wrongModifiers != 0)
-            throw createException("ClassMaker.InvalidMethodModifier_1", toModifierString(wrongModifiers));
+            throw createException("ClassMaker.InvalidMethodModifier_1", MakerUtil.toModifierString(wrongModifiers));
         checkMultipleAccessModifiers(modifiers);
         // Check that abstract is not used with an incompatible modifier
         if (((modifiers & ClassMakerConstants.ACC_ABSTRACT) == ClassMakerConstants.ACC_ABSTRACT)) {
             if ((modifiers & (MASK_INCOMPATABLE_WITH_ABSTRACT_METHOD)) > 0)
-                throw createException("ClassMaker.InvalidMethodModifierCombination_1", toModifierString(modifiers
+                throw createException("ClassMaker.InvalidMethodModifierCombination_1", MakerUtil.toModifierString(modifiers
                         & MASK_INCOMPATABLE_WITH_ABSTRACT_METHOD));
         }
     }
@@ -858,11 +823,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the bit mask includes an invalid modifier
      */
-    protected void checkFieldModifiers(int modifiers) throws ClassMakerException
-    {
+    protected void checkFieldModifiers(int modifiers) throws ClassMakerException {
         int wrongModifiers = modifiers & (~MASK_FIELD);
         if (wrongModifiers != 0)
-            throw createException("ClassMaker.InvalidFieldModifier_1", toModifierString(wrongModifiers));
+            throw createException("ClassMaker.InvalidFieldModifier_1", MakerUtil.toModifierString(wrongModifiers));
         checkMultipleAccessModifiers(modifiers);
         if (((modifiers & ClassMakerConstants.ACC_FINAL) == ClassMakerConstants.ACC_FINAL)
                 && ((modifiers & ClassMakerConstants.ACC_VOLATILE) == ClassMakerConstants.ACC_VOLATILE)) {
@@ -886,13 +850,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the bit mask includes more than one access modifier
      */
-    protected void checkMultipleAccessModifiers(int modifiers) throws ClassMakerException
-    {
+    protected void checkMultipleAccessModifiers(int modifiers) throws ClassMakerException {
         // Check there is no more than one access modifier
         int accessModifiers = modifiers & MASK_ACCESS;
         if (accessModifiers != ClassMakerConstants.ACC_PUBLIC && accessModifiers != ClassMakerConstants.ACC_PROTECTED
                 && accessModifiers != ClassMakerConstants.ACC_PRIVATE && accessModifiers != 0) {
-            throw createException("ClassMaker.MultipleAccessModifiers_1", toModifierString(accessModifiers));
+            throw createException("ClassMaker.MultipleAccessModifiers_1", MakerUtil.toModifierString(accessModifiers));
         }
     }
 
@@ -902,94 +865,24 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if not generating a method
      */
-    void checkInMethod() throws ClassMakerException
-    {
-        if (method == null)
+    void checkInMethod() throws ClassMakerException {
+        if (method == null) {
             throw createException("ClassMaker.MustBeInMethod");
-    }
-
-    public int addModifier(int modifiers, String modifierName)
-    {
-        int modifier = fromModifierString(modifierName);
-        if ((modifiers & modifier) > 0)
-            throw createException("ClassMaker.DuplicateModifier_1", modifierName);
-        return modifiers | modifier;
-    }
-
-    public static int fromModifierString(String value)
-    {
-        if ("public".equals((value)))
-            return ClassMakerConstants.ACC_PUBLIC;
-        else if ("protected".equals((value)))
-            return ClassMakerConstants.ACC_PROTECTED;
-        else if ("private".equals((value)))
-            return ClassMakerConstants.ACC_PRIVATE;
-        else if ("static".equals((value)))
-            return ClassMakerConstants.ACC_STATIC;
-        else if ("final".equals((value)))
-            return ClassMakerConstants.ACC_FINAL;
-        else if ("synchronized".equals((value)))
-            return ClassMakerConstants.ACC_SYNCHRONIZED;
-        else if ("volatile".equals((value)))
-            return ClassMakerConstants.ACC_VOLATILE;
-        else if ("transient".equals((value)))
-            return ClassMakerConstants.ACC_TRANSIENT;
-        else if ("native".equals((value)))
-            return ClassMakerConstants.ACC_NATIVE;
-        else if ("abstract".equals((value)))
-            return ClassMakerConstants.ACC_ABSTRACT;
-        else if ("strictfp".equals((value)))
-            return ClassMakerConstants.ACC_STRICTFP;
-        else
-            throw new IllegalArgumentException("Invalid modifier: " + value);
-    }
-
-    /**
-     * Creates a white space separated string of modifiers from a bit mask.
-     * 
-     * @param modifiers
-     *            a bit mask of modifiers.
-     * @return a white space separated string of modifier names
-     */
-    public static String toModifierString(int modifiers)
-    {
-        StringBuffer buf = new StringBuffer();
-        appendModifier(buf, modifiers, ClassMakerConstants.ACC_PUBLIC, "public");
-        appendModifier(buf, modifiers, ClassMakerConstants.ACC_PROTECTED, "protected");
-        appendModifier(buf, modifiers, ClassMakerConstants.ACC_PRIVATE, "private");
-        appendModifier(buf, modifiers, ClassMakerConstants.ACC_STATIC, "static");
-        appendModifier(buf, modifiers, ClassMakerConstants.ACC_FINAL, "final");
-        appendModifier(buf, modifiers, ClassMakerConstants.ACC_SYNCHRONIZED, "synchronized");
-        appendModifier(buf, modifiers, ClassMakerConstants.ACC_VOLATILE, "volatile");
-        appendModifier(buf, modifiers, ClassMakerConstants.ACC_TRANSIENT, "transient");
-        appendModifier(buf, modifiers, ClassMakerConstants.ACC_NATIVE, "native");
-        appendModifier(buf, modifiers, ClassMakerConstants.ACC_ABSTRACT, "abstract");
-        appendModifier(buf, modifiers, ClassMakerConstants.ACC_STRICTFP, "strictfp");
-        return buf.toString();
-    }
-
-    /* Appends a modifier to a StringBuffer. */
-    private static void appendModifier(StringBuffer buf, int modifiers, int expected, String name)
-    {
-        if ((modifiers & expected) != 0) {
-            buf.append(name).append(" ");
         }
     }
 
-    /* Append a string to the StringBuffer placing a separator before subsequent values. */
-    private static void appendStrings(StringBuffer buf, String value, String separator)
-    {
-        if (buf.length() > 0)
-            buf.append(separator);
-        buf.append(value);
+    public int addModifier(int modifiers, String modifierName) {
+        int modifier = MakerUtil.fromModifierString(modifierName);
+        if ((modifiers & modifier) > 0)
+            throw createException("ClassMaker.DuplicateModifier_1", modifierName);
+        return modifiers | modifier;
     }
 
     /**
      * Determines whether a constructor has been declared for the generated
      * class.
      */
-    public boolean hasConstructor()
-    {
+    public boolean hasConstructor() {
         return hasConstructor;
     }
 
@@ -1004,153 +897,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * </ul>
      * The default is <code>ClassMaker.ONE_PASS</code>.
      */
-    public int getPass()
-    {
+    public int getPass() {
         return getFactory().getPass();
-    }
-
-    //############# Helper methods for derived classes #########
-
-    /**
-     * Determines whether the <code>Type</code> is a class.
-     * 
-     * @param type
-     *            the type to be tested
-     * @return true if <code>Type</code> implements a class
-     */
-    public static boolean isClass(Type type)
-    {
-        return type != null && type.toClass() != null;
-    }
-
-    /**
-     * Determines whether the <code>Type</code> is an array.
-     * 
-     * @param type
-     *            the type to be tested
-     * @return true if <code>Type</code> implements a array
-     */
-    public static boolean isArray(Type type)
-    {
-        return type != null && type.toArray() != null;
-    }
-
-    /**
-     * Determines whether the <code>Type</code> is an interface.
-     * 
-     * @param type
-     *            the type to be tested
-     * @return true if <code>Type</code> implements a class
-     */
-    public static boolean isInterface(Type type)
-    {
-        if (type != null && type.toClass() != null)
-            return type.toClass().isInterface();
-        return false;
-    }
-
-    /**
-     * Determines whether the <code>Type</code> is a primitive type.
-     * 
-     * @param type
-     *            the type to be tested
-     * @return true if <code>Type</code> is a primitive type
-     */
-    public static boolean isPrimitive(Type type)
-    {
-        return type != null && type.toPrimitive() != null;
-    }
-
-    //###################  ################
-
-    /**
-     * Converts a <code>Class</code> into a class name.
-     * 
-     * @param javaClass
-     *            the class from which to derive the name
-     * @return a fully qualified class name delimited by dots
-     */
-    public static String classToName(Class javaClass)
-    {
-        if (javaClass.isArray())
-            return toDotName(javaClass.getCanonicalName());
-        else
-            return toDotName(javaClass.getName());
-    }
-
-    /**
-     * Converts a <code>Class</code> into a class name.
-     * 
-     * @param javaClass
-     *            the class from which to derive the name
-     * @return a fully qualified class name delimited by slashes
-     */
-    public static String classToSlashName(Class javaClass)
-    {
-        if (javaClass.isArray())
-            return toSlashName(javaClass.getCanonicalName());
-        else
-            return toSlashName(javaClass.getName());
-    }
-
-    /**
-     * Converts dots into slashes in a class name.
-     * 
-     * @param name
-     *            the name to be converted
-     * @return the name with dots replaced by slashes
-     */
-    public static String toSlashName(String name)
-    {
-        return name.replace('.', '/');
-    }
-
-    /**
-     * Converts slashes into dots in a class name.
-     * 
-     * @param name
-     *            the name to be converted
-     * @return the name with slashes replaced by dots
-     */
-    public static String toDotName(String name)
-    {
-        return name.replace('/', '.');
-    }
-
-    /**
-     * Converts a type Class into a signature.
-     * 
-     * @param javaClass
-     *            a class representing a type from which to derive the signature
-     * @return a JVM signature
-     */
-    public static String classToSignature(Class javaClass)
-    {
-        if (javaClass.isArray())
-            return toSlashName(javaClass.getName());
-        else if (javaClass.isPrimitive()) {
-            if ("int".equals(javaClass.getName()))
-                return "I";
-            if ("float".equals(javaClass.getName()))
-                return "F";
-            if ("long".equals(javaClass.getName()))
-                return "J";
-            if ("void".equals(javaClass.getName()))
-                return "V";
-            if ("byte".equals(javaClass.getName()))
-                return "B";
-            if ("char".equals(javaClass.getName()))
-                return "C";
-            if ("double".equals(javaClass.getName()))
-                return "D";
-            if ("short".equals(javaClass.getName()))
-                return "S";
-            if ("boolean".equals(javaClass.getName()))
-                return "Z";
-            // Should never get here.
-            throw new IllegalArgumentException("Could not determine signature for primitive: " + javaClass.getName());
-        } else
-            return "L" + classToSlashName(javaClass) + ";";
     }
 
     //################# Class Loader methods ##############
@@ -1164,13 +912,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         if (thisClassType != null && thisClassType.getJavaClass() != null) {
             return thisClassType.getJavaClass();
         }
-        EndClass(); 
+        EndClass();
         if (getPass() == FIRST_PASS) {
             throw createException("ClassMaker.CannotDefineClassAfterFirstPhase");
         }
         defineClassType(getClassType().getExtendsType());
         defineInterfaces(this.getDeclaredInterfaces());
-        Class thisClass = getFactory().getClassLoader().defineClass(cfw.getClassName(), cfw.toByteArray());
+        Class thisClass = getFactory().getClassLoader().defineClass(getGen().getClassName(), getGen().toByteArray());
         thisClassType.setJavaClass(thisClass);
         return thisClass;
     }
@@ -1193,8 +941,9 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * This method is automatically called when the class is defined.
      */
     public void EndClass() throws ClassMakerException {
-        if (method != null)
+        if (method != null) {
             throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toString());
+        }
         if (getPass() != COMPLETED_PASS) {
             getClassType(); // Loads generated class into types visible from the factory
             if (!hasConstructor() && !isInterface()) {
@@ -1225,16 +974,15 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if an abstract method is found
      */
-    void checkClassMethodsAreConcrete() throws ClassMakerException
-    {
+    void checkClassMethodsAreConcrete() throws ClassMakerException {
         if (!isAbstract() && !isInterface()) {
             boolean hasAbstractMethod = false;
             StringBuffer buf = new StringBuffer();
-            MakerMethod [] allMethods =  getAllClassMethods(getClassType());
+            MakerMethod[] allMethods = getAllClassMethods(getClassType());
             for (MakerMethod method : allMethods) {
                 if ((method.getModifiers() & ClassMakerConstants.ACC_ABSTRACT) == ClassMakerConstants.ACC_ABSTRACT) {
                     hasAbstractMethod = true;
-                    appendStrings(buf, method.toString(), "\n");
+                    MakerUtil.appendStrings(buf, method.toString(), "\n");
                 }
             }
             if (hasAbstractMethod) {
@@ -1251,15 +999,14 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if a concrete method is found
      */
-    void checkInterfaceMethodsAreAbstract() throws ClassMakerException
-    {
+    void checkInterfaceMethodsAreAbstract() throws ClassMakerException {
         if (isInterface()) {
             boolean hasConcreteMethod = false;
             StringBuffer buf = new StringBuffer();
             for (MakerMethod method : getAllInterfaceMethods(getClassType())) {
                 if ((method.getModifiers() & ClassMakerConstants.ACC_ABSTRACT) != ClassMakerConstants.ACC_ABSTRACT) {
                     hasConcreteMethod = true;
-                    appendStrings(buf, method.toString(), "\n");
+                    MakerUtil.appendStrings(buf, method.toString(), "\n");
                 }
             }
             if (hasConcreteMethod)
@@ -1276,8 +1023,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if an unimplemented method is found
      */
-    void checkInterfaceMethodsAreImplemented() throws ClassMakerException
-    {
+    void checkInterfaceMethodsAreImplemented() throws ClassMakerException {
         if (!isInterface()) {
             boolean hasUnimplementedMethod = false;
             StringBuffer buf = new StringBuffer();
@@ -1286,7 +1032,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
                 MakerMethod concreteMethod = findImplementingMethod(abstractMethod, !isAbstract());
                 if (concreteMethod == null) {
                     hasUnimplementedMethod = true;
-                    appendStrings(buf, abstractMethod.toString(), "\n");
+                    MakerUtil.appendStrings(buf, abstractMethod.toString(), "\n");
                 }
             }
             if (hasUnimplementedMethod)
@@ -1306,11 +1052,11 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            whether to exclude abstract methods
      * @return the method that implements the interface method
      */
-    MakerMethod findImplementingMethod(MakerMethod interfaceMethod, boolean excludeAbstract)
-    {
-        MakerMethod [] allMethods = getAllClassMethods(getClassType());
+    MakerMethod findImplementingMethod(MakerMethod interfaceMethod, boolean excludeAbstract) {
+        MakerMethod[] allMethods = getAllClassMethods(getClassType());
         for (MakerMethod method : allMethods) {
-            if (excludeAbstract && (method.getModifiers() & ClassMakerConstants.ACC_ABSTRACT) == ClassMakerConstants.ACC_ABSTRACT) {
+            if (excludeAbstract
+                    && (method.getModifiers() & ClassMakerConstants.ACC_ABSTRACT) == ClassMakerConstants.ACC_ABSTRACT) {
                 continue; // ignore abstract methods
             }
             if (interfaceMethod.equals(method)) {
@@ -1329,8 +1075,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param field
      *            the field being accessed
      */
-    void checkAccessDenied(ClassType classType, MakerField field)
-    {
+    void checkAccessDenied(ClassType classType, MakerField field) {
         // Determine whether the class is accessible
         if (isAccessDenied(getClassType(), classType, classType.getModifiers()))
             throw createException("ClassMaker.AccessDeniedToClass_1", classType.getName());
@@ -1351,8 +1096,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param method
      *            the method being accessed
      */
-    void checkAccessDenied(ClassType classType, MakerMethod method)
-    {
+    void checkAccessDenied(ClassType classType, MakerMethod method) {
         // Determine whether the class is accessible
         if (isAccessDenied(getClassType(), classType, classType.getModifiers()))
             throw createException("ClassMaker.AccessDeniedToClass_1", classType.getName());
@@ -1380,16 +1124,15 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the access modifiers of the method or field being accessed
      * @return true if the caller class is denied access to the method or field
      */
-    boolean isAccessDeniedToProtected(ClassType caller, ClassType called, int modifiers)
-    {
+    boolean isAccessDeniedToProtected(ClassType caller, ClassType called, int modifiers) {
         // Test does not apply to static fields.
         if ((modifiers & ClassMakerConstants.ACC_STATIC) == ClassMakerConstants.ACC_STATIC)
             return false;
         modifiers &= MASK_ACCESS;
         // FIXME - include explanation and reference 
-        return ((modifiers == ClassMakerConstants.ACC_PROTECTED) 
-                && !caller.getPackageName().equals(called.getPackageName()) 
-                && !getFactory().getAssignmentConversion().isWideningClassConvertable(called, caller));
+        return ((modifiers == ClassMakerConstants.ACC_PROTECTED)
+                && !caller.getPackageName().equals(called.getPackageName()) && !getFactory().getAssignmentConversion()
+                .isWideningClassConvertable(called, caller));
     }
 
     /**
@@ -1425,8 +1168,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @return true if the caller class is denied access to the class, method or
      *         field
      */
-    boolean isAccessDenied(ClassType caller, ClassType called, int modifiers)
-    {
+    boolean isAccessDenied(ClassType caller, ClassType called, int modifiers) {
         modifiers &= MASK_ACCESS;
         if (modifiers == ClassMakerConstants.ACC_PUBLIC)
             return false;
@@ -1444,8 +1186,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
     /**
      * Generate a default constructor for the class.
      */
-    public void defaultConstructor()
-    {
+    public void defaultConstructor() {
         Method(INIT, ClassMakerFactory.VOID_TYPE, ClassMakerConstants.ACC_PUBLIC);
         Begin();
         Init(Super(), null);
@@ -1463,11 +1204,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the class does not exist
      */
-    public void Import(String className) throws ClassMakerException
-    {
-        ClassType importedType = importMap.get(toDotName(className));
+    public void Import(String className) throws ClassMakerException {
+        ClassType importedType = importMap.get(MakerUtil.toDotName(className));
         if (importedType == null) {
-            importedType = stringToClassType(toDotName(className));
+            importedType = stringToClassType(MakerUtil.toDotName(className));
             addClassTypeAlias(importedType);
             if (log.isLoggable(Level.FINE))
                 log.finest("Import " + importedType);
@@ -1482,8 +1222,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the javaClass does not represent a class type
      */
-    public void Import(Class javaClass) throws ClassMakerException
-    {
+    public void Import(Class javaClass) throws ClassMakerException {
         ClassType classType = classToClassType(javaClass);
         addClassTypeAlias(classType);
         if (log.isLoggable(Level.FINE))
@@ -1504,8 +1243,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the javaClass does not represent a class type
      */
-    public ClassType classToClassType(Class javaClass) throws ClassMakerException
-    {
+    public ClassType classToClassType(Class javaClass) throws ClassMakerException {
         Type type = getFactory().classToType(javaClass);
         if (type.toClass() != null)
             return type.toClass();
@@ -1530,14 +1268,15 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if a fully qualified class name must be used
      */
-    ClassType getImported(String className) throws ClassMakerException
-    {
-        ClassType classType = importMap.get(toDotName(className));
-        if (classType == null)
+    ClassType getImported(String className) throws ClassMakerException {
+        ClassType classType = importMap.get(MakerUtil.toDotName(className));
+        if (classType == null) {
             return null;
+        }
         // The alias map uses NULL_TYPE if more than one class with the same simple class name has been imported.
-        if (ClassMakerFactory.NULL_TYPE.equals(classType))
+        if (ClassMakerFactory.NULL_TYPE.equals(classType)) {
             throw createException("ClassMaker.MustUseFullyQualifiedClassName_1", className);
+        }
         return classType;
     }
 
@@ -1555,14 +1294,15 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param classType
      *            the class to be added to the alias table
      */
-    void addClassTypeAlias(ClassType classType)
-    {
-        String className = toDotName(classType.getName());
-        if (importMap.get(className) != null)
+    void addClassTypeAlias(ClassType classType) {
+        String className = MakerUtil.toDotName(classType.getName());
+        if (importMap.get(className) != null) {
             return;
+        }
         int index = className.lastIndexOf('$');
-        if (index == -1)
+        if (index == -1) {
             index = className.lastIndexOf('.');
+        }
         if (index > -1) { // A simple name exists so add it to the alias map.
             String simpleName = className.substring(index + 1);
             Type aliasType = importMap.get(simpleName);
@@ -1594,11 +1334,11 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the parameters on the call stack
      * @return a <code>MakerMethod</code> which represents the resolved method
      */
-    MakerMethod resolveConstructor(ClassType classType, CallStack actualParameters)
-    {
+    MakerMethod resolveConstructor(ClassType classType, CallStack actualParameters) {
         MakerMethod[] constructors = classType.getDeclaredConstructors();
-        if (actualParameters == null)
+        if (actualParameters == null) {
             actualParameters = EMPTY_CALL_STACK;
+        }
         return getFactory().getMethodResolver().resolveMethod(this, constructors, INIT, actualParameters);
     }
 
@@ -1616,13 +1356,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the parameters on the call stack
      * @return a <code>MakerMethod</code> which represents the resolved method
      */
-    public MakerMethod resolveMethod(ClassType classType, String name, CallStack actualParameters)
-    {
+    public MakerMethod resolveMethod(ClassType classType, String name, CallStack actualParameters) {
         MakerMethod[] methods = getMethods(classType, name);
         //MakerMethod[] methods =  classType.findMethods(name);
-        
-        if (actualParameters == null)
+
+        if (actualParameters == null) {
             actualParameters = EMPTY_CALL_STACK;
+        }
         return getFactory().getMethodResolver().resolveMethod(this, methods, name, actualParameters);
     }
 
@@ -1636,8 +1376,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the ClassType that holds information about the class
      * @return an array of method descriptors
      */
-    MakerMethod[] getMethods(ClassType classType, String name)
-    {
+    MakerMethod[] getMethods(ClassType classType, String name) {
         MakerMethodCollector methods = new MakerMethodCollector(name);
         methods.includeClassMethods(classType);
         if (classType.isInterface()) {
@@ -1659,8 +1398,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            appropriate modifiers include:
      *            <code>ACC_PUBLIC, ACC_PROTECTED, ACC_PRIVATE, ACC_STATIC, ACC_FINAL</code>
      */
-    public void Method(String methodName, Class returnType, int methodModifiers) throws ClassMakerException
-    {
+    public void Method(String methodName, Class returnType, int methodModifiers) throws ClassMakerException {
         Type type = getFactory().classToType(returnType);
         Method(methodName, type, methodModifiers);
     }
@@ -1676,8 +1414,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            appropriate modifiers include:
      *            <code>ACC_PUBLIC, ACC_PROTECTED, ACC_PRIVATE, ACC_STATIC, ACC_FINAL</code>
      */
-    public void Method(String methodName, String returnType, int methodModifiers) throws ClassMakerException
-    {
+    public void Method(String methodName, String returnType, int methodModifiers) throws ClassMakerException {
         Type type = stringToType(returnType);
         Method(methodName, type, methodModifiers);
     }
@@ -1693,19 +1430,20 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            appropriate modifiers include:
      *            <code>ACC_PUBLIC, ACC_PROTECTED, ACC_PRIVATE, ACC_STATIC, ACC_FINAL</code>
      */
-    public void Method(String methodName, Type returnType, int methodModifiers) throws ClassMakerException
-    {
+    public void Method(String methodName, Type returnType, int methodModifiers) throws ClassMakerException {
         checkMethodModifiers(methodModifiers);
-        if (method != null)
+        if (method != null) {
             throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toString());
+        }
         method = new MakerMethod(getClassType(), methodName, returnType, (short) methodModifiers);
 
         // Adjust the slots used to account for the this pointer, if present.
         maxLocalSlots = method.isStatic() ? 0 : getClassType().getSlotSize();
 
         // Determine whether the class declares a constructor.
-        if (INIT.equals(methodName))
+        if (INIT.equals(methodName)) {
             hasConstructor = true;
+        }
     }
 
     /**
@@ -1714,28 +1452,26 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * parameters
      * of the method.
      */
-    void BeginMethod() throws ClassMakerException
-    {
-        if (method == null)
+    void BeginMethod() throws ClassMakerException {
+        if (method == null) {
             throw createException("ClassMaker.NotInMethod");
-        if (method.isAbstract())
+        }
+        if (method.isAbstract()) {
             throw createException("ClassMaker.AbstractMethodCannotHaveBody_1", "Begin()");
+        }
 
         method.setFormalParams(createFormalParameters());
 
-        if (getPass() == FIRST_PASS)
+        if (isFirstPass()) {
             method.setHasBody(false);
-        else if (isForwardDeclared(method))
+        } else if (isForwardDeclared(method)) {
             removeMethod(method);
+        }
         addMethod(method);
 
-        if (getClassFileWriter() != null) {
-            cfw.startMethod(method.getName(), method.getSignature(), method.getModifiers());
+        if (getGen() != null) {
+            getGen().beginMethod(method, getClassSignature());
             markLineNumber(); // possibly add a new line number entry.
-            if ((method.getModifiers() & ClassMakerConstants.ACC_STATIC) == 0) {
-                String classSignature = getClassSignature();
-                cfw.addVariableDescriptor("this", classSignature, 0, 0, -1);
-            }
         }
     }
 
@@ -1749,31 +1485,20 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *             if the method must return a Value but doesn't and doesn't
      *             throw an exception.
      */
-    void EndMethod() throws ClassMakerException
-    {
+    void EndMethod() throws ClassMakerException {
         if (method.isAbstract())
             throw createException("ClassMaker.AbstractMethodCannotHaveBody_1", "End()");
-        if (getClassFileWriter() != null) {
+        if (getGen() != null) {
             // Check that Return has been called.
-            if (!followsReturn)
-                if (ClassMakerFactory.VOID_TYPE.equals(method.getReturnType()))
+            if (!followsReturn) {
+                if (ClassMakerFactory.VOID_TYPE.equals(method.getReturnType())) {
                     Return();
-                else
+                } else {
                     throw createException("ClassMaker.ReturnOrThrowMustPrecedeEnd");
-
-            // Local variable descriptors are used by the debugger.
-            for (int i = 0; i < localTable.size(); i++) {
-                MakerField local = localTable.elementAt(i);
-                if (local.getName() == null)
-                    continue; // Skip anonymous local values
-                cfw.addVariableDescriptor(local.getName(), local.getType().getSignature(), local.getStartPC(),
-                        local.getSlot(), local.getEndPC());
+                }
             }
-
             markLineNumber(); // possibly add a new line number entry.
-
-            cfw.add(ByteCode.NOP);
-            cfw.stopMethod(maxLocalSlots);
+            getGen().endMethod(localTable, maxLocalSlots);
         }
 
         // Exit method.
@@ -1799,8 +1524,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return an interface to set a Label
      */
-    public Labelled Begin() throws ClassMakerException
-    {
+    public Labelled Begin() throws ClassMakerException {
         if (bottomStatement == null) {
             bottomStatement = new MethodBodyStatement(this);
             bottomStatement.Begin();
@@ -1818,25 +1542,9 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * <code>Throw</code> statement.
      * Delegates to <code>ScopeStatement.End</code>.
      */
-    public void End() throws ClassMakerException
-    {
+    public void End() throws ClassMakerException {
         ScopeStatement stmt = topScopeStatement("ClassMaker.EndWithoutMatchingBegin");
         stmt.End();
-    }
-
-    /**
-     * Adds a local variable or formal parameter to the list of scoped
-     * variables. <br/>
-     * Sets the start program counter and scope level in the given field.
-     * 
-     * @param local the variable or parameter being added
-     * @param scope the current nesting level of scoped code blocks
-     */
-    private void addToScope(MakerField local, int scope)
-    {
-        local.setStartPC(cfw.getCurrentCodeOffset());
-        local.setEndPC(-1);
-        local.setScopeLevel(scope);
     }
 
     /**
@@ -1846,23 +1554,24 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * the variable as out of scope.
      * Scope entries are added to the method as it is completed.
      * 
-     * @param scope the level of nesting of the current scoped code block
+     * @param scope
+     *            the level of nesting of the current scoped code block
      */
-    void exitScope(int scope)
-    {
-        if (getClassFileWriter() != null) {
-            // Local variable descriptors are used by the debugger.
-            for (int i = localTable.size() - 1; i >= 0; i--) {
-                MakerField local = localTable.elementAt(i);
-                if (local.getName() == null)
-                    continue; // Skip anonymous local variables
-                if (!local.isInScope())
-                    continue; // Skip out of scope variables
-                if (local.getScopeLevel() < scope)
-                    break; // Stop when field is in wider scope
-                local.setEndPC(cfw.getCurrentCodeOffset());
-                local.setInScope(false);
+    void exitScope(int scope) {
+        // Local variable descriptors are used by the debugger.
+        for (int i = localTable.size() - 1; i >= 0; i--) {
+            MakerField local = localTable.elementAt(i);
+            if (local.getName() == null) {
+                continue; // Skip anonymous local variables
             }
+            if (!local.isInScope()) {
+                continue; // Skip out of scope variables
+            }
+            if (local.getScopeLevel() < scope) {
+                break; // Stop when field is in wider scope
+            }
+            local.setEndPC(gen.getCurrentCodeOffset());
+            local.setInScope(false);
         }
     }
 
@@ -1872,8 +1581,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * This may be because the method is abstract or because it is being forward
      * declared so that only one pass is necessary to parse the source file.
      */
-    public void Forward() throws ClassMakerException
-    {
+    public void Forward() throws ClassMakerException {
         method.setFormalParams(createFormalParameters());
         if (getPass() == FIRST_PASS) {
             if (methods.indexOf(method) >= 0 || constructors.indexOf(method) >= 0) {
@@ -1884,25 +1592,14 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         }
         method.setHasBody(false);
         addMethod(method);
-        if (getClassFileWriter() != null) {
-            if (method.isAbstract() || ClassMaker.isInterface(getClassType())) {
-                addAbstractMethod();
+        if (getGen() != null) {
+            markLineNumber(); // possibly add a new line number entry.
+            if (method.isAbstract() || Type.isInterface(getClassType())) {
+                getGen().addAbstractMethod(method);
             }
         }
         method = null;
         localTable.clear();
-    }
-
-    /**
-     * Adds an abstract method to the generated class.
-     * </br>
-     * An abstract method cannot have a body so must be forward declared.
-     *
-     */
-    void addAbstractMethod()
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        cfw.startMethod(method.getName(), method.getSignature(), method.getModifiers());
     }
 
     /**
@@ -1915,18 +1612,19 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the current method has been declared more than once
      */
-    boolean isForwardDeclared(MakerMethod method) throws ClassMakerException
-    {
+    boolean isForwardDeclared(MakerMethod method) throws ClassMakerException {
         int index;
         if ((index = methods.indexOf(method)) >= 0) {
             MakerMethod forwardMethod = methods.elementAt(index);
-            if (forwardMethod.hasBody() == false)
+            if (forwardMethod.hasBody() == false) {
                 return true;
+            }
             throw createException("ClassMaker.MethodDeclaredMoreThanOnce_1", method.toString());
         } else if ((index = constructors.indexOf(method)) >= 0) {
             MakerMethod forwardMethod = constructors.elementAt(index);
-            if (forwardMethod.hasBody() == false)
+            if (forwardMethod.hasBody() == false) {
                 return true;
+            }
             throw createException("ClassMaker.MethodDeclaredMoreThanOnce_1", method.toString());
         }
         return false;
@@ -1938,12 +1636,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param method
      *            the method to add
      */
-    void addMethod(MakerMethod method)
-    {
-        if (INIT.equals(method.getName()))
+    void addMethod(MakerMethod method) {
+        if (INIT.equals(method.getName())) {
             constructors.add(method);
-        else
+        } else {
             methods.add(method);
+        }
     }
 
     /**
@@ -1954,12 +1652,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param method
      *            the method to remove
      */
-    void removeMethod(MakerMethod method)
-    {
-        if (INIT.equals(method.getName()))
+    void removeMethod(MakerMethod method) {
+        if (INIT.equals(method.getName())) {
             constructors.remove(method);
-        else
+        } else {
             methods.remove(method);
+        }
     }
 
     /**
@@ -1970,8 +1668,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return true if generating a method
      */
-    boolean isInMethod()
-    {
+    boolean isInMethod() {
         return method != null;
     }
 
@@ -1981,8 +1678,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return true if generating a method body
      */
-    boolean isInBody()
-    {
+    boolean isInBody() {
         return bottomStatement != null;
     }
 
@@ -1992,12 +1688,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return an array of formal parameter <code>Type</code>s
      */
-    Type[] createFormalParameters()
-    {
+    Type[] createFormalParameters() {
         int size = localTable.size();
         Type[] params = new Type[size];
-        for (int index = 0; index < size; index++)
+        for (int index = 0; index < size; index++) {
             params[index] = lookupLocal(index).getType();
+        }
         return params;
     }
 
@@ -2009,9 +1705,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the <code>Class</code> to be instantiated
      * @return an <code>Initialiser</code> for the instance
      */
-    public Initialiser New(Class javaClass) throws ClassMakerException
-    {
-        String className = classToName(javaClass);
+    public Initialiser New(Class javaClass) throws ClassMakerException {
+        String className = MakerUtil.classToName(javaClass);
         return New(className);
     }
 
@@ -2022,10 +1717,9 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the class to instantiate
      * @return an <code>Initialiser</code> for the instance
      */
-    public Initialiser New(String className) throws ClassMakerException
-    {
+    public Initialiser New(String className) throws ClassMakerException {
         Type type = null;
-        if (getClassFileWriter() != null) {
+        if (!isFirstPass()) {
             type = findType(className);
         }
         return New(type);
@@ -2038,13 +1732,11 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            a declared type represents the type of class
      * @return an <code>Initialiser</code> for the instance
      */
-    public Initialiser New(Type classType) throws ClassMakerException
-    {
+    public Initialiser New(Type classType) throws ClassMakerException {
         Value reference = null;
         markLineNumber(); // possibly add a new line number entry.
-        if (getClassFileWriter() != null) {
-            cfw.add(ByteCode.NEW, toSlashName(classType.getName()));
-            reference = classType.getValue();
+        if (!isFirstPass()) {
+            reference = getGen().New(classType);
         }
         return new InitialiserImpl(this, reference);
     }
@@ -2064,14 +1756,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param actualParameters
      *            the types of the actual parameters in the call stack
      */
-    public void Init(Value reference, CallStack actualParameters) throws ClassMakerException
-    {
-        if (getClassFileWriter() != null) {
+    public void Init(Value reference, CallStack actualParameters) throws ClassMakerException {
+        if (!isFirstPass()) {
             ClassType classType = reference.toClass();
             MakerMethod method = resolveConstructor(classType, actualParameters);
             checkAccessDenied(classType, method);
             markLineNumber(); // possibly add a new line number entry.
-            invokeSpecial(classType, method);
+            getGen().invokeSpecial(classType, method);
         }
     }
 
@@ -2092,9 +1783,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the types of the actual parameters in the call stack
      * @return the return type of the called method
      */
-    public Value Call(Class javaClass, String methodName, CallStack actualParameters) throws ClassMakerException
-    {
-        String className = classToName(javaClass);
+    public Value Call(Class javaClass, String methodName, CallStack actualParameters) throws ClassMakerException {
+        String className = MakerUtil.classToName(javaClass);
         return Call(className, methodName, actualParameters);
     }
 
@@ -2114,13 +1804,14 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the types of the actual parameters in the call stack
      * @return the return type of the called method
      */
-    public Value Call(String className, String methodName, CallStack actualParameters) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Call(String className, String methodName, CallStack actualParameters) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         Type type = stringToClassType(className);
-        if (actualParameters == null)
+        if (actualParameters == null) {
             actualParameters = Push();
+        }
         return methodCall(type, methodName, actualParameters, true).getValue();
     }
 
@@ -2142,12 +1833,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the types of the actual parameters in the call stack
      * @return the return type of the called method
      */
-    public Value Call(Value reference, String methodName, CallStack actualParameters) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Call(Value reference, String methodName, CallStack actualParameters) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
-        if (actualParameters == null)
+        }
+        if (actualParameters == null) {
             actualParameters = Push();
+        }
         return methodCall(reference.getType(), methodName, actualParameters, false).getValue();
     }
 
@@ -2168,84 +1860,29 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @return the return type of the called method
      */
     private Type methodCall(Type refType, String methodName, CallStack actualParameters, boolean isStatic)
-            throws ClassMakerException
-    {
-        if (!isClass(refType))
+            throws ClassMakerException {
+        if (!Type.isClass(refType)) {
             throw createException("ClassMaker.TypeIsNotAClass_1", refType.getName());
+        }
         ClassType classType = refType.toClass();
         MakerMethod method = resolveMethod(classType, methodName, actualParameters);
         // Method must be static if reference was a declared type.
-        if (isStatic && !method.isStatic())
-            throw createException("ClassMaker.StaticCallToNonStaticMethod_2", method.toString(), method
-                    .getClassType().getName());
+        if (isStatic && !method.isStatic()) {
+            throw createException("ClassMaker.StaticCallToNonStaticMethod_2", method.toString(), method.getClassType()
+                    .getName());
+        }
         checkAccessDenied(classType, method);
         markLineNumber(); // possibly add a new line number entry.
-        if (classType.isInterface())
-            invokeInterface(classType, method);
-        else if (method.isStatic())
-            invokeStatic(classType.getName(), method);
-        else if (method.isPrivate())
-            invokeSpecial(classType, method);
-        else
-            invokeVirtual(classType, method);
+        if (classType.isInterface()) {
+            getGen().invokeInterface(classType, method);
+        } else if (method.isStatic()) {
+            getGen().invokeStatic(classType.getName(), method);
+        } else if (method.isPrivate()) {
+            getGen().invokeSpecial(classType, method);
+        } else {
+            getGen().invokeVirtual(classType, method);
+        }
         return method.getReturnType();
-    }
-
-    /**
-     * Calls a virtual method in the class instance on top of the stack.
-     * 
-     * @param classType
-     *            type of the class containing the method
-     * @param method
-     *            a descriptor of the resolved method
-     */
-    void invokeVirtual(ClassType classType, MakerMethod method)
-    {
-        String signature = method.getSignature();
-        cfw.addInvoke(ByteCode.INVOKEVIRTUAL, toSlashName(classType.getName()), method.getName(), signature);
-    }
-
-    /**
-     * Calls a method in the interface instance on top of the stack.
-     * 
-     * @param classType
-     *            type of the interface containing the method
-     * @param method
-     *            a descriptor of the resolved method
-     */
-    void invokeInterface(ClassType classType, MakerMethod method)
-    {
-        String signature = method.getSignature();
-        cfw.addInvoke(ByteCode.INVOKEINTERFACE, toSlashName(classType.getName()), method.getName(), signature);
-    }
-
-    /**
-     * Calls a static method of the named class.
-     * 
-     * @param className
-     *            a fully qualified classname
-     * @param method
-     *            a descriptor of the resolved method
-     */
-    void invokeStatic(String className, MakerMethod method)
-    {
-        String signature = method.getSignature();
-        cfw.addInvoke(ByteCode.INVOKESTATIC, toSlashName(className), method.getName(), signature);
-    }
-
-    /**
-     * Calls a private method or a method from the super class, in the class on
-     * top of the stack.
-     * 
-     * @param classType
-     *            type of the class containing the method
-     * @param method
-     *            a descriptor of the resolved method
-     */
-    void invokeSpecial(ClassType classType, MakerMethod method)
-    {
-        String signature = method.getSignature();
-        cfw.addInvoke(ByteCode.INVOKESPECIAL, toSlashName(classType.getName()), method.getName(), signature);
     }
 
     // Class relationships
@@ -2256,12 +1893,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param javaClass
      *            the <code>Class<code> of the implemented interface
      */
-    public void Implements(Class javaClass) throws ClassMakerException
-    {
+    public void Implements(Class javaClass) throws ClassMakerException {
         ClassType classType = classToClassType(javaClass);
         int mod = classType.getModifiers();
-        if (!Modifier.isInterface(mod))
+        if (!Modifier.isInterface(mod)) {
             throw createException("ClassMaker.CannotImplementClass", javaClass.getName());
+        }
         implementsClassType(classType);
     }
 
@@ -2271,16 +1908,16 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param className
      *            the fully qualified class name
      */
-    public void Implements(String className) throws ClassMakerException
-    {
+    public void Implements(String className) throws ClassMakerException {
         ClassType classType = stringToClassType(className);
         if (getPass() != ClassMakerConstants.FIRST_PASS) {
             if (classType == null) {
                 throw createException("ClassMaker.NoClassTypeCalled_1", className);
             }
             int mod = classType.getModifiers();
-            if (!Modifier.isInterface(mod))
+            if (!Modifier.isInterface(mod)) {
                 throw createException("ClassMaker.CannotImplementClass", classType.getName());
+            }
         }
         implementsClassType(classType);
     }
@@ -2291,15 +1928,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param classType
      *            the type of the interface
      */
-    void implementsClassType(ClassType classType)
-    {
-        if (getClassFileWriter() != null) {
-            cfw.addInterface(classType.getName());
+    void implementsClassType(ClassType classType) {
+        if (getGen() != null) {
+            getGen().addInterface(classType.getName());
         }
         if (getPass() != SECOND_PASS) {
             interfaces.add(classType);
-            // Must keep interfaces synchronised in case this class type is assigned.
-            getClassType().setDeclaredInterfaces(getDeclaredInterfaces());
         }
     }
 
@@ -2312,23 +1946,20 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param exception
      *            type exception being thrown
      */
-    public void Throw(Value exception) throws ClassMakerException
-    {
+    public void Throw(Value exception) throws ClassMakerException {
         Type type = exception.getType();
 
-        if (getClassFileWriter() == null)
+        if (isFirstPass()) {
             return;
-
-        if (!isClass(type))
-            throw createException("ClassMaker.CannotThrowType_1", type.getName());
-
-        if (!getFactory().getAssignmentConversion().isConvertable(type, ClassMakerFactory.THROWABLE_TYPE))
-            throw createException("ClassMaker.ClassCannotBeThrown_1", type.getName());
-
+        }
         markLineNumber(); // possibly add a new line number entry.
-        if (cfw.isDebugCode())
-            setDebugComment("Throw(" + type + ");");
-        cfw.add(ByteCode.ATHROW);
+        if (!Type.isClass(type)) {
+            throw createException("ClassMaker.CannotThrowType_1", type.getName());
+        }
+        if (!getFactory().getAssignmentConversion().isConvertable(type, ClassMakerFactory.THROWABLE_TYPE)) {
+            throw createException("ClassMaker.ClassCannotBeThrown_1", type.getName());
+        }
+        getGen().Throw(type);
 
         // Throwing an exception is the equivalent of calling return;
         followsReturn = true;
@@ -2340,24 +1971,25 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * The last statement of a method must be either <code>Return</code> or
      * <code>Throw</code>.
      */
-    public void Return() throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public void Return() throws ClassMakerException {
+        if (isFirstPass()) {
             return;
-        if (isDebugCode())
+        }
+        if (isDebugCode()) {
             setDebugComment("Return();");
+        }
 
         // Call any finally subroutines before returning
         Statement stmt = topStatement();
-        if (stmt == null || stmt.jumpToTarget(RETURN, null) == null)
+        if (stmt == null || stmt.jumpToTarget(RETURN, null) == null) {
             throw createException("ClassMaker.ReturnWhileNotInAMethod");
-
-        if (!ClassMakerFactory.VOID_TYPE.equals(method.getReturnType()))
+        }
+        if (!ClassMakerFactory.VOID_TYPE.equals(method.getReturnType())) {
             throw createException("ClassMaker.MethodMustReturnType_2", method.getName(), method.getReturnType()
                     .getName());
-
+        }
         markLineNumber(); // possibly add a new line number entry.
-        cfw.add(ByteCode.RETURN);
+        getGen().Return();
 
         // Indicate that return has been called.
         // This flag is reset by markLineNumber();
@@ -2372,63 +2004,39 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * The last statement of a method must be either <code>Return</code> or
      * <code>Throw</code>.
      */
-    public void Return(Value value) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public void Return(Value value) throws ClassMakerException {
+        if (isFirstPass()) {
             return;
+        }
         Type type = value.getType();
-        if (isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("Return(" + value + ");");
-
+        }
         // Call any finally subroutines before returning
         Statement stmt = topStatement();
-        if (stmt == null || stmt.jumpToTarget(RETURN, null) == null)
+        if (stmt == null || stmt.jumpToTarget(RETURN, null) == null) {
             throw createException("ClassMaker.ReturnWhileNotInAMethod");
-
-        if (ClassMakerFactory.VOID_TYPE.equals(method.getReturnType()))
+        }
+        if (ClassMakerFactory.VOID_TYPE.equals(method.getReturnType())) {
             throw createException("ClassMaker.MethodIsVoidSoMustNotReturnAValue_1", method.getName());
-
-        if (ClassMakerFactory.VOID_TYPE.equals(type))
+        }
+        if (ClassMakerFactory.VOID_TYPE.equals(type)) {
             throw createException("ClassMaker.CannotReturnTypeVoid");
-
+        }
         // possibly add a new line number entry.
         markLineNumber();
         Type returnType = method.getReturnType();
-        if (getFactory().getAssignmentConversion().isConvertable(type, returnType))
+        if (getFactory().getAssignmentConversion().isConvertable(type, returnType)) {
             type = getFactory().getAssignmentConversion().convertTo(this, type, returnType);
-        else
+        } else {
             throw createException("ClassMaker.MethodReturnsTypeSoCannotReturnType_3", method.getName(), method
                     .getReturnType().getName(), type.getName());
+        }
+        getGen().Return(type);
 
         // Indicate that return has been called.
         // This flag is reset by markLineNumber();
         followsReturn = true;
-
-        if (isClass(type)) {
-            cfw.add(ByteCode.ARETURN);
-            return;
-        } else if (isPrimitive(type)) {
-            switch (type.toPrimitive().index) {
-            case PrimitiveType.BOOLEAN_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.IRETURN);
-                return;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LRETURN);
-                return;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FRETURN);
-                return;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DRETURN);
-                return;
-            }
-        }
-        // Should not get here.
-        throw new IllegalArgumentException("Cannot return type" + type.getName());
     }
 
     /**
@@ -2438,8 +2046,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return an empty call stack
      */
-    public CallStack Push() throws ClassMakerException
-    {
+    public CallStack Push() throws ClassMakerException {
         return new CallStackMaker(this);
     }
 
@@ -2468,11 +2075,11 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @return a <code>CallStack</code> which can be used to <code>Push</code>
      *         more actual parameters types
      */
-    public CallStack Push(Value param) throws ClassMakerException
-    {
+    public CallStack Push(Value param) throws ClassMakerException {
         CallStack stack = Push();
-        if (param != null)
+        if (param != null) {
             stack.Push(param);
+        }
         return stack;
     }
 
@@ -2494,15 +2101,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return a Value representing this class
      */
-    public Value This() throws ClassMakerException
-    {
-        if (log.isLoggable(Level.FINE))
-            log.finest("push this");
-        if (getClassFileWriter() != null) {
+    public Value This() throws ClassMakerException {
+        if (!isFirstPass()) {
             markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode())
+            if (isDebugCode()) {
                 setDebugComment("This();");
-            cfw.addLoadThis();
+            }
+            getGen().loadThis();
         }
         return thisClassType.getValue();
     }
@@ -2529,16 +2134,15 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return a Value representing the super class
      */
-    public Value Super() throws ClassMakerException
-    {
-        if (getClassFileWriter() != null) {
+    public Value Super() throws ClassMakerException {
+        if (!isFirstPass()) {
             markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode())
+            if (isDebugCode()) {
                 setDebugComment("Super();");
-            cfw.addLoadThis();
-            return getSuperClass().getValue();
+            }
+            getGen().loadThis();
         }
-        return null;
+        return getSuperClass().getValue();
     }
 
     /**
@@ -2558,13 +2162,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return the type for <code>null</code>
      */
-    public Value Null() throws ClassMakerException
-    {
-        if (getClassFileWriter() != null) {
+    public Value Null() throws ClassMakerException {
+        if (!isFirstPass()) {
             markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode())
+            if (isDebugCode()) {
                 setDebugComment("Null();");
-            cfw.add(ByteCode.ACONST_NULL);
+            }
+            getGen().Null();
         }
         return ClassMakerFactory.NULL_TYPE.getValue();
     }
@@ -2585,18 +2189,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * </tr>
      * </table>
      * 
-     * @param value the double to be pushed onto the stack
+     * @param value
+     *            the double to be pushed onto the stack
      * @return the type for <code>double</code>
      */
-    public Value Literal(double value) throws ClassMakerException
-    {
-        if (getClassFileWriter() != null) {
-            markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode())
-                setDebugComment("Literal(" + value + ");");
-            cfw.addPush(value);
-        }
-        return ClassMakerFactory.DOUBLE_TYPE.getValue();
+    public Value Literal(double value) throws ClassMakerException {
+        markLineNumber(); // possibly add a new line number entry.
+        return isFirstPass() ? null : getGen().Literal(value);
     }
 
     /**
@@ -2614,18 +2213,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * </tr>
      * </table>
      * 
-     * @param value the float to be pushed onto the stack
+     * @param value
+     *            the float to be pushed onto the stack
      * @return the type for <code>float</code>
      */
-    public Value Literal(float value) throws ClassMakerException
-    {
-        if (getClassFileWriter() != null) {
-            markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode())
-                setDebugComment("Literal(" + value + ");");
-            cfw.addPush(value);
-        }
-        return ClassMakerFactory.FLOAT_TYPE.getValue();
+    public Value Literal(float value) throws ClassMakerException {
+        markLineNumber(); // possibly add a new line number entry.
+        return isFirstPass() ? null : getGen().Literal(value);
     }
 
     /**
@@ -2643,18 +2237,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * </tr>
      * </table>
      * 
-     * @param value the long to be pushed onto the stack
+     * @param value
+     *            the long to be pushed onto the stack
      * @return the type for <code>long</code>
      */
-    public Value Literal(long value) throws ClassMakerException
-    {
-        if (getClassFileWriter() != null) {
-            markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode())
-                setDebugComment("Literal(" + value + ");");
-            cfw.addPush(value);
-        }
-        return ClassMakerFactory.LONG_TYPE.getValue();
+    public Value Literal(long value) throws ClassMakerException {
+        markLineNumber(); // possibly add a new line number entry.
+        return isFirstPass() ? null : getGen().Literal(value);
     }
 
     /**
@@ -2672,25 +2261,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * </tr>
      * </table>
      * 
-     * @param value the int to be pushed onto the stack
+     * @param value
+     *            the int to be pushed onto the stack
      * @return the type for <code>int</code>
      */
-    public Value Literal(int value) throws ClassMakerException
-    {
-        if (getClassFileWriter() != null) {
-            markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode())
-                setDebugComment("Literal(" + value + ");");
-            cfw.addPush(value);
-        }
-        // Return the most specific type.
-        // This will be promoted to an INT by numeric promotion.
-        if (Byte.MIN_VALUE <= value && value <= Byte.MAX_VALUE)
-            return ClassMakerFactory.BYTE_TYPE.getValue();
-        else if (Short.MIN_VALUE <= value && value <= Short.MAX_VALUE)
-            return ClassMakerFactory.SHORT_TYPE.getValue();
-        else
-            return ClassMakerFactory.INT_TYPE.getValue();
+    public Value Literal(int value) throws ClassMakerException {
+        markLineNumber(); // possibly add a new line number entry.
+        return isFirstPass() ? null : getGen().Literal(value);
     }
 
     /**
@@ -2708,18 +2285,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * </tr>
      * </table>
      * 
-     * @param value the char to be pushed onto the stack
+     * @param value
+     *            the char to be pushed onto the stack
      * @return the type for <code>char</code>
      */
-    public Value Literal(char value) throws ClassMakerException
-    {
-        if (getClassFileWriter() != null) {
-            markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode())
-                setDebugComment("Literal(\'" + value + "\');");
-            cfw.addPush(value);
-        }
-        return ClassMakerFactory.CHAR_TYPE.getValue();
+    public Value Literal(char value) throws ClassMakerException {
+        markLineNumber(); // possibly add a new line number entry.
+        return isFirstPass() ? null : getGen().Literal(value);
     }
 
     /**
@@ -2737,18 +2309,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * </tr>
      * </table>
      * 
-     * @param value the byte to be pushed onto the stack
+     * @param value
+     *            the byte to be pushed onto the stack
      * @return the type for <code>byte</code>
      */
-    public Value Literal(byte value) throws ClassMakerException
-    {
-        if (getClassFileWriter() != null) {
-            markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode())
-                setDebugComment("Literal(" + value + ");");
-            cfw.add(ByteCode.BIPUSH, value); // constant byte operand
-        }
-        return ClassMakerFactory.BYTE_TYPE.getValue();
+    public Value Literal(byte value) throws ClassMakerException {
+        markLineNumber(); // possibly add a new line number entry.
+        return isFirstPass() ? null : getGen().Literal(value);
     }
 
     /**
@@ -2766,18 +2333,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * </tr>
      * </table>
      * 
-     * @param value the short to be pushed onto the stack
+     * @param value
+     *            the short to be pushed onto the stack
      * @return the type for <code>short</code>
      */
-    public Value Literal(short value) throws ClassMakerException
-    {
-        if (getClassFileWriter() != null) {
-            markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode())
-                setDebugComment("Literal(" + value + ");");
-            cfw.add(ByteCode.SIPUSH, value); // constant short operand
-        }
-        return ClassMakerFactory.SHORT_TYPE.getValue();
+    public Value Literal(short value) throws ClassMakerException {
+        markLineNumber(); // possibly add a new line number entry.
+        return isFirstPass() ? null : getGen().Literal(value);
     }
 
     /**
@@ -2795,18 +2357,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * </tr>
      * </table>
      * 
-     * @param value the boolean value to be pushed onto the stack
+     * @param value
+     *            the boolean value to be pushed onto the stack
      * @return the type for <code>boolean</code>
      */
-    public Value Literal(boolean value) throws ClassMakerException
-    {
-        if (getClassFileWriter() != null) {
-            markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode())
-                setDebugComment("Literal(" + value + ");");
-            cfw.addPush(value); // constant boolean operand
-        }
-        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
+    public Value Literal(boolean value) throws ClassMakerException {
+        markLineNumber(); // possibly add a new line number entry.
+        return isFirstPass() ? null : getGen().Literal(value);
     }
 
     /**
@@ -2824,18 +2381,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * </tr>
      * </table>
      * 
-     * @param value the string to be pushed onto the stack
+     * @param value
+     *            the string to be pushed onto the stack
      * @return the type for <code>String</code>
      */
-    public Value Literal(String value) throws ClassMakerException
-    {
-        if (getClassFileWriter() != null) {
-            markLineNumber(); // possibly add a new line number entry.
-            if (isDebugCode())
-                setDebugComment("Literal(" + value + ");");
-            cfw.addLoadConstant(value);
-        }
-        return ClassMakerFactory.STRING_TYPE.getValue();
+    public Value Literal(String value) throws ClassMakerException {
+        markLineNumber(); // possibly add a new line number entry.
+        return isFirstPass() ? null : getGen().Literal(value);
     }
 
     //#################### Getters and Setters ######################
@@ -2857,18 +2409,21 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * The value is subject to assignment conversion before it is stored.
      * A copy of the unconverted value is left on top of the stack.
      * 
-     * @param name the name of the local variable
-     * @param value the value being set
+     * @param name
+     *            the name of the local variable
+     * @param value
+     *            the value being set
      * @return the unconverted value on top of the stack
      */
-    public Value Assign(String name, Value value) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Assign(String name, Value value) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
-        if (isDebugCode())
+        }
+        if (isDebugCode()) {
             setDebugComment("Assign(" + name + ", " + value + ")");
+        }
         // Stack: value
-        dup(value.getType());
+        getGen().dup(value.getType());
         // Stack: value, value
         Set(name, value);
         // Stack: value
@@ -2892,22 +2447,26 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * The value is subject to assignment conversion before it is stored.
      * A copy of the unconverted value is left on top of the stack.
      * 
-     * @param refType the type of the class containing the variable
-     * @param fieldName the name of the member variable
-     * @param value the value to be set
+     * @param refType
+     *            the type of the class containing the variable
+     * @param fieldName
+     *            the name of the member variable
+     * @param value
+     *            the value to be set
      * @return the unconverted value on top of the stack
      */
-    public Value Assign(Value reference, String fieldName, Value value) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Assign(Value reference, String fieldName, Value value) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         Type refType = reference.getType();
         Type valueType = value.getType();
-        if (isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("Assign(" + refType + ", " + fieldName + ", " + valueType + ")");
+        }
         // Duplicate the value on top of the stack before storing it.
         // Stack: reference, value
-        dupunder(refType, valueType);
+        gen.dupunder(refType, valueType);
         // Stack: value, reference, value
         Set(reference, fieldName, value);
         // Stack: value
@@ -2940,15 +2499,16 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the value to be set
      * @return the unconverted value on top of the stack
      */
-    public Value Assign(String className, String fieldName, Value value) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Assign(String className, String fieldName, Value value) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
-        if (isDebugCode())
+        }
+        if (isDebugCode()) {
             setDebugComment("Assign(" + className + ", " + fieldName + ", " + value + ")");
+        }
         // Duplicate the value on top of the stack before storing it.
         // Stack: value
-        dup(value.getType());
+        getGen().dup(value.getType());
         // Stack: value, value
         Set(className, fieldName, value);
         // Stack: value
@@ -2979,13 +2539,14 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            type of the value being set
      * @return <code>ClassMaker.VOID_TYPE</code>
      */
-    public Value Set(String name, Value value) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Set(String name, Value value) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         Type valueType = value.getType();
-        if (isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("Set(" + name + ", " + valueType + ")");
+        }
         markLineNumber(); // possibly add a new line number entry.
 
         MakerField field = Find(name);
@@ -2996,7 +2557,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
             throw createException("ClassMaker.CannotAssignToLocalVariableOfType_3", valueType.getName(),
                     field.getName(), varType.getName());
 
-        storeLocal(field, valueType);
+        gen.storeLocal(field);
         return ClassMakerFactory.VOID_TYPE.getValue();
     }
 
@@ -3024,17 +2585,19 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the value to be set
      * @return a <code>Value</code> representing <code>void</code>
      */
-    public Value Set(Value reference, String fieldName, Value value) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Set(Value reference, String fieldName, Value value) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         Type valueType = value.getType();
-        if (isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("Set(" + reference + ", " + fieldName + ", " + valueType + ")");
+        }
         MakerField field = Find(reference, fieldName);
         Type fieldType = field.getType();
-        if (fieldType == null)
-            throw new NullPointerException("Type for field " + fieldName + " cannot be determined.");
+        if (fieldType == null) {
+            throw createException("ClassMaker.FieldTypeCannotBeDetermined_1");
+        }
         if (!getFactory().getAssignmentConversion().isConvertable(valueType, fieldType)) {
             String classField = field.getClassType().getName() + '.' + field.getName();
             throw createException("ClassMaker.FieldOfTypeCannotBeAssignedType_3", classField, fieldType.getName(),
@@ -3044,9 +2607,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         markLineNumber(); // possibly add a new line number entry.
         getFactory().getAssignmentConversion().convertTo(this, valueType, fieldType);
 
-        String className = field.getClassType().getName();
-        String signature = fieldType.getSignature();
-        cfw.add(ByteCode.PUTFIELD, className, field.getName(), signature);
+        gen.storeField(field);
         return ClassMakerFactory.VOID_TYPE.getValue();
     }
 
@@ -3074,26 +2635,25 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the value to be set
      * @return a <code>Value</code> representing <code>void</code>
      */
-    public Value Set(String className, String fieldName, Value value) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Set(String className, String fieldName, Value value) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         Type valueType = value.getType();
-        if (isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("Set(" + className + ", " + fieldName + ", " + valueType + ")");
+        }
         MakerField field = Find(className, fieldName);
         Type type = field.getType();
 
         // FIXME - check that field is static
-        if (!getFactory().getAssignmentConversion().isConvertable(valueType, type))
+        if (!getFactory().getAssignmentConversion().isConvertable(valueType, type)) {
             throw createException("ClassMaker.StaticFieldOfTypeCannotBeAssignedType_3", field.getName(),
                     type.getName(), valueType.getName());
-
+        }
         markLineNumber(); // possibly add a new line number entry.
         getFactory().getAssignmentConversion().convertTo(this, valueType, type);
-
-        String signature = type.getSignature();
-        cfw.add(ByteCode.PUTSTATIC, field.getClassType().getName(), field.getName(), signature);
+        gen.storeStatic(field);
         return ClassMakerFactory.VOID_TYPE.getValue();
     }
 
@@ -3117,25 +2677,16 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the member variable
      * @return the type of the value left on the stack
      */
-    public Value Get(Value reference, String fieldName) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Get(Value reference, String fieldName) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
-        if (isDebugCode())
-            setDebugComment("Get(" + reference + ", " + fieldName + ")");
-        MakerField field = Find(reference, fieldName);
-        return loadField(field).getValue();
-    }
-
-    private Type loadField(MakerField field)
-    {
-        assertNotNull(field, "field");
+        }
         markLineNumber(); // possibly add a new line number entry.
-        ClassType classType = field.getClassType();
-        if (log.isLoggable(Level.FINE))
-            log.finest("load " + classType.getName() + ", " + field.getName() + ", " + field.getType().getSignature());
-        cfw.add(ByteCode.GETFIELD, classType.getName(), field.getName(), field.getType().getSignature());
-        return field.getType();
+        if (isDebugCode()) {
+            setDebugComment("Get(" + reference + ", " + fieldName + ")");
+        }
+        MakerField field = Find(reference, fieldName);
+        return gen.loadField(field).getValue();
     }
 
     /**
@@ -3159,26 +2710,15 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the static member variable
      * @return the type of the value left on the stack
      */
-    public Value Get(String className, String fieldName) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Get(String className, String fieldName) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
-        if (isDebugCode())
+        }
+        if (isDebugCode()) {
             setDebugComment("Get(\"" + className + "\", " + fieldName + ")");
+        }
         MakerField field = Find(className, fieldName);
-        return loadStatic(field);
-    }
-
-    private Value loadStatic(MakerField field)
-    {
-        assertNotNull(field, "field");
-        markLineNumber(); // possibly add a new line number entry.
-        ClassType classType = field.getClassType();
-        if (log.isLoggable(Level.FINE))
-            log.finest("static load " + classType.getName() + ", " + field.getName() + ", "
-                    + field.getType().getSignature());
-        cfw.add(ByteCode.GETSTATIC, classType.getName(), field.getName(), field.getType().getSignature());
-        return field.getValue();
+        return gen.loadStatic(field);
     }
 
     /**
@@ -3188,14 +2728,16 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            name of the local variable
      * @return type of the local variable
      */
-    public Value Get(String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Get(String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
-        MakerField field = Find(name);
-        if (isDebugCode())
+        }
+        if (isDebugCode()) {
             setDebugComment("Get(" + name + ");");
-        return loadLocal(field);
+        }
+        markLineNumber(); // possibly add a new line number entry.
+        MakerField field = Find(name);
+        return gen.loadLocal(field);
     }
 
     //##################### Member Field Methods. #####################
@@ -3214,24 +2756,25 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the field is not found
      */
-    public MakerField Find(Value reference, String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public MakerField Find(Value reference, String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         assertNotNull(reference, "reference");
         assertNotNull(name, "name");
         ClassType classType = reference.toClass();
-        if (classType == null)
+        if (classType == null) {
             throw createException("ClassMaker.TypeMustBeAClass_1", reference.getName());
+        }
         MakerField field = classType.findField(name);
-        if (field == null)
-            throw createException("ClassMaker.CannotFindMemberFieldInClass_2", name, classType.getName());
+        if (field == null) {
+            throw createException("ClassMaker.CannotFindMemberFieldInClass_2", name, classType.getName()); 
+        }
         checkAccessDenied(classType, field);
         return field;
     }
 
-    public Type findType(String name)
-    {
+    public Type findType(String name) {
         assertNotNull(name, "name");
         // The import table maps simple class names to ClassTypes.
         Type type = findImportedType(name);
@@ -3259,8 +2802,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the class does not exist
      */
-    public ClassType stringToClassType(String className) throws ClassMakerException
-    {
+    public ClassType stringToClassType(String className) throws ClassMakerException {
         Type type = findType(className);
         if (type == null || type.toClass() == null) {
             throw createException("ClassMaker.NoClassTypeCalled_1", className);
@@ -3283,8 +2825,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the type does not exist
      */
-    public Type stringToType(String typeName) throws ClassMakerException
-    {
+    public Type stringToType(String typeName) throws ClassMakerException {
         Type type = findType(typeName);
         if (type == null) {
             throw createException("ClassMaker.NoTypeCalled_1", typeName);
@@ -3292,8 +2833,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         return type;
     }
 
-    Type findPackageType(String className) throws ClassMakerException
-    {
+    Type findPackageType(String className) throws ClassMakerException {
         Type classType = null;
         if (packageName != null && !"".equals(packageName)) {
             String classNameFQ = packageName + "." + className;
@@ -3302,9 +2842,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         return classType;
     }
 
-    Type findImportedType(String className) throws ClassMakerException
-    {
-        ClassType classType = importMap.get(toDotName(className));
+    Type findImportedType(String className) throws ClassMakerException {
+        ClassType classType = importMap.get(MakerUtil.toDotName(className));
         if (classType != null) {
             // The import map uses NULL_TYPE to indicate that more than one class with the same simple class name has been imported.
             if (ClassMakerFactory.NULL_TYPE.equals(classType)) {
@@ -3328,16 +2867,18 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the field is not found
      */
-    public MakerField Find(String className, String fieldName) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public MakerField Find(String className, String fieldName) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         ClassType classType = stringToClassType(className);
         MakerField field = classType.findField(fieldName); // FIXME classType.findField(...)
-        if (field == null)
+        if (field == null) {
             throw createException("ClassMaker.CannotFindStaticFieldInClass_2", fieldName, classType.getName());
-        if (!field.isStatic())
+        }
+        if (!field.isStatic()) {
             throw createException("ClassMaker.ClassVariableIsNotStatic_1", classType.getName() + "." + fieldName);
+        }
         checkAccessDenied(classType, field);
         return field;
     }
@@ -3349,8 +2890,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            name of the member field
      * @return the <code>MakerField</code> corresponding to the given name
      */
-    private MakerField findMemberField(String name)
-    {
+    private MakerField findMemberField(String name) {
         for (int i = 0; i < fieldTable.size(); i++) {
             MakerField field = fieldTable.get(i);
             if (name.equals(field.getName())) {
@@ -3371,8 +2911,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            access modifiers
      * @return index of the field in <code>fieldTable</code>
      */
-    int addMemberField(String name, Type type, int modifiers)
-    {
+    int addMemberField(String name, Type type, int modifiers) {
         checkFieldModifiers(modifiers);
 
         MakerField field = new MakerField(getClassType(), name, type, modifiers);
@@ -3390,13 +2929,14 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the variable
      * @return a <code>Field</code> that describes the variable
      */
-    public MakerField Find(String name)
+    public MakerField Find(String name) // FIXME rename
     {
-        if (getClassFileWriter() == null)
+        if (isFirstPass()) {
             return null;
+        }
         checkInMethod();
-        MakerField field = findLocalField(name);
-        //MakerField field = findField(name);
+        //MakerField field = findLocalField(name);
+        MakerField field = findField(name);
         if (field == null)
             throw createException("ClassMaker.NoLocalCalled_1", name);
         return field;
@@ -3409,113 +2949,35 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            name of the local variable
      * @return type of the local variable
      */
-    public MakerField findField(String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public MakerField findField(String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         checkInMethod();
-        MakerField field = getClassType().findField(name); // Search method variables
+        MakerField field = findLocalField(name);
+        if (field == null) {
+            field = getClassType().findField(name);
+        }
         return field;
-    }
-
-    /**
-     * Loads a value onto the stack from a local variable.
-     * 
-     * @param local
-     *            the <code>Field</code> that describes the member variable
-     * @return the type of the variable on top of the stack
-     */
-    Value loadLocal(MakerField local) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        int slot = local.getSlot();
-        Type type = local.getType();
-
-        if (isClass(type))
-            cfw.addALoad(slot);
-        else if (isPrimitive(type)) {
-            switch (type.toPrimitive().index) {
-            case PrimitiveType.BOOLEAN_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                cfw.addILoad(slot);
-                break;
-            case PrimitiveType.LONG_INDEX:
-                cfw.addLLoad(slot);
-                break;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.addDLoad(slot);
-                break;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.addFLoad(slot);
-                break;
-            default:
-                throw createException("ClassMaker.DontKnowHowToLoadType_1", type.getName());
-            }
-        }
-        return type.getValue();
-    }
-
-    /**
-     * Sets the value on top of the stack to a local variable.
-     * 
-     * @param slot
-     *            the slot in the stack frame that contains the variable
-     * @param type
-     *            type of the value on top of the stack
-     */
-    void storeLocal(MakerField field, Type type) throws ClassMakerException
-    {
-        int slot = field.getSlot();
-        if (isClass(type)) {
-            cfw.addAStore(slot);
-            return;
-        } else if (isPrimitive(type)) {
-            switch (type.toPrimitive().index) {
-            case PrimitiveType.BOOLEAN_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                cfw.addIStore(slot);
-                return;
-            case PrimitiveType.LONG_INDEX:
-                cfw.addLStore(slot);
-                return;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.addDStore(slot);
-                return;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.addFStore(slot);
-                return;
-            }
-        }
-        // Should never get here.
-        throw createException("ClassMaker.DontKnowHowToStoreType_1", type.getName());
     }
 
     /**
      * Adds a formal parameter or local variable to the method.
      * 
-     * @param name
-     *            name of the local variable
-     * @param type
-     *            type of the local variable
-     * @param modifiers
-     *            access modifiers for the variable
+     * @param name name of the local variable
+     * @param type type of the local variable
+     * @param modifiers access modifiers for the variable
      * @return index into <code>localTable</code>
      */
-    int addLocal(String name, Type type, int modifiers)
-    {
+    int addLocal(String name, Type type, int modifiers) {
         MakerField field = new MakerField(name, type, modifiers);
         field.setSlot(maxLocalSlots);
         field.setScopeLevel(getScopeLevel());
         // Adjust the number of slots used.
         maxLocalSlots += type.getSlotSize();
-        if (getClassFileWriter() != null)
-            field.setStartPC(cfw.getCurrentCodeOffset());
+        if (getGen() != null) {
+            field.setStartPC(getGen().getCurrentCodeOffset());
+        }
         int index = localTable.size();
         localTable.add(field);
         return index;
@@ -3528,8 +2990,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the variable
      * @return a <code>Field</code> that describes the variable
      */
-    MakerField findLocalField(String name)
-    {
+    MakerField findLocalField(String name) {
         for (int i = localTable.size() - 1; i >= 0; i--) {
             MakerField local = localTable.get(i);
             if (!local.isInScope())
@@ -3539,42 +3000,6 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
             }
         }
         return null;
-    }
-
-    private void initLocal(MakerField field)
-    {
-        Type type = field.getType();
-        int slot = field.getSlot();
-        if (isClass(type)) {
-            cfw.add(ByteCode.ACONST_NULL);
-            cfw.addAStore(slot);
-            return;
-        } else if (isPrimitive(type)) {
-            switch (type.toPrimitive().index) {
-            case PrimitiveType.BOOLEAN_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.ICONST_0);
-                cfw.addIStore(slot);
-                return;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LCONST_0);
-                cfw.addLStore(slot);
-                return;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DCONST_0);
-                cfw.addDStore(slot);
-                return;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FCONST_0);
-                cfw.addFStore(slot);
-                return;
-            }
-        }
-        // Should never get here.
-        throw createException("ClassMaker.DontKnowHowToStoreType_1", type.getName());
     }
 
     //############# Variable declarations ################
@@ -3639,8 +3064,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param modifiers
      *            bitmask of variable modifiers
      */
-    public void Declare(String name, Class javaClass, int modifiers) throws ClassMakerException
-    {
+    public void Declare(String name, Class javaClass, int modifiers) throws ClassMakerException {
         Type type = getFactory().classToType(javaClass);
         Declare(name, type, modifiers);
     }
@@ -3705,8 +3129,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param modifiers
      *            bitmask of variable modifiers
      */
-    public void Declare(String name, String typeName, int modifiers) throws ClassMakerException
-    {
+    public void Declare(String name, String typeName, int modifiers) throws ClassMakerException {
         Type type = stringToType(typeName);
         Declare(name, type, modifiers);
     }
@@ -3746,38 +3169,35 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param modifiers
      *            bitmask of variable modifiers
      */
-    public void Declare(String name, Type type, int modifiers) throws ClassMakerException
-    {
-        declareVariable(name, type, modifiers);
-    }
-
-    private void declareVariable(String name, Type type, int modifiers) throws ClassMakerException
-    {
+    public void Declare(String name, Type type, int modifiers) throws ClassMakerException {
         if (getPass() != FIRST_PASS) {
-            if (ClassMakerFactory.VOID_TYPE.equals(type) || ClassMakerFactory.NULL_TYPE.equals(type))
+            if (ClassMakerFactory.VOID_TYPE.equals(type) || ClassMakerFactory.NULL_TYPE.equals(type)) {
                 throw createException("ClassMaker.CannotDeclareType_1", type.getName());
+            }
         }
         if (!isInMethod()) { // Class Member Field
             MakerField field = findMemberField(name);
             if (getPass() != SECOND_PASS) {
-                if (field != null)
+                if (field != null) {
                     throw createException("ClassMaker.DuplicateMemberFieldDeclaration_1", name);
+                }
                 addMemberField(name, type, modifiers);
             }
-            if (getClassFileWriter() != null) {
-                cfw.addField(name, type.getSignature(), (short) modifiers);
+            if (getGen() != null) {
+                getGen().declareVariable(name, type, modifiers);
             }
         } else { // Local variable or parameter
-            if (getPass() != SECOND_PASS && findLocalField(name) != null)
+            if (getPass() != SECOND_PASS && findLocalField(name) != null) {
                 throw createException("ClassMaker.DuplicateLocalVariableDeclaration_1", name);
+            }
             addLocal(name, type, modifiers);
-            if (getClassFileWriter() != null) {
+            if (getGen() != null) {
                 MakerField local = findLocalField(name);
-                addToScope(local, getScopeLevel());
+                getGen().addToScope(local, getScopeLevel());
                 if (isInBody()) {
                     if (isDebugCode())
                         setDebugComment("initialise local " + name);
-                    initLocal(local);
+                    getGen().initLocal(local);
                 }
             }
         }
@@ -3788,12 +3208,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return the nesting level of the current scoped code block
      */
-    int getScopeLevel()
-    {
-        if (statementStack == null)
+    int getScopeLevel() {
+        if (statementStack == null) {
             return 1;
-        else
+        } else {
             return statementStack.getScopeLevel();
+        }
     }
 
     //################### Casting methods. ##################
@@ -3825,8 +3245,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type into which to cast
      * @return the value cast to the target type
      */
-    public Value Cast(Value source, String target) throws ClassMakerException
-    {
+    public Value Cast(Value source, String target) throws ClassMakerException {
         Type makerType = stringToType(target);
         return Cast(source, makerType);
     }
@@ -3857,8 +3276,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type into which to cast
      * @return the value cast to the target type
      */
-    public Value Cast(Value source, Class target) throws ClassMakerException
-    {
+    public Value Cast(Value source, Class target) throws ClassMakerException {
         Type type = getFactory().classToType(target);
         return Cast(source, type);
     }
@@ -3873,14 +3291,15 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type into which to cast
      * @return the value cast to the target type
      */
-    public Value Cast(Value source, Type target) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Cast(Value source, Type target) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
-        Type sourceType = source.getType();
-        if (cfw.isDebugCode()) {
+        }
+        if (isDebugCode()) {
             setDebugComment("Cast(" + source + ", " + target + ");");
         }
+        markLineNumber(); // possibly add a new line number entry.
+        Type sourceType = source.getType();
         if (getFactory().getCastingConversion().isConvertable(sourceType, target)) {
             return getFactory().getCastingConversion().convertTo(this, sourceType, target).getValue();
         } else {
@@ -3888,342 +3307,31 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         }
     }
 
-    /**
-     * Converts a reference from one type to another.
-     * </br>
-     * Generates code to check the cast of the reference on top of the stack.
-     * This method is called by CastingConversion.wideningReferenceConversion()
-     * to perform casts.
-     *
-     * @param source
-     *            the type of the reference on top of the stack
-     * @param target
-     *            the type into which to cast
-     * @return the target type
-     */
-    public ClassType toReference(ClassType source, ClassType target) throws ClassMakerException
-    { // FIXME - make package accessible
-        markLineNumber(); // possibly add a new line number entry.
-        String className = target.getName();
-        cfw.add(ByteCode.CHECKCAST, className);
-        return target;
-    }
-
-    public Value InstanceOf(Value reference, Class javaClass)
-    {
+    public Value InstanceOf(Value reference, Class javaClass) {
         Type type = getFactory().classToType(javaClass);
         return InstanceOf(reference, type);
     }
 
-    public Value InstanceOf(Value reference, String target)
-    {
+    public Value InstanceOf(Value reference, String target) {
         Type type = findType(target);
         return InstanceOf(reference, type);
     }
 
-    public Value InstanceOf(Value reference, Type target)
-    {
-        if (getClassFileWriter() == null)
+    public Value InstanceOf(Value reference, Type target) {
+        if (isFirstPass()) {
             return null;
-        if (reference.toClass() == null)
+        }
+        if (isDebugCode()) {
+            setDebugComment("InstanceOf(" + reference.getName() + ", " + target.getName() + ");");
+        }
+        if (reference.toClass() == null) {
             throw createException("ClassMaker.InstanceOfMustTestAClass_1", reference.getName());
-        if (target.toClass() == null)
+        }
+        if (target.toClass() == null) {
             throw createException("ClassMaker.CannotTestInstanceOfType_1", target.getName());
-        return checkInstanceOf(reference.getType(), target.toClass()).getValue();
-    }
-
-    Type checkInstanceOf(Type source, ClassType target) throws ClassMakerException
-    {
-        if (cfw.isDebugCode())
-            setDebugComment("InstanceOf(" + source.getName() + ", " + target.getName() + ");");
+        }
         markLineNumber(); // possibly add a new line number entry.
-        String className = toSlashName(target.getName());
-        cfw.add(ByteCode.INSTANCEOF, className);
-        return ClassMakerFactory.BOOLEAN_TYPE;
-    }
-
-    /**
-     * Converts a value to a byte.
-     * </br>
-     * The value on top of the stack is converted from any primitive type to a
-     * byte.
-     * The result is left on the stack.
-     *
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr>
-     * <td>Java code</td>
-     * <td>ClassMaker code</td>
-     * </tr>
-     * <tr>
-     * <td><code>(byte)a<code></td>
-     * <td><code>toByte(Get("a"))</code></td>
-     * </tr>
-     * </table>
-     * 
-     * @param op
-     *            the type of the operand
-     * @return the type of the result is always byte
-     */
-    public Type toByte(Type op) throws ClassMakerException
-    { // FIXME - make package accessible
-        if (!ClassMakerFactory.BYTE_TYPE.equals(op)) {
-            toInt(op);
-            cfw.add(ByteCode.I2B);
-        }
-        return ClassMakerFactory.BYTE_TYPE;
-    }
-
-    /**
-     * Converts a value to a short.
-     * </br>
-     * The value on top of the stack is converted from any primitive type to a
-     * short.
-     * The result is left on the stack.
-     *
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr>
-     * <td>Java code</td>
-     * <td>ClassMaker code</td>
-     * </tr>
-     * <tr>
-     * <td><code>(short)a<code></td>
-     * <td><code>toShort(Get("a"))</code></td>
-     * </tr>
-     * </table>
-     * 
-     * @param op
-     *            the type of the operand
-     * @return the type of the result is always short
-     */
-    public Type toShort(Type op) throws ClassMakerException
-    { // FIXME - make package accessible
-        if (!ClassMakerFactory.SHORT_TYPE.equals(op)) {
-            toInt(op);
-            cfw.add(ByteCode.I2S);
-        }
-        return ClassMakerFactory.SHORT_TYPE;
-    }
-
-    /**
-     * Converts a value to a char.
-     * </br>
-     * The value on top of the stack is converted from any primitive type to a
-     * char.
-     * The result is left on the stack.
-     *
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr>
-     * <td>Java code</td>
-     * <td>ClassMaker code</td>
-     * </tr>
-     * <tr>
-     * <td><code>(char)a<code></td>
-     * <td><code>toChar(Get("a"))</code></td>
-     * </tr>
-     * </table>
-     * 
-     * @param op
-     *            the type of the operand
-     * @return the type of the result is always char
-     */
-    public Type toChar(Type op) throws ClassMakerException
-    { // FIXME - make package accessible
-        if (!ClassMakerFactory.CHAR_TYPE.equals(op)) {
-            toInt(op);
-            cfw.add(ByteCode.I2C);
-        }
-        return ClassMakerFactory.CHAR_TYPE;
-    }
-
-    /**
-     * Converts a value to an int.
-     * </br>
-     * The value on top of the stack is converted from any primitive type to an
-     * int.
-     * The result is left on the stack.
-     *
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr>
-     * <td>Java code</td>
-     * <td>ClassMaker code</td>
-     * </tr>
-     * <tr>
-     * <td><code>(int)a<code></td>
-     * <td><code>toInt(Get("a"))</code></td>
-     * </tr>
-     * </table>
-     * 
-     * @param op
-     *            the type of the operand
-     * @return the type of the result is always int
-     */
-    public Type toInt(Type op) throws ClassMakerException
-    { // FIXME - make package accessible
-        if (isPrimitive(op)) {
-            markLineNumber(); // possibly add a new line number entry.
-            switch (op.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                return ClassMakerFactory.INT_TYPE;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.L2I);
-                return ClassMakerFactory.INT_TYPE;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.D2I);
-                return ClassMakerFactory.INT_TYPE;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.F2I);
-                return ClassMakerFactory.INT_TYPE;
-            }
-        }
-        throw createException("ClassMaker.CannotConvertFromTo_2", op.getName(), ClassMakerFactory.INT_TYPE.getName());
-    }
-
-    /**
-     * Converts a value to a long.
-     * </br>
-     * The value on top of the stack is converted from any primitive type to a
-     * long.
-     * The result is left on the stack.
-     *
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr>
-     * <td>Java code</td>
-     * <td>ClassMaker code</td>
-     * </tr>
-     * <tr>
-     * <td><code>(long)a<code></td>
-     * <td><code>toLong(Get("a"))</code></td>
-     * </tr>
-     * </table>
-     * 
-     * @param op
-     *            the type of the operand
-     * @return the type of the result is always long
-     */
-    public Type toLong(Type op) throws ClassMakerException
-    { // FIXME - make package accessible
-        if (isPrimitive(op)) {
-            markLineNumber(); // possibly add a new line number entry.
-            switch (op.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.I2L);
-                return ClassMakerFactory.LONG_TYPE;
-            case PrimitiveType.LONG_INDEX:
-                return ClassMakerFactory.LONG_TYPE;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.D2L);
-                return ClassMakerFactory.LONG_TYPE;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.F2L);
-                return ClassMakerFactory.LONG_TYPE;
-            }
-        }
-        throw createException("ClassMaker.CannotConvertFromTo_2", op.getName(), ClassMakerFactory.LONG_TYPE.getName());
-    }
-
-    /**
-     * Converts a value to a float.
-     * </br>
-     * The value on top of the stack is converted from any primitive type to a
-     * float.
-     * The result is left on the stack.
-     *
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr>
-     * <td>Java code</td>
-     * <td>ClassMaker code</td>
-     * </tr>
-     * <tr>
-     * <td><code>(float)a<code></td>
-     * <td><code>toFloat(Get("a"))</code></td>
-     * </tr>
-     * </table>
-     * 
-     * @param op
-     *            the type of the operand
-     * @return the type of the result is always float
-     */
-    public Type toFloat(Type op) throws ClassMakerException
-    { // FIXME - make package accessible
-        if (isPrimitive(op)) {
-            markLineNumber(); // possibly add a new line number entry.
-            switch (op.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.I2F);
-                return ClassMakerFactory.FLOAT_TYPE;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.L2F);
-                return ClassMakerFactory.FLOAT_TYPE;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.D2F);
-                return ClassMakerFactory.FLOAT_TYPE;
-            case PrimitiveType.FLOAT_INDEX:
-                return ClassMakerFactory.FLOAT_TYPE;
-            }
-        }
-        throw createException("ClassMaker.CannotConvertFromTo_2", op.getName(), ClassMakerFactory.FLOAT_TYPE.getName());
-    }
-
-    /**
-     * Converts a value to a double.
-     * </br>
-     * The value on top of the stack is converted from any primitive type to a
-     * double.
-     * The result is left on the stack.
-     *
-     * The following code is equivalent.
-     * <table border="1" width="100%">
-     * <tr>
-     * <td>Java code</td>
-     * <td>ClassMaker code</td>
-     * </tr>
-     * <tr>
-     * <td><code>(double)a<code></td>
-     * <td><code>toDouble(Get("a"))</code></td>
-     * </tr>
-     * </table>
-     * 
-     * @param op
-     *            the type of the operand
-     * @return the type of the result is always double
-     */
-    public Type toDouble(Type op) throws ClassMakerException
-    { // FIXME - make package accessible
-        if (isPrimitive(op)) {
-            markLineNumber(); // possibly add a new line number entry.
-            switch (op.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.I2D);
-                return ClassMakerFactory.DOUBLE_TYPE;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.L2D);
-                return ClassMakerFactory.DOUBLE_TYPE;
-            case PrimitiveType.DOUBLE_INDEX:
-                return ClassMakerFactory.DOUBLE_TYPE;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.F2D);
-                return ClassMakerFactory.DOUBLE_TYPE;
-            }
-        }
-        throw createException("ClassMaker.CannotConvertFromTo_2", op.getName(), ClassMakerFactory.DOUBLE_TYPE.getName());
+        return getGen().checkInstanceOf(reference.getType(), target.toClass()).getValue();
     }
 
     //################ Arithmetic operators ######################
@@ -4252,15 +3360,17 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result after promotion
      */
-    public Value Add(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value Add(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("Add(" + op1 + ", " + op2 + ");");
-        if (isPrimitive(op1) && isPrimitive(op2)) {
+        }
+        
+        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
             if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
                 op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
             }
@@ -4290,39 +3400,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveAdd(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
-        if (op1.equals(op2)) {
-            switch (op1.index) {
-            case PrimitiveType.BYTE_INDEX:
-                cfw.add(ByteCode.IADD);
-                cfw.add(ByteCode.I2B);
-                return op1;
-            case PrimitiveType.SHORT_INDEX:
-                cfw.add(ByteCode.IADD);
-                cfw.add(ByteCode.I2S);
-                return op1;
-            case PrimitiveType.CHAR_INDEX:
-                cfw.add(ByteCode.IADD);
-                cfw.add(ByteCode.I2C);
-                return op1;
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.IADD);
-                return op1;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LADD);
-                return op1;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DADD);
-                return op1;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FADD);
-                return op1;
-            }
+    protected PrimitiveType primitiveAdd(PrimitiveType op1, PrimitiveType op2) {
+        try {
+            markLineNumber(); // possibly add a new line number entry.
+            return gen.primitiveAdd(op1.toPrimitive(), op2.toPrimitive());
+        } catch (IllegalArgumentException ex) {
+            throw createException("ClassMaker.CannotAddType_2", op1.getName(), op2.getName());
         }
-        throw createException("ClassMaker.CannotAddType_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -4350,18 +3434,21 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result after promotion
      */
-    public Value Subt(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value Subt(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("Subt(" + op1 + ", " + op2 + ");");
+        }
+        markLineNumber(); // possibly add a new line number entry.
+
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (isPrimitive(op1) && isPrimitive(op2)) {
+        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
             return primitiveSubt(op1.toPrimitive(), op2.toPrimitive()).getValue();
         }
         throw createException("ClassMaker.CannotSubtractType_2", op1.getName(), op2.getName());
@@ -4384,38 +3471,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveSubt(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        if (op1.equals(op2)) {
-            switch (op1.index) {
-            case PrimitiveType.BYTE_INDEX:
-                cfw.add(ByteCode.ISUB);
-                cfw.add(ByteCode.I2B);
-                return op1;
-            case PrimitiveType.SHORT_INDEX:
-                cfw.add(ByteCode.ISUB);
-                cfw.add(ByteCode.I2S);
-                return op1;
-            case PrimitiveType.CHAR_INDEX:
-                cfw.add(ByteCode.ISUB);
-                cfw.add(ByteCode.I2C);
-                return op1;
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.ISUB);
-                return op1;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LSUB);
-                return op1;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DSUB);
-                return op1;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FSUB);
-                return op1;
-            }
+    protected PrimitiveType primitiveSubt(PrimitiveType op1, PrimitiveType op2) {
+        try {
+            return gen.primitiveSubt(op1.toPrimitive(), op2.toPrimitive());
+        } catch (IllegalArgumentException ex) {
+            throw createException("ClassMaker.CannotSubtractType_2", op1.getName(), op2.getName());
         }
-        throw createException("ClassMaker.CannotSubtractType_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -4443,18 +3504,21 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result after promotion
      */
-    public Value Mult(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value Mult(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("Mult(" + op1 + ", " + op2 + ");");
+        }
+        markLineNumber(); // possibly add a new line number entry.
+
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (isPrimitive(op1) && isPrimitive(op2)) {
+        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
             return primitiveMult(op1.toPrimitive(), op2.toPrimitive()).getValue();
         }
         throw createException("ClassMaker.CannotMultiplyType_2", op1.getName(), op2.getName());
@@ -4477,38 +3541,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveMult(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        if (op1.equals(op2)) {
-            switch (op1.index) {
-            case PrimitiveType.BYTE_INDEX:
-                cfw.add(ByteCode.IMUL);
-                cfw.add(ByteCode.I2B);
-                return op1;
-            case PrimitiveType.SHORT_INDEX:
-                cfw.add(ByteCode.IMUL);
-                cfw.add(ByteCode.I2S);
-                return op1;
-            case PrimitiveType.CHAR_INDEX:
-                cfw.add(ByteCode.IMUL);
-                cfw.add(ByteCode.I2C);
-                return op1;
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.IMUL);
-                return op1;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LMUL);
-                return op1;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DMUL);
-                return op1;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FMUL);
-                return op1;
-            }
+    protected PrimitiveType primitiveMult(PrimitiveType op1, PrimitiveType op2) {
+        try {
+            return gen.primitiveMult(op1.toPrimitive(), op2.toPrimitive());
+        } catch (IllegalArgumentException ex) {
+            throw createException("ClassMaker.CannotMultiplyType_2", op1.getName(), op2.getName());
         }
-        throw createException("ClassMaker.CannotMultiplyType_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -4535,18 +3573,19 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result after promotion
      */
-    public Value Div(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value Div(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("Div(" + op1 + ", " + op2 + ");");
+        }
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (isPrimitive(op1) && isPrimitive(op2)) {
+        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
             return primitiveDiv(op1.toPrimitive(), op2.toPrimitive()).getValue();
         }
         throw createException("ClassMaker.CannotDivideType_2", op1.getName(), op2.getName());
@@ -4569,38 +3608,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveDiv(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        if (op1.equals(op2)) {
-            switch (op1.index) {
-            case PrimitiveType.BYTE_INDEX:
-                cfw.add(ByteCode.IDIV);
-                cfw.add(ByteCode.I2B);
-                return op1;
-            case PrimitiveType.SHORT_INDEX:
-                cfw.add(ByteCode.IDIV);
-                cfw.add(ByteCode.I2S);
-                return op1;
-            case PrimitiveType.CHAR_INDEX:
-                cfw.add(ByteCode.IDIV);
-                cfw.add(ByteCode.I2C);
-                return op1;
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.IDIV);
-                return op1;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LDIV);
-                return op1;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DDIV);
-                return op1;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FDIV);
-                return op1;
-            }
+    protected PrimitiveType primitiveDiv(PrimitiveType op1, PrimitiveType op2) {
+        try {
+            markLineNumber(); // possibly add a new line number entry.
+            return gen.primitiveDiv(op1.toPrimitive(), op2.toPrimitive());
+        } catch (IllegalArgumentException ex) {
+            throw createException("ClassMaker.CannotDivideType_2", op1.getName(), op2.getName());
         }
-        throw createException("ClassMaker.CannotDivideType_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -4629,18 +3643,20 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result after promotion
      */
-    public Value Rem(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value Rem(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode())
             setDebugComment("Rem(" + op1 + ", " + op2 + ");");
+        markLineNumber(); // possibly add a new line number entry.
+
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (isPrimitive(op1) && isPrimitive(op2)) {
+        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
             return primitiveRem(op1.toPrimitive(), op2.toPrimitive()).getValue();
         }
         throw createException("ClassMaker.CannotRemainderType_2", op1.getName(), op2.getName());
@@ -4663,39 +3679,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveRem(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
-        if (op1.equals(op2)) {
-            switch (op1.index) {
-            case PrimitiveType.BYTE_INDEX:
-                cfw.add(ByteCode.IREM);
-                cfw.add(ByteCode.I2B);
-                return op1;
-            case PrimitiveType.SHORT_INDEX:
-                cfw.add(ByteCode.IREM);
-                cfw.add(ByteCode.I2S);
-                return op1;
-            case PrimitiveType.CHAR_INDEX:
-                cfw.add(ByteCode.IREM);
-                cfw.add(ByteCode.I2C);
-                return op1;
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.IREM);
-                return op1;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LREM);
-                return op1;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DREM);
-                return op1;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FREM);
-                return op1;
-            }
+    protected PrimitiveType primitiveRem(PrimitiveType op1, PrimitiveType op2) {
+        try {
+            return gen.primitiveRem(op1.toPrimitive(), op2.toPrimitive());
+        } catch (IllegalArgumentException ex) {
+            throw createException("ClassMaker.CannotRemainderType_2", op1.getName(), op2.getName());
         }
-        throw createException("ClassMaker.CannotRemainderType_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -4719,41 +3708,28 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the Value of the value
      * @return the type of the promoted value
      */
-    public Value Neg(Value value)
-    {
-        if (getClassFileWriter() == null)
+    public Value Neg(Value value) {
+        if (isFirstPass()) {
             return null;
+        }
         Type type = value.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("Neg(" + type + ");");
+        }
+        markLineNumber(); // possibly add a new line number entry.
+
         if (getFactory().getNumericPromotion().isConvertable(type)) {
             type = getFactory().getNumericPromotion().convertTo(this, type);
         }
         return primitiveNeg(type).getValue();
     }
 
-    Type primitiveNeg(Type type)
-    {
-        if (isPrimitive(type)) {
-            markLineNumber(); // possibly add a new line number entry.
-            switch (type.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.INEG);
-                return type;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LNEG);
-                return type;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DNEG);
-                return type;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FNEG);
-                return type;
-            }
+    Type primitiveNeg(Type type) {
+        try {
+            return gen.primitiveNeg(type);
+        } catch (IllegalArgumentException ex) {
+            throw createException("ClassMaker.CannotNegType_1", type.getName());
         }
-        throw createException("ClassMaker.CannotNegType_1", type.getName());
     }
 
     /**
@@ -4782,18 +3758,20 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result after promotion
      */
-    public Value Xor(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value Xor(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode())
             setDebugComment("Xor(" + op1 + ", " + op2 + ");");
+        markLineNumber(); // possibly add a new line number entry.
+
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (isPrimitive(op1) && isPrimitive(op2)) {
+        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
             return primitiveXor(op1.toPrimitive(), op2.toPrimitive()).getValue();
         }
         throw createException("ClassMaker.CannotXorType_2", op1.getName(), op2.getName());
@@ -4814,33 +3792,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveXor(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
-        if (op1.equals(op2)) {
-            switch (op1.index) {
-            case PrimitiveType.BYTE_INDEX:
-                cfw.add(ByteCode.IXOR);
-                cfw.add(ByteCode.I2B);
-                return op1;
-            case PrimitiveType.SHORT_INDEX:
-                cfw.add(ByteCode.IXOR);
-                cfw.add(ByteCode.I2S);
-                return op1;
-            case PrimitiveType.CHAR_INDEX:
-                cfw.add(ByteCode.IXOR);
-                cfw.add(ByteCode.I2C);
-                return op1;
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.IXOR);
-                return op1;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LXOR);
-                return op1;
-            }
+    protected PrimitiveType primitiveXor(PrimitiveType op1, PrimitiveType op2) {
+        try {
+            return gen.primitiveXor(op1.toPrimitive(), op2.toPrimitive());
+        } catch (IllegalArgumentException ex) {
+            throw createException("ClassMaker.CannotXorType_2", op1.getName(), op2.getName());
         }
-        throw createException("ClassMaker.CannotXorType_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -4868,18 +3825,18 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result after promotion
      */
-    public Value And(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value And(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode())
             setDebugComment("And(" + op1 + ", " + op2 + ");");
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (isPrimitive(op1) && isPrimitive(op2)) {
+        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
             return primitiveAnd(op1.toPrimitive(), op2.toPrimitive()).getValue();
         }
         throw createException("ClassMaker.CannotAndType_2", op1.getName(), op2.getName());
@@ -4900,33 +3857,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveAnd(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
-        if (op1.equals(op2)) {
-            switch (op1.index) {
-            case PrimitiveType.BYTE_INDEX:
-                cfw.add(ByteCode.IAND);
-                cfw.add(ByteCode.I2B);
-                return op1;
-            case PrimitiveType.SHORT_INDEX:
-                cfw.add(ByteCode.IAND);
-                cfw.add(ByteCode.I2S);
-                return op1;
-            case PrimitiveType.CHAR_INDEX:
-                cfw.add(ByteCode.IAND);
-                cfw.add(ByteCode.I2C);
-                return op1;
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.IAND);
-                return op1;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LAND);
-                return op1;
-            }
+    protected PrimitiveType primitiveAnd(PrimitiveType op1, PrimitiveType op2) {
+        try {
+            markLineNumber(); // possibly add a new line number entry.
+            return gen.primitiveAnd(op1.toPrimitive(), op2.toPrimitive());
+        } catch (IllegalArgumentException ex) {
+            throw createException("ClassMaker.CannotAndType_2", op1.getName(), op2.getName());
         }
-        throw createException("ClassMaker.CannotAndType_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -4954,18 +3891,20 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result after promotion
      */
-    public Value Or(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value Or(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode())
             setDebugComment("Or(" + op1 + ", " + op2 + ");");
+        markLineNumber(); // possibly add a new line number entry.
+
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (isPrimitive(op1) && op1.equals(op2)) {
+        if (Type.isPrimitive(op1) && op1.equals(op2)) {
             return primitiveOr(op1.toPrimitive(), op2.toPrimitive()).getValue();
         }
         throw createException("ClassMaker.CannotOrType_2", op1.getName(), op2.getName());
@@ -4986,33 +3925,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveOr(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
-        if (op1.equals(op2)) {
-            switch (op1.index) {
-            case PrimitiveType.BYTE_INDEX:
-                cfw.add(ByteCode.IOR);
-                cfw.add(ByteCode.I2B);
-                return op1;
-            case PrimitiveType.SHORT_INDEX:
-                cfw.add(ByteCode.IOR);
-                cfw.add(ByteCode.I2S);
-                return op1;
-            case PrimitiveType.CHAR_INDEX:
-                cfw.add(ByteCode.IOR);
-                cfw.add(ByteCode.I2C);
-                return op1;
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.IOR);
-                return op1;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LOR);
-                return op1;
-            }
+    protected PrimitiveType primitiveOr(PrimitiveType op1, PrimitiveType op2) {
+        try {
+            return gen.primitiveOr(op1.toPrimitive(), op2.toPrimitive());
+        } catch (IllegalArgumentException ex) {
+            throw createException("ClassMaker.CannotOrType_2", op1.getName(), op2.getName());
         }
-        throw createException("ClassMaker.CannotOrType_2", op1.getName(), op2.getName());
     }
 
     /**
@@ -5038,17 +3956,19 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the left operand
      * @return the type of the result after promotion
      */
-    public Value Inv(Value value)
-    {
-        if (getClassFileWriter() == null)
+    public Value Inv(Value value) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("Inv(" + op1 + ");");
+        }
+        markLineNumber(); // possibly add a new line number entry.
         if (getFactory().getNumericPromotion().isConvertable(op1)) {
             op1 = getFactory().getNumericPromotion().convertTo(this, op1);
         }
-        if (isPrimitive(op1)) {
+        if (Type.isPrimitive(op1)) {
             return primitiveInv(op1.toPrimitive()).getValue();
         }
         throw createException("ClassMaker.CannotInvertType_1", op1.getName());
@@ -5068,38 +3988,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the left operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveInv(PrimitiveType op1)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
-        switch (op1.index) {
-        case PrimitiveType.BYTE_INDEX:
-            cfw.addPush(0xFFFFFFFF);
-            cfw.add(ByteCode.IXOR);
-            cfw.add(ByteCode.I2B);
-            break;
-        case PrimitiveType.SHORT_INDEX:
-            cfw.addPush(0xFFFFFFFF);
-            cfw.add(ByteCode.IXOR);
-            cfw.add(ByteCode.I2S);
-            break;
-        case PrimitiveType.CHAR_INDEX:
-            cfw.addPush(0xFFFFFFFF);
-            cfw.add(ByteCode.IXOR);
-            cfw.add(ByteCode.I2C);
-            break;
-        case PrimitiveType.INT_INDEX:
-            cfw.addPush(0xFFFFFFFF);
-            cfw.add(ByteCode.IXOR);
-            break;
-        case PrimitiveType.LONG_INDEX:
-            cfw.addPush(0xFFFFFFFFFFFFFFFFL);
-            cfw.add(ByteCode.LXOR);
-            break;
-        default:
-            throw createException("ClassMaker.CannotInvertType_1", op1.getName());
+    protected PrimitiveType primitiveInv(PrimitiveType type) {
+        try {
+            return gen.primitiveInv(type);
+        } catch (IllegalArgumentException ex) {
+            throw createException("ClassMaker.CannotInvertType_1", type.getName());
         }
-        return op1;
     }
 
     //################ Bitwise shifting operators ####################
@@ -5127,14 +4021,17 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the operand indicating places to shift
      * @return the type of op1 after promotion
      */
-    public Value SHL(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value SHL(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("SHL(" + op1 + ", " + op2 + ");");
+        }
+        markLineNumber(); // possibly add a new line number entry.
+
         // Promote left and right operands independantly.
         if (getFactory().getNumericPromotion().isConvertable(op1)) {
             op1 = getFactory().getNumericPromotion().convertTo(this, op1);
@@ -5142,17 +4039,18 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         if (getFactory().getNumericPromotion().isConvertable(op2)) {
             op2 = getFactory().getNumericPromotion().convertTo(this, op2);
         }
-        if (isPrimitive(op1) && isPrimitive(op2)) {
+        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
+            if (!isIntegerType(op2)) {
+                throw createException("ClassMaker.ShiftOperandMustBeIntegerTypeNot_1", op2.getName());
+            }
             return primitiveShiftLeft(op1.toPrimitive(), op2.toPrimitive()).getValue();
         }
         throw createException("ClassMaker.CannotShiftLeftType_1", op1.getName());
     }
 
-    static boolean isIntegerType(Type operand)
-    {
+    static boolean isIntegerType(Type operand) {
         return ClassMakerFactory.INT_TYPE.equals(operand) || ClassMakerFactory.SHORT_TYPE.equals(operand)
                 || ClassMakerFactory.CHAR_TYPE.equals(operand) || ClassMakerFactory.BYTE_TYPE.equals(operand);
-
     }
 
     /**
@@ -5170,35 +4068,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the operand indicating places to shift
      * @return the type of op1 after promotion
      */
-    protected PrimitiveType primitiveShiftLeft(PrimitiveType op1, PrimitiveType op2)
-    {
-        if (!isIntegerType(op2)) {
-            throw createException("ClassMaker.ShiftOperandMustBeIntegerTypeNot_1", op2.getName());
-        }
-        markLineNumber(); // possibly add a new line number entry.
-        switch (op1.index) {
-        case PrimitiveType.BYTE_INDEX:
-            cfw.add(ByteCode.ISHL);
-            cfw.add(ByteCode.I2B);
-            break;
-        case PrimitiveType.SHORT_INDEX:
-            cfw.add(ByteCode.ISHL);
-            cfw.add(ByteCode.I2S);
-            break;
-        case PrimitiveType.CHAR_INDEX:
-            cfw.add(ByteCode.ISHL);
-            cfw.add(ByteCode.I2C);
-            break;
-        case PrimitiveType.INT_INDEX:
-            cfw.add(ByteCode.ISHL);
-            break;
-        case PrimitiveType.LONG_INDEX:
-            cfw.add(ByteCode.LSHL);
-            break;
-        default:
+    protected PrimitiveType primitiveShiftLeft(PrimitiveType op1, PrimitiveType op2) {
+        try {
+            return gen.primitiveShiftLeft(op1, op2);
+        } catch (IllegalArgumentException ex) {
             throw createException("ClassMaker.CannotShiftLeftType_1", op1.getName());
         }
-        return op1;
     }
 
     /**
@@ -5225,16 +4100,17 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the operand indicating places to shift
      * @return the type of op1 after promotion
      */
-    public Value SHR(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null) {
+    public Value SHR(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode()) {
+        if (isDebugCode()) {
             setDebugComment("SHR(" + op1 + ", " + op2 + ");");
         }
+        markLineNumber(); // possibly add a new line number entry.
+
         // Promote left and right operands independantly.
         if (getFactory().getNumericPromotion().isConvertable(op1)) {
             op1 = getFactory().getNumericPromotion().convertTo(this, op1);
@@ -5242,7 +4118,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         if (getFactory().getNumericPromotion().isConvertable(op2)) {
             op2 = getFactory().getNumericPromotion().convertTo(this, op2);
         }
-        if (isPrimitive(op1) && isPrimitive(op2)) {
+        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
+            if (!isIntegerType(op2)) {
+                throw createException("ClassMaker.ShiftOperandMustBeIntegerTypeNot_1", op2.getName());
+            }
             return primitiveShiftRight(op1.toPrimitive(), op2.toPrimitive()).getValue();
         }
         throw createException("ClassMaker.CannotShiftRightType_1", op1.getName());
@@ -5263,35 +4142,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the operand indicating places to shift
      * @return the type of op1 after promotion
      */
-    protected PrimitiveType primitiveShiftRight(PrimitiveType op1, PrimitiveType op2)
-    {
-        if (!isIntegerType(op2)) {
-            throw createException("ClassMaker.ShiftOperandMustBeIntegerTypeNot_1", op2.getName());
-        }
-        markLineNumber(); // possibly add a new line number entry.
-        switch (op1.index) {
-        case PrimitiveType.BYTE_INDEX:
-            cfw.add(ByteCode.ISHR);
-            cfw.add(ByteCode.I2B);
-            break;
-        case PrimitiveType.SHORT_INDEX:
-            cfw.add(ByteCode.ISHR);
-            cfw.add(ByteCode.I2S);
-            break;
-        case PrimitiveType.CHAR_INDEX:
-            cfw.add(ByteCode.ISHR);
-            cfw.add(ByteCode.I2C);
-            break;
-        case PrimitiveType.INT_INDEX:
-            cfw.add(ByteCode.ISHR);
-            break;
-        case PrimitiveType.LONG_INDEX:
-            cfw.add(ByteCode.LSHR);
-            break;
-        default:
+    protected PrimitiveType primitiveShiftRight(PrimitiveType op1, PrimitiveType op2) {
+        try {
+            return gen.primitiveShiftRight(op1, op2);
+        } catch (IllegalArgumentException ex) {
             throw createException("ClassMaker.CannotShiftRightType_1", op1.getName());
         }
-        return op1;
     }
 
     /**
@@ -5318,16 +4174,17 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the operand indicating places to shift
      * @return the type of op1 after promotion
      */
-    public Value USHR(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null) {
+    public Value USHR(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode()) {
+        if (isDebugCode()) {
             setDebugComment("USHR(" + op1 + ", " + op2 + ");");
         }
+        markLineNumber(); // possibly add a new line number entry.
+
         // Promote left and right operands independantly.
         if (getFactory().getNumericPromotion().isConvertable(op1)) {
             op1 = getFactory().getNumericPromotion().convertTo(this, op1);
@@ -5335,7 +4192,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         if (getFactory().getNumericPromotion().isConvertable(op2)) {
             op2 = getFactory().getNumericPromotion().convertTo(this, op2);
         }
-        if (isPrimitive(op1) && isPrimitive(op2)) {
+        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
+            if (!isIntegerType(op2)) {
+                throw createException("ClassMaker.ShiftOperandMustBeIntegerTypeNot_1", op2.getName());
+            }
             return primitiveUnsignedShiftRight(op1.toPrimitive(), op2.toPrimitive()).getValue();
         }
         throw createException("ClassMaker.CannotUnsignedShiftRightType_1", op1.getName());
@@ -5357,36 +4217,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the operand indicating places to shift
      * @return the type of op1 after promotion
      */
-    protected PrimitiveType primitiveUnsignedShiftRight(PrimitiveType op1, PrimitiveType op2)
-    {
-        if (!isIntegerType(op2)) {
-            throw createException("ClassMaker.ShiftOperandMustBeIntegerTypeNot_1", op2.getName());
-        }
-        markLineNumber(); // possibly add a new line number entry.
-
-        switch (op1.index) {
-        case PrimitiveType.BYTE_INDEX:
-            cfw.add(ByteCode.IUSHR);
-            cfw.add(ByteCode.I2B);
-            break;
-        case PrimitiveType.SHORT_INDEX:
-            cfw.add(ByteCode.IUSHR);
-            cfw.add(ByteCode.I2S);
-            break;
-        case PrimitiveType.CHAR_INDEX:
-            cfw.add(ByteCode.IUSHR);
-            cfw.add(ByteCode.I2C);
-            break;
-        case PrimitiveType.INT_INDEX:
-            cfw.add(ByteCode.IUSHR);
-            break;
-        case PrimitiveType.LONG_INDEX:
-            cfw.add(ByteCode.LUSHR);
-            break;
-        default:
+    protected PrimitiveType primitiveUnsignedShiftRight(PrimitiveType op1, PrimitiveType op2) {
+        try {
+            return gen.primitiveUnsignedShiftRight(op1, op2);
+        } catch (IllegalArgumentException ex) {
             throw createException("ClassMaker.CannotUnsignedShiftRightType_1", op1.getName());
         }
-        return op1;
     }
 
     //################# Comparison operators ######################
@@ -5413,14 +4249,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the second operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Value GT(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null) {
+    public Value GT(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode()) {
+        if (isDebugCode()) {
             setDebugComment("GT(" + op1 + ", " + op2 + ");");
         }
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
@@ -5429,36 +4264,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         return primitiveGreaterThan(op1, op2);
     }
 
-    Value primitiveGreaterThan(Type op1, Type op2)
-    {
-        if (isPrimitive(op1) && op1.equals(op2)) {
+    Value primitiveGreaterThan(Type op1, Type op2) {
+        try {
             markLineNumber(); // possibly add a new line number entry.
-            switch (op1.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                addCompare(ByteCode.IF_ICMPGT);
-                break;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LCMP);
-                addCompare(ByteCode.IFGT);
-                break;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DCMPL);
-                addCompare(ByteCode.IFGT);
-                break;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FCMPL);
-                addCompare(ByteCode.IFGT);
-                break;
-            default:
-                throw createException("ClassMaker.CannotGTTypes_2", op1.getName(), op2.getName());
-            }
-        } else {
+            return gen.primitiveGreaterThan(op1, op2);
+        } catch (IllegalArgumentException ex) {
             throw createException("ClassMaker.CannotGTTypes_2", op1.getName(), op2.getName());
         }
-        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     /**
@@ -5485,50 +4297,28 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the second operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Value GE(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value GE(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("GE(" + op1 + ", " + op2 + ");");
+        }
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
         return primitiveGreaterEqual(op1, op2);
     }
 
-    Value primitiveGreaterEqual(Type op1, Type op2)
-    {
-        if (isPrimitive(op1) && op1.equals(op2)) {
+    Value primitiveGreaterEqual(Type op1, Type op2) {
+        try {
             markLineNumber(); // possibly add a new line number entry.
-            switch (op1.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                addCompare(ByteCode.IF_ICMPGE);
-                break;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LCMP);
-                addCompare(ByteCode.IFGE);
-                break;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DCMPL);
-                addCompare(ByteCode.IFGE);
-                break;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FCMPL);
-                addCompare(ByteCode.IFGE);
-                break;
-            default:
-                throw createException("ClassMaker.CannotGETypes_2", op1.getName(), op2.getName());
-            }
-        } else {
+            return gen.primitiveGreaterEqual(op1, op2);
+        } catch (IllegalArgumentException ex) {
             throw createException("ClassMaker.CannotGETypes_2", op1.getName(), op2.getName());
         }
-        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     /**
@@ -5555,50 +4345,28 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the second operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Value LE(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value LE(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode())
             setDebugComment("LE(" + op1 + ", " + op2 + ");");
+        markLineNumber(); // possibly add a new line number entry.
+
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
         return primitiveLessEqual(op1, op2);
     }
 
-    Value primitiveLessEqual(Type op1, Type op2)
-    {
-        if (isPrimitive(op1) && op1.equals(op2)) {
-            markLineNumber(); // possibly add a new line number entry.
-            switch (op1.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                addCompare(ByteCode.IF_ICMPLE);
-                break;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LCMP);
-                addCompare(ByteCode.IFLE);
-                break;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DCMPG);
-                addCompare(ByteCode.IFLE);
-                break;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FCMPG);
-                addCompare(ByteCode.IFLE);
-                break;
-            default:
-                throw createException("ClassMaker.CannotLETypes_2", op1.getName(), op2.getName());
-            }
-        } else {
+    Value primitiveLessEqual(Type op1, Type op2) {
+        try {
+            return gen.primitiveLessEqual(op1, op2);
+        } catch (IllegalArgumentException ex) {
             throw createException("ClassMaker.CannotLETypes_2", op1.getName(), op2.getName());
         }
-        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     /**
@@ -5624,50 +4392,28 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the second operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Value LT(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value LT(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode())
             setDebugComment("LT(" + op1 + ", " + op2 + ");");
+        markLineNumber(); // possibly add a new line number entry.
+
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
         return primitiveLessThan(op1, op2);
     }
 
-    Value primitiveLessThan(Type op1, Type op2)
-    {
-        if (isPrimitive(op1) && op1.equals(op2)) {
-            markLineNumber(); // possibly add a new line number entry.
-            switch (op1.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                addCompare(ByteCode.IF_ICMPLT);
-                break;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LCMP);
-                addCompare(ByteCode.IFLT);
-                break;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DCMPG);
-                addCompare(ByteCode.IFLT);
-                break;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FCMPG);
-                addCompare(ByteCode.IFLT);
-                break;
-            default:
-                throw createException("ClassMaker.CannotLTTypes_2", op1.getName(), op2.getName());
-            }
-        } else {
+    Value primitiveLessThan(Type op1, Type op2) {
+        try {
+            return gen.primitiveLessThan(op1, op2);
+        } catch (IllegalArgumentException ex) {
             throw createException("ClassMaker.CannotLTTypes_2", op1.getName(), op2.getName());
         }
-        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     /**
@@ -5693,53 +4439,28 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the second operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Value EQ(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value EQ(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("EQ(" + op1 + ", " + op2 + ");");
+        }
+        markLineNumber(); // possibly add a new line number entry.
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
         return primitiveIsEqual(op1, op2);
     }
 
-    Value primitiveIsEqual(Type op1, Type op2)
-    {
-        if (isClass(op1) && isClass(op2)) {
-            addCompare(ByteCode.IF_ACMPEQ);
-        } else if (isPrimitive(op1) && op1.equals(op2)) {
-            markLineNumber(); // possibly add a new line number entry.
-            switch (op1.toPrimitive().index) {
-            case PrimitiveType.BOOLEAN_INDEX: // fall thru
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                addCompare(ByteCode.IF_ICMPEQ);
-                break;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LCMP);
-                addCompare(ByteCode.IFEQ);
-                break;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DCMPL);
-                addCompare(ByteCode.IFEQ);
-                break;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FCMPL);
-                addCompare(ByteCode.IFEQ);
-                break;
-            default:
-                throw createException("ClassMaker.CannotEQTypes_2", op1.getName(), op2.getName());
-            }
-        } else {
+    Value primitiveIsEqual(Type op1, Type op2) {
+        try {
+            return gen.primitiveIsEqual(op1, op2);
+        } catch (IllegalArgumentException ex) {
             throw createException("ClassMaker.CannotEQTypes_2", op1.getName(), op2.getName());
         }
-        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
     /**
@@ -5765,10 +4486,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the second operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Value NE(Value value1, Value value2)
-    {
-        if (getClassFileWriter() == null)
+    public Value NE(Value value1, Value value2) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
@@ -5778,69 +4499,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         return primitiveNotEqual(op1, op2);
     }
 
-    Value primitiveNotEqual(Type op1, Type op2)
-    {
-        if (cfw.isDebugCode())
-            setDebugComment("NE(" + op1 + ", " + op2 + ");");
-        if (isClass(op1) && isClass(op2)) {
-            addCompare(ByteCode.IF_ACMPNE);
-        } else if (isPrimitive(op1) && op1.equals(op2)) {
-            switch (op1.toPrimitive().index) {
-            case PrimitiveType.BOOLEAN_INDEX: // fall thru
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                addCompare(ByteCode.IF_ICMPNE);
-                break;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LCMP);
-                addCompare(ByteCode.IFNE);
-                break;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DCMPL);
-                addCompare(ByteCode.IFNE);
-                break;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FCMPL);
-                addCompare(ByteCode.IFNE);
-                break;
-            default:
-                throw createException("ClassMaker.CannotNETypes_2", op1.getName(), op2.getName());
-            }
-        } else {
+    Value primitiveNotEqual(Type op1, Type op2) {
+        try {
+            return getGen().primitiveNotEqual(op1, op2);
+        } catch (IllegalArgumentException ex) {
             throw createException("ClassMaker.CannotNETypes_2", op1.getName(), op2.getName());
         }
-        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
-    }
-
-    /**
-     * Compares the two values on top of the stack using the given bytecode
-     * operator.
-     * </br>
-     * There is no convenient way using JVM bytecode to compare two values and
-     * leave a boolean
-     * result on the stack. It must be done by pushing 1 or 0 onto the stack, as
-     * appropriate.
-     * 
-     * @param ifOperator
-     *            the bytcode comparison operator to use.
-     */
-    private void addCompare(int ifOperator)
-    {
-        int jumpTrue = cfw.acquireLabel();
-        int jumpFalse = cfw.acquireLabel();
-
-        cfw.add(ifOperator, jumpTrue);
-        if (isDebugCode())
-            setDebugComment("false");
-        cfw.add(ByteCode.ICONST_0);
-        cfw.add(ByteCode.GOTO, jumpFalse);
-        cfw.markLabel(jumpTrue);
-        if (isDebugCode())
-            setDebugComment("true");
-        cfw.add(ByteCode.ICONST_1);
-        cfw.markLabel(jumpFalse);
     }
 
     /**
@@ -5863,26 +4527,25 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the first operand
      * @return the type of the result is always <code>boolean</code>
      */
-    public Value Not(Value value)
-    {
-        if (getClassFileWriter() == null)
+    public Value Not(Value value) {
+        if (isFirstPass()) {
             return null;
+        }
         Type op1 = value.getType();
-        if (isPrimitive(op1) && op1.toPrimitive().index == PrimitiveType.BOOLEAN_INDEX) {
+        if (Type.isPrimitive(op1) && op1.toPrimitive().index == PrimitiveType.BOOLEAN_INDEX) {
             markLineNumber(); // possibly add a new line number entry.
             return primitiveNot(op1);
         } else {
             throw createException("ClassMaker.CannotNotType_1", op1.getName());
         }
     }
-    
-    protected Value primitiveNot(Type op1)
-    {
-        if (cfw.isDebugCode())
-            setDebugComment("Not(" + op1 + ");");
-        cfw.add(ByteCode.ICONST_1);
-        cfw.add(ByteCode.IXOR);
-        return ClassMakerFactory.BOOLEAN_TYPE.getValue();
+
+    protected Value primitiveNot(Type type) {
+        try {
+            return gen.primitiveNot(type);
+        } catch (IllegalArgumentException ex) {
+            throw createException("ClassMaker.CannotNotType_1", type.getName());
+        }
     }
 
     //##################### Arrays ##########################
@@ -5894,8 +4557,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param sizeType
      *            the type of the dimension
      */
-    protected void checkArrayDimensionType(String msg, Type sizeType)
-    {
+    protected void checkArrayDimensionType(String msg, Type sizeType) {
         if (!isIntegerType(sizeType)) {
             throw createException("ClassMaker.MustBeIntegerTypeNot_2", msg, sizeType.getName());
         }
@@ -5909,8 +4571,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @throws ClassMakerException
      *             if the type cannot be used to index the array
      */
-    protected void checkArrayIndex(Type indexType) throws ClassMakerException
-    {
+    protected void checkArrayIndex(Type indexType) throws ClassMakerException {
         if (!isIntegerType(indexType)) {
             throw createException("ClassMaker.ArrayIndexMustBeIntegerType_1", indexType.getName());
         }
@@ -5929,31 +4590,20 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the dimension
      * @return the type of the new array instance
      */
-    public Value NewArray(Type arrayType, Value size)
-    {
-        if (getClassFileWriter() == null)
+    public Value NewArray(Type arrayType, Value size) {
+        if (isFirstPass()) {
             return null;
+        }
         Type sizeType = size.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("NewArray(" + arrayType + ", " + size + ");");
-        if (!isArray(arrayType))
+        }
+        if (!Type.isArray(arrayType)) {
             throw createException("ClassMaker.NotATypeOfArray_1", arrayType.getName());
+        }
         checkArrayDimensionType("Array size", sizeType);
         markLineNumber(); // possibly add a new line number entry.
-        return primitiveNewArray(arrayType.toArray(), sizeType);
-    }
-    
-    protected Value primitiveNewArray(ArrayType array, Type sizeType) {
-        // FIXME promote sizeType.
-        Type arrayOfType = array.getComponentType();
-        if (isPrimitive(arrayOfType)) {
-            byte elementType = typeToArrayElement(arrayOfType.toPrimitive());
-            cfw.add(ByteCode.NEWARRAY, elementType);
-        } else if (isClass(arrayOfType)) {
-            String className = arrayOfType.getName();
-            cfw.add(ByteCode.ANEWARRAY, className);
-        }
-        return array.getValue();
+        return getGen().primitiveNewArray(arrayType.toArray(), sizeType);
     }
 
     /**
@@ -5974,11 +4624,11 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the call stack
      * @return an new instance of a multi-dimensional array
      */
-    public Value NewArray(Type array, CallStack dimensions)
-    {
-        if (getClassFileWriter() == null)
+    public Value NewArray(Type array, CallStack dimensions) {
+        if (isFirstPass()) {
             return null;
-        if (!isArray(array))
+        }
+        if (!Type.isArray(array))
             throw createException("ClassMaker.NotATypeOfArray_1", array.getName());
         ArrayType arrayType = array.toArray();
         Type[] dims = dimensions.toArray();
@@ -5987,15 +4637,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
             checkArrayDimensionType("Type of array dimension " + i, sizeType);
         }
         markLineNumber(); // possibly add a new line number entry.
-        return primitiveNewArray(arrayType, dims);
-    }
-    
-    
-    protected Value primitiveNewArray(ArrayType arrayType, Type[] dims) {
-        if (cfw.isDebugCode())
-            setDebugComment("NewArray(" + arrayType + ", " + dims + ");");
-        cfw.add(ByteCode.MULTIANEWARRAY, arrayType.getSignature(), (byte) dims.length);
-        return arrayType.getValue();
+        return gen.primitiveNewArray(arrayType, dims);
     }
 
     /**
@@ -6009,8 +4651,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the class of element in the array
      * @return an <code>ArrayType</code> whose elements are of the given class
      */
-    public ArrayType ArrayOf(Class javaClass)
-    {
+    public ArrayType ArrayOf(Class javaClass) {
         Type type = getFactory().classToType(javaClass);
         return ArrayOf(type);
     }
@@ -6026,8 +4667,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the class name of the element in the array
      * @return an <code>ArrayType</code> whose elements are of the given class
      */
-    public ArrayType ArrayOf(String typeName)
-    {
+    public ArrayType ArrayOf(String typeName) {
         Type type = stringToType(typeName);
         return ArrayOf(type);
     }
@@ -6048,8 +4688,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of element in the array
      * @return an <code>ArrayType</code> whose elements are of the given type
      */
-    public ArrayType ArrayOf(Type type)
-    {
+    public ArrayType ArrayOf(Type type) {
         return getFactory().typeToArray(type);
     }
 
@@ -6075,56 +4714,17 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the Value of the index into the array
      * @return the type of the value on the stack
      */
-    public Value GetAt(Value array, Value index)
-    {
-        if (getClassFileWriter() == null)
+    public Value GetAt(Value array, Value index) {
+        if (isFirstPass()) {
             return null;
+        }
         ArrayType arrayType = array.toArray();
         if (arrayType == null)
             throw createException("ClassMaker.ArrayExpectedOnStack_1", array.getName());
         Type indexType = index.getType();
         checkArrayIndex(indexType);
         markLineNumber(); // possibly add a new line number entry.
-        return getAtIndex(arrayType, indexType);
-    }
-
-    Value getAtIndex(ArrayType arrayType, Type index)
-    {
-        if (cfw.isDebugCode())
-            setDebugComment("GetAt(" + arrayType + ", " + index + ");");
-        Type elementType = arrayType.getComponentType();
-        if (isClass(elementType) || isArray(elementType)) {
-            cfw.add(ByteCode.AALOAD);
-        } else {
-            switch (elementType.toPrimitive().index) {
-            case PrimitiveType.BOOLEAN_INDEX: // Fall thru.
-            case PrimitiveType.BYTE_INDEX:
-                cfw.add(ByteCode.BALOAD);
-                break;
-            case PrimitiveType.SHORT_INDEX:
-                cfw.add(ByteCode.SALOAD);
-                break;
-            case PrimitiveType.CHAR_INDEX:
-                cfw.add(ByteCode.CALOAD);
-                break;
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.IALOAD);
-                break;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LALOAD);
-                break;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DALOAD);
-                break;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FALOAD);
-                break;
-            default:
-                throw new IllegalArgumentException("Cannot load type " + elementType.getName() + " from array type: "
-                        + arrayType.getName());
-            }
-        }
-        return arrayType.getComponentType().getValue();
+        return gen.getAtIndex(arrayType, indexType);
     }
 
     /**
@@ -6152,20 +4752,21 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the value to be set
      * @return the type of the value on the stack
      */
-    public Value AssignAt(Value array, Value index, Value value)
-    {
-        if (getClassFileWriter() == null)
+    public Value AssignAt(Value array, Value index, Value value) {
+        if (isFirstPass()) {
             return null;
-        Type arrayType = array.getType();
-        Type indexType = index.getType();
+        }
+        if (isDebugCode()) {
+            setDebugComment("AssignAt(" + array + ", " + index + ", " + value + ");");
+        }
+        markLineNumber(); // possibly add a new line number entry.
+
         Type valueType = value.getType();
-        if (cfw.isDebugCode())
-            setDebugComment("AssignAt(" + arrayType + ", " + indexType + ", " + valueType + ");");
         // Cannot dupunder two wide types so store value in an anonomous local variable.
-        dup(valueType);
+        getGen().dup(valueType);
         int offset = storeAnonymousValue(valueType);
         SetAt(array, index, valueType.getValue());
-        this.loadAnonymousValue(offset);
+        loadAnonymousValue(offset);
         return value;
     }
 
@@ -6194,15 +4795,16 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the value to be set
      * @return a <code>Value</code> representing <code>void</code>
      */
-    public Value SetAt(Value array, Value index, Value value)
-    {
-        if (getClassFileWriter() == null)
+    public Value SetAt(Value array, Value index, Value value) {
+        if (isFirstPass()) {
             return null;
+        }
         Type refType = array.getType();
         Type indexType = index.getType();
         Type valueType = value.getType();
-        if (cfw.isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("SetAt(" + refType + ", " + indexType + ", " + valueType + ");");
+        }
         ArrayType arrayType = refType.toArray();
         if (arrayType == null)
             throw createException("ClassMaker.ArrayExpectedOnStack_1", refType.getName());
@@ -6215,42 +4817,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
 
         getFactory().getAssignmentConversion().convertTo(this, valueType, elementType);
 
-        return setAtIndex(arrayType, indexType, elementType);
-    }
-
-    Value setAtIndex(ArrayType arrayType, Type indexType, Type valueType)
-    {
-        if (isClass(valueType)) {
-            cfw.add(ByteCode.AASTORE);
-        } else if (isPrimitive(valueType)) {
-            switch (valueType.toPrimitive().index) {
-            case PrimitiveType.BOOLEAN_INDEX: // Fall thru.
-            case PrimitiveType.BYTE_INDEX:
-                cfw.add(ByteCode.BASTORE);
-                break;
-            case PrimitiveType.SHORT_INDEX:
-                cfw.add(ByteCode.SASTORE);
-                break;
-            case PrimitiveType.CHAR_INDEX:
-                cfw.add(ByteCode.CASTORE);
-                break;
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.IASTORE);
-                break;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.LASTORE);
-                break;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.DASTORE);
-                break;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.FASTORE);
-                break;
-            default:
-                throw new IllegalArgumentException("Cannot assign type " + valueType.getName() + " to an array.");
-            }
-        }
-        return ClassMakerFactory.VOID_TYPE.getValue();
+        return gen.setAtIndex(arrayType, indexType, elementType);
     }
 
     /**
@@ -6264,53 +4831,17 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the Type of the array
      * @return the length of the array
      */
-    public Value Length(Value array)
-    {
-        if (getClassFileWriter() == null)
+    public Value Length(Value array) {
+        if (isFirstPass()) {
             return null;
+        }
         ArrayType arrayType = array.toArray();
         if (arrayType == null)
             throw createException("ClassMaker.ArrayExpectedOnStack_1", array.getName());
         markLineNumber(); // possibly add a new line number entry.
-        if (cfw.isDebugCode())
+        if (isDebugCode())
             setDebugComment("Length(" + array + ");");
-        return arrayLength(arrayType);
-    }
-
-    Value arrayLength(ArrayType array)
-    {
-        cfw.add(ByteCode.ARRAYLENGTH);
-        return ClassMakerFactory.INT_TYPE.getValue();
-    }
-
-    /**
-     * Converts a Primitive type into an appropriate element code
-     * 
-     * @param type
-     *            the type of element in the array
-     * @return a element code suitable for the JVM
-     */
-    protected byte typeToArrayElement(PrimitiveType type)
-    {
-        switch (type.index) {
-        case PrimitiveType.BOOLEAN_INDEX:
-            return ByteCode.T_BOOLEAN;
-        case PrimitiveType.BYTE_INDEX:
-            return ByteCode.T_BYTE;
-        case PrimitiveType.SHORT_INDEX:
-            return ByteCode.T_SHORT;
-        case PrimitiveType.CHAR_INDEX:
-            return ByteCode.T_CHAR;
-        case PrimitiveType.INT_INDEX:
-            return ByteCode.T_INT;
-        case PrimitiveType.LONG_INDEX:
-            return ByteCode.T_LONG;
-        case PrimitiveType.DOUBLE_INDEX:
-            return ByteCode.T_DOUBLE;
-        case PrimitiveType.FLOAT_INDEX:
-            return ByteCode.T_FLOAT;
-        }
-        throw new IllegalArgumentException("Cannot create an array of type: " + type.getName());
+        return gen.arrayLength(arrayType);
     }
 
     /**
@@ -6332,115 +4863,15 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param type
      *            the result Type of the expression
      */
-    public void Eval(Value value)
-    {
-        if (getClassFileWriter() == null)
+    public void Eval(Value value) {
+        if (isFirstPass()) {
             return;
+        }
         Type type = value.getType();
         if (!ClassMakerFactory.VOID_TYPE.equals(type)) {
             if (isDebugCode())
                 setDebugComment("Eval(" + type + ")");
-            pop(type);
-        }
-    }
-
-    /**
-     * Pops a value off the program stack.
-     * </br>
-     * If the <code>type</code> is <code>long</code> or <code>double</code> two
-     * words (64 bits) are popped; otherwise one word (32 bits) are popped.
-     * 
-     * @param type
-     *            the type of the value on top of the stack
-     */
-    protected void pop(Type type)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        if (ClassMakerFactory.LONG_TYPE.equals(type) || ClassMakerFactory.DOUBLE_TYPE.equals(type))
-            cfw.add(ByteCode.POP2);
-        else
-            cfw.add(ByteCode.POP);
-    }
-
-    /**
-     * Duplicate the value on top of the stack.
-     * </br>
-     * If the <code>type</code> is <code>long</code> or <code>double</code> two
-     * words (64 bits) are duplicated; otherwise one word (32 bits) is
-     * duplicated.
-     * 
-     * @param type
-     *            the type of the value on top of the stack
-     */
-    protected void dup(Type type)
-    {
-        if (ClassMakerFactory.LONG_TYPE.equals(type) || ClassMakerFactory.DOUBLE_TYPE.equals(type))
-            cfw.add(ByteCode.DUP2);
-        else
-            cfw.add(ByteCode.DUP);
-    }
-
-    /**
-     * Duplicates the value on top of the stack and place it underneath the next
-     * value.
-     * </br>
-     * If the <code>type</code> is <code>long</code> or <code>double</code> two
-     * words (64 bits) are duplicated; otherwise one word (32 bits) are
-     * duplicated.
-     * The duplicated value us placed underneath the next value down from the
-     * top
-     * of the stack.
-     * 
-     * @param underType
-     *            the type of the second value on the stack
-     * @param type
-     *            the type of the top value on the stack
-     */
-    protected void dupunder(Type underType, Type type)
-    {
-        if (ClassMakerFactory.LONG_TYPE.equals(type) || ClassMakerFactory.DOUBLE_TYPE.equals(type)) {
-            if (ClassMakerFactory.LONG_TYPE.equals(underType) || ClassMakerFactory.DOUBLE_TYPE.equals(underType)) {
-                cfw.add(ByteCode.DUP2_X2);
-            } else {
-                cfw.add(ByteCode.DUP2_X1);
-            }
-        } else {
-            if (ClassMakerFactory.LONG_TYPE.equals(underType) || ClassMakerFactory.DOUBLE_TYPE.equals(underType)) {
-                cfw.add(ByteCode.DUP_X2);
-            } else {
-                cfw.add(ByteCode.DUP_X1);
-            }
-        }
-    }
-
-    /**
-     * Swaps the two values on top of the stack.
-     * </br>
-     * If the type is <code>long</code> or <code>double</code> two words (64
-     * bits) are moved; otherwise one word (32 bits) are moved.
-     * 
-     * @param underType
-     *            the type of the second value on the stack
-     * @param type
-     *            the type of the top value on the stack
-     */
-    public void swap(Type underType, Type type)
-    {
-        if (ClassMakerFactory.LONG_TYPE.equals(type) || ClassMakerFactory.DOUBLE_TYPE.equals(type)) {
-            if (ClassMakerFactory.LONG_TYPE.equals(underType) || ClassMakerFactory.DOUBLE_TYPE.equals(underType)) {
-                cfw.add(ByteCode.DUP2_X2);
-                cfw.add(ByteCode.POP2);
-            } else {
-                cfw.add(ByteCode.DUP2_X1);
-                cfw.add(ByteCode.POP2);
-            }
-        } else {
-            if (ClassMakerFactory.LONG_TYPE.equals(underType) || ClassMakerFactory.DOUBLE_TYPE.equals(underType)) {
-                cfw.add(ByteCode.DUP_X2);
-                cfw.add(ByteCode.POP);
-            } else {
-                cfw.add(ByteCode.SWAP);
-            }
+            gen.pop(type);
         }
     }
 
@@ -6467,23 +4898,20 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the member variable
      * @return the value of the variable after it is incremented
      */
-    public Value Inc(String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Inc(String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
-        if (isDebugCode())
+        }
+        if (isDebugCode()) {
             setDebugComment("Inc(" + name + ")");
-        MakerField local = Find(name);
-        return incLocal(local);
-    }
-
-    Value incLocal(MakerField local)
-    {
+        }
         markLineNumber(); // possibly add a new line number entry.
-        if (!incrementLocal(local, 1))
+
+        MakerField local = Find(name);
+        if (!gen.incrementLocal(local, 1))
             throw createException("ClassMaker.CannotIncrementVariableOfType_2", local.getName(), local.getType()
                     .getName());
-        return loadLocal(local);
+        return gen.loadLocal(local);
     }
 
     /**
@@ -6507,33 +4935,27 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the member variable
      * @return the value of the variable after it is incremented
      */
-    public Value Inc(Value reference, String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Inc(Value reference, String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
-        if (isDebugCode())
+        }
+        if (isDebugCode()) {
             setDebugComment("Inc(" + reference + ", " + name + ")");
+        }
         MakerField field = Find(reference, name);
-        return incField(field);
-    }
-
-    Value incField(MakerField field)
-    {
         markLineNumber(); // possibly add a new line number entry.
         Type fieldType = field.getType();
         ClassType classType = field.getClassType();
-        String className = classType.getName();
-        String name = field.getName();
 
         // GET myclass.id
-        dup(classType);
-        cfw.add(ByteCode.GETFIELD, toSlashName(className), name, fieldType.getSignature());
+        gen.dup(classType);
+        gen.loadField(field);
 
-        if (!increment(fieldType, 1))
+        if (!gen.increment(fieldType, 1))
             throw createException("ClassMaker.CannotIncrementFieldOfType_2", name, fieldType.getName());
-        dupunder(thisClassType, fieldType);
+        gen.dupunder(thisClassType, fieldType);
 
-        cfw.add(ByteCode.PUTFIELD, toSlashName(className), name, fieldType.getSignature());
+        gen.storeField(field);
 
         return fieldType.getValue();
     }
@@ -6558,33 +4980,26 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the static member variable
      * @return the value of the variable after it is incremented
      */
-    public Value Inc(String className, String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Inc(String className, String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         if (isDebugCode())
             setDebugComment("Inc(\"" + className + "\", " + name + ")");
         MakerField field = Find(className, name);
-        return incStatic(field);
-    }
 
-    Value incStatic(MakerField field)
-    {
         markLineNumber(); // possibly add a new line number entry.
         Type fieldType = field.getType();
         String fieldName = field.getName();
-        ClassType classType = field.getClassType();
-        String className = classType.getName();
 
-        markLineNumber(); // possibly add a new line number entry.
         // GET myclass.id
-        cfw.add(ByteCode.GETSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
+        gen.loadStatic(field);
 
-        if (!increment(fieldType, 1))
+        if (!gen.increment(fieldType, 1))
             throw createException("ClassMaker.CannotIncrementFieldOfType_2", fieldName, fieldType.getName());
-        dup(fieldType);
+        gen.dup(fieldType);
 
-        cfw.add(ByteCode.PUTSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
+        gen.storeStatic(field);
 
         return fieldType.getValue();
     }
@@ -6610,23 +5025,20 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the member variable
      * @return the value of the variable after it is decremented
      */
-    public Value Dec(String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Dec(String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
-        if (isDebugCode())
+        }
+        if (isDebugCode()) {
             setDebugComment("Dec(" + name + ")");
-        MakerField field = Find(name);
-        return decLocal(field);
-    }
-
-    Value decLocal(MakerField local)
-    {
+        }
         markLineNumber(); // possibly add a new line number entry.
-        if (!incrementLocal(local, -1))
+
+        MakerField local = Find(name);
+        if (!gen.incrementLocal(local, -1))
             throw createException("ClassMaker.CannotDecrementVariableOfType_2", local.getName(), local.getType()
                     .getName());
-        return loadLocal(local);
+        return gen.loadLocal(local);
     }
 
     /**
@@ -6650,34 +5062,29 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the member variable
      * @return the value of the variable after it is decremented
      */
-    public Value Dec(Value reference, String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Dec(Value reference, String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         if (isDebugCode())
             setDebugComment("Dec(" + reference + ", " + name + ")");
         MakerField field = Find(reference, name);
-        return decField(field);
-    }
 
-    Value decField(MakerField field)
-    {
         markLineNumber(); // possibly add a new line number entry.
         Type fieldType = field.getType();
         String fieldName = field.getName();
         ClassType classType = field.getClassType();
-        String className = classType.getName();
 
         // GET myclass.id
-        dup(classType);
-        cfw.add(ByteCode.GETFIELD, toSlashName(className), fieldName, fieldType.getSignature());
+        gen.dup(classType);
+        gen.loadField(field);
 
-        if (!increment(fieldType, -1))
+        if (!gen.increment(fieldType, -1))
             throw createException("ClassMaker.CannotDecrementFieldOfType_2", fieldName, fieldType.getName());
-        dupunder(classType, fieldType);
+        gen.dupunder(classType, fieldType);
 
         // PUT myclass.id
-        cfw.add(ByteCode.PUTFIELD, toSlashName(className), fieldName, fieldType.getSignature());
+        gen.storeField(field);
 
         return fieldType.getValue();
     }
@@ -6703,33 +5110,27 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the static member variable
      * @return the value of the variable after it is decremented
      */
-    public Value Dec(String className, String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value Dec(String className, String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         if (isDebugCode())
             setDebugComment("Dec(\"" + className + "\", " + name + ")");
         MakerField field = Find(className, name);
-        return decStatic(field);
-    }
 
-    Value decStatic(MakerField field)
-    {
         markLineNumber(); // possibly add a new line number entry.
         Type fieldType = field.getType();
         String fieldName = field.getName();
-        ClassType classType = field.getClassType();
-        String className = classType.getName();
 
         markLineNumber(); // possibly add a new line number entry.
         // GET myclass.id
-        cfw.add(ByteCode.GETSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
+        gen.loadStatic(field);
 
-        if (!increment(fieldType, -1))
+        if (!gen.increment(fieldType, -1))
             throw createException("ClassMaker.CannotDecrementFieldOfType_2", fieldName, fieldType.getName());
-        dup(fieldType);
+        gen.dup(fieldType);
 
-        cfw.add(ByteCode.PUTSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
+        gen.storeStatic(field);
 
         return fieldType.getValue();
     }
@@ -6755,21 +5156,18 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the member variable
      * @return the value of the variable before it is incremented
      */
-    public Value PostInc(String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value PostInc(String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
-        if (isDebugCode())
+        }
+        if (isDebugCode()) {
             setDebugComment("PostInc(" + name + ")");
-        MakerField local = Find(name);
-        return postIncLocal(local);
-    }
-
-    Value postIncLocal(MakerField local)
-    {
+        }
         markLineNumber(); // possibly add a new line number entry.
-        Value value = loadLocal(local);
-        if (!incrementLocal(local, 1))
+
+        MakerField local = Find(name);
+        Value value = gen.loadLocal(local);
+        if (!gen.incrementLocal(local, 1))
             throw createException("ClassMaker.CannotIncrementVariableOfType_2", local.getName(), local.getType()
                     .getName());
         return value;
@@ -6796,35 +5194,29 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the member variable
      * @return the value of the variable before it is incremented
      */
-    public Value PostInc(Value reference, String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value PostInc(Value reference, String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
-        if (isDebugCode())
+        }
+        if (isDebugCode()) {
             setDebugComment("PostInc(" + reference + ", " + name + ")");
+        }
         MakerField field = Find(reference, name);
-        return postIncField(field);
-    }
 
-    Value postIncField(MakerField field)
-    {
         markLineNumber(); // possibly add a new line number entry.
         Type fieldType = field.getType();
         String fieldName = field.getName();
         ClassType classType = field.getClassType();
-        String className = classType.getName();
 
-        markLineNumber(); // possibly add a new line number entry.
+        gen.dup(classType);
+        gen.loadField(field);
 
-        dup(classType);
-        cfw.add(ByteCode.GETFIELD, toSlashName(className), fieldName, fieldType.getSignature());
-
-        dupunder(classType, fieldType);
-        if (!increment(fieldType, 1))
+        gen.dupunder(classType, fieldType);
+        if (!gen.increment(fieldType, 1))
             throw createException("ClassMaker.CannotIncrementFieldOfType_2", fieldName, fieldType.getName());
 
         // PUT myclass.id
-        cfw.add(ByteCode.PUTFIELD, toSlashName(className), fieldName, fieldType.getSignature());
+        gen.storeField(field);
 
         return fieldType.getValue();
     }
@@ -6850,33 +5242,27 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the static member variable
      * @return the value of the variable before it is incremented
      */
-    public Value PostInc(String className, String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value PostInc(String className, String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         if (isDebugCode())
             setDebugComment("PostInc(\"" + className + "\", " + name + ")");
         MakerField field = Find(className, name);
-        return postIncStatic(field);
-    }
 
-    Value postIncStatic(MakerField field)
-    {
         markLineNumber(); // possibly add a new line number entry.
         Type fieldType = field.getType();
         String fieldName = field.getName();
-        ClassType classType = field.getClassType();
-        String className = classType.getName();
 
         markLineNumber(); // possibly add a new line number entry.
         // GET myclass.id
-        cfw.add(ByteCode.GETSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
+        gen.loadStatic(field);
 
-        dup(fieldType);
-        if (!increment(fieldType, 1))
+        gen.dup(fieldType);
+        if (!gen.increment(fieldType, 1))
             throw createException("ClassMaker.CannotIncrementFieldOfType_2", fieldName, fieldType.getName());
 
-        cfw.add(ByteCode.PUTSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
+        gen.storeStatic(field);
 
         return fieldType.getValue();
     }
@@ -6902,21 +5288,18 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the member variable
      * @return the value of the variable before it is decremented
      */
-    public Value PostDec(String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value PostDec(String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
-        if (isDebugCode())
+        }
+        if (isDebugCode()) {
             setDebugComment("PostDec(" + name + ")");
-        MakerField local = Find(name);
-        return postDecLocal(local);
-    }
-
-    Value postDecLocal(MakerField local)
-    {
+        }
         markLineNumber(); // possibly add a new line number entry.
-        Value value = loadLocal(local);
-        if (!incrementLocal(local, -1))
+
+        MakerField local = Find(name);
+        Value value = gen.loadLocal(local);
+        if (!gen.incrementLocal(local, -1))
             throw createException("ClassMaker.CannotDecrementVariableOfType_2", local.getName(), local.getType()
                     .getName());
         return value;
@@ -6942,34 +5325,29 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the member variable
      * @return the value of the variable before if is decremented
      */
-    public Value PostDec(Value reference, String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value PostDec(Value reference, String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         if (isDebugCode())
             setDebugComment("PostDec(" + reference + ", " + name + ")");
         MakerField field = Find(reference, name);
-        return postDecField(field);
-    }
 
-    Value postDecField(MakerField field)
-    {
         Type fieldType = field.getType();
         String fieldName = field.getName();
         ClassType classType = field.getClassType();
-        String className = classType.getName();
 
         markLineNumber(); // possibly add a new line number entry.
         // GET myclass.id
-        dup(classType);
-        cfw.add(ByteCode.GETFIELD, toSlashName(className), fieldName, fieldType.getSignature());
+        gen.dup(classType);
+        gen.loadField(field);
 
-        dupunder(classType, fieldType);
-        if (!increment(fieldType, -1))
+        gen.dupunder(classType, fieldType);
+        if (!gen.increment(fieldType, -1))
             throw createException("ClassMaker.CannotDecrementFieldOfType_2", fieldName, fieldType.getName());
 
         // PUT myclass.id
-        cfw.add(ByteCode.PUTFIELD, toSlashName(className), fieldName, fieldType.getSignature());
+        gen.storeField(field);
 
         return fieldType.getValue();
     }
@@ -6995,33 +5373,26 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the name of the static member variable
      * @return the value of the variable before if is decremented
      */
-    public Value PostDec(String className, String name) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value PostDec(String className, String name) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         if (isDebugCode())
             setDebugComment("PostDec(\"" + className + "\", " + name + ")");
         MakerField field = Find(className, name);
-        return postDecStatic(field);
-    }
 
-    Value postDecStatic(MakerField field)
-    {
-        markLineNumber(); // possibly add a new line number entry.
         Type fieldType = field.getType();
         String fieldName = field.getName();
-        ClassType classType = field.getClassType();
-        String className = classType.getName();
 
         markLineNumber(); // possibly add a new line number entry.
         // GET myclass.id
-        cfw.add(ByteCode.GETSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
+        gen.loadStatic(field);
 
-        dup(fieldType);
-        if (!increment(fieldType, -1))
+        gen.dup(fieldType);
+        if (!gen.increment(fieldType, -1))
             throw createException("ClassMaker.CannotDecrementFieldOfType_2", fieldName, fieldType.getName());
 
-        cfw.add(ByteCode.PUTSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
+        gen.storeStatic(field);
 
         return fieldType.getValue();
     }
@@ -7049,10 +5420,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the index
      * @return the value of the array element after it is incremented
      */
-    public Value IncAt(Value array, Value index) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value IncAt(Value array, Value index) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         ArrayType arrayType = array.toArray();
         Type indexType = index.getType();
         if (arrayType == null)
@@ -7068,32 +5439,32 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
             throw createException("ClassMaker.CannotIncrementArrayElementOfType_1", elementType.getName());
         }
     }
-    
+
     protected boolean incrementAtIndex(ArrayType arrayType, Type indexType, Type elementType, int amount) {
         markLineNumber(); // possibly add a new line number entry.
         //# Stack contents
         //# array index
-        swap(arrayType, indexType);
+        gen.swap(arrayType, indexType);
         //# index array
-        dupunder(indexType, arrayType);
+        gen.dupunder(indexType, arrayType);
         //# array index array
-        swap(indexType, arrayType);
+        gen.swap(indexType, arrayType);
         //# array array index
-        dupunder(arrayType, indexType);
+        gen.dupunder(arrayType, indexType);
         //# array index array index
-        getAtIndex(arrayType, indexType);
+        gen.getAtIndex(arrayType, indexType);
         //# array index value
-        if (!increment(elementType, amount)) {
+        if (!gen.increment(elementType, amount)) {
             return false;
         }
         //# array index value+1
-        dup(elementType);
+        gen.dup(elementType);
         //# array index value+1 value+1
         int slot = storeAnonymousValue(elementType);
         //# array index value+1
-        setAtIndex(arrayType, indexType, elementType);
+        gen.setAtIndex(arrayType, indexType, elementType);
         //# -
-        this.loadAnonymousValue(slot);
+        loadAnonymousValue(slot);
         //# value+1
 
         return true;
@@ -7120,10 +5491,11 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the index
      * @return the value of the array element after it is decremented
      */
-    public Value DecAt(Value array, Value index) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value DecAt(Value array, Value index) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
+        markLineNumber(); // possibly add a new line number entry.
         ArrayType arrayType = array.toArray();
         Type indexType = index.getType();
         if (arrayType == null)
@@ -7160,10 +5532,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the index
      * @return the value of the array element before it is incremented
      */
-    public Value PostIncAt(Value array, Value index) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value PostIncAt(Value array, Value index) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         ArrayType arrayType = array.toArray();
         Type indexType = index.getType();
         if (arrayType == null)
@@ -7178,32 +5550,32 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
             throw createException("ClassMaker.CannotIncrementArrayElementOfType_1", elementType.getName());
         }
     }
-    
+
     boolean postIncrementAtIndex(ArrayType arrayType, Type indexType, Type elementType, int amount) {
         markLineNumber(); // possibly add a new line number entry.
         //# Stack contents
         //# array index
-        swap(arrayType, indexType);
+        gen.swap(arrayType, indexType);
         //# index array
-        dupunder(indexType, arrayType);
+        gen.dupunder(indexType, arrayType);
         //# array index array
-        swap(indexType, arrayType);
+        gen.swap(indexType, arrayType);
         //# array array index
-        dupunder(arrayType, indexType);
+        gen.dupunder(arrayType, indexType);
         //# array index array index
-        getAtIndex(arrayType, indexType);
+        gen.getAtIndex(arrayType, indexType);
         //# array index value
-        dup(elementType);
+        gen.dup(elementType);
         //# array index value value
         int slot = storeAnonymousValue(elementType);
         //# array index value
-        if (!increment(elementType, amount)) {
+        if (!gen.increment(elementType, amount)) {
             return false;
         }
         //# array index value+1
-        setAtIndex(arrayType, indexType, elementType);
+        gen.setAtIndex(arrayType, indexType, elementType);
         //# -
-        this.loadAnonymousValue(slot);
+        loadAnonymousValue(slot);
         //# value
 
         return true;
@@ -7230,10 +5602,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the index
      * @return the value of the array element before if is decremented
      */
-    public Value PostDecAt(Value array, Value index) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public Value PostDecAt(Value array, Value index) throws ClassMakerException {
+        if (isFirstPass()) {
             return null;
+        }
         ArrayType arrayType = array.toArray();
         Type indexType = index.getType();
         if (arrayType == null)
@@ -7247,118 +5619,6 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         } else {
             throw createException("ClassMaker.CannotDecrementArrayElementOfType_1", elementType.getName());
         }
-    }
-
-    /**
-     * Increments a local variable by the given amount.
-     * 
-     * @param local
-     *            the variable to be incremented
-     * @param amount
-     *            the amount to increment the variable
-     * @return <code>false</code> if value cannot be incremented
-     */
-    protected boolean incrementLocal(MakerField local, int amount)
-    {
-        if (isPrimitive(local.getType())) {
-            PrimitiveType prim = local.getType().toPrimitive();
-            switch (prim.index) {
-            case PrimitiveType.BYTE_INDEX:
-                cfw.addILoad(local.getSlot());
-                cfw.addLoadConstant(amount);
-                cfw.add(ByteCode.IADD);
-                cfw.add(ByteCode.I2B);
-                cfw.addIStore(local.getSlot());
-                return true;
-            case PrimitiveType.SHORT_INDEX:
-                cfw.addILoad(local.getSlot());
-                cfw.addLoadConstant(amount);
-                cfw.add(ByteCode.IADD);
-                cfw.add(ByteCode.I2S);
-                cfw.addIStore(local.getSlot());
-                return true;
-            case PrimitiveType.CHAR_INDEX:
-                cfw.addILoad(local.getSlot());
-                cfw.addLoadConstant(amount);
-                cfw.add(ByteCode.IADD);
-                cfw.add(ByteCode.I2C);
-                cfw.addIStore(local.getSlot());
-                return true;
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.IINC, local.getSlot(), amount);
-                return true;
-            case PrimitiveType.LONG_INDEX:
-                cfw.addLLoad(local.getSlot());
-                cfw.addLoadConstant((long) amount);
-                cfw.add(ByteCode.LADD);
-                cfw.addLStore(local.getSlot());
-                return true;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.addFLoad(local.getSlot());
-                cfw.addLoadConstant((float) amount);
-                cfw.add(ByteCode.FADD);
-                cfw.addFStore(local.getSlot());
-                return true;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.addDLoad(local.getSlot());
-                cfw.addLoadConstant((double) amount);
-                cfw.add(ByteCode.DADD);
-                cfw.addDStore(local.getSlot());
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Increments the value on top of the stack by the given amount
-     * 
-     * @param type
-     *            the type of the value on top of the stack
-     * @param amount
-     *            the amount to increment the value
-     * @return <code>false</code> if value cannot be incremented
-     */
-    protected boolean increment(Type type, int amount)
-    {
-        if (isPrimitive(type)) {
-            markLineNumber(); // possibly add a new line number entry.
-
-            switch (type.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-                cfw.addLoadConstant(amount);
-                cfw.add(ByteCode.IADD);
-                cfw.add(ByteCode.I2B);
-                return true;
-            case PrimitiveType.SHORT_INDEX: // fall thru
-                cfw.addLoadConstant(amount);
-                cfw.add(ByteCode.IADD);
-                cfw.add(ByteCode.I2S);
-                return true;
-            case PrimitiveType.CHAR_INDEX: // fall thru
-                cfw.addLoadConstant(amount);
-                cfw.add(ByteCode.IADD);
-                cfw.add(ByteCode.I2C);
-                return true;
-            case PrimitiveType.INT_INDEX:
-                cfw.addLoadConstant(amount);
-                cfw.add(ByteCode.IADD);
-                return true;
-            case PrimitiveType.LONG_INDEX:
-                cfw.addLoadConstant((long) amount);
-                cfw.add(ByteCode.LADD);
-                return true;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.addLoadConstant((float) amount);
-                cfw.add(ByteCode.FADD);
-                return true;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.addLoadConstant((double) amount);
-                cfw.add(ByteCode.DADD);
-                return true;
-            }
-        }
-        return false;
     }
 
     //################# Statement Management ###################
@@ -7396,8 +5656,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return the <code>IfStatement</code> on top of the stack
      */
-    protected IfStatement topIfStatement(String msg)
-    {
+    protected IfStatement topIfStatement(String msg) {
         if ((topStatement() instanceof IfStatement))
             return (IfStatement) topStatement();
         throw createException(msg);
@@ -7418,8 +5677,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return an interface to set a Label
      */
-    public Labelled If(Value condition) throws ClassMakerException
-    {
+    public Labelled If(Value condition) throws ClassMakerException {
         IfStatement stmt = new IfStatement(this);
         stmt.If(condition);
         return stmt;
@@ -7440,8 +5698,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *
      * Delegates to <code>IfStatement.Else</code>.
      */
-    public void Else() throws ClassMakerException
-    {
+    public void Else() throws ClassMakerException {
         IfStatement stmt = topIfStatement("ClassMaker.ElseWithoutMatchingIf");
         stmt.Else();
     }
@@ -7452,8 +5709,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *
      * Delegates to <code>IfStatement.Else</code>.
      */
-    public void EndIf() throws ClassMakerException
-    {
+    public void EndIf() throws ClassMakerException {
         IfStatement stmt = topIfStatement("ClassMaker.EndIfWithoutMatchingIf");
         stmt.EndIf();
 
@@ -7468,8 +5724,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return the <code>LoopStatement</code> on top of the stack
      */
-    protected LoopStatement topLoopStatement(String msg)
-    {
+    protected LoopStatement topLoopStatement(String msg) {
         if ((topStatement() instanceof LoopStatement))
             return (LoopStatement) topStatement();
         throw createException(msg);
@@ -7482,8 +5737,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return the <code>LoopStatement</code> on top of the stack
      */
-    protected ForStatement topForStatement(String msg)
-    {
+    protected ForStatement topForStatement(String msg) {
         if ((topStatement() instanceof ForStatement))
             return (ForStatement) topStatement();
         throw createException(msg);
@@ -7511,8 +5765,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return an interface to set a Label
      */
-    public Labelled Loop() throws ClassMakerException
-    {
+    public Labelled Loop() throws ClassMakerException {
         LoopStatement stmt = new LoopStatement(this);
         stmt.Loop();
         return stmt;
@@ -7527,8 +5780,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * thus terminating the loop.
      * Delegates to <code>LoopStatement.EndLoop</code>.
      */
-    public void EndLoop() throws ClassMakerException
-    {
+    public void EndLoop() throws ClassMakerException {
         LoopStatement stmt = topLoopStatement("ClassMaker.EndLoopWithoutMatchingLoop");
         stmt.EndLoop();
 
@@ -7555,8 +5807,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param condition
      *            the type of the condition expression must be boolean
      */
-    public void While(Value condition) throws ClassMakerException
-    {
+    public void While(Value condition) throws ClassMakerException {
         LoopStatement stmt = topLoopStatement("ClassMaker.WhileMustBeWithinLoop");
         stmt.While(condition.getType());
     }
@@ -7587,8 +5838,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param declare
      *            the type of the initialization expression
      */
-    public ForWhile For(Value declare) throws ClassMakerException
-    {
+    public ForWhile For(Value declare) throws ClassMakerException {
         if (declare != null)
             Eval(declare);
         ForStatement stmt = new ForStatement(this);
@@ -7605,8 +5855,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * thus terminating the loop.
      * Delegates to <code>LoopStatement.EndLoop</code>.
      */
-    public void EndFor() throws ClassMakerException
-    {
+    public void EndFor() throws ClassMakerException {
         ForStatement stmt = topForStatement("ClassMaker.EndForWithoutMatchingFor");
         stmt.EndLoop();
 
@@ -7617,8 +5866,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * Breaks to the end of the nearest enclosing <code>Loop</code> or
      * <code>Switch</code> statement.
      */
-    public void Break() throws ClassMakerException
-    {
+    public void Break() throws ClassMakerException {
         Break(null);
     }
 
@@ -7644,10 +5892,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * EndLoop();
      * </pre>
      */
-    public void Break(String label) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public void Break(String label) throws ClassMakerException {
+        if (isFirstPass()) {
             return;
+        }
         if (isDebugCode())
             setDebugComment("Break(" + (label == null ? "" : label) + ")");
         Statement stmt = topStatement();
@@ -7662,8 +5910,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
     }
 
     /** Continues the nearest enclosing <code>Loop<code> statement. */
-    public void Continue() throws ClassMakerException
-    {
+    public void Continue() throws ClassMakerException {
         Continue(null);
     }
 
@@ -7673,16 +5920,18 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param label
      *            the label of the <code>Loop<code> statement
      */
-    public void Continue(String label) throws ClassMakerException
-    {
-        if (getClassFileWriter() == null)
+    public void Continue(String label) throws ClassMakerException {
+        if (isFirstPass()) {
             return;
-        if (isDebugCode())
+        }
+        if (isDebugCode()) {
             setDebugComment("Continue(" + (label == null ? "" : label) + ")");
+        }
         Statement stmt = topStatement();
         markLineNumber(); // possibly add a new line number entry.
-        if (stmt.jumpToTarget(CONTINUE, label) == null)
+        if (stmt.jumpToTarget(CONTINUE, label) == null) {
             throw createException("ClassMaker.ContinueWhileNotInLoop");
+        }
     }
 
     /**
@@ -7694,8 +5943,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return the <code>SwitchStatement</code> on top of the stack
      */
-    protected SwitchStatement topSwitchStatement(String msg)
-    {
+    protected SwitchStatement topSwitchStatement(String msg) {
         if ((topStatement() instanceof SwitchStatement))
             return (SwitchStatement) topStatement();
         else
@@ -7731,8 +5979,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the type of the selector for the switch
      * @return an interface to set a Label
      */
-    public Labelled Switch(Value value)
-    {
+    public Labelled Switch(Value value) {
         SwitchStatement stmt = new SwitchStatement(this);
         stmt.Switch(value.getType());
         return stmt;
@@ -7749,8 +5996,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the selector which will cause the switch statement to jump to
      *            this case
      */
-    public void Case(int key)
-    {
+    public void Case(int key) {
         SwitchStatement stmt = topSwitchStatement("ClassMaker.CaseWhileNotInSwitch");
         stmt.Case(key);
     }
@@ -7761,8 +6007,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * The switch statement will jump here if none of the other cases apply.
      * Delegates to <code>SwitchStatement.DefaultCase</code>.
      */
-    public void Default()
-    {
+    public void Default() {
         SwitchStatement stmt = topSwitchStatement("ClassMaker.DefaultWhileNotInSwitch");
         stmt.Default();
     }
@@ -7772,8 +6017,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * </br>
      * Delegates to <code>SwitchStatement.EndSwitch</code>.
      */
-    public void EndSwitch()
-    {
+    public void EndSwitch() {
         SwitchStatement stmt = topSwitchStatement("ClassMaker.EndSwitchWhileNotInSwitch");
         stmt.EndSwitch();
         followsReturn = false;
@@ -7788,8 +6032,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return the <code>TryCatchFinally</code> on top of the stack
      */
-    protected TryCatchFinally topTryCatchFinally(String msg)
-    {
+    protected TryCatchFinally topTryCatchFinally(String msg) {
         if ((topStatement() instanceof TryCatchFinally))
             return (TryCatchFinally) topStatement();
         else
@@ -7824,8 +6067,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return an interface to set a Label
      */
-    public Labelled Try()
-    {
+    public Labelled Try() {
         TryCatchFinally stmt = new TryCatchFinally(this);
         stmt.Try();
         return stmt;
@@ -7845,8 +6087,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param name
      *            the local variable name for the exception
      */
-    public void Catch(String exceptionName, String name)
-    {
+    public void Catch(String exceptionName, String name) {
         TryCatchFinally stmt = topTryCatchFinally("ClassMaker.CatchWithoutTry");
         ClassType exceptionType = stringToClassType(exceptionName);
         stmt.Catch(exceptionType, name);
@@ -7865,8 +6106,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param name
      *            the local variable name to which to assign the exception
      */
-    public void Catch(Class javaClass, String name) throws ClassMakerException
-    {
+    public void Catch(Class javaClass, String name) throws ClassMakerException {
         ClassType exceptionType = classToClassType(javaClass);
         TryCatchFinally stmt = topTryCatchFinally("ClassMaker.CatchWithoutTry");
         stmt.Catch(exceptionType, name);
@@ -7883,8 +6123,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * <LI>when an exception is thrown</LI> </LU>
      * Delegates to <code>TryCatchFinally.Finally()</code>.
      */
-    public void Finally() throws ClassMakerException
-    {
+    public void Finally() throws ClassMakerException {
         TryCatchFinally stmt = topTryCatchFinally("ClassMaker.FinallyWithoutTry");
         stmt.Finally();
     }
@@ -7894,8 +6133,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * </br>
      * Delegates to <code>TryCatchFinally.EndTry()</code>.
      */
-    public void EndTry() throws ClassMakerException
-    {
+    public void EndTry() throws ClassMakerException {
         TryCatchFinally stmt = topTryCatchFinally("ClassMaker.EndTryWithoutTry");
         stmt.EndTry();
 
@@ -7913,11 +6151,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param type
      *            type of value being stored.
      */
-    protected int storeAnonymousValue(Type type) throws ClassMakerException
-    {
+    protected int storeAnonymousValue(Type type) throws ClassMakerException {
         int index = addLocal(null, type, 0);
         MakerField local = lookupLocal(index);
-        storeLocal(local, type);
+        gen.storeLocal(local);
         return index;
     }
 
@@ -7928,10 +6165,9 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            the index of the anonymous field holding the value
      * @return type of the value being loaded
      */
-    protected Value loadAnonymousValue(int index) throws ClassMakerException
-    {
+    protected Value loadAnonymousValue(int index) throws ClassMakerException {
         MakerField local = lookupLocal(index);
-        return loadLocal(local);
+        return gen.loadLocal(local);
     }
 
     // Shortcut Logic expressions
@@ -7942,8 +6178,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * Holds the jump addresses for an expression that includes shortcut AND
      * and shortcut OR logic.
      */
-    public static class AndOrExpression
-    {
+    public static class AndOrExpression {
         public AndOrExpression prev = null;
         /** jump address for AND logic */
         public int jumpAnd = 0;
@@ -7971,49 +6206,17 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            last conditional expression
      * @return return type is always boolean
      */
-    public Value Logic(AndOrExpression andOr, Value cond)
-    {
-        if (getClassFileWriter() == null)
+    public Value Logic(AndOrExpression andOr, Value cond) {
+        if (isFirstPass()) {
             return null;
+        }
         if (!ClassMakerFactory.BOOLEAN_TYPE.equals(cond.getType()))
             throw createException("ClassMaker.LogicConditionMustBeBoolean_1", cond.getName());
 
-        markAndThenLabel(andOr);
-        markOrElseLabel(andOr);
+        getGen().markAndThenLabel(andOr);
+        getGen().markOrElseLabel(andOr);
 
         return cond;
-    }
-
-    private void markAndThenLabel(AndOrExpression andOr)
-    {
-        if (andOr != null && andOr.jumpAnd != 0) {
-            if (cfw.isDebugCode())
-                setDebugComment("preserve result on stack");
-            int temp = cfw.acquireLabel();
-            cfw.add(ByteCode.GOTO, temp);
-            cfw.markLabel(andOr.jumpAnd);
-            andOr.jumpAnd = 0;
-            if (cfw.isDebugCode())
-                setDebugComment("|| expression evaluates to false");
-            cfw.add(ByteCode.ICONST_0);
-            cfw.markLabel(temp);
-        }
-    }
-
-    private void markOrElseLabel(AndOrExpression andOr)
-    {
-        if (andOr != null && andOr.jumpOr != 0) {
-            if (cfw.isDebugCode())
-                setDebugComment("preserve result on stack");
-            int temp = cfw.acquireLabel();
-            cfw.add(ByteCode.GOTO, temp);
-            cfw.markLabel(andOr.jumpOr);
-            andOr.jumpOr = 0;
-            if (cfw.isDebugCode())
-                setDebugComment("|| expression evaluates to true");
-            cfw.add(ByteCode.ICONST_1);
-            cfw.markLabel(temp);
-        }
     }
 
     /**
@@ -8037,25 +6240,24 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            next conditional expression
      * @return logic expression including shortcut logic
      */
-    public AndOrExpression AndThen(AndOrExpression previous, Value cond)
-    {
-        if (getClassFileWriter() == null)
+    public AndOrExpression AndThen(AndOrExpression previous, Value cond) {
+        if (isFirstPass()) {
             return null;
-        if (!ClassMakerFactory.BOOLEAN_TYPE.equals(cond.getType()))
+        }
+        if (!ClassMakerFactory.BOOLEAN_TYPE.equals(cond.getType())) {
             throw createException("ClassMaker.AndThenConditionMustBeBoolean_1", cond.getName());
-
+        }
         // handle change from && to || operator
-        markOrElseLabel(previous);
+        getGen().markOrElseLabel(previous);
 
         AndOrExpression andOr = new AndOrExpression();
         andOr.prev = previous; // Chain similar shortcut operators
         // Jump to the same label as the previous AndThen expression, if available.
-        andOr.jumpAnd = (previous == null || previous.jumpAnd == 0) ? cfw.acquireLabel() : previous.jumpAnd;
-        if (cfw.isDebugCode())
+        andOr.jumpAnd = (previous == null || previous.jumpAnd == 0) ? getGen().acquireLabel() : previous.jumpAnd;
+        if (isDebugCode()) {
             setDebugComment("&& Jump if false on stack");
-        cfw.add(ByteCode.IFEQ, andOr.jumpAnd); // Jump over other expression if
-                                               // cond is false.
-
+        }
+        getGen().jumpIfEqualZero(andOr.jumpAnd); // Jump over other expression if cond is false.
         markLineNumber(); // possibly add a new line number entry.
 
         return andOr;
@@ -8079,8 +6281,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            next conditional expression
      * @return logic expression including shortcut logic
      */
-    public AndOrExpression AndThen(Value cond)
-    {
+    public AndOrExpression AndThen(Value cond) {
         return AndThen(null, cond);
     }
 
@@ -8105,24 +6306,25 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            next conditional expression
      * @return logic expression including shortcut logic
      */
-    public AndOrExpression OrElse(AndOrExpression previous, Value cond)
-    {
-        if (getClassFileWriter() == null)
+    public AndOrExpression OrElse(AndOrExpression previous, Value cond) {
+        if (isFirstPass()) {
             return null;
-        if (!ClassMakerFactory.BOOLEAN_TYPE.equals(cond.getType()))
+        }
+        if (!ClassMakerFactory.BOOLEAN_TYPE.equals(cond.getType())) {
             throw createException("ClassMaker.OrElseConditionMustBeBoolean_1", cond.getName());
-
+        }
         // handle change from && to || operator
-        markAndThenLabel(previous);
+        getGen().markAndThenLabel(previous);
 
         AndOrExpression andOr = new AndOrExpression();
         andOr.prev = previous; // Chain similar shortcut operators
         // Jump to the same label as the previous OrElse expression, if available.
-        andOr.jumpOr = (previous == null || previous.jumpOr == 0) ? cfw.acquireLabel() : previous.jumpOr;
+        andOr.jumpOr = (previous == null || previous.jumpOr == 0) ? getGen().acquireLabel() : previous.jumpOr;
 
-        if (cfw.isDebugCode())
+        if (isDebugCode()) {
             setDebugComment("|| Jump if true on stack");
-        cfw.add(ByteCode.IFNE, andOr.jumpOr); // Jump over other expression if cond is true.
+        }
+        getGen().jumpIfNotEqualZero(andOr.jumpOr); // Jump over other expression if cond is true.
 
         markLineNumber(); // possibly add a new line number entry.
 
@@ -8147,133 +6349,27 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *            next conditional expression
      * @return logic expression including shortcut logic
      */
-    public AndOrExpression OrElse(Value cond)
-    {
+    public AndOrExpression OrElse(Value cond) {
         return OrElse(null, cond);
     }
 
     /**
-     * Creates a formatted ClassMaker exception.
-     * 
-     * @param key
-     *            the key to lookup in the resource bundle
-     * @return a formatted ClassMakerException.
-     */
-    public ClassMakerException createException(String key)
-    {
-        ExceptionFactory factory = getFactory().getExceptionFactory();
-        return factory.createException(getSourceLine(), key, null);
-    }
-
-    /**
-     * Creates an exception with a string property.
+     * Creates an exception with a variable number of parameters to the error message.
      * </br>
      * The resource bundle is <code>ExceptionMessages.properties</code>.
      * 
-     * @param key
-     *            the key to lookup in the resource bundle
-     * @param p1
-     *            the string property
-     * @return a formatted ClassMakerException.
-     */
-    public ClassMakerException createException(String key, String p1)
-    {
-        ExceptionFactory factory = getFactory().getExceptionFactory();
-        String[] exceptionParams = { p1 };
-        return factory.createException(getSourceLine(), key, exceptionParams);
-    }
-
-    /**
-     * Creates an exception with 2 string properties.
-     * </br>
-     * The resource bundle is <code>ExceptionMessages.properties</code>.
-     * 
-     * @param key
-     *            the key to lookup in the resource bundle
-     * @param p1
-     *            first string property
-     * @param p2
-     *            secnd string property
+     * @param key the key to lookup in the resource bundle
+     * @param values a variable list of values to be substituted into the error message
      * @return a formatted ClassMakerException
      */
-    public ClassMakerException createException(String key, String p1, String p2)
-    {
+    public ClassMakerException createException(String key, String ... values) {
         ExceptionFactory factory = getFactory().getExceptionFactory();
-        String[] exceptionParams = { p1, p2 };
-        return factory.createException(getSourceLine(), key, exceptionParams);
+        return factory.createException(getSourceLine(), key, values);
     }
 
-    /**
-     * Creates an exception with 3 string properties.
-     * </br>
-     * The resource bundle is <code>ExceptionMessages.properties</code>.
-     * 
-     * @param key
-     *            the key to lookup in the resource bundle
-     * @param p1
-     *            first string property
-     * @param p2
-     *            secnd string property
-     * @param p3
-     *            third string property
-     * @return a formatted ClassMakerException
-     */
-    public ClassMakerException createException(String key, String p1, String p2, String p3)
-    {
-        ExceptionFactory factory = getFactory().getExceptionFactory();
-        String[] exceptionParams = { p1, p2, p3 };
-        return factory.createException(getSourceLine(), key, exceptionParams);
-    }
-
-    private void assertNotNull(Object obj, String name)
-    {
-        if (obj == null)
+    private void assertNotNull(Object obj, String name) {
+        if (obj == null) {
             throw new IllegalArgumentException(name + " cannot be null");
-    }
-
-    static class LocalSourceLine implements SourceLine
-    {
-        /** The name of the source file relative to the source path */
-        private String sourceFilename = null;
-        int currentLineNumber = 0;
-
-        public void setFilename(String filename)
-        {
-            if (sourceFilename != null)
-                throw new IllegalStateException("Filename cannot be set twice (old)" + sourceFilename + " (new)"
-                        + filename);
-            sourceFilename = filename;
-        }
-
-        /**
-         * Current source file name.
-         */
-        public String getFilename()
-        {
-            return sourceFilename;
-        }
-
-        /**
-         * Current Line Number.
-         */
-        public int getLineNumber()
-        {
-            return currentLineNumber;
-        }
-
-        /**
-         * Remembers the current line number. <br/>
-         * Called whenever the line number changes in the input file.
-         * The line number may be used by <code>markLineNumber</code> to
-         * generate a
-         * line number entry in the generated class file.
-         *
-         * @param lineNumber
-         *            current line number
-         */
-        public void setLineNumber(int lineNumber)
-        {
-            currentLineNumber = lineNumber;
         }
     }
 
@@ -8285,15 +6381,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * 
      * @return <code>LineNumber</code> provider
      */
-    public SourceLine getSourceLine()
-    {
+    public SourceLine getSourceLine() {
         if (sourceLine == null)
             setSourceFilename(defaultSourceFilename());
         return sourceLine;
     }
 
-    public void setSourceLine(SourceLine source)
-    {
+    public void setSourceLine(SourceLine source) {
         this.sourceLine = source;
     }
 
@@ -8306,8 +6400,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * @param lineNumber
      *            current line number
      */
-    public void setLineNumber(int lineNumber)
-    {
+    public void setLineNumber(int lineNumber) {
         this.localSourceLine.setLineNumber(lineNumber);
     }
 
@@ -8317,12 +6410,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      * be added to the method being generated if the line number has changed
      * since the last time this method was called.
      */
-    protected void markLineNumber()
-    {
-        int lineNumber = getSourceLine().getLineNumber();
-        if (lineNumber != previousLineNumber && lineNumber > 0) {
-            cfw.addLineNumberEntry((short) lineNumber);
-            previousLineNumber = lineNumber;
+    protected void markLineNumber() {
+        if (getGen() != null) {
+            int lineNumber = getSourceLine().getLineNumber();
+            getGen().markLineNumber(lineNumber);
         }
         // For convenience we reset the followsReturn flag
         // because almost every method calls this method.
@@ -8341,42 +6432,27 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
      *             if the class file cannot be created
      * @return a File referring to the saved class file
      */
-    public File saveClass(File classesDir) throws IOException
-    {
+    public File saveClass(File classesDir) throws IOException {
         if (!classesDir.exists()) {
             throw createException("ClassMaker.OutputFolderDoesNotExist_1", classesDir.getName());
         }
         EndClass();
-        ClassFileWriter cfw = getClassFileWriter();
-        String className = cfw.getClassName() + ".class";
-        File classFile = new File(classesDir, className);
-        File packageFile = classFile.getParentFile();
-        if (!packageFile.exists()) {
-            packageFile.mkdirs();
-        }
-        FileOutputStream output = new FileOutputStream(classFile);
-        cfw.write(output);
-        output.close();
-
-        return classFile;
+        return getGen().saveClass(classesDir);
     }
 
     /**
      * Deletes the class from the given output folder. <br/>
      * The class will be deleted from the appropriate path corresponding to the
-     * package name.
+     * package and class name.
      * 
-     * @param classesDir
-     *            the base folder for output classes
-     * @throws IOException
-     *             if the class file cannot be created
+     * @param classesDir the base directory for output classes
+     * @throws IOException if the class file cannot be created
      */
-    public void deleteClass(File classesDir) throws IOException
-    {
+    public void deleteClass(File classesDir) throws IOException {
         if (!classesDir.exists()) {
             throw createException("ClassMaker.OutputFolderDoesNotExist_1", classesDir.getName());
         }
-        String className = toSlashName(getFullyQualifiedClassName()) + ".class";
+        String className = MakerUtil.toSlashName(getFullyQualifiedClassName()) + ".class";
         File classFile = new File(classesDir, className);
         if (classFile.exists()) {
             if (!classFile.delete())
@@ -8384,8 +6460,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants
         }
     }
 
-    public String toString()
-    {
+    public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append("ClassMaker(");
         if (fullyQualifiedClassName != null) {

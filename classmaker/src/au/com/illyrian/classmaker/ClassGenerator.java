@@ -30,6 +30,7 @@ package au.com.illyrian.classmaker;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,6 +38,7 @@ import java.util.logging.Logger;
 import org.mozilla.classfile.ByteCode;
 import org.mozilla.classfile.ClassFileWriter;
 
+import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.members.MakerMethod;
 import au.com.illyrian.classmaker.types.ArrayType;
@@ -49,8 +51,7 @@ import au.com.illyrian.classmaker.types.Value;
  *
  * @author Donald Strong
  */
-public class ClassGenerator implements ClassMakerConstants
-{
+public class ClassGenerator implements ClassMakerConstants {
     private static final Logger log = Logger.getLogger(ClassGenerator.class.getName());
 
     /* Bitmask for class modifier to indicate that the class follows java 1.3+ (?) semantics for method invocation. */
@@ -65,22 +66,34 @@ public class ClassGenerator implements ClassMakerConstants
     /* The ClassFileWriter instance that is used to generate byte-code for the class. */
     private final ClassFileWriter cfw;
 
+    private final ClassMaker maker;
+
     /** The name of the source file relative to the source path */
     private int previousLineNumber = 0;
     private SourceLine sourceLine;
 
     //#################### Constructors #################
-    
+
+    public ClassGenerator(ClassMaker classMaker) {
+        this.maker = classMaker;
+        this.cfw = createClassFileWriter(maker);
+        // Setting the Super bit is required for class files after Java 1.2.
+        setClassModifiers(maker.getModifiers());
+    }
+
     /**
      * Creates an instance of the ClassFileWriter if one has not been set.
      * 
      * @return a ClassFileWriter instance
      */
-    public ClassGenerator(String className, String extendsClassName, String sourceFile)
-    {
-        cfw = new ClassFileWriter(toSlashName(className), toSlashName(extendsClassName), sourceFile);
+    protected ClassFileWriter createClassFileWriter(ClassMaker maker) {
+        String className = maker.getClassType().getName();
+        String extendsClassName = maker.getSuperClass().getName();
+        String sourceFile = maker.getSourceLine().getFilename();
+        ClassFileWriter writer = new ClassFileWriter(toSlashName(className), toSlashName(extendsClassName), sourceFile);
+        return writer;
     }
-    
+
     public void setClassModifiers(int modifiers) {
         // Setting the Super bit is required for class files after Java 1.2.
         cfw.setFlags((short) (modifiers | MASK_SUPER));
@@ -96,36 +109,25 @@ public class ClassGenerator implements ClassMakerConstants
      * @return the
      *         <code>ClassFileWriter<code> instance for this <code>ClassMaker<code>
      */
-    protected ClassFileWriter getClassFileWriter()
-    {
+    protected ClassFileWriter getClassFileWriter() {
         return cfw;
     }
 
-    protected boolean isDebugCode()
-    {
+    public boolean isDebugCode() {
         if (getClassFileWriter() != null)
             return cfw.isDebugCode();
         return false;
     }
 
-    protected void setDebugComment(String comment)
-    {
+    public void setDebugComment(String comment) {
         cfw.setDebugComment(comment);
     }
 
-    // Convenience methods
-
-    /**
-     * Find a local variable by index.
-     * 
-     * @param index
-     *            an index into <code>localTable</code>
-     * @return the indexed local field
-     */
-    public MakerField lookupLocal(int index)
-    {
-        return localTable.get(index);
+    public void setDebugCodeOutput(PrintStream printStream) {
+        cfw.setDebugCodeOutput(printStream);
     }
+
+    // Convenience methods
 
     //############# Helper methods for derived classes #########
 
@@ -136,8 +138,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type to be tested
      * @return true if <code>Type</code> implements a class
      */
-    public static boolean isClass(Type type)
-    {
+    public static boolean isClass(Type type) {
         return type != null && type.toClass() != null;
     }
 
@@ -148,8 +149,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type to be tested
      * @return true if <code>Type</code> implements a array
      */
-    public static boolean isArray(Type type)
-    {
+    public static boolean isArray(Type type) {
         return type != null && type.toArray() != null;
     }
 
@@ -160,8 +160,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type to be tested
      * @return true if <code>Type</code> implements a class
      */
-    public static boolean isInterface(Type type)
-    {
+    public static boolean isInterface(Type type) {
         if (type != null && type.toClass() != null)
             return type.toClass().isInterface();
         return false;
@@ -174,9 +173,12 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type to be tested
      * @return true if <code>Type</code> is a primitive type
      */
-    public static boolean isPrimitive(Type type)
-    {
+    public static boolean isPrimitive(Type type) {
         return type != null && type.toPrimitive() != null;
+    }
+
+    public void addInterface(String name) {
+        cfw.addInterface(name);
     }
 
     //###################  ################
@@ -188,8 +190,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the class from which to derive the name
      * @return a fully qualified class name delimited by dots
      */
-    public static String classToName(Class javaClass)
-    {
+    public static String classToName(Class javaClass) {
         if (javaClass.isArray())
             return toDotName(javaClass.getCanonicalName());
         else
@@ -203,8 +204,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the class from which to derive the name
      * @return a fully qualified class name delimited by slashes
      */
-    public static String classToSlashName(Class javaClass)
-    {
+    public static String classToSlashName(Class javaClass) {
         if (javaClass.isArray())
             return toSlashName(javaClass.getCanonicalName());
         else
@@ -218,8 +218,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the name to be converted
      * @return the name with dots replaced by slashes
      */
-    public static String toSlashName(String name)
-    {
+    public static String toSlashName(String name) {
         return name.replace('.', '/');
     }
 
@@ -230,8 +229,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the name to be converted
      * @return the name with slashes replaced by dots
      */
-    public static String toDotName(String name)
-    {
+    public static String toDotName(String name) {
         return name.replace('/', '.');
     }
 
@@ -242,8 +240,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            a class representing a type from which to derive the signature
      * @return a JVM signature
      */
-    public static String classToSignature(Class javaClass)
-    {
+    public static String classToSignature(Class javaClass) {
         if (javaClass.isArray())
             return toSlashName(javaClass.getName());
         else if (javaClass.isPrimitive()) {
@@ -278,11 +275,12 @@ public class ClassGenerator implements ClassMakerConstants
      * variables. <br/>
      * Sets the start program counter and scope level in the given field.
      * 
-     * @param local the variable or parameter being added
-     * @param scope the current nesting level of scoped code blocks
+     * @param local
+     *            the variable or parameter being added
+     * @param scope
+     *            the current nesting level of scoped code blocks
      */
-    public void addToScope(MakerField local, int scope)
-    {
+    public void addToScope(MakerField local, int scope) {
         local.setStartPC(cfw.getCurrentCodeOffset());
         local.setEndPC(-1);
         local.setScopeLevel(scope);
@@ -295,10 +293,10 @@ public class ClassGenerator implements ClassMakerConstants
      * the variable as out of scope.
      * Scope entries are added to the method as it is completed.
      * 
-     * @param scope the level of nesting of the current scoped code block
+     * @param scope
+     *            the level of nesting of the current scoped code block
      */
-    void exitScope(int scope)
-    {
+    void exitScope(int scope) {
         if (getClassFileWriter() != null) {
             // Local variable descriptors are used by the debugger.
             for (int i = localTable.size() - 1; i >= 0; i--) {
@@ -315,16 +313,39 @@ public class ClassGenerator implements ClassMakerConstants
         }
     }
 
-     /**
+    public int getCurrentCodeOffset() {
+        return cfw.getCurrentCodeOffset();
+    }
+
+    /**
      * Adds an abstract method to the generated class.
      * </br>
      * An abstract method cannot have a body so must be forward declared.
      *
      */
-    public void addAbstractMethod(MakerMethod method)
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    public void addAbstractMethod(MakerMethod method) {
         cfw.startMethod(method.getName(), method.getSignature(), method.getModifiers());
+    }
+
+    public void beginMethod(MakerMethod method, String classSignature) {
+        cfw.startMethod(method.getName(), method.getSignature(), method.getModifiers());
+        if ((method.getModifiers() & ClassMakerConstants.ACC_STATIC) == 0) {
+            cfw.addVariableDescriptor("this", classSignature, 0, 0, -1);
+        }
+    }
+
+    public void endMethod(Vector<MakerField> localTable, short maxLocalSlots) {
+        // Local variable descriptors are used by the debugger.
+        for (int i = 0; i < localTable.size(); i++) {
+            MakerField local = localTable.elementAt(i);
+            if (local.getName() == null)
+                continue; // Skip anonymous local values
+            cfw.addVariableDescriptor(local.getName(), local.getType().getSignature(), local.getStartPC(),
+                    local.getSlot(), local.getEndPC());
+        }
+
+        cfw.add(ByteCode.NOP);
+        cfw.stopMethod(maxLocalSlots);
     }
 
     /**
@@ -334,15 +355,13 @@ public class ClassGenerator implements ClassMakerConstants
      *            a declared type represents the type of class
      * @return an <code>Initialiser</code> for the instance
      */
-    public Value New(Type classType) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    public Value New(Type classType) throws ClassMakerException {
         cfw.add(ByteCode.NEW, toSlashName(classType.getName()));
         return classType.getValue();
     }
 
-     //################## Method calls ##########################
- 
+    //################## Method calls ##########################
+
     /**
      * Calls a virtual method in the class instance on top of the stack.
      * 
@@ -351,8 +370,7 @@ public class ClassGenerator implements ClassMakerConstants
      * @param method
      *            a descriptor of the resolved method
      */
-    void invokeVirtual(ClassType classType, MakerMethod method)
-    {
+    void invokeVirtual(ClassType classType, MakerMethod method) {
         String signature = method.getSignature();
         cfw.addInvoke(ByteCode.INVOKEVIRTUAL, toSlashName(classType.getName()), method.getName(), signature);
     }
@@ -365,8 +383,7 @@ public class ClassGenerator implements ClassMakerConstants
      * @param method
      *            a descriptor of the resolved method
      */
-    void invokeInterface(ClassType classType, MakerMethod method)
-    {
+    void invokeInterface(ClassType classType, MakerMethod method) {
         String signature = method.getSignature();
         cfw.addInvoke(ByteCode.INVOKEINTERFACE, toSlashName(classType.getName()), method.getName(), signature);
     }
@@ -379,8 +396,7 @@ public class ClassGenerator implements ClassMakerConstants
      * @param method
      *            a descriptor of the resolved method
      */
-    void invokeStatic(String className, MakerMethod method)
-    {
+    void invokeStatic(String className, MakerMethod method) {
         String signature = method.getSignature();
         cfw.addInvoke(ByteCode.INVOKESTATIC, toSlashName(className), method.getName(), signature);
     }
@@ -394,8 +410,7 @@ public class ClassGenerator implements ClassMakerConstants
      * @param method
      *            a descriptor of the resolved method
      */
-    void invokeSpecial(ClassType classType, MakerMethod method)
-    {
+    void invokeSpecial(ClassType classType, MakerMethod method) {
         String signature = method.getSignature();
         cfw.addInvoke(ByteCode.INVOKESPECIAL, toSlashName(classType.getName()), method.getName(), signature);
     }
@@ -409,11 +424,10 @@ public class ClassGenerator implements ClassMakerConstants
      * @param exception
      *            type exception being thrown
      */
-    public void Throw(Type exception) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        if (cfw.isDebugCode())
+    public void Throw(Type exception) throws ClassMakerException {
+        if (cfw.isDebugCode()) {
             setDebugComment("Throw(" + exception.getName() + ");");
+        }
         cfw.add(ByteCode.ATHROW);
     }
 
@@ -423,11 +437,7 @@ public class ClassGenerator implements ClassMakerConstants
      * The last statement of a method must be either <code>Return</code> or
      * <code>Throw</code>.
      */
-    public void Return() throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        if (isDebugCode())
-            setDebugComment("Return();");
+    public void Return() throws ClassMakerException {
         cfw.add(ByteCode.RETURN);
     }
 
@@ -439,12 +449,7 @@ public class ClassGenerator implements ClassMakerConstants
      * The last statement of a method must be either <code>Return</code> or
      * <code>Throw</code>.
      */
-    public void Return(Type type) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        if (isDebugCode())
-            setDebugComment("Return(" + type + ");");
-
+    public void Return(Type type) throws ClassMakerException {
         if (isClass(type)) {
             cfw.add(ByteCode.ARETURN);
             return;
@@ -476,49 +481,26 @@ public class ClassGenerator implements ClassMakerConstants
     /**
      * Pushes a reference to <code>this</code> class onto the stack.
      */
-    public void loadThis() throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        if (isDebugCode()) {
-            setDebugComment("This();");
-        }
-        cfw.addLoadThis();
-    }
-
-    /**
-     * Pushes a reference to this class's <code>super</code> class onto the
-     * stack.
-     */
-    public void loadSuper() throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        if (isDebugCode()) {
-            setDebugComment("Super();");
-        }
+    public void loadThis() throws ClassMakerException {
         cfw.addLoadThis();
     }
 
     /**
      * Pushes <code>null</code> onto the stack.
      */
-    public void Null() throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        if (isDebugCode()) {
-            setDebugComment("Null();");
-        }
+    public void Null() throws ClassMakerException {
         cfw.add(ByteCode.ACONST_NULL);
     }
 
     // Literals
     /**
      * Pushes a literal <code>double</code> onto the stack.
-     * @param value the double to be pushed onto the stack
+     * 
+     * @param value
+     *            the double to be pushed onto the stack
      * @return the type for <code>double</code>
      */
-    public Value Literal(double value) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    public Value Literal(double value) throws ClassMakerException {
         if (isDebugCode()) {
             setDebugComment("Literal(" + value + ");");
         }
@@ -528,12 +510,12 @@ public class ClassGenerator implements ClassMakerConstants
 
     /**
      * Pushes a literal <code>float</code> onto the stack.
-     * @param value the float to be pushed onto the stack
+     * 
+     * @param value
+     *            the float to be pushed onto the stack
      * @return the type for <code>float</code>
      */
-    public Value Literal(float value) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    public Value Literal(float value) throws ClassMakerException {
         if (isDebugCode()) {
             setDebugComment("Literal(" + value + ");");
         }
@@ -543,12 +525,12 @@ public class ClassGenerator implements ClassMakerConstants
 
     /**
      * Pushes a literal <code>long</code> onto the stack.
-     * @param value the long to be pushed onto the stack
+     * 
+     * @param value
+     *            the long to be pushed onto the stack
      * @return the type for <code>long</code>
      */
-    public Value Literal(long value) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    public Value Literal(long value) throws ClassMakerException {
         if (isDebugCode()) {
             setDebugComment("Literal(" + value + ");");
         }
@@ -557,14 +539,16 @@ public class ClassGenerator implements ClassMakerConstants
     }
 
     /**
-     * Pushes a literal <code>byte</code>, <code>short</code> or <code>int</code> onto the stack.
+     * Pushes a literal <code>byte</code>, <code>short</code> or
+     * <code>int</code> onto the stack.
      * The value is pushed onto the stack and a Type is returned.
-     * @param value the int to be pushed onto the stack
-     * @return the Type representing a <code>byte</code>, <code>short</code> or <code>int</code>
+     * 
+     * @param value
+     *            the int to be pushed onto the stack
+     * @return the Type representing a <code>byte</code>, <code>short</code> or
+     *         <code>int</code>
      */
-    public Value Literal(int value) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    public Value Literal(int value) throws ClassMakerException {
         if (isDebugCode()) {
             setDebugComment("Literal(" + value + ");");
         }
@@ -581,12 +565,12 @@ public class ClassGenerator implements ClassMakerConstants
 
     /**
      * Pushes a literal <code>char</code> onto the stack.
-     * @param value the char to be pushed onto the stack
+     * 
+     * @param value
+     *            the char to be pushed onto the stack
      * @return the type for <code>char</code>
      */
-    public Value Literal(char value) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    public Value Literal(char value) throws ClassMakerException {
         if (isDebugCode()) {
             setDebugComment("Literal(\'" + value + "\');");
         }
@@ -596,12 +580,12 @@ public class ClassGenerator implements ClassMakerConstants
 
     /**
      * Pushes a literal <code>byte</code> value onto the stack.
-     * @param value the byte to be pushed onto the stack
+     * 
+     * @param value
+     *            the byte to be pushed onto the stack
      * @return the type for <code>byte</code>
      */
-    public Value Literal(byte value) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    public Value Literal(byte value) throws ClassMakerException {
         if (isDebugCode()) {
             setDebugComment("Literal(" + value + ");");
         }
@@ -611,12 +595,12 @@ public class ClassGenerator implements ClassMakerConstants
 
     /**
      * Pushes a literal <code>short</code> onto the stack.
-     * @param value the short to be pushed onto the stack
+     * 
+     * @param value
+     *            the short to be pushed onto the stack
      * @return the type for <code>short</code>
      */
-    public Value Literal(short value) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    public Value Literal(short value) throws ClassMakerException {
         if (isDebugCode()) {
             setDebugComment("Literal(" + value + ");");
         }
@@ -626,12 +610,12 @@ public class ClassGenerator implements ClassMakerConstants
 
     /**
      * Pushes a literal <code>boolean</code> value onto the stack.
-     * @param value the boolean value to be pushed onto the stack
+     * 
+     * @param value
+     *            the boolean value to be pushed onto the stack
      * @return the type for <code>boolean</code>
      */
-    public Value Literal(boolean value) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    public Value Literal(boolean value) throws ClassMakerException {
         if (isDebugCode()) {
             setDebugComment("Literal(" + value + ");");
         }
@@ -641,12 +625,12 @@ public class ClassGenerator implements ClassMakerConstants
 
     /**
      * Pushes a literal <code>String</code> onto the stack.
-     * @param value the string to be pushed onto the stack
+     * 
+     * @param value
+     *            the string to be pushed onto the stack
      * @return the type for <code>String</code>
      */
-    public Value Literal(String value) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    public Value Literal(String value) throws ClassMakerException {
         if (isDebugCode()) {
             setDebugComment("Literal(" + value + ");");
         }
@@ -656,31 +640,21 @@ public class ClassGenerator implements ClassMakerConstants
 
     //#################### Getters and Setters ######################
 
-    public Value setField(Value reference, MakerField field, Type valueType) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
+    public void storeField(MakerField field) throws ClassMakerException {
         String className = field.getClassType().getName();
         Type fieldType = field.getType();
         String signature = fieldType.getSignature();
         cfw.add(ByteCode.PUTFIELD, className, field.getName(), signature);
-        return ClassMakerFactory.VOID_TYPE.getValue();
     }
 
-    public Value setFieldStatic(MakerField field, Type valueType) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
-        Type type = field.getType();
-        String signature = type.getSignature();
-        cfw.add(ByteCode.PUTSTATIC, field.getClassType().getName(), field.getName(), signature);
-        return ClassMakerFactory.VOID_TYPE.getValue();
+    public void storeStatic(MakerField field) throws ClassMakerException {
+        String signature = field.getType().getSignature();
+        String className = field.getClassType().getName();
+        cfw.add(ByteCode.PUTSTATIC, className, field.getName(), signature);
     }
 
-    public Type loadField(MakerField field)
-    {
+    public Type loadField(MakerField field) {
         assertNotNull(field, "field");
-        markLineNumber(); // possibly add a new line number entry.
         ClassType classType = field.getClassType();
         if (log.isLoggable(Level.FINE))
             log.finest("load " + classType.getName() + ", " + field.getName() + ", " + field.getType().getSignature());
@@ -688,10 +662,8 @@ public class ClassGenerator implements ClassMakerConstants
         return field.getType();
     }
 
-    public Value loadStatic(MakerField field)
-    {
+    public Value loadStatic(MakerField field) {
         assertNotNull(field, "field");
-        markLineNumber(); // possibly add a new line number entry.
         ClassType classType = field.getClassType();
         if (log.isLoggable(Level.FINE))
             log.finest("static load " + classType.getName() + ", " + field.getName() + ", "
@@ -709,9 +681,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the <code>Field</code> that describes the member variable
      * @return the type of the variable on top of the stack
      */
-    Value loadLocal(MakerField local) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    Value loadLocal(MakerField local) throws ClassMakerException {
         int slot = local.getSlot();
         Type type = local.getType();
 
@@ -753,9 +723,9 @@ public class ClassGenerator implements ClassMakerConstants
      * @param type
      *            type of the value on top of the stack
      */
-    void storeLocal(MakerField field, Type type) throws ClassMakerException
-    {
+    void storeLocal(MakerField field) throws ClassMakerException {
         int slot = field.getSlot();
+        Type type = field.getType();
         if (isClass(type)) {
             cfw.addAStore(slot);
             return;
@@ -780,11 +750,10 @@ public class ClassGenerator implements ClassMakerConstants
             }
         }
         // Should never get here.
-        throw new IllegalArgumentException("Do not know how to store " + type);
+        throw new IllegalArgumentException("Do not know how to store local " + type);
     }
 
-    public void initLocal(MakerField field)
-    {
+    public void initLocal(MakerField field) {
         Type type = field.getType();
         int slot = field.getSlot();
         if (isClass(type)) {
@@ -821,10 +790,10 @@ public class ClassGenerator implements ClassMakerConstants
 
     //############# Variable declarations ################
 
-    public void declareVariable(String name, Type type, int modifiers) throws ClassMakerException
-    {
+    public void declareVariable(String name, Type type, int modifiers) throws ClassMakerException {
         cfw.addField(name, type.getSignature(), (short) modifiers);
     }
+
     //################### Casting methods. ##################
 
     /**
@@ -840,19 +809,13 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type into which to cast
      * @return the target type
      */
-    public ClassType toReference(ClassType source, ClassType target) throws ClassMakerException
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    public ClassType toReference(ClassType source, ClassType target) throws ClassMakerException {
         String className = target.getName();
         cfw.add(ByteCode.CHECKCAST, className);
         return target;
     }
 
-    Type checkInstanceOf(Type source, ClassType target) throws ClassMakerException
-    {
-        if (cfw.isDebugCode())
-            setDebugComment("InstanceOf(" + source.getName() + ", " + target.getName() + ");");
-        markLineNumber(); // possibly add a new line number entry.
+    Type checkInstanceOf(Type source, ClassType target) throws ClassMakerException {
         String className = toSlashName(target.getName());
         cfw.add(ByteCode.INSTANCEOF, className);
         return ClassMakerFactory.BOOLEAN_TYPE;
@@ -881,7 +844,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the operand
      * @return the type of the result is always byte
      */
-    public Type toByte(Type op) throws ClassMakerException {
+    public Type toByte(PrimitiveType op) throws ClassMakerException {
         if (!ClassMakerFactory.BYTE_TYPE.equals(op)) {
             toInt(op);
             cfw.add(ByteCode.I2B);
@@ -912,8 +875,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the operand
      * @return the type of the result is always short
      */
-    public Type toShort(Type op) throws ClassMakerException
-    {
+    public Type toShort(PrimitiveType op) throws ClassMakerException {
         if (!ClassMakerFactory.SHORT_TYPE.equals(op)) {
             toInt(op);
             cfw.add(ByteCode.I2S);
@@ -944,8 +906,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the operand
      * @return the type of the result is always char
      */
-    public Type toChar(Type op) throws ClassMakerException
-    {
+    public Type toChar(PrimitiveType op) throws ClassMakerException {
         if (!ClassMakerFactory.CHAR_TYPE.equals(op)) {
             toInt(op);
             cfw.add(ByteCode.I2C);
@@ -976,26 +937,22 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the operand
      * @return the type of the result is always int
      */
-    public Type toInt(Type op) throws ClassMakerException
-    {
-        if (isPrimitive(op)) {
-            markLineNumber(); // possibly add a new line number entry.
-            switch (op.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                return ClassMakerFactory.INT_TYPE;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.L2I);
-                return ClassMakerFactory.INT_TYPE;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.D2I);
-                return ClassMakerFactory.INT_TYPE;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.F2I);
-                return ClassMakerFactory.INT_TYPE;
-            }
+    public Type toInt(PrimitiveType op) throws ClassMakerException {
+        switch (op.index) {
+        case PrimitiveType.BYTE_INDEX: // fall thru
+        case PrimitiveType.SHORT_INDEX: // fall thru
+        case PrimitiveType.CHAR_INDEX: // fall thru
+        case PrimitiveType.INT_INDEX:
+            return ClassMakerFactory.INT_TYPE;
+        case PrimitiveType.LONG_INDEX:
+            cfw.add(ByteCode.L2I);
+            return ClassMakerFactory.INT_TYPE;
+        case PrimitiveType.DOUBLE_INDEX:
+            cfw.add(ByteCode.D2I);
+            return ClassMakerFactory.INT_TYPE;
+        case PrimitiveType.FLOAT_INDEX:
+            cfw.add(ByteCode.F2I);
+            return ClassMakerFactory.INT_TYPE;
         }
         throw new IllegalArgumentException("Do not know how to convert to int " + op);
     }
@@ -1023,26 +980,22 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the operand
      * @return the type of the result is always long
      */
-    public Type toLong(Type op) throws ClassMakerException
-    {
-        if (isPrimitive(op)) {
-            markLineNumber(); // possibly add a new line number entry.
-            switch (op.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.I2L);
-                return ClassMakerFactory.LONG_TYPE;
-            case PrimitiveType.LONG_INDEX:
-                return ClassMakerFactory.LONG_TYPE;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.D2L);
-                return ClassMakerFactory.LONG_TYPE;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.F2L);
-                return ClassMakerFactory.LONG_TYPE;
-            }
+    public Type toLong(PrimitiveType op) throws ClassMakerException {
+        switch (op.index) {
+        case PrimitiveType.BYTE_INDEX: // fall thru
+        case PrimitiveType.SHORT_INDEX: // fall thru
+        case PrimitiveType.CHAR_INDEX: // fall thru
+        case PrimitiveType.INT_INDEX:
+            cfw.add(ByteCode.I2L);
+            return ClassMakerFactory.LONG_TYPE;
+        case PrimitiveType.LONG_INDEX:
+            return ClassMakerFactory.LONG_TYPE;
+        case PrimitiveType.DOUBLE_INDEX:
+            cfw.add(ByteCode.D2L);
+            return ClassMakerFactory.LONG_TYPE;
+        case PrimitiveType.FLOAT_INDEX:
+            cfw.add(ByteCode.F2L);
+            return ClassMakerFactory.LONG_TYPE;
         }
         throw new IllegalArgumentException("Do not know how to convert to long " + op);
     }
@@ -1070,26 +1023,22 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the operand
      * @return the type of the result is always float
      */
-    public Type toFloat(Type op) throws ClassMakerException
-    {
-        if (isPrimitive(op)) {
-            markLineNumber(); // possibly add a new line number entry.
-            switch (op.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.I2F);
-                return ClassMakerFactory.FLOAT_TYPE;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.L2F);
-                return ClassMakerFactory.FLOAT_TYPE;
-            case PrimitiveType.DOUBLE_INDEX:
-                cfw.add(ByteCode.D2F);
-                return ClassMakerFactory.FLOAT_TYPE;
-            case PrimitiveType.FLOAT_INDEX:
-                return ClassMakerFactory.FLOAT_TYPE;
-            }
+    public Type toFloat(PrimitiveType op) throws ClassMakerException {
+        switch (op.index) {
+        case PrimitiveType.BYTE_INDEX: // fall thru
+        case PrimitiveType.SHORT_INDEX: // fall thru
+        case PrimitiveType.CHAR_INDEX: // fall thru
+        case PrimitiveType.INT_INDEX:
+            cfw.add(ByteCode.I2F);
+            return ClassMakerFactory.FLOAT_TYPE;
+        case PrimitiveType.LONG_INDEX:
+            cfw.add(ByteCode.L2F);
+            return ClassMakerFactory.FLOAT_TYPE;
+        case PrimitiveType.DOUBLE_INDEX:
+            cfw.add(ByteCode.D2F);
+            return ClassMakerFactory.FLOAT_TYPE;
+        case PrimitiveType.FLOAT_INDEX:
+            return ClassMakerFactory.FLOAT_TYPE;
         }
         throw new IllegalArgumentException("Do not know how to convert to float " + op);
     }
@@ -1117,26 +1066,22 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the operand
      * @return the type of the result is always double
      */
-    public Type toDouble(Type op) throws ClassMakerException
-    {
-        if (isPrimitive(op)) {
-            markLineNumber(); // possibly add a new line number entry.
-            switch (op.toPrimitive().index) {
-            case PrimitiveType.BYTE_INDEX: // fall thru
-            case PrimitiveType.SHORT_INDEX: // fall thru
-            case PrimitiveType.CHAR_INDEX: // fall thru
-            case PrimitiveType.INT_INDEX:
-                cfw.add(ByteCode.I2D);
-                return ClassMakerFactory.DOUBLE_TYPE;
-            case PrimitiveType.LONG_INDEX:
-                cfw.add(ByteCode.L2D);
-                return ClassMakerFactory.DOUBLE_TYPE;
-            case PrimitiveType.DOUBLE_INDEX:
-                return ClassMakerFactory.DOUBLE_TYPE;
-            case PrimitiveType.FLOAT_INDEX:
-                cfw.add(ByteCode.F2D);
-                return ClassMakerFactory.DOUBLE_TYPE;
-            }
+    public Type toDouble(PrimitiveType op) throws ClassMakerException {
+        switch (op.index) {
+        case PrimitiveType.BYTE_INDEX: // fall thru
+        case PrimitiveType.SHORT_INDEX: // fall thru
+        case PrimitiveType.CHAR_INDEX: // fall thru
+        case PrimitiveType.INT_INDEX:
+            cfw.add(ByteCode.I2D);
+            return ClassMakerFactory.DOUBLE_TYPE;
+        case PrimitiveType.LONG_INDEX:
+            cfw.add(ByteCode.L2D);
+            return ClassMakerFactory.DOUBLE_TYPE;
+        case PrimitiveType.DOUBLE_INDEX:
+            return ClassMakerFactory.DOUBLE_TYPE;
+        case PrimitiveType.FLOAT_INDEX:
+            cfw.add(ByteCode.F2D);
+            return ClassMakerFactory.DOUBLE_TYPE;
         }
         throw new IllegalArgumentException("Do not know how to convert to double " + op);
     }
@@ -1160,10 +1105,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveAdd(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
+    protected PrimitiveType primitiveAdd(PrimitiveType op1, PrimitiveType op2) {
         if (op1.equals(op2)) {
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
@@ -1212,9 +1154,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveSubt(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    protected PrimitiveType primitiveSubt(PrimitiveType op1, PrimitiveType op2) {
         if (op1.equals(op2)) {
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
@@ -1246,7 +1186,7 @@ public class ClassGenerator implements ClassMakerConstants
         throw new IllegalArgumentException("Do not know how to subtract operands of type " + op1 + " and " + op2);
     }
 
-     /**
+    /**
      * Integer multiply on primitive operands.
      * </br>
      * This method is provided so that <code>Mult</code> can be overridden to
@@ -1263,9 +1203,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveMult(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    protected PrimitiveType primitiveMult(PrimitiveType op1, PrimitiveType op2) {
         if (op1.equals(op2)) {
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
@@ -1297,7 +1235,6 @@ public class ClassGenerator implements ClassMakerConstants
         throw new IllegalArgumentException("Do not know how to multiply operands of type " + op1 + " and " + op2);
     }
 
-
     /**
      * Integer divide on primitive operands.
      * </br>
@@ -1315,9 +1252,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveDiv(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    protected PrimitiveType primitiveDiv(PrimitiveType op1, PrimitiveType op2) {
         if (op1.equals(op2)) {
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
@@ -1366,10 +1301,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveRem(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
+    protected PrimitiveType primitiveRem(PrimitiveType op1, PrimitiveType op2) {
         if (op1.equals(op2)) {
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
@@ -1401,10 +1333,8 @@ public class ClassGenerator implements ClassMakerConstants
         throw new IllegalArgumentException("Do not know how to remainder operands of type " + op1 + " and " + op2);
     }
 
-    Type primitiveNeg(Type type)
-    {
+    Type primitiveNeg(Type type) {
         if (isPrimitive(type)) {
-            markLineNumber(); // possibly add a new line number entry.
             switch (type.toPrimitive().index) {
             case PrimitiveType.BYTE_INDEX: // fall thru
             case PrimitiveType.SHORT_INDEX: // fall thru
@@ -1440,10 +1370,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveXor(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
+    protected PrimitiveType primitiveXor(PrimitiveType op1, PrimitiveType op2) {
         if (op1.equals(op2)) {
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
@@ -1484,10 +1411,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveAnd(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
+    protected PrimitiveType primitiveAnd(PrimitiveType op1, PrimitiveType op2) {
         if (op1.equals(op2)) {
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
@@ -1528,10 +1452,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the right operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveOr(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
+    protected PrimitiveType primitiveOr(PrimitiveType op1, PrimitiveType op2) {
         if (op1.equals(op2)) {
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
@@ -1571,10 +1492,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the left operand
      * @return the type of the result
      */
-    protected PrimitiveType primitiveInv(PrimitiveType op1)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
+    protected PrimitiveType primitiveInv(PrimitiveType op1) {
         switch (op1.index) {
         case PrimitiveType.BYTE_INDEX:
             cfw.addPush(0xFFFFFFFF);
@@ -1621,9 +1539,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the operand indicating places to shift
      * @return the type of op1 after promotion
      */
-    protected PrimitiveType primitiveShiftLeft(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    protected PrimitiveType primitiveShiftLeft(PrimitiveType op1, PrimitiveType op2) {
         switch (op1.index) {
         case PrimitiveType.BYTE_INDEX:
             cfw.add(ByteCode.ISHL);
@@ -1664,9 +1580,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the operand indicating places to shift
      * @return the type of op1 after promotion
      */
-    protected PrimitiveType primitiveShiftRight(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    protected PrimitiveType primitiveShiftRight(PrimitiveType op1, PrimitiveType op2) {
         switch (op1.index) {
         case PrimitiveType.BYTE_INDEX:
             cfw.add(ByteCode.ISHR);
@@ -1688,7 +1602,7 @@ public class ClassGenerator implements ClassMakerConstants
             break;
         default:
             throw new IllegalArgumentException("Do not know how to shift right operands of type " + op1 + " and " + op2);
-       }
+        }
         return op1;
     }
 
@@ -1708,10 +1622,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of the operand indicating places to shift
      * @return the type of op1 after promotion
      */
-    protected PrimitiveType primitiveUnsignedShiftRight(PrimitiveType op1, PrimitiveType op2)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-
+    protected PrimitiveType primitiveUnsignedShiftRight(PrimitiveType op1, PrimitiveType op2) {
         switch (op1.index) {
         case PrimitiveType.BYTE_INDEX:
             cfw.add(ByteCode.IUSHR);
@@ -1732,20 +1643,16 @@ public class ClassGenerator implements ClassMakerConstants
             cfw.add(ByteCode.LUSHR);
             break;
         default:
-            throw new IllegalArgumentException("Do not know how to unsigned shift right operands of type " + op1 + " and " + op2);
+            throw new IllegalArgumentException("Do not know how to unsigned shift right operands of type " + op1
+                    + " and " + op2);
         }
         return op1;
     }
 
     //################# Comparison operators ######################
 
-    Value primitiveGreaterThan(Type op1, Type op2)
-    {
-        if (cfw.isDebugCode()) {
-            setDebugComment("GT(" + op1 + ", " + op2 + ");");
-        }
+    Value primitiveGreaterThan(Type op1, Type op2) {
         if (isPrimitive(op1) && op1.equals(op2)) {
-            markLineNumber(); // possibly add a new line number entry.
             switch (op1.toPrimitive().index) {
             case PrimitiveType.BYTE_INDEX: // fall thru
             case PrimitiveType.SHORT_INDEX: // fall thru
@@ -1774,13 +1681,8 @@ public class ClassGenerator implements ClassMakerConstants
         return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
-    Value primitiveGreaterEqual(Type op1, Type op2)
-    {
-        if (cfw.isDebugCode()) {
-            setDebugComment("GE(" + op1 + ", " + op2 + ");");
-        }
+    Value primitiveGreaterEqual(Type op1, Type op2) {
         if (isPrimitive(op1) && op1.equals(op2)) {
-            markLineNumber(); // possibly add a new line number entry.
             switch (op1.toPrimitive().index) {
             case PrimitiveType.BYTE_INDEX: // fall thru
             case PrimitiveType.SHORT_INDEX: // fall thru
@@ -1809,13 +1711,11 @@ public class ClassGenerator implements ClassMakerConstants
         return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
-    Value primitiveLessEqual(Type op1, Type op2)
-    {
+    Value primitiveLessEqual(Type op1, Type op2) {
         if (cfw.isDebugCode()) {
             setDebugComment("LE(" + op1 + ", " + op2 + ");");
         }
         if (isPrimitive(op1) && op1.equals(op2)) {
-            markLineNumber(); // possibly add a new line number entry.
             switch (op1.toPrimitive().index) {
             case PrimitiveType.BYTE_INDEX: // fall thru
             case PrimitiveType.SHORT_INDEX: // fall thru
@@ -1844,13 +1744,11 @@ public class ClassGenerator implements ClassMakerConstants
         return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
-    Value primitiveLessThan(Type op1, Type op2)
-    {
+    Value primitiveLessThan(Type op1, Type op2) {
         if (cfw.isDebugCode()) {
             setDebugComment("LT(" + op1 + ", " + op2 + ");");
         }
         if (isPrimitive(op1) && op1.equals(op2)) {
-            markLineNumber(); // possibly add a new line number entry.
             switch (op1.toPrimitive().index) {
             case PrimitiveType.BYTE_INDEX: // fall thru
             case PrimitiveType.SHORT_INDEX: // fall thru
@@ -1879,15 +1777,10 @@ public class ClassGenerator implements ClassMakerConstants
         return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
-    Value primitiveIsEqual(Type op1, Type op2)
-    {
-        if (cfw.isDebugCode()) {
-            setDebugComment("EQ(" + op1 + ", " + op2 + ");");
-        }
+    Value primitiveIsEqual(Type op1, Type op2) {
         if (isClass(op1) && isClass(op2)) {
             addCompare(ByteCode.IF_ACMPEQ);
         } else if (isPrimitive(op1) && op1.equals(op2)) {
-            markLineNumber(); // possibly add a new line number entry.
             switch (op1.toPrimitive().index) {
             case PrimitiveType.BOOLEAN_INDEX: // fall thru
             case PrimitiveType.BYTE_INDEX: // fall thru
@@ -1917,8 +1810,7 @@ public class ClassGenerator implements ClassMakerConstants
         return ClassMakerFactory.BOOLEAN_TYPE.getValue();
     }
 
-    Value primitiveNotEqual(Type op1, Type op2)
-    {
+    Value primitiveNotEqual(Type op1, Type op2) {
         if (cfw.isDebugCode()) {
             setDebugComment("NE(" + op1 + ", " + op2 + ");");
         }
@@ -1966,8 +1858,7 @@ public class ClassGenerator implements ClassMakerConstants
      * @param ifOperator
      *            the bytcode comparison operator to use.
      */
-    private void addCompare(int ifOperator)
-    {
+    private void addCompare(int ifOperator) {
         int jumpTrue = cfw.acquireLabel();
         int jumpFalse = cfw.acquireLabel();
 
@@ -1983,8 +1874,7 @@ public class ClassGenerator implements ClassMakerConstants
         cfw.markLabel(jumpFalse);
     }
 
-    protected Value primitiveNot(Type op1)
-    {
+    protected Value primitiveNot(Type op1) {
         if (cfw.isDebugCode()) {
             setDebugComment("Not(" + op1 + ");");
         }
@@ -1998,7 +1888,7 @@ public class ClassGenerator implements ClassMakerConstants
     }
 
     //##################### Arrays ##########################
-    
+
     protected Value primitiveNewArray(ArrayType array, Type sizeType) {
         // FIXME promote sizeType.
         Type arrayOfType = array.getComponentType();
@@ -2013,7 +1903,7 @@ public class ClassGenerator implements ClassMakerConstants
         }
         return array.getValue();
     }
-    
+
     protected Value primitiveNewArray(ArrayType arrayType, Type[] dims) {
         if (cfw.isDebugCode())
             setDebugComment("NewArray(" + arrayType + ", " + dims + ");");
@@ -2025,8 +1915,7 @@ public class ClassGenerator implements ClassMakerConstants
         return arrayType.getValue();
     }
 
-    Value getAtIndex(ArrayType arrayType, Type index)
-    {
+    Value getAtIndex(ArrayType arrayType, Type index) {
         if (cfw.isDebugCode()) {
             setDebugComment("GetAt(" + arrayType + ", " + index + ");");
         }
@@ -2065,8 +1954,7 @@ public class ClassGenerator implements ClassMakerConstants
         return arrayType.getComponentType().getValue();
     }
 
-    Value setAtIndex(ArrayType arrayType, Type indexType, Type valueType)
-    {
+    Value setAtIndex(ArrayType arrayType, Type indexType, Type valueType) {
         if (cfw.isDebugCode()) {
             setDebugComment("SetAt(" + arrayType + ", " + indexType + ", " + valueType + ");");
         }
@@ -2103,8 +1991,7 @@ public class ClassGenerator implements ClassMakerConstants
         return ClassMakerFactory.VOID_TYPE.getValue();
     }
 
-    Value arrayLength(ArrayType array)
-    {
+    Value arrayLength(ArrayType array) {
         cfw.add(ByteCode.ARRAYLENGTH);
         return ClassMakerFactory.INT_TYPE.getValue();
     }
@@ -2116,8 +2003,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the type of element in the array
      * @return a element code suitable for the JVM
      */
-    public byte typeToArrayElement(PrimitiveType type)
-    {
+    public byte typeToArrayElement(PrimitiveType type) {
         switch (type.index) {
         case PrimitiveType.BOOLEAN_INDEX:
             return ByteCode.T_BOOLEAN;
@@ -2139,6 +2025,111 @@ public class ClassGenerator implements ClassMakerConstants
         throw new IllegalArgumentException("Cannot create an array of type: " + type.getName());
     }
 
+    /* Branching and jumping instructions */
+    public int acquireLabel() {
+        return cfw.acquireLabel();
+    }
+
+    public void markLabel(int jumpLabel) {
+        cfw.markLabel(jumpLabel);
+        cfw.add(ByteCode.NOP);
+    }
+
+    public void jumpIfEqualZero(int jumpLabel) {
+        cfw.add(ByteCode.IFEQ, jumpLabel);
+    }
+
+    public void jumpIfNotEqualZero(int jumpLabel) {
+        cfw.add(ByteCode.IFNE, jumpLabel);
+    }
+
+    public void jumpTo(int jumpLabel) {
+        cfw.add(ByteCode.GOTO, jumpLabel);
+    }
+
+    /* Create Switch Statements */
+
+    /**
+     * Generates the bytecode for a
+     * <code>Switch<code> statement with contiguous keys.
+     */
+    protected void createTableSwitch(int[] cases, int caseSize, int defaultLabel) {
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("Table Switch");
+        }
+        int low = cases[0];
+        int high = cases[caseSize - 2];
+        int startSwitch = cfw.addTableSwitch(low, high);
+        cfw.addTableSwitchDefaultLabel(startSwitch, defaultLabel);
+        int prev = -1; // first key is always zero
+        for (int i = 0; i < caseSize; i += 2) {
+            int entry = i / 2;
+            int key = cases[i] - low;
+            int label = cases[i + 1];
+            if (prev == key) {
+                throw new IllegalStateException("TableSwitch duplicate case key:" + key);
+            }
+            if (prev + 1 != key) {
+                throw new IllegalStateException("TableSwitch case keys are not contiguous, case " + prev + ": case"
+                        + key + ":");
+            }
+            cfw.addTableSwitchCaseLabel(startSwitch, entry, label);
+            prev = key;
+        }
+    }
+
+    /**
+     * Generates the bytecode for a
+     * <code>Switch<code> statement with <b>non-</b>contiguous keys.
+     */
+    protected void createLookupSwitch(int[] cases, int caseSize, int defaultLabel) {
+        if (cfw.isDebugCode()) {
+            cfw.setDebugComment("Lookup Switch");
+        }
+        int startSwitch = cfw.addLookupSwitch(caseSize / 2);
+        cfw.addLookupSwitchDefaultLabel(startSwitch, defaultLabel);
+        int prev = cases[0] - 1;
+        for (int i = 0; i < caseSize; i += 2) {
+            int entry = i / 2;
+            int key = cases[i];
+            int label = cases[i + 1];
+            if (prev == key) {
+                throw new IllegalStateException("LookupSwitch duplicate case key:" + key);
+            }
+            if (prev > key) {
+                throw new IllegalStateException("TableSwitch case keys must be in ascending order, case " + prev
+                        + ": case " + key + ":");
+            }
+            cfw.addLookupSwitchCaseLabel(startSwitch, entry, key, label);
+            prev = key;
+        }
+    }
+
+    /* Create try catch finally blocks */
+
+    public void catchException(int startLabel, int endLabel, int handlerLabel, String catchClassName) {
+        cfw.addExceptionHandler(startLabel, endLabel, handlerLabel, catchClassName);
+        // An exception pointer has been pushed onto the stack.
+        cfw.adjustStackTop(1);
+    }
+
+    /**
+     * Jump to the finally subroutine.
+     */
+    void callFinallySubroutine(int finallySubroutine) {
+        if (cfw.isDebugCode()) {
+            cfw.setDebugComment("jump to finally subroutine");
+        }
+        cfw.add(ByteCode.JSR, finallySubroutine);
+    }
+
+    void returnFinallySubroutine(int returnAddress) {
+        if (cfw.isDebugCode()) {
+            cfw.setDebugComment("return from finally subroutine");
+        }
+        cfw.add(ByteCode.RET, returnAddress);
+    }
+
     /**
      * Pops a value off the program stack.
      * </br>
@@ -2148,9 +2139,7 @@ public class ClassGenerator implements ClassMakerConstants
      * @param type
      *            the type of the value on top of the stack
      */
-    protected void pop(Type type)
-    {
-        markLineNumber(); // possibly add a new line number entry.
+    protected void pop(Type type) {
         if (ClassMakerFactory.LONG_TYPE.equals(type) || ClassMakerFactory.DOUBLE_TYPE.equals(type))
             cfw.add(ByteCode.POP2);
         else
@@ -2167,8 +2156,7 @@ public class ClassGenerator implements ClassMakerConstants
      * @param type
      *            the type of the value on top of the stack
      */
-    protected void dup(Type type)
-    {
+    protected void dup(Type type) {
         if (ClassMakerFactory.LONG_TYPE.equals(type) || ClassMakerFactory.DOUBLE_TYPE.equals(type))
             cfw.add(ByteCode.DUP2);
         else
@@ -2191,8 +2179,7 @@ public class ClassGenerator implements ClassMakerConstants
      * @param type
      *            the type of the top value on the stack
      */
-    protected void dupunder(Type underType, Type type)
-    {
+    protected void dupunder(Type underType, Type type) {
         if (ClassMakerFactory.LONG_TYPE.equals(type) || ClassMakerFactory.DOUBLE_TYPE.equals(type)) {
             if (ClassMakerFactory.LONG_TYPE.equals(underType) || ClassMakerFactory.DOUBLE_TYPE.equals(underType)) {
                 cfw.add(ByteCode.DUP2_X2);
@@ -2219,8 +2206,7 @@ public class ClassGenerator implements ClassMakerConstants
      * @param type
      *            the type of the top value on the stack
      */
-    public void swap(Type underType, Type type)
-    {
+    public void swap(Type underType, Type type) {
         if (ClassMakerFactory.LONG_TYPE.equals(type) || ClassMakerFactory.DOUBLE_TYPE.equals(type)) {
             if (ClassMakerFactory.LONG_TYPE.equals(underType) || ClassMakerFactory.DOUBLE_TYPE.equals(underType)) {
                 cfw.add(ByteCode.DUP2_X2);
@@ -2239,304 +2225,6 @@ public class ClassGenerator implements ClassMakerConstants
         }
     }
 
-    //############# Increment & Decrement operators ###############
-
-    /**** Inc ****/
-
-    Value incLocal(MakerField local)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        if (!incrementLocal(local, 1)) {
-            throw new IllegalArgumentException("Cannot increment local field " + local.getName()
-                    + " of type " + local.getType());
-        }
-        return loadLocal(local);
-    }
-
-    Value incField(MakerField field)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        Type fieldType = field.getType();
-        ClassType classType = field.getClassType();
-        String className = classType.getName();
-        String name = field.getName();
-
-        // GET myclass.id
-        dup(classType);
-        cfw.add(ByteCode.GETFIELD, toSlashName(className), name, fieldType.getSignature());
-
-        if (!increment(fieldType, 1)) {
-            throw new IllegalArgumentException("Cannot increment member field " + field.getName()
-                    + " of type " + field.getType());
-        }
-        dupunder(classType, fieldType);
-
-        cfw.add(ByteCode.PUTFIELD, toSlashName(className), name, fieldType.getSignature());
-
-        return fieldType.getValue();
-    }
-
-    Value incStatic(MakerField field)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        Type fieldType = field.getType();
-        String fieldName = field.getName();
-        ClassType classType = field.getClassType();
-        String className = classType.getName();
-
-        markLineNumber(); // possibly add a new line number entry.
-        // GET myclass.id
-        cfw.add(ByteCode.GETSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
-
-        if (!increment(fieldType, 1)) {
-            throw new IllegalArgumentException("Cannot increment static field " + field.getName()
-                    + " of type " + field.getType());
-        }
-        dup(fieldType);
-
-        cfw.add(ByteCode.PUTSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
-
-        return fieldType.getValue();
-    }
-
-    /**** Dec ****/
-
-    Value decLocal(MakerField local)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        if (!incrementLocal(local, -1)) {
-            throw new IllegalArgumentException("Cannot decrement local field " + local.getName()
-                    + " of type " + local.getType());
-        }
-        return loadLocal(local);
-    }
-
-    Value decField(MakerField field)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        Type fieldType = field.getType();
-        String fieldName = field.getName();
-        ClassType classType = field.getClassType();
-        String className = classType.getName();
-
-        // GET myclass.id
-        dup(classType);
-        cfw.add(ByteCode.GETFIELD, toSlashName(className), fieldName, fieldType.getSignature());
-
-        if (!increment(fieldType, -1)) {
-            throw new IllegalArgumentException("Cannot decrement member field " 
-                    + classType.getName() + "." + field.getName() + " of type " + field.getType());
-        }
-        dupunder(classType, fieldType);
-
-        // PUT myclass.id
-        cfw.add(ByteCode.PUTFIELD, toSlashName(className), fieldName, fieldType.getSignature());
-
-        return fieldType.getValue();
-    }
-
-    Value decStatic(MakerField field)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        Type fieldType = field.getType();
-        String fieldName = field.getName();
-        ClassType classType = field.getClassType();
-        String className = classType.getName();
-
-        markLineNumber(); // possibly add a new line number entry.
-        // GET myclass.id
-        cfw.add(ByteCode.GETSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
-
-        if (!increment(fieldType, -1)) {
-            throw new IllegalArgumentException("Cannot decrement static field " 
-                    + classType.getName() + "." + field.getName() + " of type " + field.getType());
-        }
-        dup(fieldType);
-
-        cfw.add(ByteCode.PUTSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
-
-        return fieldType.getValue();
-    }
-
-    /**** PostInc ****/
-
-    Value postIncLocal(MakerField local)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        Value value = loadLocal(local);
-        if (!incrementLocal(local, 1)) {
-            throw new IllegalArgumentException("Cannot increment local field " + local.getName()
-                    + " of type " + local.getType());
-        }
-        return value;
-    }
-
-    Value postIncField(MakerField field)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        Type fieldType = field.getType();
-        String fieldName = field.getName();
-        ClassType classType = field.getClassType();
-        String className = classType.getName();
-
-        markLineNumber(); // possibly add a new line number entry.
-
-        dup(classType);
-        cfw.add(ByteCode.GETFIELD, toSlashName(className), fieldName, fieldType.getSignature());
-
-        dupunder(classType, fieldType);
-        if (!increment(fieldType, 1)) {
-            throw new IllegalArgumentException("Cannot increment member field " 
-                    + classType.getName() + "." + field.getName() + " of type " + field.getType());
-        }
-        // PUT myclass.id
-        cfw.add(ByteCode.PUTFIELD, toSlashName(className), fieldName, fieldType.getSignature());
-
-        return fieldType.getValue();
-    }
-
-    Value postIncStatic(MakerField field)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        Type fieldType = field.getType();
-        String fieldName = field.getName();
-        ClassType classType = field.getClassType();
-        String className = classType.getName();
-
-        markLineNumber(); // possibly add a new line number entry.
-        // GET myclass.id
-        cfw.add(ByteCode.GETSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
-
-        dup(fieldType);
-        if (!increment(fieldType, 1)) {
-            throw new IllegalArgumentException("Cannot increment static field " 
-                    + classType.getName() + "." + field.getName() + " of type " + field.getType());
-        }
-        cfw.add(ByteCode.PUTSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
-
-        return fieldType.getValue();
-    }
-
-    /**** PostDec ****/
-
-    Value postDecLocal(MakerField local)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        Value value = loadLocal(local);
-        if (!incrementLocal(local, -1)) {
-            throw new IllegalArgumentException("Cannot decrement local field " + local.getName()
-                    + " of type " + local.getType());
-        }
-        return value;
-    }
-
-    Value postDecField(MakerField field)
-    {
-        Type fieldType = field.getType();
-        String fieldName = field.getName();
-        ClassType classType = field.getClassType();
-        String className = classType.getName();
-
-        markLineNumber(); // possibly add a new line number entry.
-        // GET myclass.id
-        dup(classType);
-        cfw.add(ByteCode.GETFIELD, toSlashName(className), fieldName, fieldType.getSignature());
-
-        dupunder(classType, fieldType);
-        if (!increment(fieldType, -1)) {
-            throw new IllegalArgumentException("Cannot decrement member field " 
-                    + classType.getName() + "." + field.getName() + " of type " + field.getType());
-        }
-        // PUT myclass.id
-        cfw.add(ByteCode.PUTFIELD, toSlashName(className), fieldName, fieldType.getSignature());
-
-        return fieldType.getValue();
-    }
-
-    Value postDecStatic(MakerField field)
-    {
-        markLineNumber(); // possibly add a new line number entry.
-        Type fieldType = field.getType();
-        String fieldName = field.getName();
-        ClassType classType = field.getClassType();
-        String className = classType.getName();
-
-        markLineNumber(); // possibly add a new line number entry.
-        // GET myclass.id
-        cfw.add(ByteCode.GETSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
-
-        dup(fieldType);
-        if (!increment(fieldType, -1)) {
-            throw new IllegalArgumentException("Cannot decrement static field " 
-                    + classType.getName() + "." + field.getName() + " of type " + field.getType());
-        }
-        cfw.add(ByteCode.PUTSTATIC, toSlashName(className), fieldName, fieldType.getSignature());
-
-        return fieldType.getValue();
-    }
-
-    /**** IncAt ****/
-
-    protected boolean incrementAtIndex(ArrayType arrayType, Type indexType, Type elementType, int amount) {
-        markLineNumber(); // possibly add a new line number entry.
-        //# Stack contents
-        //# array index
-        swap(arrayType, indexType);
-        //# index array
-        dupunder(indexType, arrayType);
-        //# array index array
-        swap(indexType, arrayType);
-        //# array array index
-        dupunder(arrayType, indexType);
-        //# array index array index
-        getAtIndex(arrayType, indexType);
-        //# array index value
-        if (!increment(elementType, amount)) {
-            return false;
-        }
-        //# array index value+1
-        dup(elementType);
-        //# array index value+1 value+1
-        int slot = storeAnonymousValue(elementType);
-        //# array index value+1
-        setAtIndex(arrayType, indexType, elementType);
-        //# -
-        this.loadAnonymousValue(slot);
-        //# value+1
-
-        return true;
-    }
-
-    boolean postIncrementAtIndex(ArrayType arrayType, Type indexType, Type elementType, int amount) {
-        markLineNumber(); // possibly add a new line number entry.
-        //# Stack contents
-        //# array index
-        swap(arrayType, indexType);
-        //# index array
-        dupunder(indexType, arrayType);
-        //# array index array
-        swap(indexType, arrayType);
-        //# array array index
-        dupunder(arrayType, indexType);
-        //# array index array index
-        getAtIndex(arrayType, indexType);
-        //# array index value
-        dup(elementType);
-        //# array index value value
-        int slot = storeAnonymousValue(elementType);
-        //# array index value
-        if (!increment(elementType, amount)) {
-            return false;
-        }
-        //# array index value+1
-        setAtIndex(arrayType, indexType, elementType);
-        //# -
-        this.loadAnonymousValue(slot);
-        //# value
-
-        return true;
-    }
-
     /**
      * Increments a local variable by the given amount.
      * 
@@ -2546,8 +2234,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the amount to increment the variable
      * @return <code>false</code> if value cannot be incremented
      */
-    protected boolean incrementLocal(MakerField local, int amount)
-    {
+    protected boolean incrementLocal(MakerField local, int amount) {
         if (isPrimitive(local.getType())) {
             PrimitiveType prim = local.getType().toPrimitive();
             switch (prim.index) {
@@ -2607,11 +2294,8 @@ public class ClassGenerator implements ClassMakerConstants
      *            the amount to increment the value
      * @return <code>false</code> if value cannot be incremented
      */
-    protected boolean increment(Type type, int amount)
-    {
+    protected boolean increment(Type type, int amount) {
         if (isPrimitive(type)) {
-            markLineNumber(); // possibly add a new line number entry.
-
             switch (type.toPrimitive().index) {
             case PrimitiveType.BYTE_INDEX: // fall thru
                 cfw.addLoadConstant(amount);
@@ -2654,14 +2338,18 @@ public class ClassGenerator implements ClassMakerConstants
     /**
      * Adds a formal parameter or local variable to the method.
      * 
-     * @param name name of the local variable
-     * @param type type of the local variable
-     * @param modifiers access modifiers for the variable
-     * @param scopeLevel the level of nesting that determines when the variable is out of scope
+     * @param name
+     *            name of the local variable
+     * @param type
+     *            type of the local variable
+     * @param modifiers
+     *            access modifiers for the variable
+     * @param scopeLevel
+     *            the level of nesting that determines when the variable is out
+     *            of scope
      * @return index into <code>localTable</code>
      */
-    int addLocal(String name, Type type, int modifiers, int scopeLevel)
-    {
+    int addLocal(String name, Type type, int modifiers, int scopeLevel) {
         MakerField field = new MakerField(name, type, modifiers);
         field.setSlot(maxLocalSlots);
         field.setScopeLevel(scopeLevel);
@@ -2681,8 +2369,7 @@ public class ClassGenerator implements ClassMakerConstants
      *            the name of the variable
      * @return a <code>Field</code> that describes the variable
      */
-    MakerField findLocalField(String name)
-    {
+    MakerField findLocalField(String name) {
         for (int i = localTable.size() - 1; i >= 0; i--) {
             MakerField local = localTable.get(i);
             if (!local.isInScope())
@@ -2694,59 +2381,64 @@ public class ClassGenerator implements ClassMakerConstants
         return null;
     }
 
-    /**
-     * Stores a value in a nameless local variable.
-     * </br>
-     * The value may be retrieved using the slot offset.
-     * The type determines how may slots are reserved.
-     * 
-     * @param type
-     *            type of value being stored.
-     */
-    protected int storeAnonymousValue(Type type) throws ClassMakerException
-    {
-        int index = addLocal(null, type, 0, 0);
-        MakerField local = lookupLocal(index);
-        storeLocal(local, type);
-        return index;
+    /* Short cut logic */
+
+    public void markAndThenLabel(AndOrExpression andOr) {
+        if (andOr != null && andOr.jumpAnd != 0) {
+            if (isDebugCode()) {
+                setDebugComment("preserve result on stack");
+            }
+            int temp = cfw.acquireLabel();
+            cfw.add(ByteCode.GOTO, temp);
+            cfw.markLabel(andOr.jumpAnd);
+            andOr.jumpAnd = 0;
+            if (isDebugCode()) {
+                setDebugComment("|| expression evaluates to false");
+            }
+            cfw.add(ByteCode.ICONST_0);
+            cfw.markLabel(temp);
+        }
     }
 
-    /**
-     * Loads a value from a nameless local variable.
-     * 
-     * @param index
-     *            the index of the anonymous field holding the value
-     * @return type of the value being loaded
-     */
-    protected Value loadAnonymousValue(int index) throws ClassMakerException
-    {
-        MakerField local = lookupLocal(index);
-        return loadLocal(local);
+    public void markOrElseLabel(AndOrExpression andOr) {
+        if (andOr != null && andOr.jumpOr != 0) {
+            if (isDebugCode()) {
+                setDebugComment("preserve result on stack");
+            }
+            int temp = cfw.acquireLabel();
+            cfw.add(ByteCode.GOTO, temp);
+            cfw.markLabel(andOr.jumpOr);
+            andOr.jumpOr = 0;
+            if (isDebugCode()) {
+                setDebugComment("|| expression evaluates to true");
+            }
+            cfw.add(ByteCode.ICONST_1);
+            cfw.markLabel(temp);
+        }
     }
 
-    private void assertNotNull(Object obj, String name)
-    {
+    private void assertNotNull(Object obj, String name) {
         if (obj == null)
             throw new IllegalArgumentException(name + " cannot be null");
     }
 
-    /**
-     * Adds a line number entry to the generated class, if appropriate. <br/>
-     * Called by methods that generate byte codes. A line number entry will
-     * be added to the method being generated if the line number has changed
-     * since the last time this method was called.
-     */
-    protected void markLineNumber()
-    {
-        int lineNumber = sourceLine.getLineNumber();
+    public int getLineNumber() {
+        return maker.getSourceLine().getLineNumber();
+    }
+
+    public void markLineNumber(int lineNumber) {
         if (lineNumber != previousLineNumber && lineNumber > 0) {
             cfw.addLineNumberEntry((short) lineNumber);
             previousLineNumber = lineNumber;
         }
-        //checkInMethod();
-        // For convenience we reset the followsReturn flag
-        // because almost every method calls this method.
-        //followsReturn = false;
+    }
+
+    public String getClassName() {
+        return cfw.getClassName();
+    }
+
+    public byte[] toByteArray() {
+        return cfw.toByteArray();
     }
 
     /**
@@ -2760,10 +2452,9 @@ public class ClassGenerator implements ClassMakerConstants
      *             if the class file cannot be created
      * @return a File referring to the saved class file
      */
-    public File saveClass(File classesDir) throws IOException
-    {
+    public File saveClass(File classesDir) throws IOException {
         ClassFileWriter cfw = getClassFileWriter();
-        String className = cfw.getClassName() + ".class";
+        String className = getClassName() + ".class";
         File classFile = new File(classesDir, className);
         File packageFile = classFile.getParentFile();
         if (!packageFile.exists()) {
@@ -2786,8 +2477,7 @@ public class ClassGenerator implements ClassMakerConstants
      * @throws IOException
      *             if the class file cannot be created
      */
-    public void deleteClass(File classesDir, String className) throws IOException
-    {
+    public void deleteClass(File classesDir, String className) throws IOException {
         String fileName = toSlashName(className) + ".class";
         File classFile = new File(classesDir, fileName);
         if (classFile.exists()) {
@@ -2796,8 +2486,7 @@ public class ClassGenerator implements ClassMakerConstants
         }
     }
 
-    public String toString()
-    {
+    public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append("ClassGenerator(");
         buf.append(cfw.getClassName());

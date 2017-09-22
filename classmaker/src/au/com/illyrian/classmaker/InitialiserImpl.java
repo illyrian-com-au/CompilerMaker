@@ -24,8 +24,8 @@ public class InitialiserImpl implements Initialiser
     {
         this.maker = maker;
         this.reference = reference;
-        if (maker.getClassFileWriter() != null) {
-            maker.dup(reference.getType());
+        if (maker.getGen() != null) {
+            maker.getGen().dup(reference.getType());
         }
     }
 
@@ -45,7 +45,7 @@ public class InitialiserImpl implements Initialiser
      */
     public Value Init(CallStack actualParameters)
     {
-        if (maker.getClassFileWriter() != null) {
+        if (maker.getGen() != null) {
             maker.Init(reference, actualParameters);
         }
         return reference;

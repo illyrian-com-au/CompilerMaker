@@ -81,11 +81,11 @@ public class AssignmentConversion extends MethodInvocationConversion implements 
         if (source.equals(target))
             return true;
         // Widening Primitive Conversion
-        if (ClassMaker.isPrimitive(source) && ClassMaker.isPrimitive(target))
+        if (Type.isPrimitive(source) && Type.isPrimitive(target))
             if (isWideningPrimitiveConvertable(source.toPrimitive(), target.toPrimitive()))
                 return true;
         // Widening Reference Conversion
-        if (ClassMaker.isClass(source) && ClassMaker.isClass(target))
+        if (Type.isClass(source) && Type.isClass(target))
             if (isWideningReferenceConvertable(source.toClass(), target.toClass()))
                 return true;
         // String Assignment Conversion
@@ -158,20 +158,20 @@ public class AssignmentConversion extends MethodInvocationConversion implements 
         {
         case PrimitiveType.BYTE_INDEX: // byte can be promoted to short or int
             if (ClassMakerFactory.SHORT_TYPE.equals(target))
-                return maker.toShort(source);
+                return maker.getGen().toShort(source);
         case PrimitiveType.SHORT_INDEX: // short can be promoted to int
         case PrimitiveType.CHAR_INDEX:  // char can be promoted to int
             if (ClassMakerFactory.INT_TYPE.equals(target))
-                return maker.toInt(source);
+                return maker.getGen().toInt(source);
         case PrimitiveType.INT_INDEX: // int can be promoted to long, float or double
             if (ClassMakerFactory.LONG_TYPE.equals(target))
-                return maker.toLong(source);
+                return maker.getGen().toLong(source);
         case PrimitiveType.LONG_INDEX: // long can be promoted to float or double
             if (ClassMakerFactory.FLOAT_TYPE.equals(target))
-                return maker.toFloat(source);
+                return maker.getGen().toFloat(source);
         case PrimitiveType.FLOAT_INDEX: // float can be promoted to double
             if (ClassMakerFactory.DOUBLE_TYPE.equals(target))
-                return maker.toDouble(source);
+                return maker.getGen().toDouble(source);
         }
         // Should not get here. All calls to this method should be guarded by a call to isConvertable.
         throw new IllegalArgumentException("Cannot apply a Widening Primitive Conversion from type " + source.getName() + " to type " + target.getName());
@@ -191,11 +191,11 @@ public class AssignmentConversion extends MethodInvocationConversion implements 
         if (source.equals(target))
             return target;
         // Widening Primitive Conversion
-        if (ClassMaker.isPrimitive(source) && ClassMaker.isPrimitive(target))
+        if (Type.isPrimitive(source) && Type.isPrimitive(target))
             if (isWideningPrimitiveConvertable(source.toPrimitive(), target.toPrimitive()))
                 return wideningPrimitiveConversion(maker, source.toPrimitive(), target.toPrimitive());
         // Widening Reference Conversion
-        if (ClassMaker.isClass(source) && ClassMaker.isClass(target))
+        if (Type.isClass(source) && Type.isClass(target))
             if (isWideningReferenceConvertable(source.toClass(), target.toClass()))
                 return wideningReferenceConversion(maker, source.toClass(), target.toClass());
         // String Assignment Conversion

@@ -28,14 +28,10 @@
 package au.com.illyrian.classmaker;
 
 import org.mozilla.classfile.ByteCode;
-import org.mozilla.classfile.ClassFileWriter;
 import org.mozilla.classfile.SimpleClassLoader;
-
-import au.com.illyrian.classmaker.types.PrimitiveType;
 
 public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
 {
-    ClassFileWriter cfw;
     ClassMaker maker;
     SimpleClassLoader loader = new SimpleClassLoader();
     ClassMakerFactory factory;
@@ -94,7 +90,6 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
     {
         factory = new ClassMakerFactory();
         maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
-        cfw = maker.getClassFileWriter();
     }
 
     // Generate default constructor

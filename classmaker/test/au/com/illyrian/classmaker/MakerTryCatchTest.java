@@ -523,8 +523,9 @@ nl();   maker.End();
     }
 
     public void testCatchThrowFinally() throws Exception
-    { maker.getClassFileWriter().setDebugCodeOutput(System.out);
-nl(526);
+    { 
+        maker.setDebugCodeOutput(System.out);
+nl(528);
 nl();   maker.Implements(UnaryChecked.class);
 nl();   maker.Import(UNARY_CHECKED);
 nl();   maker.Import(FILE_NOT_FOUND_EXCEPTION);

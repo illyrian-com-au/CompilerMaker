@@ -1,8 +1,5 @@
 package au.com.illyrian.classmaker;
 
-import org.mozilla.classfile.ByteCode;
-
-import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 
 /**
@@ -33,14 +30,17 @@ class LoopStatement extends Statement
      */
     public void Loop() throws ClassMakerException
     {
-        if (getClassFileWriter() == null) return;
+        if (isFirstPass()) {
+            return;
+        }
         maker.markLineNumber(); // possibly add a new line number entry.
-        if (cfw.isDebugCode()) cfw.setDebugComment("Loop()");
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("Loop()");
+        }
 
-        beginLoop = cfw.acquireLabel();
-        endLoop = cfw.acquireLabel();
-        cfw.markLabel(beginLoop);
-        cfw.add(ByteCode.NOP);
+        beginLoop = acquireLabel();
+        endLoop = acquireLabel();
+        markLabel(beginLoop);
     }
 
     /**
@@ -52,17 +52,21 @@ class LoopStatement extends Statement
      */
     public void EndLoop() throws ClassMakerException
     {
-        if (getClassFileWriter() != null)
-        {
-            if (breakCount == 0)
+        if (!isFirstPass()) {
+            if (breakCount == 0) {
                 throw maker.createException("ClassMaker.LoopDoesNotContainBreak");
+            }
             maker.markLineNumber(); // possibly add a new line number entry.
 
-            if (cfw.isDebugCode()) cfw.setDebugComment("   Jump to begining of Loop");
-            cfw.add(ByteCode.GOTO, beginLoop);
+            if (maker.isDebugCode()) {
+                maker.setDebugComment("   Jump to begining of Loop");
+            }
+            jumpTo(beginLoop);
 
-            if (cfw.isDebugCode()) cfw.setDebugComment("End of Loop");
-            cfw.markLabel(endLoop);
+            if (maker.isDebugCode()) {
+                maker.setDebugComment("End of Loop");
+            }
+            markLabel(endLoop);
         }
         // Pop LoopStatement off statement stack.
         dispose();
@@ -76,15 +80,18 @@ class LoopStatement extends Statement
      */
     public ForStep While(Type condition) throws ClassMakerException
     {
-        if (getClassFileWriter() == null) return null;
-        if (!ClassMakerFactory.BOOLEAN_TYPE.equals(condition))
-        {
+        if (isFirstPass()) {
+            return null;
+        }
+        if (!ClassMakerFactory.BOOLEAN_TYPE.equals(condition)) {
             throw maker.createException("ClassMaker.WhileConditionMustBeTypeBooleanNot_1", condition.getName());
         }
         maker.markLineNumber(); // possibly add a new line number entry.
-        if (cfw.isDebugCode()) cfw.setDebugComment("    jump conditional to end of loop");
-        // Boolean value on stack will be 1 (true) to continute Loop or 0 (false) to exit Loop.
-        cfw.add(ByteCode.IFEQ, endLoop);   // Break out of the loop if equal to zero.
+        if (maker.isDebugCode()) {
+            maker.setDebugComment("    jump conditional to end of loop");
+        }
+        // Boolean value on stack will be 1 (true) to continue Loop or 0 (false) to exit Loop.
+        this.jumpIfEqualZero(endLoop);
         breakCount++;
         return null;
     }
@@ -103,20 +110,24 @@ class LoopStatement extends Statement
     {
         if (ClassMaker.BREAK.equals(jumpTarget) && (label == null || label.equals(getLabel())))
         {   // Break jumps to the end of the loop
-            if (cfw.isDebugCode()) cfw.setDebugComment("    Break jumps to end of loop" + (label == null ? "" : label));
-            cfw.add(ByteCode.GOTO, endLoop);
+            if (maker.isDebugCode()) {
+                maker.setDebugComment("    Break jumps to end of loop" + (label == null ? "" : label));
+            }
+            jumpTo(endLoop);
             breakCount++;
         }
         else if (ClassMaker.CONTINUE.equals(jumpTarget) && (label == null || label.equals(getLabel())))
         {   // Continue jumps to the start of the loop
-            if (cfw.isDebugCode()) 
-            	cfw.setDebugComment("    Continue jumps to start of loop " + (label == null ? "" : label));
+            if (maker.isDebugCode()) {
+            	maker.setDebugComment("    Continue jumps to start of loop " + (label == null ? "" : label));
+            }
             continueLoop();
         }
         else
         {   // We have not found the appropriate break.
-            if (ClassMaker.BREAK.equals(jumpTarget))
+            if (ClassMaker.BREAK.equals(jumpTarget)) {
                 breakCount++; // indicate that this statement has at least one break.
+            }
             // Pass the request down the statement stack
             return super.jumpToTarget(jumpTarget, label);
         }
@@ -126,7 +137,7 @@ class LoopStatement extends Statement
     /** Jumps to the begining of the loop. */
     protected void continueLoop()
     {
-        cfw.add(ByteCode.GOTO, beginLoop);
+        jumpTo(beginLoop);
     }
     
     protected int getStatementEnd()

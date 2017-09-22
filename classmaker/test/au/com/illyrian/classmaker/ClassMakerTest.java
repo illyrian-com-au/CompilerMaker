@@ -33,6 +33,7 @@ import junit.framework.TestCase;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Value;
+import au.com.illyrian.classmaker.util.MakerUtil;
 
 public class ClassMakerTest extends TestCase
 {
@@ -94,37 +95,37 @@ public class ClassMakerTest extends TestCase
 
     private void checkType(String name, String signature, Class javaClass)
     {
-    	assertEquals(name, ClassMaker.classToName(javaClass));
-    	assertEquals(signature, ClassMaker.classToSignature(javaClass));
+    	assertEquals(name, MakerUtil.classToName(javaClass));
+    	assertEquals(signature, MakerUtil.classToSignature(javaClass));
     }
 
     public void testArrayToName()
     {
-    	assertEquals(ClassMaker.classToName(Object[].class), maker.ArrayOf(Object.class).getName());
-    	assertEquals(ClassMaker.classToName(int[].class), maker.ArrayOf(int.class).getName());
-    	assertEquals(ClassMaker.classToName(Object[][].class), maker.ArrayOf(Object[].class).getName());
-    	assertEquals(ClassMaker.classToName(int[][].class), maker.ArrayOf(int[].class).getName());
-    	assertEquals(ClassMaker.classToName(Object[].class), maker.classToClassType(Object[].class).getName());
-    	assertEquals(ClassMaker.classToName(int[].class), maker.classToClassType(int[].class).getName());
-    	assertEquals(ClassMaker.classToName(Object[][].class), maker.classToClassType(Object[][].class).getName());
-    	assertEquals(ClassMaker.classToName(int[][].class), maker.classToClassType(int[][].class).getName());
+    	assertEquals(MakerUtil.classToName(Object[].class), maker.ArrayOf(Object.class).getName());
+    	assertEquals(MakerUtil.classToName(int[].class), maker.ArrayOf(int.class).getName());
+    	assertEquals(MakerUtil.classToName(Object[][].class), maker.ArrayOf(Object[].class).getName());
+    	assertEquals(MakerUtil.classToName(int[][].class), maker.ArrayOf(int[].class).getName());
+    	assertEquals(MakerUtil.classToName(Object[].class), maker.classToClassType(Object[].class).getName());
+    	assertEquals(MakerUtil.classToName(int[].class), maker.classToClassType(int[].class).getName());
+    	assertEquals(MakerUtil.classToName(Object[][].class), maker.classToClassType(Object[][].class).getName());
+    	assertEquals(MakerUtil.classToName(int[][].class), maker.classToClassType(int[][].class).getName());
     }
     
     public void testModifiers()
     {
-        assertEquals("public",    ClassMakerConstants.ACC_PUBLIC, ClassMaker.fromModifierString("public"));
-        assertEquals("protected", ClassMakerConstants.ACC_PROTECTED, ClassMaker.fromModifierString("protected"));
-        assertEquals("private",   ClassMakerConstants.ACC_PRIVATE, ClassMaker.fromModifierString("private"));
-        assertEquals("static",    ClassMakerConstants.ACC_STATIC, ClassMaker.fromModifierString("static"));
-        assertEquals("final",     ClassMakerConstants.ACC_FINAL, ClassMaker.fromModifierString("final"));
-        assertEquals("synchronized", ClassMakerConstants.ACC_SYNCHRONIZED, ClassMaker.fromModifierString("synchronized"));
-        assertEquals("volatile",  ClassMakerConstants.ACC_VOLATILE, ClassMaker.fromModifierString("volatile"));
-        assertEquals("transient", ClassMakerConstants.ACC_TRANSIENT, ClassMaker.fromModifierString("transient"));
-        assertEquals("native",    ClassMakerConstants.ACC_NATIVE, ClassMaker.fromModifierString("native"));
-        assertEquals("abstract",  ClassMakerConstants.ACC_ABSTRACT, ClassMaker.fromModifierString("abstract"));
-        assertEquals("strictfp",  ClassMakerConstants.ACC_STRICTFP, ClassMaker.fromModifierString("strictfp"));
+        assertEquals("public",    ClassMakerConstants.ACC_PUBLIC, MakerUtil.fromModifierString("public"));
+        assertEquals("protected", ClassMakerConstants.ACC_PROTECTED, MakerUtil.fromModifierString("protected"));
+        assertEquals("private",   ClassMakerConstants.ACC_PRIVATE, MakerUtil.fromModifierString("private"));
+        assertEquals("static",    ClassMakerConstants.ACC_STATIC, MakerUtil.fromModifierString("static"));
+        assertEquals("final",     ClassMakerConstants.ACC_FINAL, MakerUtil.fromModifierString("final"));
+        assertEquals("synchronized", ClassMakerConstants.ACC_SYNCHRONIZED, MakerUtil.fromModifierString("synchronized"));
+        assertEquals("volatile",  ClassMakerConstants.ACC_VOLATILE, MakerUtil.fromModifierString("volatile"));
+        assertEquals("transient", ClassMakerConstants.ACC_TRANSIENT, MakerUtil.fromModifierString("transient"));
+        assertEquals("native",    ClassMakerConstants.ACC_NATIVE, MakerUtil.fromModifierString("native"));
+        assertEquals("abstract",  ClassMakerConstants.ACC_ABSTRACT, MakerUtil.fromModifierString("abstract"));
+        assertEquals("strictfp",  ClassMakerConstants.ACC_STRICTFP, MakerUtil.fromModifierString("strictfp"));
         try {
-            ClassMaker.fromModifierString("pulbic");
+            MakerUtil.fromModifierString("pulbic");
             fail("ClassMakerException expected");
         } catch (IllegalArgumentException ex)
         {
@@ -147,8 +148,8 @@ public class ClassMakerTest extends TestCase
             assertEquals("Duplicate modifiers", "Duplicate modifier: public", ex.getMessage());
         }
         int expected = ClassMakerConstants.ACC_PUBLIC | ClassMakerConstants.ACC_STATIC;
-        assertEquals("Wrong modifiers", ClassMaker.toModifierString(expected),
-                ClassMaker.toModifierString(maker.addModifier(ClassMakerConstants.ACC_PUBLIC, "static")));
+        assertEquals("Wrong modifiers", MakerUtil.toModifierString(expected),
+                MakerUtil.toModifierString(maker.addModifier(ClassMakerConstants.ACC_PUBLIC, "static")));
 
     }
 
@@ -402,7 +403,7 @@ public class ClassMakerTest extends TestCase
         ClassMaker maker = new SquareTestMaker();
         String className = maker.getFullyQualifiedClassName();
         File classesDir =new File("build/classes");
-        File classFile = new File(classesDir, ClassMaker.toSlashName(className)+".class");
+        File classFile = new File(classesDir, MakerUtil.toSlashName(className)+".class");
         maker.saveClass(classesDir);
         assertTrue("File does not exist: " + classFile.getAbsolutePath(), classFile.exists());
         Class squareClass = ClassMakerCode.getSharedFactory().getClassLoader().loadClass(className);
