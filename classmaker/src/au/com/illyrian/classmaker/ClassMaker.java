@@ -49,6 +49,7 @@ import au.com.illyrian.classmaker.types.MakerClassType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
+import au.com.illyrian.classmaker.util.LocalFieldList;
 import au.com.illyrian.classmaker.util.MakerUtil;
 
 /**
@@ -150,9 +151,6 @@ import au.com.illyrian.classmaker.util.MakerUtil;
 public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     private static final Logger log = Logger.getLogger(ClassMaker.class.getName());
 
-    /* Bitmask for class modifier to indicate that the class follows java 1.3+ (?) semantics for method invocation. */
-    private static final short MASK_SUPER = 0x0002;
-
     /**
      * Bitmask of method modifiers that are incompatable with the
      * <code>abstract</code> modifier.
@@ -192,7 +190,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     /** A list of member fields in the class being generated. */
     private Vector<MakerField> fieldTable = new Vector<MakerField>();
     /** A list of local variables in the class being generated. */
-    Vector<MakerField> localTable = new Vector<MakerField>();
+    private LocalFieldList localFields = null;
     /**
      * Short class names are mapped to class types as they are imported into the
      * class being generated.
@@ -204,8 +202,6 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     private boolean hasConstructor = false;
     /** Indicates that the previous statement was a call to Return(). */
     private boolean followsReturn = false;
-    /** Get the maximum local slots used by this method. */
-    private short maxLocalSlots = 0;
 
     /** The fully qualified name of the package */
     private String packageName = null;
@@ -652,17 +648,6 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      */
     public MakerField[] getDeclaredFields() {
         return fieldTable.toArray(ClassMakerFactory.FIELD_ARRAY);
-    }
-
-    /**
-     * Find a local variable by index.
-     * 
-     * @param index
-     *            an index into <code>localTable</code>
-     * @return the indexed local field
-     */
-    MakerField lookupLocal(int index) {
-        return localTable.get(index);
     }
 
     /** The class modifiers for the generated class. */
@@ -1438,7 +1423,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
         method = new MakerMethod(getClassType(), methodName, returnType, (short) methodModifiers);
 
         // Adjust the slots used to account for the this pointer, if present.
-        maxLocalSlots = method.isStatic() ? 0 : getClassType().getSlotSize();
+        localFields = new LocalFieldList(getGen());
+        localFields.incLocalSlots(method.isStatic() ? 0 : getClassType().getSlotSize());
 
         // Determine whether the class declares a constructor.
         if (INIT.equals(methodName)) {
@@ -1460,7 +1446,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
             throw createException("ClassMaker.AbstractMethodCannotHaveBody_1", "Begin()");
         }
 
-        method.setFormalParams(createFormalParameters());
+        method.setFormalParams(getLocalFields().createFormalParameters());
 
         if (isFirstPass()) {
             method.setHasBody(false);
@@ -1498,12 +1484,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
                 }
             }
             markLineNumber(); // possibly add a new line number entry.
-            getGen().endMethod(localTable, maxLocalSlots);
+            getGen().endMethod(getLocalFields());
         }
 
         // Exit method.
         method = null;
-        localTable.clear();
+        localFields = null;
     }
 
     /**
@@ -1548,41 +1534,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     }
 
     /**
-     * Limits the visibility of all local variables that were added at the given
-     * scope level. <br/>
-     * Records the program counter as the variable goes out of scope and marks
-     * the variable as out of scope.
-     * Scope entries are added to the method as it is completed.
-     * 
-     * @param scope
-     *            the level of nesting of the current scoped code block
-     */
-    void exitScope(int scope) {
-        // Local variable descriptors are used by the debugger.
-        for (int i = localTable.size() - 1; i >= 0; i--) {
-            MakerField local = localTable.elementAt(i);
-            if (local.getName() == null) {
-                continue; // Skip anonymous local variables
-            }
-            if (!local.isInScope()) {
-                continue; // Skip out of scope variables
-            }
-            if (local.getScopeLevel() < scope) {
-                break; // Stop when field is in wider scope
-            }
-            local.setEndPC(gen.getCurrentCodeOffset());
-            local.setInScope(false);
-        }
-    }
-
-    /**
      * Ends a method that does not have a body.
      * </br>
      * This may be because the method is abstract or because it is being forward
      * declared so that only one pass is necessary to parse the source file.
      */
     public void Forward() throws ClassMakerException {
-        method.setFormalParams(createFormalParameters());
+        method.setFormalParams(getLocalFields().createFormalParameters());
         if (getPass() == FIRST_PASS) {
             if (methods.indexOf(method) >= 0 || constructors.indexOf(method) >= 0) {
                 throw createException("ClassMaker.MethodDeclaredMoreThanOnce_1", method.toString());
@@ -1599,7 +1557,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
             }
         }
         method = null;
-        localTable.clear();
+        localFields = null;
     }
 
     /**
@@ -1680,21 +1638,6 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      */
     boolean isInBody() {
         return bottomStatement != null;
-    }
-
-    /**
-     * Creates a list of formal parameters for the method currently being
-     * generated.
-     * 
-     * @return an array of formal parameter <code>Type</code>s
-     */
-    Type[] createFormalParameters() {
-        int size = localTable.size();
-        Type[] params = new Type[size];
-        for (int index = 0; index < size; index++) {
-            params[index] = lookupLocal(index).getType();
-        }
-        return params;
     }
 
     //################ Class Instantiation #########################
@@ -2954,54 +2897,20 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
             return null;
         }
         checkInMethod();
-        MakerField field = findLocalField(name);
+        MakerField field = getLocalFields().findLocalField(name);
         if (field == null) {
             field = getClassType().findField(name);
         }
         return field;
     }
 
-    /**
-     * Adds a formal parameter or local variable to the method.
-     * 
-     * @param name name of the local variable
-     * @param type type of the local variable
-     * @param modifiers access modifiers for the variable
-     * @return index into <code>localTable</code>
-     */
-    int addLocal(String name, Type type, int modifiers) {
-        MakerField field = new MakerField(name, type, modifiers);
-        field.setSlot(maxLocalSlots);
-        field.setScopeLevel(getScopeLevel());
-        // Adjust the number of slots used.
-        maxLocalSlots += type.getSlotSize();
-        if (getGen() != null) {
-            field.setStartPC(getGen().getCurrentCodeOffset());
+    LocalFieldList getLocalFields() {
+        if (!isInMethod()) {
+            throw new NullPointerException("Local fields are only available within a method");            
         }
-        int index = localTable.size();
-        localTable.add(field);
-        return index;
+        return localFields;
     }
-
-    /**
-     * Finds a local variable in the method.
-     * 
-     * @param name
-     *            the name of the variable
-     * @return a <code>Field</code> that describes the variable
-     */
-    MakerField findLocalField(String name) {
-        for (int i = localTable.size() - 1; i >= 0; i--) {
-            MakerField local = localTable.get(i);
-            if (!local.isInScope())
-                continue; // Skip locals that are out of scope
-            if (name.equals(local.getName())) {
-                return local;
-            }
-        }
-        return null;
-    }
-
+    
     //############# Variable declarations ################
 
     /**
@@ -3187,12 +3096,13 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
                 getGen().declareVariable(name, type, modifiers);
             }
         } else { // Local variable or parameter
-            if (getPass() != SECOND_PASS && findLocalField(name) != null) {
+            if (getPass() != SECOND_PASS && localFields.findLocalField(name) != null) {
                 throw createException("ClassMaker.DuplicateLocalVariableDeclaration_1", name);
             }
-            addLocal(name, type, modifiers);
+            //addLocal(name, type, modifiers, getScopeLevel()); // FIXME remove
+            int localOffset = localFields.addLocal(name, type, modifiers, getScopeLevel());
             if (getGen() != null) {
-                MakerField local = findLocalField(name);
+                MakerField local = localFields.findLocalField(localOffset);
                 getGen().addToScope(local, getScopeLevel());
                 if (isInBody()) {
                     if (isDebugCode())
@@ -5389,9 +5299,9 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
         gen.loadStatic(field);
 
         gen.dup(fieldType);
-        if (!gen.increment(fieldType, -1))
+        if (!gen.increment(fieldType, -1)) {
             throw createException("ClassMaker.CannotDecrementFieldOfType_2", fieldName, fieldType.getName());
-
+        }
         gen.storeStatic(field);
 
         return fieldType.getValue();
@@ -6152,8 +6062,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      *            type of value being stored.
      */
     protected int storeAnonymousValue(Type type) throws ClassMakerException {
-        int index = addLocal(null, type, 0);
-        MakerField local = lookupLocal(index);
+        int index = getLocalFields().addLocal(null, type, 0, getScopeLevel());
+        MakerField local = getLocalFields().findLocalField(index);
         gen.storeLocal(local);
         return index;
     }
@@ -6166,7 +6076,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      * @return type of the value being loaded
      */
     protected Value loadAnonymousValue(int index) throws ClassMakerException {
-        MakerField local = lookupLocal(index);
+        MakerField local = getLocalFields().findLocalField(index);
         return gen.loadLocal(local);
     }
 

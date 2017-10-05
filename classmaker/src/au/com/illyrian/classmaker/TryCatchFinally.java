@@ -150,7 +150,7 @@ public class TryCatchFinally extends Statement
         }
         markLabel(finallySubroutine);
 
-        // Store return address in an anonomous local variable.
+        // Store return address in an anonymous local variable.
         finallyReturnSlot = maker.storeAnonymousValue(ClassMakerFactory.OBJECT_TYPE);
     }
 
@@ -166,7 +166,7 @@ public class TryCatchFinally extends Statement
             	maker.setDebugComment("EndTry();");
             }
             if (finallyReturnSlot != 0) {
-                MakerField local = maker.localTable.get(finallyReturnSlot);
+                MakerField local = maker.getLocalFields().findLocalField(finallyReturnSlot);
                 getGen().returnFinallySubroutine(local.getSlot());
             }
             markLabel(endCatchBlock);

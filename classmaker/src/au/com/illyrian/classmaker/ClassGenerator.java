@@ -46,6 +46,7 @@ import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
+import au.com.illyrian.classmaker.util.LocalFieldList;
 
 /**
  *
@@ -346,6 +347,20 @@ public class ClassGenerator implements ClassMakerConstants {
 
         cfw.add(ByteCode.NOP);
         cfw.stopMethod(maxLocalSlots);
+    }
+
+    public void endMethod(LocalFieldList localFields) {
+        // Local variable descriptors are used by the debugger.
+        for (MakerField local : localFields.getMakerFields()) {
+            if (local.getName() == null) {
+                continue; // Skip anonymous local values
+            }
+            cfw.addVariableDescriptor(local.getName(), local.getType().getSignature(), local.getStartPC(),
+                    local.getSlot(), local.getEndPC());
+        }
+
+        cfw.add(ByteCode.NOP);
+        cfw.stopMethod(localFields.getMaxLocalSlots());
     }
 
     /**
@@ -2420,10 +2435,6 @@ public class ClassGenerator implements ClassMakerConstants {
     private void assertNotNull(Object obj, String name) {
         if (obj == null)
             throw new IllegalArgumentException(name + " cannot be null");
-    }
-
-    public int getLineNumber() {
-        return maker.getSourceLine().getLineNumber();
     }
 
     public void markLineNumber(int lineNumber) {

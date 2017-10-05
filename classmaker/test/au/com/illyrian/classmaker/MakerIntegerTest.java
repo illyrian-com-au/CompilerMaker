@@ -399,7 +399,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", int.class, 0);
         maker.Begin();
-        maker.getGen().incrementLocal(maker.lookupLocal(0), 500); // Increment 1st local by wide increment
+        maker.getGen().incrementLocal(maker.Find("x"), 500); // Increment 1st local by wide increment
         maker.Return(maker.Get("x"));
         maker.End();
 
