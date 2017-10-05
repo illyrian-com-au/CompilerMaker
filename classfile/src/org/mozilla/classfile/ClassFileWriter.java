@@ -614,6 +614,9 @@ public class ClassFileWriter implements ByteCode {
      */
     public void addLoadConstant(int k) {
         switch (k) {
+        case -1:
+            add(ByteCode.ICONST_M1);
+            break;
         case 0:
             add(ByteCode.ICONST_0);
             break;
