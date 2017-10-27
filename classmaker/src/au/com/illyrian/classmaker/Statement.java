@@ -58,13 +58,14 @@ abstract class Statement implements Labelled
 
     /**
      * Jumps to a <code>Statement</code>.
-     * This default implementation passess the jump request down the statement stack.
-     * The label identifies which <code>Statement<code> to jump to. If the label is <code>null<code>
-     * the first appropriate <code>Statement<code> will be the target.
+     * This default implementation passes the jump request down the statement stack.
+     * The label identifies which <code>Statement</code> to jump to. If the label is <code>null</code>
+     * the first appropriate <code>Statement</code> will be the target.
      * The <code>jumpType</code> determines where in the statement execution will jump to.
      * This will typically be the start of the statement for continue, the end of the
      * statement for break or the end of the method for return.
-     * @param jumpType <code>ClassMaker.BREAK</code>, <code>ClassMaker.CONTINUE</code>, <code>ClassMaker.RETURN</code> or <code>null</code>.
+     * @param jumpType <code>ClassMaker.BREAK</code>, <code>ClassMaker.CONTINUE</code>, 
+     * <code>ClassMaker.RETURN</code> or <code>null</code>.
      * @param label the name of the statement to jump to
      * @return the target <code>Statement</code> or <code>null</code> if not found.
      */
@@ -73,7 +74,6 @@ abstract class Statement implements Labelled
         if (ClassMaker.BREAK.equals(jumpType) && getLabel() != null && getLabel().equals(label)) {
             // Break jumps to the end of the loop
             jumpTo(getStatementEnd());
-            //cfw.add(ByteCode.GOTO, getStatementEnd());
             return this;
         } else if (hasNext()) {
             return getNext().jumpToTarget(jumpType, label);

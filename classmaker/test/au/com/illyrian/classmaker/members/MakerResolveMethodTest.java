@@ -322,8 +322,7 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
         classType.setJavaClass(MoorgeInterface.class);
         //MakerMethod [] methods = classType.findMethods("moorge");
         MakerMethod [] methods = classType.getDeclaredMethods();
-               CallStack actualParameters =
-            maker.Push(value(ChocolateCake.class)).Push(value(ButteredScone.class));
+        CallStack actualParameters =  maker.Push(value(ChocolateCake.class)).Push(value(ButteredScone.class));
         Vector<MakerMethod> candidates = resolver.findMethods(methods, "moorge");
 //        public void moorge(Dessert d, Scone s);
 //        public void moorge(Cake c, Dessert d);

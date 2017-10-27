@@ -31,6 +31,7 @@ import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.members.MakerMethod;
+import au.com.illyrian.classmaker.members.MakerMethodCollector;
 import au.com.illyrian.classmaker.util.MakerUtil;
 
 /**
@@ -236,6 +237,25 @@ public class ClassType extends Type {
     	this.declaredMethods = methods;
     }
     
+    /**
+     * Fetches all methods with the given name.
+     *
+     * The methods are collected from the class and all parent classes.
+     * If the class is an interface then all abstract interface methods are also collected.
+     * Overridden methods are not included so there will only be one method per signature.
+     * 
+     * @param name the simple name of the method without parameters
+     * @return an array of method descriptors
+     */
+    public MakerMethod[] getMethods(String name) {
+        MakerMethodCollector methods = new MakerMethodCollector(name);
+        methods.includeClassMethods(this);
+        if (isInterface()) {
+            methods.includeInterfaceMethods(this);
+        }
+        return methods.toArray();
+    }
+
     /** The list of member fields in this class. */
     public MakerField [] getDeclaredFields()
     {

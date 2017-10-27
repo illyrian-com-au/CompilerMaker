@@ -128,14 +128,14 @@ import au.com.illyrian.classmaker.util.MakerUtil;
  * maker.Method(&quot;unary&quot;, int.class, ClassMaker.ACC_PUBLIC);
  * maker.Declare(&quot;n&quot;, int.class, 0);
  * maker.Begin();
- * maker.Declare(&quot;x&quot;, int.class, 0);
- * maker.Eval(maker.Set(&quot;x&quot;, maker.Literal(1)));
- * maker.Loop();
- * maker.While(maker.GT(maker.Get(&quot;n&quot;), maker.Literal(0)));
- * maker.Eval(maker.Set(&quot;x&quot;, maker.Mult(maker.Get(&quot;x&quot;), maker.Get(&quot;n&quot;))));
- * maker.Eval(maker.Dec(&quot;n&quot;));
- * maker.EndLoop();
- * maker.Return(maker.Get(&quot;x&quot;));
+ *     maker.Declare(&quot;x&quot;, int.class, 0);
+ *     maker.Eval(maker.Set(&quot;x&quot;, maker.Literal(1)));
+ *     maker.Loop();
+ *         maker.While(maker.GT(maker.Get(&quot;n&quot;), maker.Literal(0)));
+ *         maker.Eval(maker.Set(&quot;x&quot;, maker.Mult(maker.Get(&quot;x&quot;), maker.Get(&quot;n&quot;))));
+ *         maker.Eval(maker.Dec(&quot;n&quot;));
+ *     maker.EndLoop();
+ *     maker.Return(maker.Get(&quot;x&quot;));
  * maker.End();
  * 
  * Class myClass = maker.defineClass();
@@ -148,12 +148,9 @@ import au.com.illyrian.classmaker.util.MakerUtil;
  *
  * @author Donald Strong
  */
-public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
-    private static final Logger log = Logger.getLogger(ClassMaker.class.getName());
-
+public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstants {
     /**
-     * Bitmask of method modifiers that are incompatable with the
-     * <code>abstract</code> modifier.
+     * Bit-mask of method modifiers that are incompatible with the <code>abstract</code> modifier.
      */
     private static final int MASK_INCOMPATABLE_WITH_ABSTRACT_METHOD = ACC_STATIC | ACC_FINAL | ACC_SYNCHRONIZED
             | ACC_NATIVE | ACC_STRICTFP;
@@ -173,9 +170,6 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      * <code>Statement.jumpToTarget</code>
      */
     public static final String CONTINUE = "continue";
-
-    /** An empty call stack that may be used to call methods with no parameters */
-    private final CallStackMaker EMPTY_CALL_STACK = new CallStackMaker(this);
 
     /** Constant for the name of a constructor method */
     public static final String INIT = "<init>";
@@ -224,7 +218,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
 
     /** The name of the source file relative to the source path */
     private SourceLine sourceLine;
+    private String sourceFilename = null;
+    private int sourceLineNumber = 0;
     private SourceLineImpl localSourceLine;
+    
 
     //#################### Constructors #################
 
@@ -390,10 +387,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      *             if it is too late to call this method
      */
     public void setSourceFilename(String filename) throws ClassMakerException {
-        if (isGeneratingCode())
+        if (isGeneratingCode()) {
             throw createException("ClassMaker.ToLateToNameTheSourceFilename");
-        if (sourceLine != null)
+        }
+        if (sourceLine != null) {
             throw createException("ClassMaker.CannotSetSourceFilename");
+        }
         localSourceLine = new SourceLineImpl();
         localSourceLine.setFilename(filename);
         sourceLine = localSourceLine;
@@ -1031,10 +1030,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      * Abstract methods are sufficient to implement the interface if the class
      * is abstract.
      * 
-     * @param interfaceMethod
-     *            the interface method that requires an implementation
-     * @param excludeAbstract
-     *            whether to exclude abstract methods
+     * @param interfaceMethod the interface method that requires an implementation
+     * @param excludeAbstract whether to exclude abstract methods
      * @return the method that implements the interface method
      */
     MakerMethod findImplementingMethod(MakerMethod interfaceMethod, boolean excludeAbstract) {
@@ -1052,13 +1049,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     }
 
     /**
-     * Determine whether the generated class can access the given field in the
-     * given class.
+     * Determine whether the generated class can access the field in the given class.
      * 
-     * @param classType
-     *            the type of the class being accessed
-     * @param field
-     *            the field being accessed
+     * @param classType the type of the class being accessed
+     * @param field the field being accessed
      */
     void checkAccessDenied(ClassType classType, MakerField field) {
         // Determine whether the class is accessible
@@ -1073,13 +1067,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     }
 
     /**
-     * Determine whether the generated class can access the given method in the
-     * given class.
+     * Determine whether the generated class can access the method in the given class.
      * 
-     * @param classType
-     *            the type of the class being accessed
-     * @param method
-     *            the method being accessed
+     * @param classType the type of the class being accessed
+     * @param method the method being accessed
      */
     void checkAccessDenied(ClassType classType, MakerMethod method) {
         // Determine whether the class is accessible
@@ -1097,16 +1088,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      * Determines whether access is denied to a protected method or field.
      * </br>
      * If the method or field is protected and not static this method ensures
-     * the following access restriction.
-     * The called class must be of the same type as the caller class or a
+     * that the called class must be of the same type as the caller class or a
      * sub-type of it.
      * 
-     * @param caller
-     *            the caller is the class doing the access
-     * @param called
-     *            the class being accessed
-     * @param modifiers
-     *            the access modifiers of the method or field being accessed
+     * @param caller the caller is the class doing the access
+     * @param called the class being accessed
+     * @param modifiers the access modifiers of the method or field being accessed
      * @return true if the caller class is denied access to the method or field
      */
     boolean isAccessDeniedToProtected(ClassType caller, ClassType called, int modifiers) {
@@ -1143,12 +1130,9 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      * own class.</LI>
      * </UL>
      * 
-     * @param caller
-     *            the caller is the class doing the access
-     * @param called
-     *            the class being accessed
-     * @param modifiers
-     *            the access modifiers of the class, method or field being
+     * @param caller the caller is the class doing the access
+     * @param called the class being accessed
+     * @param modifiers the access modifiers of the class, method or field being
      *            accessed
      * @return true if the caller class is denied access to the class, method or
      *         field
@@ -1194,8 +1178,6 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
         if (importedType == null) {
             importedType = stringToClassType(MakerUtil.toDotName(className));
             addClassTypeAlias(importedType);
-            if (log.isLoggable(Level.FINE))
-                log.finest("Import " + importedType);
         }
     }
 
@@ -1210,8 +1192,6 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     public void Import(Class javaClass) throws ClassMakerException {
         ClassType classType = classToClassType(javaClass);
         addClassTypeAlias(classType);
-        if (log.isLoggable(Level.FINE))
-            log.finest("Import " + javaClass.getName());
     }
 
     /**
@@ -1273,11 +1253,9 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      * Aliases are stored locally in the <code>ClassMaker</code> instance.
      * </br>
      * Only the fully qualified name will be used if two classes are imported
-     * with the same
-     * name, e.g. java.util.Date and java.sql.Date.
+     * with the same name, e.g. java.util.Date and java.sql.Date.
      * 
-     * @param classType
-     *            the class to be added to the alias table
+     * @param classType the class to be added to the alias table
      */
     void addClassTypeAlias(ClassType classType) {
         String className = MakerUtil.toDotName(classType.getName());
@@ -1310,20 +1288,14 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      * Determines which constructor in this class should be invoked.
      *
      * Uses <code>MethodResolver</code> to determine the appropriate constructor
-     * given the
-     * actual parameters.
+     * given the actual parameters.
      * 
-     * @param classType
-     *            the type of the class containing the method
-     * @param actualParameters
-     *            the parameters on the call stack
+     * @param classType the type of the class containing the method
+     * @param actualParameters the parameters on the call stack
      * @return a <code>MakerMethod</code> which represents the resolved method
      */
     MakerMethod resolveConstructor(ClassType classType, CallStack actualParameters) {
         MakerMethod[] constructors = classType.getDeclaredConstructors();
-        if (actualParameters == null) {
-            actualParameters = EMPTY_CALL_STACK;
-        }
         return getFactory().getMethodResolver().resolveMethod(this, constructors, INIT, actualParameters);
     }
 
@@ -1342,32 +1314,8 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      * @return a <code>MakerMethod</code> which represents the resolved method
      */
     public MakerMethod resolveMethod(ClassType classType, String name, CallStack actualParameters) {
-        MakerMethod[] methods = getMethods(classType, name);
-        //MakerMethod[] methods =  classType.findMethods(name);
-
-        if (actualParameters == null) {
-            actualParameters = EMPTY_CALL_STACK;
-        }
+        MakerMethod[] methods = classType.getMethods(name);
         return getFactory().getMethodResolver().resolveMethod(this, methods, name, actualParameters);
-    }
-
-    /**
-     * Fetches the methods in the given ClassType.
-     *
-     * The methods are lazy loaded for existing java classes or the current list
-     * of methods is used for the class being generated.
-     * 
-     * @param classType
-     *            the ClassType that holds information about the class
-     * @return an array of method descriptors
-     */
-    MakerMethod[] getMethods(ClassType classType, String name) {
-        MakerMethodCollector methods = new MakerMethodCollector(name);
-        methods.includeClassMethods(classType);
-        if (classType.isInterface()) {
-            methods.includeInterfaceMethods(classType);
-        }
-        return methods.toArray();
     }
 
     //################### Methods #####################
@@ -1494,7 +1442,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
 
     /**
      * Begins a method body or compound statement with its own scope. <br/>
-     * Local variables declared within this scope will be unaccessable when the
+     * Local variables declared within this scope will be unaccessible when the
      * scope is exited.
      * The compound statement may be labelled so it can be the target of a
      * <code>Break</code> statement.
@@ -1563,8 +1511,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     /**
      * Determines whether the current method is forward declared.
      * 
-     * @param method
-     *            the current method
+     * @param method the current method
      * @return true if the method has been forward declared or false if the
      *         method has not been declared
      * @throws ClassMakerException
@@ -1734,17 +1681,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     /**
      * Calls a static method in the named class that is appropriate for the
      * actual parameters.
-     * </br>
      * Uses <code>MethodResolver</code> to determine the appropriate method for
-     * the actual parameters and
-     * then statically invokes the method.
+     * the actual parameters and then statically invokes the method.
      * 
-     * @param className
-     *            a fully qualified classname
-     * @param methodName
-     *            the name of the method to call
-     * @param actualParameters
-     *            the types of the actual parameters in the call stack
+     * @param className a fully qualified classname
+     * @param methodName the name of the method to call
+     * @param actualParameters the types of the actual parameters in the call stack
      * @return the return type of the called method
      */
     public Value Call(String className, String methodName, CallStack actualParameters) throws ClassMakerException {
@@ -1752,36 +1694,24 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
             return null;
         }
         Type type = stringToClassType(className);
-        if (actualParameters == null) {
-            actualParameters = Push();
-        }
         return methodCall(type, methodName, actualParameters, true).getValue();
     }
 
     /**
      * Calls a method from the class instance on top of the stack that is
      * appropriate for the actual parameters.
-     * </br>
      * Uses <code>MethodResolver</code> to determine the appropriate method for
-     * the actual parameters and
-     * then determines whether the method is private, static, virtual or an
-     * interface method and
-     * uses the appropriate invocation.
+     * the actual parameters and then determines whether the method is private, 
+     * static, virtual or an interface method and uses the appropriate invocation.
      * 
-     * @param type
-     *            the type of the reference on top of the stack
-     * @param methodName
-     *            the name of the method to call
-     * @param actualParameters
-     *            the types of the actual parameters in the call stack
+     * @param type the type of the reference on top of the stack
+     * @param methodName the name of the method to call
+     * @param actualParameters the types of the actual parameters in the call stack
      * @return the return type of the called method
      */
     public Value Call(Value reference, String methodName, CallStack actualParameters) throws ClassMakerException {
         if (isFirstPass()) {
             return null;
-        }
-        if (actualParameters == null) {
-            actualParameters = Push();
         }
         return methodCall(reference.getType(), methodName, actualParameters, false).getValue();
     }
@@ -1793,8 +1723,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      * Uses <code>MethodResolver</code> to determine the appropriate method for
      * the actual parameters and
      * then determines whether the method is private, static, virtual or an
-     * interface method and
-     * uses the appropriate invocation.
+     * interface method and uses the appropriate invocation.
      * 
      * @param type
      *            the type of the reference on top of the stack
@@ -1821,6 +1750,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
         } else if (method.isStatic()) {
             getGen().invokeStatic(classType.getName(), method);
         } else if (method.isPrivate()) {
+            // FIXME Constructors and super methods
             getGen().invokeSpecial(classType, method);
         } else {
             getGen().invokeVirtual(classType, method);
@@ -1838,8 +1768,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      */
     public void Implements(Class javaClass) throws ClassMakerException {
         ClassType classType = classToClassType(javaClass);
-        int mod = classType.getModifiers();
-        if (!Modifier.isInterface(mod)) {
+        if (!classType.isInterface()) {
             throw createException("ClassMaker.CannotImplementClass", javaClass.getName());
         }
         implementsClassType(classType);
@@ -1848,8 +1777,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     /**
      * Indicates that the class implements the named interface.
      * 
-     * @param className
-     *            the fully qualified class name
+     * @param className the fully qualified class name
      */
     public void Implements(String className) throws ClassMakerException {
         ClassType classType = stringToClassType(className);
@@ -1857,8 +1785,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
             if (classType == null) {
                 throw createException("ClassMaker.NoClassTypeCalled_1", className);
             }
-            int mod = classType.getModifiers();
-            if (!Modifier.isInterface(mod)) {
+            if (!classType.isInterface()) {
                 throw createException("ClassMaker.CannotImplementClass", classType.getName());
             }
         }
@@ -1868,8 +1795,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     /**
      * Indicates that the class implements the named interface.
      * 
-     * @param classType
-     *            the type of the interface
+     * @param classType the type of the interface
      */
     void implementsClassType(ClassType classType) {
         if (getGen() != null) {
@@ -1890,12 +1816,11 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      *            type exception being thrown
      */
     public void Throw(Value exception) throws ClassMakerException {
-        Type type = exception.getType();
-
         if (isFirstPass()) {
             return;
         }
         markLineNumber(); // possibly add a new line number entry.
+        Type type = exception.getType();
         if (!Type.isClass(type)) {
             throw createException("ClassMaker.CannotThrowType_1", type.getName());
         }
@@ -1951,7 +1876,6 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
         if (isFirstPass()) {
             return;
         }
-        Type type = value.getType();
         if (isDebugCode()) {
             setDebugComment("Return(" + value + ");");
         }
@@ -1963,11 +1887,12 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
         if (ClassMakerFactory.VOID_TYPE.equals(method.getReturnType())) {
             throw createException("ClassMaker.MethodIsVoidSoMustNotReturnAValue_1", method.getName());
         }
-        if (ClassMakerFactory.VOID_TYPE.equals(type)) {
+        if (ClassMakerFactory.VOID_TYPE.equals(value.getType())) {
             throw createException("ClassMaker.CannotReturnTypeVoid");
         }
         // possibly add a new line number entry.
         markLineNumber();
+        Type type = value.getType();
         Type returnType = method.getReturnType();
         if (getFactory().getAssignmentConversion().isConvertable(type, returnType)) {
             type = getFactory().getAssignmentConversion().convertTo(this, type, returnType);
@@ -2505,8 +2430,9 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     }
 
     /**
-     * Sets a member variable to the value.
+     * Sets a member variable to a value.
      * </br>
+     * Set differs from Assign in that the value is not left on the stack.
      * The following code is equivalent.
      * <table border="1" width="100%">
      * <tr>
@@ -2520,12 +2446,9 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      * </table>
      * The value is subject to assignment conversion before it is set.
      * 
-     * @param type
-     *            the type of the class containing the variable
-     * @param fieldName
-     *            the name of the member variable
-     * @param valueType
-     *            the type of the value to be set
+     * @param reference a reference to the class containing the variable
+     * @param fieldName the name of the member variable
+     * @param valueType the type of the value to be set
      * @return a <code>Value</code> representing <code>void</code>
      */
     public Value Set(Value reference, String fieldName, Value value) throws ClassMakerException {
@@ -2555,8 +2478,9 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
     }
 
     /**
-     * Sets a static member field to the value.
+     * Sets a static member field to a value.
      * </br>
+     * Set differs from Assign in that the value is not left on the stack.
      * The following code is equivalent.
      * <table border="1" width="100%">
      * <tr>
@@ -2570,12 +2494,9 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      * </table>
      * The value is subject to assignment conversion before it is set.
      * 
-     * @param className
-     *            the short or fully qualified name of the class
-     * @param fieldName
-     *            the name of the static member variable
-     * @param valueType
-     *            the type of the value to be set
+     * @param className the short or fully qualified name of the class
+     * @param fieldName the name of the static member variable
+     * @param valueType the type of the value to be set
      * @return a <code>Value</code> representing <code>void</code>
      */
     public Value Set(String className, String fieldName, Value value) throws ClassMakerException {
@@ -2586,10 +2507,10 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
         if (isDebugCode()) {
             setDebugComment("Set(" + className + ", " + fieldName + ", " + valueType + ")");
         }
+        // Find checks that the field is static
         MakerField field = Find(className, fieldName);
         Type type = field.getType();
 
-        // FIXME - check that field is static
         if (!getFactory().getAssignmentConversion().isConvertable(valueType, type)) {
             throw createException("ClassMaker.StaticFieldOfTypeCannotBeAssignedType_3", field.getName(),
                     type.getName(), valueType.getName());
@@ -2660,6 +2581,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
         if (isDebugCode()) {
             setDebugComment("Get(\"" + className + "\", " + fieldName + ")");
         }
+        markLineNumber(); // possibly add a new line number entry.
         MakerField field = Find(className, fieldName);
         return gen.loadStatic(field);
     }
@@ -2776,7 +2698,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
         return type;
     }
 
-    Type findPackageType(String className) throws ClassMakerException {
+    private Type findPackageType(String className) throws ClassMakerException {
         Type classType = null;
         if (packageName != null && !"".equals(packageName)) {
             String classNameFQ = packageName + "." + className;
@@ -2815,7 +2737,7 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
             return null;
         }
         ClassType classType = stringToClassType(className);
-        MakerField field = classType.findField(fieldName); // FIXME classType.findField(...)
+        MakerField field = classType.findField(fieldName); 
         if (field == null) {
             throw createException("ClassMaker.CannotFindStaticFieldInClass_2", fieldName, classType.getName());
         }
@@ -3099,7 +3021,6 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
             if (getPass() != SECOND_PASS && localFields.findLocalField(name) != null) {
                 throw createException("ClassMaker.DuplicateLocalVariableDeclaration_1", name);
             }
-            //addLocal(name, type, modifiers, getScopeLevel()); // FIXME remove
             int localOffset = localFields.addLocal(name, type, modifiers, getScopeLevel());
             if (getGen() != null) {
                 MakerField local = localFields.findLocalField(localOffset);
@@ -6310,8 +6231,20 @@ public class ClassMaker implements ClassMakerIfc, ClassMakerConstants {
      * @param lineNumber
      *            current line number
      */
-    public void setLineNumber(int lineNumber) {
-        this.localSourceLine.setLineNumber(lineNumber);
+    public void setLineNumber(int sourceLineNumber) {
+        this.sourceLineNumber = sourceLineNumber;
+    }
+    
+    public int getLineNumber() {
+        return sourceLineNumber;
+    }
+
+    public String getFilename() {
+        return sourceFilename;
+    }
+
+    public void setFilename(String filename) {
+        sourceFilename = filename;
     }
 
     /**

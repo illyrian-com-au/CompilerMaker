@@ -7,19 +7,6 @@ import au.com.illyrian.classmaker.types.ClassType;
 
 public class MakerMethodCollector extends HashMap<String, MakerMethod> implements MakerMethodFilter
 {
-    public static class MethodNameFilter implements MakerMethodFilter {
-        private final String name;
-        
-        MethodNameFilter(String name) {
-            this.name = name;
-        }
-        
-        @Override
-        public boolean isMatch(MakerMethod method) {
-            return name.equals(method.getName());
-        }
-    };
-    
     private static final long serialVersionUID = 1L;
     private final MakerMethodFilter filter;
 
@@ -41,10 +28,9 @@ public class MakerMethodCollector extends HashMap<String, MakerMethod> implement
     
     /**
      * Adds a <code>MakerMethod</code> to a lookup map.
-     * @param allMethods the map from <code>String</code> to <code>MakerMethod</code>
      * @param method the <code>MakerMethod</code> to be added
      */
-    void addMethod(MakerMethod method) {
+    private void addMatchingMethod(MakerMethod method) {
         if (filter.isMatch(method)) {
             String key = method.toShortString();
             if (!containsKey(key)) {
@@ -55,13 +41,12 @@ public class MakerMethodCollector extends HashMap<String, MakerMethod> implement
     
     /**
      * Adds an array of <code>MakerMethod</code> to a lookup map.
-     * @param allMethods the map from <code>String</code> to <code>MakerMethod</code>
      * @param methods the array of <code>MakerMethod</code>s
      */
     public void addMethods(MakerMethod[] methods) {
         if (methods != null) {
             for (MakerMethod method : methods) {
-                addMethod(method);
+                addMatchingMethod(method);
             }
         }
     }
@@ -84,4 +69,17 @@ public class MakerMethodCollector extends HashMap<String, MakerMethod> implement
     public MakerMethod [] toArray() {
         return values().toArray(ClassMakerFactory.METHOD_ARRAY);
     }
+
+    public static class MethodNameFilter implements MakerMethodFilter {
+        private final String name;
+        
+        MethodNameFilter(String name) {
+            this.name = name;
+        }
+        
+        @Override
+        public boolean isMatch(MakerMethod method) {
+            return name.equals(method.getName());
+        }
+    };
 }

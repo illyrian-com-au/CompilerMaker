@@ -2,7 +2,6 @@ package au.com.illyrian.classmaker;
 
 import java.util.Vector;
 
-import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
 

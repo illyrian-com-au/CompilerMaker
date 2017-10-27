@@ -443,7 +443,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
         Value reference = getMaker().This();
         CallStack callStack = resolveCallStack(call);
         setLineNumber(call);
-        return getMaker().Call(reference, callStack.getMethodName(), callStack);
+        return getMaker().Call(reference, call.getName(), callStack);
     }
     
     public CallStack resolveCallStack(BnfTreeMethodCall call)

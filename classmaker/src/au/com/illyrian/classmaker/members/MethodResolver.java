@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import au.com.illyrian.classmaker.CallStack;
+import au.com.illyrian.classmaker.CallStackMaker;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerException;
 import au.com.illyrian.classmaker.ClassMakerFactory;
@@ -47,6 +48,9 @@ import au.com.illyrian.classmaker.types.Type;
  */
 public class MethodResolver
 {
+    /** An empty call stack that may be used to call methods with no parameters */
+    private final CallStackMaker EMPTY_CALL_STACK = new CallStackMaker(null);
+
     private final MethodInvocationConversion invokeConverter;
     private final AssignmentConversion assignConverter;
     private static final MakerMethod[] METHOD_ARRAY = new MakerMethod[0];
@@ -85,9 +89,8 @@ public class MethodResolver
      */
     public MakerMethod resolveMethod(ClassMaker maker, MakerMethod[] methods, String name, CallStack actualParameters)
     {
-        if (actualParameters == null)
-        {   // Should not get here
-            throw new IllegalArgumentException("CallStack cannot be null.");
+        if (actualParameters == null) {
+            actualParameters = EMPTY_CALL_STACK;
         }
 
         Vector<MakerMethod> candidates = new Vector<MakerMethod>();

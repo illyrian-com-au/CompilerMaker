@@ -281,17 +281,6 @@ public class MakerMethod {
     }
 
 
-    public boolean matches(MakerMethod other)
-    {
-        if (getSignature() != null && name != null && other != null)
-        {
-            MakerMethod otherMethod = (MakerMethod)other;
-            return toShortString().equals(other.toShortString());
-            //name.equals(otherMethod.name) && getSignature().equals(otherMethod.getSignature());
-        }
-        return false;
-    }
-
     /**
      * A hash code value for the method. 
      * <br/>
