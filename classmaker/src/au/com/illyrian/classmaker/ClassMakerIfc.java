@@ -1,16 +1,16 @@
 package au.com.illyrian.classmaker;
 
 import au.com.illyrian.classmaker.ClassMaker.AndOrExpression;
-import au.com.illyrian.classmaker.Initialiser;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.ArrayType;
+import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
 
 public interface ClassMakerIfc
 {
     public void setSourceLine(SourceLine source);
-
+    
     /**
      * Sets the name of the class being generated.
      * @param fullyQualifiedClassName the fully qualified name of the class
@@ -54,6 +54,12 @@ public interface ClassMakerIfc
      * @param className the fully qualified class name
      */
     public void Implements(String className) throws ClassMakerException;
+
+    /**
+     * Indicates that the class implements the named interface.
+     * @param classType the ClassType to be implemented
+     */
+    public void Implements(ClassType classType) throws ClassMakerException;
 
     //
     //################ Class Instantiation #########################
@@ -473,6 +479,8 @@ public interface ClassMakerIfc
     
     public int addModifier(int modifiers, String modifierName);
     
+    public void Method(String methodName, Class returnType, int methodModifiers) throws ClassMakerException;
+
     public void Method(String methodName, String returnType, int methodModifiers) throws ClassMakerException;
 
     public void Method(String methodName, Type returnType, int methodModifiers) throws ClassMakerException;
@@ -512,7 +520,7 @@ public interface ClassMakerIfc
      * class descriptor for the type.
      * The first pass of a two pass compiler will produce a <code>Value</code>,
      * but the <code>Class</code> will not be available until after the second pass.
-     * The <code>Value</code> can be used to declare Classes during the first pass.
+     * The <code>Type</code> can be used to declare Classes during the first pass.
      * </br>
      * The following code is equivalent.
      * <table border="1" width="100%">
@@ -521,7 +529,7 @@ public interface ClassMakerIfc
         public OtherClass x;
      * </pre><code></td>
      * <td><code><pre>
-        Value otherClass = findClass("au.com.Illyrian.OtherClass");
+        Type otherClass = Find("au.com.Illyrian.OtherClass");
         Declare("x", otherClass, ACC_PUBLIC);
        </pre></code></td></tr>
      * </table>

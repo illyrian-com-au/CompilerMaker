@@ -41,9 +41,10 @@ import au.com.illyrian.classmaker.util.MakerUtil;
 public class MakerMethod {
     private final ClassType classType;
     private final String name;
-    private final Type   returnType;
+    private final Type   returnType ;
     private final short  modifiers;
-    private Type [] formalParamTypes;
+    private Type [] formalParamTypes = null;
+    private MakerField [] formalParamFields = null;
     private String signature;
     private boolean hasBody = true;
 
@@ -141,19 +142,43 @@ public class MakerMethod {
     }
 
     /**
-     * Sets the formal parameters for the method.
+     * Sets the formal parameter types for the method.
      * <br/>
      * The formal parameters must be set before a signature is generated for the method.
      * @param params an array of <code>Type</code>s representing the formal parameters
      * @throws IllegalStateException if a signature has already been generated
      */
-    public void setFormalParams(Type[] params)
+    public void setFormalTypes(Type[] params)
     {
-        if (signature != null)
-        	throw new IllegalStateException("Cannot set formal parameters for this method as a signature has already been generated.");
+        if (signature != null) {
+            throw new IllegalStateException("Cannot set formal parameter types for this method as <code>Begin()</code> has been called.");
+        }
         formalParamTypes = params;
     }
+    
+    /**
+     * The formal parameter fields for the method.
+     * Formal parameter fields include the declared name for each field.
+     * @return an array of <code>Type</code>s representing the formal parameters
+     */
+    public MakerField [] getFormalFields() {
+        return formalParamFields;
+    }
 
+    /**
+     * Sets the formal parameter fields for the method.
+     * <br/>
+     * The formal parameter fields must be set before a signature is generated for the method.
+     * @param params an array of <code>Type</code>s representing the formal parameters
+     * @throws IllegalStateException if a signature has already been generated
+     */
+    public void setFormalFields(MakerField [] fields) {
+        if (signature != null) {
+            throw new IllegalStateException("Cannot set formal parameter fields for this method as <code>Begin()</code> has been called.");
+        }
+        formalParamFields = fields;
+    }
+    
     /**
      * The signature of the method.
      * Derives the signature from the formal parameters and the return type.
@@ -161,8 +186,9 @@ public class MakerMethod {
      */
     public String getSignature()
     {
-        if (signature == null)
+        if (signature == null) {
             signature = createSignature(formalParamTypes, returnType);
+        }
         return signature;
     }
     

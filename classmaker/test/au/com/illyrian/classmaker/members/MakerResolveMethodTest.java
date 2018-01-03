@@ -29,7 +29,6 @@ package au.com.illyrian.classmaker.members;
 
 import java.util.Vector;
 
-import org.junit.Assert;
 import org.mozilla.classfile.ByteCode;
 
 import au.com.illyrian.classmaker.CallStack;
@@ -39,7 +38,6 @@ import au.com.illyrian.classmaker.ClassMakerException;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerTestCase;
 import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
 import au.com.illyrian.classmaker.util.MakerUtil;

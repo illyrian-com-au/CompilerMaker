@@ -118,6 +118,48 @@ public class Type
     }
 
     /**
+     * Determines whether the <code>Type</code> is a <code>GenericType</code>.
+     * 
+     * @param type the type to be tested
+     * @return true if <code>Type</code> is a <code>GenericType</code>
+     */
+    public static boolean isGeneric(Type type) {
+        return type != null && type.toGeneric() != null;
+    }
+
+    /**
+     * Convert this <code>Type</code> to a <code>GenericType</code>.
+     * 
+     * A generic type is similar to a class type but with some types parameterized.
+     * @return a <code>GenericType</code> if appropriate; otherwise null
+     */
+    public GenericType toGeneric()
+    {
+        return null;
+    }
+    
+    /**
+     * Determines whether the <code>Type</code> is a <code>GenericType</code>.
+     * 
+     * @param type the type to be tested
+     * @return true if <code>Type</code> is a <code>GenericType</code>
+     */
+    public static boolean isParameter(Type type) {
+        return type != null && type.toParameter() != null;
+    }
+
+    /**
+     * Convert this <code>Type</code> to a <code>GenericType</code>.
+     * 
+     * A generic type is similar to a class type but with some types parameterized.
+     * @return a <code>GenericType</code> if appropriate; otherwise null
+     */
+    public ParameterType toParameter()
+    {
+        return null;
+    }
+    
+    /**
      * Determines whether the <code>Type</code> is an array.
      * 
      * @param type

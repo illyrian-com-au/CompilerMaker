@@ -73,7 +73,7 @@ public class SimpleClassLoader extends ClassLoader
         return parentLoader;
     }
 
-    public Class defineClass(String className, byte[] classBytes)
+    public Class<?> defineClass(String className, byte[] classBytes)
     {
         String classDotName = className.replace('/', '.');
         Exception e;
@@ -152,22 +152,6 @@ public class SimpleClassLoader extends ClassLoader
         }
         return out.toByteArray();
     }
-
-    //    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException
-//    {
-//        Class<?> cl = findLocalClass(name);
-//        if (cl == null) {
-//            if (parentLoader != null) {
-//                cl = parentLoader.loadClass(name);
-//            } else {
-//                cl = findSystemClass(name);
-//            }
-//        }
-//        if (resolve) {
-//            resolveClass(cl);
-//        }
-//        return cl;
-//    }
 
     public static ProtectionDomain getProtectionDomain(final Class<?> clazz)
     {

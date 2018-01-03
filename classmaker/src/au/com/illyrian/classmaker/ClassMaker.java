@@ -148,7 +148,7 @@ import au.com.illyrian.classmaker.util.MakerUtil;
  *
  * @author Donald Strong
  */
-public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstants {
+public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConstants {
     /**
      * Bit-mask of method modifiers that are incompatible with the <code>abstract</code> modifier.
      */
@@ -204,7 +204,7 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
     /** The fully qualified name of the class */
     private String fullyQualifiedClassName;
     /** A reference to the type information for the class being generated. */
-    private ClassType thisClassType;
+    private MakerClassType thisClassType;
     /** The modifiers for the class being generated. */
     private int classModifiers = ACC_PUBLIC;
 
@@ -408,8 +408,8 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
      * 
      * @return the ClassType of the generated class
      */
-    protected ClassType defaultThisClass() {
-        ClassType classType = new MakerClassType(this);
+    protected MakerClassType defaultThisClass() {
+        MakerClassType classType = new MakerClassType(this);
         classType.setModifiers(classModifiers);
         getFactory().addType(classType);
         return classType;
@@ -423,7 +423,7 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
      * @throws ClassMakerException
      *             if it is too late to call this method
      */
-    protected void setClassType(ClassType classType) {
+    protected void setClassType(MakerClassType classType) {
         if (isGeneratingCode())
             throw createException("ClassMaker.ToLateToSetClassType");
         thisClassType = classType;
@@ -445,7 +445,7 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
      * @see #defaultThisClass()
      * @return the ClassType of the generated class
      */
-    public ClassType getClassType() {
+    public MakerClassType getClassType() {
         if (thisClassType == null)
             setClassType(defaultThisClass());
         return thisClassType;
@@ -892,9 +892,9 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
      * 
      * @return the generated class
      */
-    public Class defineClass() {
+    public Class<T> defineClass() {
         if (thisClassType != null && thisClassType.getJavaClass() != null) {
-            return thisClassType.getJavaClass();
+            return (Class<T>)thisClassType.getJavaClass();
         }
         EndClass();
         if (getPass() == FIRST_PASS) {
@@ -902,7 +902,7 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
         }
         defineClassType(getClassType().getExtendsType());
         defineInterfaces(this.getDeclaredInterfaces());
-        Class thisClass = getFactory().getClassLoader().defineClass(getGen().getClassName(), getGen().toByteArray());
+        Class<T> thisClass = (Class<T>)getFactory().getClassLoader().defineClass(getGen().getClassName(), getGen().toByteArray());
         thisClassType.setJavaClass(thisClass);
         return thisClass;
     }
@@ -937,9 +937,9 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
                     hasConstructor = false;
             }
             thisClassType.setModifiers(classModifiers);
-            thisClassType.setDeclaredConstructors(getDeclaredConstructors());
+            thisClassType.setConstructors(getDeclaredConstructors());
             thisClassType.setDeclaredMethods(getDeclaredMethods());
-            thisClassType.setDeclaredInterfaces(getDeclaredInterfaces());
+            thisClassType.setInterfaces(getDeclaredInterfaces());
             thisClassType.setDeclaredFields(getDeclaredFields());
 
             if (getPass() != FIRST_PASS) {
@@ -1019,8 +1019,9 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
                     MakerUtil.appendStrings(buf, abstractMethod.toString(), "\n");
                 }
             }
-            if (hasUnimplementedMethod)
+            if (hasUnimplementedMethod) {
                 throw createException("ClassMaker.UnimplementedInterfaceMethods_1", buf.toString());
+            }
         }
     }
 
@@ -1295,7 +1296,7 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
      * @return a <code>MakerMethod</code> which represents the resolved method
      */
     MakerMethod resolveConstructor(ClassType classType, CallStack actualParameters) {
-        MakerMethod[] constructors = classType.getDeclaredConstructors();
+        MakerMethod[] constructors = classType.getConstructors();
         return getFactory().getMethodResolver().resolveMethod(this, constructors, INIT, actualParameters);
     }
 
@@ -1394,7 +1395,8 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
             throw createException("ClassMaker.AbstractMethodCannotHaveBody_1", "Begin()");
         }
 
-        method.setFormalParams(getLocalFields().createFormalParameters());
+        method.setFormalTypes(getLocalFields().createFormalParameters());
+        method.setFormalFields(getLocalFields().getMakerFields());
 
         if (isFirstPass()) {
             method.setHasBody(false);
@@ -1488,7 +1490,7 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
      * declared so that only one pass is necessary to parse the source file.
      */
     public void Forward() throws ClassMakerException {
-        method.setFormalParams(getLocalFields().createFormalParameters());
+        method.setFormalTypes(getLocalFields().createFormalParameters());
         if (getPass() == FIRST_PASS) {
             if (methods.indexOf(method) >= 0 || constructors.indexOf(method) >= 0) {
                 throw createException("ClassMaker.MethodDeclaredMoreThanOnce_1", method.toString());
@@ -1768,10 +1770,7 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
      */
     public void Implements(Class javaClass) throws ClassMakerException {
         ClassType classType = classToClassType(javaClass);
-        if (!classType.isInterface()) {
-            throw createException("ClassMaker.CannotImplementClass", javaClass.getName());
-        }
-        implementsClassType(classType);
+        Implements(classType);
     }
 
     /**
@@ -1781,15 +1780,10 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
      */
     public void Implements(String className) throws ClassMakerException {
         ClassType classType = stringToClassType(className);
-        if (getPass() != ClassMakerConstants.FIRST_PASS) {
-            if (classType == null) {
-                throw createException("ClassMaker.NoClassTypeCalled_1", className);
-            }
-            if (!classType.isInterface()) {
-                throw createException("ClassMaker.CannotImplementClass", classType.getName());
-            }
+        if (getPass() != ClassMakerConstants.FIRST_PASS && classType == null) {
+            throw createException("ClassMaker.NoClassTypeCalled_1", className);
         }
-        implementsClassType(classType);
+        Implements(classType);
     }
 
     /**
@@ -1797,7 +1791,10 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
      * 
      * @param classType the type of the interface
      */
-    void implementsClassType(ClassType classType) {
+    public void Implements(ClassType classType) {
+        if (getPass() != ClassMakerConstants.FIRST_PASS && !classType.isInterface()) {
+            throw createException("ClassMaker.CannotImplementClass", classType.getName());
+        }
         if (getGen() != null) {
             getGen().addInterface(classType.getName());
         }
@@ -3022,8 +3019,8 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
                 throw createException("ClassMaker.DuplicateLocalVariableDeclaration_1", name);
             }
             int localOffset = localFields.addLocal(name, type, modifiers, getScopeLevel());
+            MakerField local = localFields.findLocalField(localOffset);
             if (getGen() != null) {
-                MakerField local = localFields.findLocalField(localOffset);
                 getGen().addToScope(local, getScopeLevel());
                 if (isInBody()) {
                     if (isDebugCode())

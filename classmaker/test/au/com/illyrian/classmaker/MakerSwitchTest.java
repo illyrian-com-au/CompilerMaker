@@ -27,7 +27,6 @@
 
 package au.com.illyrian.classmaker;
 
-import au.com.illyrian.classmaker.types.PrimitiveType;
 
 public class MakerSwitchTest extends ClassMakerTestCase
 {

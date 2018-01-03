@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Vector;
 
 import au.com.illyrian.classmaker.ClassGenerator;
+import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.types.Type;
 
@@ -24,8 +25,8 @@ public class LocalFieldList {
         return gen;
     }
     
-    public List<MakerField> getMakerFields() {
-        return localTable;
+    public MakerField [] getMakerFields() {
+        return localTable.toArray(ClassMakerFactory.FIELD_ARRAY);
     }
 
     public int incLocalSlots(int incLocalSlots) {

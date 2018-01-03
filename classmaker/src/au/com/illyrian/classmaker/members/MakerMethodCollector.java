@@ -53,7 +53,7 @@ public class MakerMethodCollector extends HashMap<String, MakerMethod> implement
 
     public void includeInterfaceMethods(ClassType classType) {
         addMethods(classType.getDeclaredMethods());
-        for (ClassType interfaceType : classType.getDeclaredInterfaces()) {
+        for (ClassType interfaceType : classType.getInterfaces()) {
             includeInterfaceMethods(interfaceType);
         }
     }

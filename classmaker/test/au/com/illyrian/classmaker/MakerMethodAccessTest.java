@@ -32,7 +32,6 @@ import java.io.File;
 import org.mozilla.classfile.ByteCode;
 
 import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.PrimitiveType;
 
 public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCode
 {

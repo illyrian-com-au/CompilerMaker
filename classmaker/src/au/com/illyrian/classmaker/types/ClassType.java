@@ -168,7 +168,7 @@ public class ClassType extends Type {
     }
 
     /** The list of interfaces implemented by this class. */
-    public ClassType [] getDeclaredInterfaces()
+    public ClassType [] getInterfaces()
     {
         if (declaredInterfaces == null) {
             return populateDeclaredInterfaces();
@@ -179,13 +179,13 @@ public class ClassType extends Type {
     ClassType [] populateDeclaredInterfaces() {
         if (javaClass != null) {
             ClassType [] interfaces = getFactory().getDeclaredInterfaces(this);
-            setDeclaredInterfaces(interfaces);
+            setInterfaces(interfaces);
         }
         return declaredInterfaces;
     }
     
     /** Sets the list of interfaces implemented by this class. */
-    public void setDeclaredInterfaces(ClassType [] interfaces)
+    public void setInterfaces(ClassType [] interfaces)
     {
         this.declaredInterfaces = interfaces;
     }
@@ -196,23 +196,23 @@ public class ClassType extends Type {
      * 
      * @param classType the ClassType that holds information about the class
      */
-    public MakerMethod [] getDeclaredConstructors()
+    public MakerMethod [] getConstructors()
     {
         if (declaredConstructors == null) {
-            return populateDeclaredConstructors();
+            return populateConstructors();
         }
     	return declaredConstructors;
     }
     
     /** Sets the list of constructors for this class. */
-    public void setDeclaredConstructors(MakerMethod [] constructors)
+    public void setConstructors(MakerMethod [] constructors)
     {
     	this.declaredConstructors = constructors;
     }
     
-    protected MakerMethod [] populateDeclaredConstructors() {
+    protected MakerMethod [] populateConstructors() {
         MakerMethod [] methods = getFactory().getDeclaredConstructors(this);
-        setDeclaredConstructors(methods);
+        setConstructors(methods);
         return methods;
     }
     
@@ -306,7 +306,8 @@ public class ClassType extends Type {
         if (javaClass.getSuperclass() == null) {
             return null;
         } else {
-            setExtendsType(getFactory().classToType(javaClass.getSuperclass()).toClass());
+            Type superType = getFactory().classToClassType(javaClass.getSuperclass(), javaClass.getGenericSuperclass());
+            setExtendsType(superType.toClass());
         }
         return extendsType;
     }

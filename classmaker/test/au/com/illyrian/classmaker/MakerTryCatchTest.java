@@ -30,9 +30,6 @@ package au.com.illyrian.classmaker;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.PrimitiveType;
-
 public class MakerTryCatchTest extends ClassMakerTestCase
 {
     protected ClassMaker maker;

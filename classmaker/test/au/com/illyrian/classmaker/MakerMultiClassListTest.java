@@ -2,8 +2,6 @@ package au.com.illyrian.classmaker;
 
 import org.mozilla.classfile.ByteCode;
 
-import au.com.illyrian.classmaker.types.PrimitiveType;
-
 public class MakerMultiClassListTest extends ClassMakerTestCase implements ByteCode
 {
     public interface Value {

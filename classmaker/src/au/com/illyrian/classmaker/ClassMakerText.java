@@ -64,6 +64,11 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     }
 
     @Override
+    public void Implements(ClassType classType) throws ClassMakerException {
+        println("Implements(\"" + classType.getName() + "\");");
+    }
+
+    @Override
     public Value Call(String className, String methodName,
             CallStack actualParameters) throws ClassMakerException {
         String parameters = processCallStack(actualParameters.size());
@@ -89,8 +94,11 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         if (count > 1) {
             String value = stack.pop();
             result = processCallStack(count - 1) + ".Push(" + value + ")";
-        } else
+        } else if (count == 1) {
             result = "Push(" + stack.pop() + ")";
+        } else {
+            result = "Push()";
+        }
         return result;
     }
 
@@ -202,8 +210,8 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     @Override
     public Value Set(Value reference, String fieldName, Value value)
             throws ClassMakerException {
-        String ref = stack.pop();
         String val = stack.pop();
+        String ref = stack.pop();
         stack.push("Set(" + ref + ", \"" + fieldName + "\", " + val + ")");
         return null;
     }
@@ -355,6 +363,12 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
             throws ClassMakerException {
         Type type = findType(returnType);
         Method(methodName, type, methodModifiers);
+    }
+
+    @Override
+    public void Method(String methodName, Class returnType, int methodModifiers)
+            throws ClassMakerException {
+        Method(methodName, returnType.getSimpleName(), methodModifiers);
     }
 
     @Override
@@ -698,7 +712,7 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         String typeName = type.getName();
         String name = typeName + "[]";
         String signature = "[" + type.getSignature();
-        ArrayType element = new ArrayType(name, signature, type);
+        ArrayType element = new ArrayType(name, signature, type, null);
         return element;
     }
 
@@ -893,7 +907,6 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
 
     @Override
     public CallStack Push() {
-        stack.push("");
         return new CallStackText();
     }
 

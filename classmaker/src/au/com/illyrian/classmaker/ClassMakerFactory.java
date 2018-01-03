@@ -27,6 +27,9 @@
 
 package au.com.illyrian.classmaker;
 
+import java.lang.reflect.GenericDeclaration;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,8 +43,11 @@ import au.com.illyrian.classmaker.converters.StringConversion;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.members.MakerMethod;
 import au.com.illyrian.classmaker.members.MethodResolver;
+import au.com.illyrian.classmaker.reflect.ReflectionUtils;
 import au.com.illyrian.classmaker.types.ArrayType;
 import au.com.illyrian.classmaker.types.ClassType;
+import au.com.illyrian.classmaker.types.GenericType;
+import au.com.illyrian.classmaker.types.ParameterType;
 import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.util.MakerUtil;
@@ -69,7 +75,8 @@ public class ClassMakerFactory
 {
     private SimpleClassLoader loader = null;
     private HashMap<String, Type>         typeMap = new HashMap<String, Type>();
-    private HashMap<String, ClassMaker> classMakerMap = new HashMap<String, ClassMaker>();
+    private HashMap<String, GenericType>  genericMap = new HashMap<String, GenericType>();
+    private HashMap<String, ClassMaker>   classMakerMap = new HashMap<String, ClassMaker>();
 
     /** An empty prototype array of <code>Type</code> that may be provided to <code>Collection.toArray(Object[])</code>. */
     public static final Type[] TYPE_ARRAY = new Type[0];
@@ -148,9 +155,9 @@ public class ClassMakerFactory
      * Create a ClassMaker instance using this factory.
      * @return a ClassMaker instance.
      */
-    public ClassMaker createClassMaker()
+    public <T> ClassMaker<T> createClassMaker()
     {
-        return new ClassMaker(this);
+        return new ClassMaker<T>(this);
     }
 
     /**
@@ -165,9 +172,9 @@ public class ClassMakerFactory
      * @param extendsClass the class that the generated class will extend
      * @param sourceFile an optional source file name
      */
-    public ClassMaker createClassMaker(String packageName, String simpleName, String sourceFile)
+    public <T> ClassMaker<T> createClassMaker(String packageName, String simpleName, String sourceFile)
     {
-        ClassMaker maker = new ClassMaker(this);
+        ClassMaker<T> maker = new ClassMaker<T>(this);
         maker.setPackageName(packageName);
         maker.setSimpleClassName(simpleName);
         maker.setSourceFilename(sourceFile);
@@ -224,9 +231,9 @@ public class ClassMakerFactory
      */
     public SimpleClassLoader getClassLoader()
     {
-        // FIXME - Do not use mozilla ClassLoader.
-        if (loader == null)
+        if (loader == null) {
             loader = createClassLoader();
+        }
         return loader;
     }
     /**
@@ -243,8 +250,9 @@ public class ClassMakerFactory
      */
     public ExceptionFactory getExceptionFactory()
     {
-        if (exceptionFactory == null)
+        if (exceptionFactory == null) {
             exceptionFactory = new ExceptionFactory();
+        }
         return exceptionFactory;
     }
 
@@ -306,6 +314,11 @@ public class ClassMakerFactory
         typeMap.put(name, type);
    }
 
+    protected void addGeneric(String key, GenericType type)
+    {
+        genericMap.put(key, type);
+    }
+
     /**
      * Adds the ClassType to the type map.
      * <br/>
@@ -331,7 +344,12 @@ public class ClassMakerFactory
         if (javaClass.isPrimitive()) {// Should not get here
             throw new IllegalArgumentException(javaClass.getName() + " is not a class");
         }
-        ClassType type = new ClassType(javaClass);
+        ClassType type;
+        if (javaClass.getTypeParameters().length > 0) {
+            type = new GenericType(javaClass);
+        } else {
+            type = new ClassType(javaClass);
+        }
         type.setFactory(this);
         addType(type);
         return type;
@@ -365,7 +383,7 @@ public class ClassMakerFactory
         String typeName = arrayOfType.getName();
         String name = typeName + "[]";
         String signature = "[" + arrayOfType.getSignature();
-        ArrayType element = new ArrayType(name, signature, arrayOfType);
+        ArrayType element = new ArrayType(name, signature, arrayOfType, null);
         addType(element);
         return element;
     }
@@ -382,10 +400,13 @@ public class ClassMakerFactory
         String name = MakerUtil.classToName(javaClass);
         String signature = MakerUtil.classToSignature(javaClass);
         Type element = classToType(javaClass.getComponentType());
-        ArrayType array = new ArrayType(name, signature, element);
-        array.setJavaClass(javaClass);
+        ArrayType array = new ArrayType(name, signature, element, javaClass);
         addType(array);
         return array;
+    }
+    
+    public GenericType javaTypeToGenericType(java.lang.reflect.Type javaType) {
+        return genericMap.get(javaType.toString());
     }
 
     /**
@@ -407,6 +428,51 @@ public class ClassMakerFactory
         } else {
             return addClassType(javaClass);
         }
+    }
+
+    public Type classToParameterType(ClassType memberOfType, Class boundClass, java.lang.reflect.Type generic) {
+        if (Type.isGeneric(memberOfType) && generic instanceof java.lang.reflect.TypeVariable) {
+            GenericType genericClass = memberOfType.toGeneric();
+            java.lang.reflect.TypeVariable typeVar = (java.lang.reflect.TypeVariable)generic;
+            String name = typeVar.getName();
+            Type parameter = genericClass.findParameter(name);
+            return parameter;
+        } else {
+            return classToType(boundClass);
+        }
+    }
+
+    public ClassType classToClassType(Class javaClass, java.lang.reflect.Type generic) {
+        if (javaClass == generic) {
+            return classToType(javaClass).toClass();
+        } else {
+            GenericType classType = javaTypeToGenericType(generic);
+            if (classType == null) {
+                classType = addGeneric(javaClass, generic);
+            }
+            return classType;
+        }
+    }
+    
+    GenericType addGeneric(Class javaClass, java.lang.reflect.Type generic) {
+        if (generic instanceof java.lang.reflect.ParameterizedType) {
+            return createGeneric(javaClass, (java.lang.reflect.ParameterizedType)generic);
+        } else {
+            throw new IllegalArgumentException("Java Type not handled: " + generic.getClass().getName());
+        }
+    }
+    
+    GenericType createGeneric(Class javaClass, java.lang.reflect.TypeVariable generic) {
+        return null;
+    }
+    
+    GenericType createGeneric(Class javaClass, java.lang.reflect.ParameterizedType generic) {
+        GenericType genericType = new GenericType(javaClass);
+        ParameterType [] paras = getParameterTypes(genericType, generic);
+        genericType.setParameterTypes(paras);
+        genericType.setFactory(this);
+        addGeneric(generic.toString(), genericType);
+        return genericType;
     }
     
     /**
@@ -464,44 +530,13 @@ public class ClassMakerFactory
     }
     
     /**
-     * Creates a <code>ClassType</code> populated with methods declared in the given java class.
-     * </br>
-     * Creates and returns a ClassType if one does not already exist for the java class.
-     * Creates a <code>MakerMethod</code> for each method declared in the java class.
-     * @param classType the ClassType wrapper around the java class, if one exists
-     * @param javaClass the java class from which to derive the methods
-     * @return the ClassType wrapper around the given java class
+     * Fetches the methods declared in the given java class.
+     *
+     * The methods are lazy loaded for existing java classes or the current list
+     * of methods is used for the class being generated.
+     * @param classType the ClassType that holds information about the class
+     * @return an array of method descriptors
      */
-//    public ClassType populateJavaClassMethods(ClassType classType, Class javaClass)
-//    {
-//    	if (classType == null && javaClass != null)
-//    		classType = classToType(javaClass).toClass();
-//
-//    	if (classType.getAllMethods() == null)
-//    	{
-//    	    HashMap<String, MakerMethod> methods = new HashMap<String, MakerMethod>();
-//    	    while (javaClass != null) {
-//	    	java.lang.reflect.Method [] javaMethods = javaClass.getDeclaredMethods();
-//	        for (int i = 0; i < javaMethods.length; i++)
-//	        {
-//	            java.lang.reflect.Method javaMethod = javaMethods[i];
-//	            int modifiers = javaMethod.getModifiers();
-//	            if (!Modifier.isPrivate(modifiers)) {
-//                        MakerMethod method = toMethod(classType, javaMethod);
-//                        String signature = method.getName() + method.getSignature();
-//                        // Only add methods that are not overridden
-//                        if (methods.get(signature) == null) {
-//                            methods.put(signature, method);
-//                        }
-//	            }
-//	        }
-//	        javaClass = javaClass.getSuperclass();
-//    	    }
-//            classType.setAllMethods(methods.values().toArray(METHOD_ARRAY));
-//    	}
-//        return classType;
-//    }
-
     public MakerMethod [] getDeclaredMethods(ClassType classType)
     {
         Class javaClass = classType.getJavaClass();
@@ -518,27 +553,13 @@ public class ClassMakerFactory
     }
 
     /**
-     * Populates a <code>ClassType</code> with the interfaces declared in the given java class.
+     * Fetches the interfaces implemented by the given java class.
      * </br>
      * Finds or creates a <code>ClassType</code> for each interface, if one does not already exist,
      * then populates each of the <code>ClassType</code>s.
      * @param classType the ClassType wrapper around the java class
-     * @param javaClass the java class from which to derive the methods
+     * @return an array of ClassTypes representing the implemented interfaces
      */
-//    public void populateJavaClassInterfaces(ClassType classType, Class javaClass)
-//    {
-//        if (classType.getDeclaredInterfaces() == null && javaClass != null) {
-//            Class[] javaInterfaces = javaClass.getInterfaces();
-//            ClassType[] interfaces = new ClassType[javaInterfaces.length];
-//            for (int i = 0; i < javaInterfaces.length; i++) {
-//                Class ifaceClass = javaInterfaces[i];
-//                ClassType ifaceType = classToType(ifaceClass).toClass();
-//                interfaces[i] = ifaceType;
-//            }
-//            classType.setDeclaredInterfaces(interfaces);
-//        }
-//    }
-
     public ClassType[] getDeclaredInterfaces(ClassType classType)
     {
         Class javaClass = classType.getJavaClass();
@@ -551,57 +572,6 @@ public class ClassMakerFactory
         }
         return interfaces;
     }
-    
-    /**
-     * Fetches the methods in the given 
-     *
-     * The methods are lazy loaded for existing java classes or the current list
-     * of methods is used for the class being generated.
-     * @param classType the ClassType that holds information about the class
-     * @return an array of method descriptors
-     */
-//    public MakerMethod [] getMethods(ClassType classType)
-//    {
-//        HashMap<String, MakerMethod> candidates = new HashMap<String, MakerMethod>();
-//        findJavaClassMethods(candidates, classType);
-//        if (classType.isInterface())
-//            findJavaInterfaceMethods(candidates, classType);
-//        return candidates.values().toArray(METHOD_ARRAY);
-//    }
-
-    /**
-     * Creates an array of method descriptors for the given java class.
-     * </br>
-     * All methods and constructors for the class are returned.
-     * Private methods in base classes are filtered out.
-     * @param candidates the map of candidates from <code>String</code> to <code>MakerMethod</code>
-     * @param classType the ClassType that holds information about the class
-     */
-//    public void findJavaClassMethods(HashMap<String, MakerMethod> candidates, ClassType classType)
-//    {
-//        if (classType != null)
-//        {
-//            populateJavaClassMethods(classType, classType.getJavaClass());
-//            ClassMakerFactory.addMethods(candidates, classType.getAllMethods());
-//
-//            findJavaClassMethods(candidates, classType.getExtendsType());
-//        }
-//    }
-
-    /**
-     * Creates an array of method descriptors for the given java interface.
-     * </br>
-     * All methods for the interface are returned.
-     * @param candidates the map of candidates from <code>String</code> to <code>MakerMethod</code>
-     * @param classType the ClassType that holds information about the class
-     */
-//    public void findJavaInterfaceMethods(HashMap<String, MakerMethod> candidates, ClassType classType)
-//    {
-//        for (ClassType interfaceType : classType.getDeclaredInterfaces()) {
-//            ClassMakerFactory.addMethods(candidates, interfaceType.getDeclaredMethods());
-//            findJavaInterfaceMethods(candidates, interfaceType);
-//        }
-//    }
 
     /**
      * Creates an array of constructor descriptors for the given java class.
@@ -623,6 +593,73 @@ public class ClassMakerFactory
             constructors[i] = toMethod(classType, javaMethod);
         }
         return constructors;
+    }
+    
+    /**
+     * Creates an array of constructor descriptors for the given java class.
+     * </br>
+     * Only constructors in the most explicit class are returned.
+     * @param classType the ClassType that holds information about the class
+     */
+    public ParameterType [] getParameterTypes(ClassType classType)
+    {
+        Class javaClass = classType.getJavaClass();
+        if (javaClass == null) {
+            throw new NullPointerException("javaClass not set");
+        }
+        return getParameterTypes(classType, javaClass);
+    }
+
+    public ParameterType [] getParameterTypes(ClassType classType, java.lang.reflect.Type type)
+    {
+        if (type instanceof Class) {
+            return getParameterTypes(classType, (Class) type);
+        } else if (type instanceof java.lang.reflect.ParameterizedType) {
+            return getParameterTypes(classType, (java.lang.reflect.ParameterizedType) type);
+        } else {
+            return null;
+        }
+    }
+
+    public ParameterType [] getParameterTypes(ClassType classType, Class javaClass)
+    {
+        java.lang.reflect.TypeVariable [] javaClassParam = javaClass.getTypeParameters();
+        ParameterType [] params = new ParameterType[javaClassParam.length];
+        for (int i = 0; i < javaClassParam.length; i++) {
+            params[i] = toParameterType(classType, javaClassParam[i], null);
+        }
+        return params;
+    }
+    
+    public ParameterType [] getParameterTypes(ClassType classType, java.lang.reflect.ParameterizedType parameterizedType)
+    {
+        Class<?> rawType = (Class) parameterizedType.getRawType();
+
+        java.lang.reflect.Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+        TypeVariable<?>[] typeParameters = rawType.getTypeParameters();
+                
+        ParameterType [] params = new ParameterType[typeParameters.length];
+        for (int i = 0; i < typeParameters.length; i++) {
+            Class actualClass = ReflectionUtils.getClass(actualTypeArguments[i]);
+            params[i] = toParameterType(classType, typeParameters[i], actualClass);
+        }
+        return params;
+    }
+    
+    ParameterType toParameterType(ClassType classType, TypeVariable typeVariable, Class actualClass) {
+        ClassType boundType = OBJECT_TYPE;
+        java.lang.reflect.Type [] bounds = typeVariable.getBounds();
+        if (bounds.length > 0 && bounds[0] instanceof Class) {
+            // Given <T extends A, B, C>, A may be a class or an interface while B & C must be interfaces.
+            Class boundClass = (Class)bounds[0];
+            boundType = classToType(boundClass).toClass();
+        }
+        ParameterType type = new ParameterType(classType, typeVariable.getName(), boundType);
+        if (actualClass != null) {
+            ClassType actualType = classToType(actualClass).toClass();
+            type.setActualType(actualType);
+        }
+        return type;
     }
     
     /**
@@ -652,19 +689,6 @@ public class ClassMakerFactory
         }
     }
 
-//    static void addInterfaceMethods(Map<String, MakerMethod> allMethods, ClassType [] interfaces)
-//    {
-//        // Add interface methods
-//        for (ClassType ifaceType : interfaces)
-//        {
-//            if (ifaceType == null)
-//                throw new IllegalArgumentException("Type must refer to an interface");
-//            addMethods(allMethods, ifaceType.getDeclaredMethods());
-//            // Recursively add methods from extended interfaces
-//            addInterfaceMethods(allMethods, ifaceType.getDeclaredInterfaces());
-//        }
-//    }
-
     /**
      * Convert a reflection java method into a ClassMaker method descriptor.
      * @param javaMethod the java method to be converted
@@ -677,13 +701,14 @@ public class ClassMakerFactory
         Type returnType = classToType(javaMethod.getReturnType());
         MakerMethod method = new MakerMethod(classType, name, returnType, modifiers);
         Class[] params = javaMethod.getParameterTypes();
+        java.lang.reflect.Type [] generics = javaMethod.getGenericParameterTypes();
         Type [] formalParams = new Type[params.length];
         for (int i=0; i<params.length; i++)
         {
-            Type param = classToType(params[i]);
+            Type param = classToParameterType(classType, params[i], generics[i]);
             formalParams[i] = param;
         }
-        method.setFormalParams(formalParams);
+        method.setFormalTypes(formalParams);
         return method;
     }
 
@@ -703,7 +728,7 @@ public class ClassMakerFactory
             Type param = classToType(params[i]);
             formalParams[i] = param;
         }
-        method.setFormalParams(formalParams);
+        method.setFormalTypes(formalParams);
         return method;
     }
 
@@ -712,26 +737,6 @@ public class ClassMakerFactory
      * @param classType the class from which to extract field descriptors
      * @return an array of field descriptors
      */
-//    protected MakerField[] populateJavaClassFields(ClassType classType)
-//    {
-//        Class javaClass = classType.getJavaClass();
-//        //MakerField[] makerFields = new MakerField[javaFields.length];
-//        ArrayList<MakerField> makerFields = new ArrayList<MakerField>();
-//        while (javaClass != null) {
-//            java.lang.reflect.Field[] javaFields = javaClass.getDeclaredFields();
-//            for (int i = 0; i < javaFields.length; i++)
-//            {
-//                String name = javaFields[i].getName();
-//                Class fieldType = javaFields[i].getType();
-//                Type type = classToType(fieldType);
-//                int modifiers = javaFields[i].getModifiers();
-//                makerFields.add(new MakerField(classType, name, type, modifiers));
-//            }
-//            javaClass = javaClass.getSuperclass();
-//        }
-//        return makerFields.toArray(FIELD_ARRAY);
-//    }
-
     public MakerField[] getDeclaredFields(ClassType classType)
     {
         Class javaClass = classType.getJavaClass();

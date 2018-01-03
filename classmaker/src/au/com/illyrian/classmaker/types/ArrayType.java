@@ -47,9 +47,10 @@ public class ArrayType extends ClassType
      * @param componentType the <code>Type</code> the array elements
      */
 
-    public ArrayType(String name, String signature, Type componentType)
+    public ArrayType(String name, String signature, Type componentType, Class<?>javaClass)
     {
         super(name, signature, ClassMakerFactory.OBJECT_TYPE);
+        setJavaClass(javaClass);
         this.componentType = componentType;
     }
 
