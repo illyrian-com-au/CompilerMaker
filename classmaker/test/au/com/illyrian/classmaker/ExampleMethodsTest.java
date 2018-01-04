@@ -40,7 +40,7 @@ public class ExampleMethodsTest extends TestCase
         String getName();
     }
 
-    public class AccessMaker extends ClassMakerCode
+    public class AccessMaker extends ClassMakerCode<Accessable>
     {
         public void code()
         {
@@ -73,9 +73,9 @@ public class ExampleMethodsTest extends TestCase
 
     public void testMethodDeclarations() throws Exception
     {
-        ClassMaker maker = new AccessMaker();
-        Class testClass = maker.defineClass();
-        Accessable exec = (Accessable) testClass.newInstance();
+        ClassMaker<Accessable> maker = new AccessMaker();
+        Class<Accessable> testClass = maker.defineClass();
+        Accessable exec = testClass.newInstance();
 
         String value = (String) testClass.getField("name").get(exec);
         assertNull("name", value);
@@ -154,7 +154,7 @@ public class ExampleMethodsTest extends TestCase
         public void exec();
     }
 
-    public class InvocationMaker extends ClassMakerCode
+    public class InvocationMaker extends ClassMakerCode<Executable>
     {
         public void code()
         {
@@ -193,9 +193,9 @@ public class ExampleMethodsTest extends TestCase
         ClassMakerCode.setSharedFactory(null);
         ExampleMethodsTest.setInstance(null);
         InvocationMaker maker = new InvocationMaker();
-        Class invocationClass = maker.defineClass();
-        Executable obj1 = (Executable) invocationClass.newInstance();
-        Executable obj2 = (Executable) invocationClass.newInstance();
+        Class<Executable> invocationClass = maker.defineClass();
+        Executable obj1 = invocationClass.newInstance();
+        Executable obj2 = invocationClass.newInstance();
         invocationClass.getField("obj").set(obj1, obj2);
         obj1.exec();
         assertEquals("obj1.x", 3, invocationClass.getField("x").getInt(obj1));
@@ -211,7 +211,7 @@ public class ExampleMethodsTest extends TestCase
         long binary(long a, long b);
     }
 
-    public class MultiplyMaker extends ClassMakerCode
+    public class MultiplyMaker extends ClassMakerCode<Binary>
     {
         public void code()
         {
@@ -231,9 +231,9 @@ public class ExampleMethodsTest extends TestCase
     public void testBinaryMultiply() throws Exception
     {
         ClassMakerCode.setSharedFactory(null);
-        ClassMaker maker = new MultiplyMaker();
-        Class multiplyClass = maker.defineClass();
-        Binary exec = (Binary) multiplyClass.newInstance();
+        ClassMaker<Binary> maker = new MultiplyMaker();
+        Class<Binary> multiplyClass = maker.defineClass();
+        Binary exec = multiplyClass.newInstance();
 
         assertEquals("Multiply", 6, exec.binary(2, 3));
         assertEquals("Multiply", -4, exec.binary(-2, 2));

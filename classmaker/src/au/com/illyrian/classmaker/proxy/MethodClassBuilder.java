@@ -23,6 +23,7 @@ public class MethodClassBuilder {
     ClassType iface;
     MakerMethod method;
     boolean isVoid = false; // FIXME
+    String [] memberNames = null;
 
     public MethodClassBuilder(ClassMakerIfc maker) {
         this.maker = maker;
@@ -39,8 +40,9 @@ public class MethodClassBuilder {
         return iface;
     }
 
-    public void setInterface(ClassType iface) {
+    public MethodClassBuilder withInterface(ClassType iface) {
         this.iface = iface;
+        return this;
     }
 
     public MakerMethod getMethod() {
@@ -50,8 +52,9 @@ public class MethodClassBuilder {
         return method;
     }
 
-    public void setMethod(MakerMethod method) {
+    public MethodClassBuilder withMethod(MakerMethod method) {
         this.method = method;
+        return this;
     }
     
     public String [] createFieldNames(String prefix, int len) {
@@ -60,6 +63,10 @@ public class MethodClassBuilder {
             names[i] = prefix + i;
         }
         return names;
+    }
+    
+    public String [] getMemberNames() {
+        return memberNames;
     }
     
     boolean isVoid(MakerMethod method) {
@@ -217,7 +224,7 @@ public class MethodClassBuilder {
     }
 
     public void build() {
-        String [] memberNames = createFieldNames(MEMBER_PREFIX, method.getFormalTypes().length);
+        memberNames = createFieldNames(MEMBER_PREFIX, method.getFormalTypes().length);
         declareFields(method, memberNames);
         createMethod(method, memberNames);
         createToString(method.getName(), memberNames, method.getReturnType());

@@ -102,7 +102,7 @@ import au.com.illyrian.classmaker.util.MakerUtil;
  *
  * @author Donald Strong
  */
-public abstract class ClassMakerCode extends ClassMaker
+public abstract class ClassMakerCode<T> extends ClassMaker<T>
 {
     /* A ClassMakerFactory instance that is shared by all instances of ClassMakerBase. */
     private static ClassMakerFactory sharedFactory = null;
@@ -176,7 +176,7 @@ public abstract class ClassMakerCode extends ClassMaker
      * Defines this class in the factory <code>ClassLoader</code>.
      * @return the generated class
      */
-    public Class defineClass()
+    public Class<T> defineClass()
     {
         generateCode();
         return super.defineClass();

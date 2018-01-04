@@ -26,8 +26,8 @@ public class MethodClassBuilderTextTest extends TestCase {
         MethodClassBuilder builder = new MethodClassBuilder(maker);
         ClassType iface = factory.classToType(TestInterface.class).toClass();
         MakerMethod method = iface.getMethods("processFile")[0];
-        builder.setInterface(iface);
-        builder.setMethod(method);;
+        builder.withInterface(iface);
+        builder.withMethod(method);;
         builder.beginClass();
         LineNumberReader output = getReader(maker.toString());
         assertEquals("setSimpleClassName(\"TestInterface$ProcessFile\");", output.readLine());
@@ -41,8 +41,8 @@ public class MethodClassBuilderTextTest extends TestCase {
         MethodClassBuilder builder = new MethodClassBuilder(maker);
         ClassType iface = factory.classToType(TestInterface.class).toClass();
         MakerMethod method = iface.getMethods("processFile")[0];
-        builder.setInterface(iface);
-        builder.setMethod(method);
+        builder.withInterface(iface);
+        builder.withMethod(method);
         String [] fieldNames = builder.createFieldNames("m", 1);
         builder.declareFields(method, fieldNames); // FIXME
         LineNumberReader output = getReader(maker.toString());
@@ -81,8 +81,8 @@ public class MethodClassBuilderTextTest extends TestCase {
         MethodClassBuilder builder = new MethodClassBuilder(maker);
         ClassType iface = factory.classToType(TestInterface.class).toClass();
         MakerMethod method = iface.getMethods("processFile")[0];
-        builder.setInterface(iface);
-        builder.setMethod(method);
+        builder.withInterface(iface);
+        builder.withMethod(method);
         int len = method.getFormalTypes().length;
         String [] memberNames = builder.createFieldNames("p", len);
         builder.createMethod(method, memberNames);

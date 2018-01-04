@@ -83,7 +83,7 @@ public class ExampleClassesTest extends TestCase
     public void testImport() throws Exception
     {
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker();
+        ClassMaker<Openable> maker = factory.createClassMaker();
 
         // BEGIN Import Example 2
         maker.Import(File.class);
@@ -106,8 +106,8 @@ public class ExampleClassesTest extends TestCase
         maker.End();
         // END Import Example 2
 
-        Class openClass = maker.defineClass();
-        Openable exec = (Openable) openClass.newInstance();
+        Class<Openable> openClass = maker.defineClass();
+        Openable exec = openClass.newInstance();
 
         File file = new File("Test.txt");
         try {
@@ -128,7 +128,7 @@ public class ExampleClassesTest extends TestCase
         int square(int a);
     }
 
-    public class SquareTestMaker extends ClassMakerCode
+    public class SquareTestMaker extends ClassMakerCode<Square>
     {
         public void code()
         {
@@ -144,9 +144,9 @@ public class ExampleClassesTest extends TestCase
    
     public void testSquareTest() throws Exception
     {
-        ClassMaker maker = new SquareTestMaker();
-        Class squareClass = maker.defineClass();
-        Square exec = (Square) squareClass.newInstance();
+        ClassMaker<Square> maker = new SquareTestMaker();
+        Class<Square> squareClass = maker.defineClass();
+        Square exec = squareClass.newInstance();
         assertEquals("Square test", 4, exec.square(2));
     }
 
@@ -159,7 +159,7 @@ public class ExampleClassesTest extends TestCase
     {
         // Use separate factories to avoid duplicates in class loaded.
         ClassMakerFactory factory = new ClassMakerFactory();
-        ClassMaker maker = factory.createClassMaker("test", "SimpleMath", null);
+        ClassMaker<Unary> maker = factory.createClassMaker("test", "SimpleMath", null);
 
         maker.Implements(Unary.class);
 
@@ -170,8 +170,8 @@ public class ExampleClassesTest extends TestCase
         maker.Return(maker.Add(maker.Get("a"), maker.Get("b")));
         maker.End();
 
-        Class squareClass = maker.defineClass();
-        Unary exec = (Unary) squareClass.newInstance();
+        Class<Unary> squareClass = maker.defineClass();
+        Unary exec = squareClass.newInstance();
         assertEquals("Unary test", 4, exec.eval(2, 2));
     }
 
@@ -200,7 +200,7 @@ public class ExampleClassesTest extends TestCase
         maker2.EndClass();
 
         // Create a class that calls test.Unary
-        ClassMaker maker3 = factory.createClassMaker("test", "UnaryTest", null);
+        ClassMaker<Square> maker3 = factory.createClassMaker("test", "UnaryTest", null);
         maker3.Implements(Square.class);
         maker3.Declare("test", "test.Unary", ClassMakerConstants.ACC_PUBLIC);
 
@@ -215,8 +215,8 @@ public class ExampleClassesTest extends TestCase
         Class squareClass = maker2.defineClass();
         Object squareTest = squareClass.newInstance();
 
-        Class testClass = maker3.defineClass();
-        Square exec = (Square) testClass.newInstance();
+        Class<Square> testClass = maker3.defineClass();
+        Square exec = testClass.newInstance();
 
         // Assign a reference to the interface to the member field exec.test using reflection.
         testClass.getField("test").set(exec, squareTest);

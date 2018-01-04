@@ -31,7 +31,6 @@ import java.io.File;
 
 import junit.framework.TestCase;
 import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.PrimitiveType;
 import au.com.illyrian.classmaker.types.Value;
 import au.com.illyrian.classmaker.util.MakerUtil;
 
@@ -174,7 +173,7 @@ public class ClassMakerTest extends TestCase
         int square(int a);
     }
 
-    public class SquareTestMaker extends ClassMakerCode
+    public class SquareTestMaker extends ClassMakerCode<Unary>
     {
         public void code()
         {
@@ -190,9 +189,9 @@ public class ClassMakerTest extends TestCase
 
     public void testSquareTest() throws Exception
     {
-        ClassMaker maker = new SquareTestMaker();
-        Class squareClass = maker.defineClass();
-        Unary exec = (Unary)squareClass.newInstance();
+        ClassMaker<Unary> maker = new SquareTestMaker();
+        Class<Unary> squareClass = maker.defineClass();
+        Unary exec = squareClass.newInstance();
         assertEquals("Square test", 4, exec.square(2));
     }
 
@@ -383,6 +382,7 @@ public class ClassMakerTest extends TestCase
     
     public void testJavaLangClasses() throws Exception
     {
+        ClassMaker<UnaryDouble> maker = factory.createClassMaker();
     	maker.Implements(UnaryDouble.class);
     	maker.Declare("ch", "Character", 0);
     	maker.Method("unary", "double", ClassMakerConstants.ACC_PUBLIC);
@@ -392,8 +392,8 @@ public class ClassMakerTest extends TestCase
     		maker.Return(maker.Call("Math", "log", maker.Push(maker.Get("d"))));
     	}
     	maker.End();
-        Class squareClass = maker.defineClass();
-        UnaryDouble exec = (UnaryDouble)squareClass.newInstance();
+        Class<UnaryDouble> squareClass = maker.defineClass();
+        UnaryDouble exec = squareClass.newInstance();
         assertEquals("Math.log(x)", Math.log(2), exec.unary(2));
     }
 
