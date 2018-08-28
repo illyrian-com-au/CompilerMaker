@@ -266,7 +266,7 @@ public class ClassMakerFactory
     }
     
     public void addClassMaker(ClassMaker maker) {
-        String className = maker.defaultFullyQualifiedClassName();
+        String className = maker.getFullyQualifiedClassName();
         classMakerMap.put(className, maker);
     }
 

@@ -174,13 +174,16 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
     /** Constant for the name of a constructor method */
     public static final String INIT = "<init>";
 
+    // External references
+    /** The super type of this type. */
+    private ClassType extendsType = null;
+    /** A list of interfaces implemented by the class being generated. */
+    private Vector<ClassType> interfaces = new Vector<ClassType>();
     // Fields - internal references
     /** A list of constructors in the class being generated. */
     private Vector<MakerMethod> constructors = new Vector<MakerMethod>();
     /** A list of methods in the class being generated. */
     private Vector<MakerMethod> methods = new Vector<MakerMethod>();
-    /** A list of interfaces implemented by the class being generated. */
-    private Vector<ClassType> interfaces = new Vector<ClassType>();
     /** A list of member fields in the class being generated. */
     private Vector<MakerField> fieldTable = new Vector<MakerField>();
     /** A list of local variables in the class being generated. */
@@ -204,7 +207,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
     /** The fully qualified name of the class */
     private String fullyQualifiedClassName;
     /** A reference to the type information for the class being generated. */
-    private MakerClassType thisClassType;
+    private MakerClassType<T> thisClassType;
     /** The modifiers for the class being generated. */
     private int classModifiers = ACC_PUBLIC;
 
@@ -278,8 +281,9 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @return the name of the class
      */
     public String getPackageName() {
-        if (packageName == null)
+        if (packageName == null) {
             setPackageName(defaultPackageName());
+        }
         return packageName;
     }
 
@@ -352,7 +356,6 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         if (isGeneratingCode())
             throw createException("ClassMaker.ToLateToNameTheFullyQualifiedClass");
         this.fullyQualifiedClassName = className;
-        getFactory().addClassMaker(this);
     }
 
     /**
@@ -408,11 +411,12 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * 
      * @return the ClassType of the generated class
      */
-    protected MakerClassType defaultThisClass() {
-        MakerClassType classType = new MakerClassType(this);
+    protected MakerClassType<T> defaultThisClass() {
+        MakerClassType<T> classType = new MakerClassType<T>(this);
         classType.setModifiers(classModifiers);
         getFactory().addType(classType);
-        return classType;
+        getFactory().addClassMaker(this);
+       return classType;
     }
 
     /**
@@ -423,9 +427,10 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @throws ClassMakerException
      *             if it is too late to call this method
      */
-    protected void setClassType(MakerClassType classType) {
-        if (isGeneratingCode())
+    protected void setClassType(MakerClassType<T> classType) {
+        if (isGeneratingCode()) {
             throw createException("ClassMaker.ToLateToSetClassType");
+        }
         thisClassType = classType;
         addClassTypeAlias(classType);
     }
@@ -445,9 +450,10 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @see #defaultThisClass()
      * @return the ClassType of the generated class
      */
-    public MakerClassType getClassType() {
-        if (thisClassType == null)
+    public MakerClassType<T> getClassType() {
+        if (thisClassType == null) {
             setClassType(defaultThisClass());
+        }
         return thisClassType;
     }
 
@@ -459,8 +465,22 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @see #defaultSuperClass()
      * @return classType the ClassType of the super class
      */
-    public ClassType getSuperClass() {
-        return getClassType().getExtendsType();
+    public ClassType getExtendsType() {
+        if (extendsType == null) {
+            setExtendsType(defaultExtendsType());
+        }
+        return extendsType;
+    }
+    
+    public void setExtendsType(ClassType superType) {
+        if (isGeneratingCode()) {
+            throw createException("ClassMaker.ToLateToExtendTheClass");
+        }
+        this.extendsType = superType;
+    }
+    
+    public ClassType defaultExtendsType() {
+        return ClassMakerFactory.OBJECT_TYPE;
     }
 
     /**
@@ -500,7 +520,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
                 throw createException("ClassMaker.CannotExtendInterface", classType.getName());
 
         }
-        getClassType().setExtendsType(classType);
+        setExtendsType(classType);
     }
 
     /**
@@ -526,7 +546,49 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
 
         if (getPass() != ClassMakerConstants.FIRST_PASS) {
             ClassType classType = classToClassType(javaClass);
-            getClassType().setExtendsType(classType);
+            setExtendsType(classType);
+        }
+    }
+
+    /**
+     * Indicates that the class implements the interface represented by the
+     * given <code>Class</code>.
+     * 
+     * @param javaClass
+     *            the <code>Class<code> of the implemented interface
+     */
+    public void Implements(Class javaClass) throws ClassMakerException {
+        ClassType classType = classToClassType(javaClass);
+        Implements(classType);
+    }
+
+    /**
+     * Indicates that the class implements the named interface.
+     * 
+     * @param className the fully qualified class name
+     */
+    public void Implements(String className) throws ClassMakerException {
+        ClassType classType = stringToClassType(className);
+        if (getPass() != ClassMakerConstants.FIRST_PASS && classType == null) {
+            throw createException("ClassMaker.NoClassTypeCalled_1", className);
+        }
+        Implements(classType);
+    }
+
+    /**
+     * Indicates that the class implements the named interface.
+     * 
+     * @param classType the type of the interface
+     */
+    public void Implements(ClassType classType) {
+        if (getPass() != ClassMakerConstants.FIRST_PASS && !classType.isInterface()) {
+            throw createException("ClassMaker.CannotImplementClass", classType.getName());
+        }
+        if (getGen() != null) {
+            getGen().addInterface(classType.getName());
+        }
+        if (getPass() != SECOND_PASS) {
+            interfaces.add(classType);
         }
     }
 
@@ -894,7 +956,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      */
     public Class<T> defineClass() {
         if (thisClassType != null && thisClassType.getJavaClass() != null) {
-            return (Class<T>)thisClassType.getJavaClass();
+            return thisClassType.getJavaClass();
         }
         EndClass();
         if (getPass() == FIRST_PASS) {
@@ -1760,49 +1822,6 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         return method.getReturnType();
     }
 
-    // Class relationships
-    /**
-     * Indicates that the class implements the interface represented by the
-     * given <code>Class</code>.
-     * 
-     * @param javaClass
-     *            the <code>Class<code> of the implemented interface
-     */
-    public void Implements(Class javaClass) throws ClassMakerException {
-        ClassType classType = classToClassType(javaClass);
-        Implements(classType);
-    }
-
-    /**
-     * Indicates that the class implements the named interface.
-     * 
-     * @param className the fully qualified class name
-     */
-    public void Implements(String className) throws ClassMakerException {
-        ClassType classType = stringToClassType(className);
-        if (getPass() != ClassMakerConstants.FIRST_PASS && classType == null) {
-            throw createException("ClassMaker.NoClassTypeCalled_1", className);
-        }
-        Implements(classType);
-    }
-
-    /**
-     * Indicates that the class implements the named interface.
-     * 
-     * @param classType the type of the interface
-     */
-    public void Implements(ClassType classType) {
-        if (getPass() != ClassMakerConstants.FIRST_PASS && !classType.isInterface()) {
-            throw createException("ClassMaker.CannotImplementClass", classType.getName());
-        }
-        if (getGen() != null) {
-            getGen().addInterface(classType.getName());
-        }
-        if (getPass() != SECOND_PASS) {
-            interfaces.add(classType);
-        }
-    }
-
     /**
      * Throws an <code>Exception</code>.
      * </br>
@@ -1894,8 +1913,8 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         if (getFactory().getAssignmentConversion().isConvertable(type, returnType)) {
             type = getFactory().getAssignmentConversion().convertTo(this, type, returnType);
         } else {
-            throw createException("ClassMaker.MethodReturnsTypeSoCannotReturnType_3", method.getName(), method
-                    .getReturnType().getName(), type.getName());
+            throw createException("ClassMaker.MethodReturnsTypeSoCannotReturnType_3", method.getName(),
+                    returnType.getName(), type.getName());
         }
         getGen().Return(type);
 
@@ -2007,7 +2026,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
             }
             getGen().loadThis();
         }
-        return getSuperClass().getValue();
+        return getExtendsType().getValue();
     }
 
     /**
@@ -2331,7 +2350,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         // Duplicate the value on top of the stack before storing it.
         // Stack: reference, value
-        gen.dupunder(refType, valueType);
+        getGen().dupunder(refType, valueType);
         // Stack: value, reference, value
         Set(reference, fieldName, value);
         // Stack: value
@@ -2422,7 +2441,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
             throw createException("ClassMaker.CannotAssignToLocalVariableOfType_3", valueType.getName(),
                     field.getName(), varType.getName());
 
-        gen.storeLocal(field);
+        getGen().storeLocal(field);
         return ClassMakerFactory.VOID_TYPE.getValue();
     }
 
@@ -2470,7 +2489,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         markLineNumber(); // possibly add a new line number entry.
         getFactory().getAssignmentConversion().convertTo(this, valueType, fieldType);
 
-        gen.storeField(field);
+        getGen().storeField(field);
         return ClassMakerFactory.VOID_TYPE.getValue();
     }
 
@@ -2514,7 +2533,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         markLineNumber(); // possibly add a new line number entry.
         getFactory().getAssignmentConversion().convertTo(this, valueType, type);
-        gen.storeStatic(field);
+        getGen().storeStatic(field);
         return ClassMakerFactory.VOID_TYPE.getValue();
     }
 
@@ -2547,7 +2566,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
             setDebugComment("Get(" + reference + ", " + fieldName + ")");
         }
         MakerField field = Find(reference, fieldName);
-        return gen.loadField(field).getValue();
+        return getGen().loadField(field).getValue();
     }
 
     /**
@@ -2580,7 +2599,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         markLineNumber(); // possibly add a new line number entry.
         MakerField field = Find(className, fieldName);
-        return gen.loadStatic(field);
+        return getGen().loadStatic(field);
     }
 
     /**
@@ -2599,7 +2618,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         markLineNumber(); // possibly add a new line number entry.
         MakerField field = Find(name);
-        return gen.loadLocal(field);
+        return getGen().loadLocal(field);
     }
 
     //##################### Member Field Methods. #####################
@@ -2799,8 +2818,9 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         checkInMethod();
         //MakerField field = findLocalField(name);
         MakerField field = findField(name);
-        if (field == null)
+        if (field == null) {
             throw createException("ClassMaker.NoLocalCalled_1", name);
+        }
         return field;
     }
 
@@ -3194,45 +3214,16 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (isDebugCode()) {
-            setDebugComment("Add(" + op1 + ", " + op2 + ");");
-        }
-        
-        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
+        markLineNumber(); // possibly add a new line number entry.
+
+        if (isNumericType(op1) && isNumericType(op2)) {
             if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
                 op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
             }
-            return primitiveAdd(op1.toPrimitive(), op2.toPrimitive()).getValue();
+            return getGen().primitiveAdd(op1.toPrimitive(), op2.toPrimitive()).getValue();
         } else if (getFactory().getStringConversion().isConvertable(op1, op2)) {
-            markLineNumber(); // possibly add a new line number entry.
-
             return getFactory().getStringConversion().convertTo(this, op1, op2).getValue();
-        }
-        throw createException("ClassMaker.CannotAddType_2", op1.getName(), op2.getName());
-    }
-
-    /**
-     * Integer addition on primitive operands.
-     * </br>
-     * This method is provided so that <code>Add</code> can be overridden to
-     * handle
-     * new types of operands and promotions. The method generates bytecode to
-     * perform
-     * integer addition for <code>byte, short, char, int and long</code> operand
-     * types.
-     * The operands are not numerically promoted.
-     * 
-     * @param op1
-     *            the type of the left operand
-     * @param op2
-     *            the type of the right operand
-     * @return the type of the result
-     */
-    protected PrimitiveType primitiveAdd(PrimitiveType op1, PrimitiveType op2) {
-        try {
-            markLineNumber(); // possibly add a new line number entry.
-            return gen.primitiveAdd(op1.toPrimitive(), op2.toPrimitive());
-        } catch (IllegalArgumentException ex) {
+        } else {
             throw createException("ClassMaker.CannotAddType_2", op1.getName(), op2.getName());
         }
     }
@@ -3268,41 +3259,14 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (isDebugCode()) {
-            setDebugComment("Subt(" + op1 + ", " + op2 + ");");
-        }
         markLineNumber(); // possibly add a new line number entry.
 
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
-            return primitiveSubt(op1.toPrimitive(), op2.toPrimitive()).getValue();
-        }
-        throw createException("ClassMaker.CannotSubtractType_2", op1.getName(), op2.getName());
-    }
-
-    /**
-     * Integer subtraction on primitive operands.
-     * </br>
-     * This method is provided so that <code>Subt</code> can be overridden to
-     * handle
-     * new types of operands and promotions. The method generates bytecode to
-     * perform
-     * integer subtraction for <code>byte, short, char, int and long</code>
-     * operand types.
-     * The operands are not numerically promoted.
-     * 
-     * @param op1
-     *            the type of the left operand
-     * @param op2
-     *            the type of the right operand
-     * @return the type of the result
-     */
-    protected PrimitiveType primitiveSubt(PrimitiveType op1, PrimitiveType op2) {
-        try {
-            return gen.primitiveSubt(op1.toPrimitive(), op2.toPrimitive());
-        } catch (IllegalArgumentException ex) {
+        if (op1 == op2 && isNumericType(op1)) {
+            return getGen().primitiveSubt(op1.toPrimitive(), op2.toPrimitive()).getValue();
+        } else {
             throw createException("ClassMaker.CannotSubtractType_2", op1.getName(), op2.getName());
         }
     }
@@ -3346,33 +3310,9 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
-            return primitiveMult(op1.toPrimitive(), op2.toPrimitive()).getValue();
-        }
-        throw createException("ClassMaker.CannotMultiplyType_2", op1.getName(), op2.getName());
-    }
-
-    /**
-     * Integer multiply on primitive operands.
-     * </br>
-     * This method is provided so that <code>Mult</code> can be overridden to
-     * handle
-     * new types of operands and promotions. The method generates bytecode to
-     * perform
-     * integer multiplication for <code>byte, short, char, int and long</code>
-     * operand types.
-     * The operands are not numerically promoted.
-     * 
-     * @param op1
-     *            the type of the left operand
-     * @param op2
-     *            the type of the right operand
-     * @return the type of the result
-     */
-    protected PrimitiveType primitiveMult(PrimitiveType op1, PrimitiveType op2) {
-        try {
-            return gen.primitiveMult(op1.toPrimitive(), op2.toPrimitive());
-        } catch (IllegalArgumentException ex) {
+        if (op1 == op2 && isNumericType(op1)) {
+            return getGen().primitiveMult(op1.toPrimitive(), op2.toPrimitive()).getValue();
+        } else {
             throw createException("ClassMaker.CannotMultiplyType_2", op1.getName(), op2.getName());
         }
     }
@@ -3407,40 +3347,12 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (isDebugCode()) {
-            setDebugComment("Div(" + op1 + ", " + op2 + ");");
-        }
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
-            return primitiveDiv(op1.toPrimitive(), op2.toPrimitive()).getValue();
-        }
-        throw createException("ClassMaker.CannotDivideType_2", op1.getName(), op2.getName());
-    }
-
-    /**
-     * Integer divide on primitive operands.
-     * </br>
-     * This method is provided so that <code>Rem</code> can be overridden to
-     * handle
-     * new types of operands and promotions. The method generates bytecode to
-     * perform
-     * integer division for <code>byte, short, char, int and long</code> operand
-     * types.
-     * The operands are not numerically promoted.
-     * 
-     * @param op1
-     *            the type of the left operand
-     * @param op2
-     *            the type of the right operand
-     * @return the type of the result
-     */
-    protected PrimitiveType primitiveDiv(PrimitiveType op1, PrimitiveType op2) {
-        try {
-            markLineNumber(); // possibly add a new line number entry.
-            return gen.primitiveDiv(op1.toPrimitive(), op2.toPrimitive());
-        } catch (IllegalArgumentException ex) {
+        if (op1 == op2 && isNumericType(op1)) {
+            return getGen().primitiveDiv(op1.toPrimitive(), op2.toPrimitive()).getValue();
+        } else {
             throw createException("ClassMaker.CannotDivideType_2", op1.getName(), op2.getName());
         }
     }
@@ -3477,40 +3389,14 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (isDebugCode())
-            setDebugComment("Rem(" + op1 + ", " + op2 + ");");
         markLineNumber(); // possibly add a new line number entry.
 
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
-            return primitiveRem(op1.toPrimitive(), op2.toPrimitive()).getValue();
-        }
-        throw createException("ClassMaker.CannotRemainderType_2", op1.getName(), op2.getName());
-    }
-
-    /**
-     * Integer remainder on primitive operands.
-     * </br>
-     * This method is provided so that <code>Rem</code> can be overridden to
-     * handle
-     * new types of operands and promotions. The method generates bytecode to
-     * calculate
-     * the integer remainder for <code>byte, short, char, int and long</code>
-     * operand types.
-     * The operands are not numerically promoted.
-     * 
-     * @param op1
-     *            the type of the left operand
-     * @param op2
-     *            the type of the right operand
-     * @return the type of the result
-     */
-    protected PrimitiveType primitiveRem(PrimitiveType op1, PrimitiveType op2) {
-        try {
-            return gen.primitiveRem(op1.toPrimitive(), op2.toPrimitive());
-        } catch (IllegalArgumentException ex) {
+        if (op1 == op2 && isNumericType(op1)) {
+            return getGen().primitiveRem(op1.toPrimitive(), op2.toPrimitive()).getValue();
+        } else {
             throw createException("ClassMaker.CannotRemainderType_2", op1.getName(), op2.getName());
         }
     }
@@ -3541,21 +3427,14 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
             return null;
         }
         Type type = value.getType();
-        if (isDebugCode()) {
-            setDebugComment("Neg(" + type + ");");
-        }
         markLineNumber(); // possibly add a new line number entry.
 
         if (getFactory().getNumericPromotion().isConvertable(type)) {
             type = getFactory().getNumericPromotion().convertTo(this, type);
         }
-        return primitiveNeg(type).getValue();
-    }
-
-    Type primitiveNeg(Type type) {
-        try {
-            return gen.primitiveNeg(type);
-        } catch (IllegalArgumentException ex) {
+        if (isNumericType(type)) {
+            return getGen().primitiveNeg(type).getValue();
+        } else {
             throw createException("ClassMaker.CannotNegType_1", type.getName());
         }
     }
@@ -3592,38 +3471,14 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (isDebugCode())
-            setDebugComment("Xor(" + op1 + ", " + op2 + ");");
         markLineNumber(); // possibly add a new line number entry.
 
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
-            return primitiveXor(op1.toPrimitive(), op2.toPrimitive()).getValue();
-        }
-        throw createException("ClassMaker.CannotXorType_2", op1.getName(), op2.getName());
-    }
-
-    /**
-     * Bitwise XOR on primitive operands.
-     * </br>
-     * This method is provided so that <code>Xor</code> can be overridden to
-     * handle
-     * new types of operands and promotions. The method generates bytecode to
-     * exclusive or <code>byte, short, char, int and long</code> operand types.
-     * The operands are not numerically promoted.
-     * 
-     * @param op1
-     *            the type of the left operand
-     * @param op2
-     *            the type of the right operand
-     * @return the type of the result
-     */
-    protected PrimitiveType primitiveXor(PrimitiveType op1, PrimitiveType op2) {
-        try {
-            return gen.primitiveXor(op1.toPrimitive(), op2.toPrimitive());
-        } catch (IllegalArgumentException ex) {
+        if (isLongIntegerType(op1) && op1.equals(op2)) {
+            return getGen().primitiveXor(op1.toPrimitive(), op2.toPrimitive()).getValue();
+        } else {
             throw createException("ClassMaker.CannotXorType_2", op1.getName(), op2.getName());
         }
     }
@@ -3659,37 +3514,12 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (isDebugCode())
-            setDebugComment("And(" + op1 + ", " + op2 + ");");
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
-            return primitiveAnd(op1.toPrimitive(), op2.toPrimitive()).getValue();
-        }
-        throw createException("ClassMaker.CannotAndType_2", op1.getName(), op2.getName());
-    }
-
-    /**
-     * Bitwise AND on primitive operands.
-     * </br>
-     * This method is provided so that <code>And</code> can be overridden to
-     * handle
-     * new types of operands and promotions. The method generates bytecode to
-     * bitwise and <code>byte, short, char, int and long</code> operand types.
-     * The operands are not numerically promoted.
-     * 
-     * @param op1
-     *            the type of the left operand
-     * @param op2
-     *            the type of the right operand
-     * @return the type of the result
-     */
-    protected PrimitiveType primitiveAnd(PrimitiveType op1, PrimitiveType op2) {
-        try {
-            markLineNumber(); // possibly add a new line number entry.
-            return gen.primitiveAnd(op1.toPrimitive(), op2.toPrimitive());
-        } catch (IllegalArgumentException ex) {
+        if (isLongIntegerType(op1) && op1.equals(op2)) {
+            return getGen().primitiveAnd(op1.toPrimitive(), op2.toPrimitive()).getValue();
+        } else {
             throw createException("ClassMaker.CannotAndType_2", op1.getName(), op2.getName());
         }
     }
@@ -3725,38 +3555,14 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (isDebugCode())
-            setDebugComment("Or(" + op1 + ", " + op2 + ");");
         markLineNumber(); // possibly add a new line number entry.
 
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        if (Type.isPrimitive(op1) && op1.equals(op2)) {
-            return primitiveOr(op1.toPrimitive(), op2.toPrimitive()).getValue();
-        }
-        throw createException("ClassMaker.CannotOrType_2", op1.getName(), op2.getName());
-    }
-
-    /**
-     * Bitwise OR on primitive operands.
-     * </br>
-     * This method is provided so that <code>Or</code> can be overridden to
-     * handle
-     * new types of operands and promotions. The method generates bytecode to
-     * bitwise or <code>byte, short, char, int and long</code> operand types.
-     * The operands are not numerically promoted.
-     * 
-     * @param op1
-     *            the type of the left operand
-     * @param op2
-     *            the type of the right operand
-     * @return the type of the result
-     */
-    protected PrimitiveType primitiveOr(PrimitiveType op1, PrimitiveType op2) {
-        try {
-            return gen.primitiveOr(op1.toPrimitive(), op2.toPrimitive());
-        } catch (IllegalArgumentException ex) {
+        if (isLongIntegerType(op1) && op1.equals(op2)) {
+            return getGen().primitiveOr(op1.toPrimitive(), op2.toPrimitive()).getValue();
+        } else {
             throw createException("ClassMaker.CannotOrType_2", op1.getName(), op2.getName());
         }
     }
@@ -3789,42 +3595,34 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
             return null;
         }
         Type op1 = value.getType();
-        if (isDebugCode()) {
-            setDebugComment("Inv(" + op1 + ");");
-        }
         markLineNumber(); // possibly add a new line number entry.
         if (getFactory().getNumericPromotion().isConvertable(op1)) {
             op1 = getFactory().getNumericPromotion().convertTo(this, op1);
         }
-        if (Type.isPrimitive(op1)) {
-            return primitiveInv(op1.toPrimitive()).getValue();
-        }
-        throw createException("ClassMaker.CannotInvertType_1", op1.getName());
-    }
-
-    /**
-     * Bitwise <b>Inversion</b> on primitive operands.
-     * </br>
-     * This method is provided so that <code>Inv</code> can be overridden to
-     * handle
-     * new types of operands and promotions. The method generates bytecode to
-     * invert the bits on <code>byte, short, char, int and long</code> operand
-     * types.
-     * The operands are not numerically promoted.
-     * 
-     * @param op1
-     *            the type of the left operand
-     * @return the type of the result
-     */
-    protected PrimitiveType primitiveInv(PrimitiveType type) {
-        try {
-            return gen.primitiveInv(type);
-        } catch (IllegalArgumentException ex) {
-            throw createException("ClassMaker.CannotInvertType_1", type.getName());
+        if (Type.isPrimitive(op1) && isLongIntegerType(op1)) {
+            return getGen().primitiveInv(op1.toPrimitive()).getValue();
+        } else {
+            throw createException("ClassMaker.CannotInvertType_1", op1.getName());
         }
     }
 
     //################ Bitwise shifting operators ####################
+
+    static boolean isIntegerType(Type operand) {
+        return ClassMakerFactory.INT_TYPE.equals(operand) || ClassMakerFactory.SHORT_TYPE.equals(operand)
+                || ClassMakerFactory.CHAR_TYPE.equals(operand) || ClassMakerFactory.BYTE_TYPE.equals(operand);
+    }
+
+    static boolean isLongIntegerType(Type operand) {
+        return isIntegerType(operand) || ClassMakerFactory.LONG_TYPE.equals(operand);
+    }
+
+    static boolean isNumericType(Type operand) {
+        return isLongIntegerType(operand) || 
+                ClassMakerFactory.FLOAT_TYPE.equals(operand) || 
+                ClassMakerFactory.DOUBLE_TYPE.equals(operand);
+    }
+
     /**
      * <b>SH</b>ifts <b>L</b>eft the value of the first operand by the number of
      * bits indicated by the second operand.
@@ -3867,39 +3665,13 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         if (getFactory().getNumericPromotion().isConvertable(op2)) {
             op2 = getFactory().getNumericPromotion().convertTo(this, op2);
         }
-        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
-            if (!isIntegerType(op2)) {
+        if (Type.isPrimitive(op1) && isLongIntegerType(op1)) {
+            if (Type.isPrimitive(op2) && isIntegerType(op2)) {
+                return getGen().primitiveShiftLeft(op1.toPrimitive(), op2.toPrimitive()).getValue();
+            } else {
                 throw createException("ClassMaker.ShiftOperandMustBeIntegerTypeNot_1", op2.getName());
             }
-            return primitiveShiftLeft(op1.toPrimitive(), op2.toPrimitive()).getValue();
-        }
-        throw createException("ClassMaker.CannotShiftLeftType_1", op1.getName());
-    }
-
-    static boolean isIntegerType(Type operand) {
-        return ClassMakerFactory.INT_TYPE.equals(operand) || ClassMakerFactory.SHORT_TYPE.equals(operand)
-                || ClassMakerFactory.CHAR_TYPE.equals(operand) || ClassMakerFactory.BYTE_TYPE.equals(operand);
-    }
-
-    /**
-     * Raw Shift left on primitive operands.
-     * </br>
-     * This method is provided so that <code>SHL</code> can be overridden to
-     * handle
-     * new types of operands and promotions. The method generates bytecode to
-     * shift left <code>byte, short, char, int and long</code> operand types.
-     * The operands are not numerically promoted.
-     * 
-     * @param op1
-     *            the type of the operand being shifted
-     * @param op2
-     *            the type of the operand indicating places to shift
-     * @return the type of op1 after promotion
-     */
-    protected PrimitiveType primitiveShiftLeft(PrimitiveType op1, PrimitiveType op2) {
-        try {
-            return gen.primitiveShiftLeft(op1, op2);
-        } catch (IllegalArgumentException ex) {
+        } else {
             throw createException("ClassMaker.CannotShiftLeftType_1", op1.getName());
         }
     }
@@ -3946,34 +3718,13 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         if (getFactory().getNumericPromotion().isConvertable(op2)) {
             op2 = getFactory().getNumericPromotion().convertTo(this, op2);
         }
-        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
-            if (!isIntegerType(op2)) {
+        if (Type.isPrimitive(op1) && isLongIntegerType(op1)) {
+            if (Type.isPrimitive(op2) && isIntegerType(op2)) {
+                return getGen().primitiveShiftRight(op1.toPrimitive(), op2.toPrimitive()).getValue();
+            } else {
                 throw createException("ClassMaker.ShiftOperandMustBeIntegerTypeNot_1", op2.getName());
             }
-            return primitiveShiftRight(op1.toPrimitive(), op2.toPrimitive()).getValue();
-        }
-        throw createException("ClassMaker.CannotShiftRightType_1", op1.getName());
-    }
-
-    /**
-     * Raw Shift Right on primitive operands.
-     * </br>
-     * This method is provided so that <code>SHR</code> can be overridden to
-     * handle
-     * new types of operands and promotions. The method generates bytecode to
-     * shift right <code>byte, short, char, int and long</code> operand types.
-     * The operands are not numerically promoted.
-     * 
-     * @param op1
-     *            the type of the operand being shifted
-     * @param op2
-     *            the type of the operand indicating places to shift
-     * @return the type of op1 after promotion
-     */
-    protected PrimitiveType primitiveShiftRight(PrimitiveType op1, PrimitiveType op2) {
-        try {
-            return gen.primitiveShiftRight(op1, op2);
-        } catch (IllegalArgumentException ex) {
+        } else {
             throw createException("ClassMaker.CannotShiftRightType_1", op1.getName());
         }
     }
@@ -4008,9 +3759,6 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (isDebugCode()) {
-            setDebugComment("USHR(" + op1 + ", " + op2 + ");");
-        }
         markLineNumber(); // possibly add a new line number entry.
 
         // Promote left and right operands independantly.
@@ -4020,35 +3768,13 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         if (getFactory().getNumericPromotion().isConvertable(op2)) {
             op2 = getFactory().getNumericPromotion().convertTo(this, op2);
         }
-        if (Type.isPrimitive(op1) && Type.isPrimitive(op2)) {
-            if (!isIntegerType(op2)) {
+        if (Type.isPrimitive(op1) && isLongIntegerType(op1)) {
+            if (Type.isPrimitive(op2) && isIntegerType(op2)) {
+                return getGen().primitiveUnsignedShiftRight(op1.toPrimitive(), op2.toPrimitive()).getValue();
+            } else {
                 throw createException("ClassMaker.ShiftOperandMustBeIntegerTypeNot_1", op2.getName());
             }
-            return primitiveUnsignedShiftRight(op1.toPrimitive(), op2.toPrimitive()).getValue();
-        }
-        throw createException("ClassMaker.CannotUnsignedShiftRightType_1", op1.getName());
-    }
-
-    /**
-     * Raw Unsigned Shift Right on primitive operands.
-     * </br>
-     * This method is provided so that <code>USR</code> can be overridden to
-     * handle
-     * new types of operands and promotions. The method generates bytecode to
-     * unsigned shift right <code>byte, short, char, int and long</code> operand
-     * types.
-     * The operands are not numerically promoted.
-     * 
-     * @param op1
-     *            the type of the operand being shifted
-     * @param op2
-     *            the type of the operand indicating places to shift
-     * @return the type of op1 after promotion
-     */
-    protected PrimitiveType primitiveUnsignedShiftRight(PrimitiveType op1, PrimitiveType op2) {
-        try {
-            return gen.primitiveUnsignedShiftRight(op1, op2);
-        } catch (IllegalArgumentException ex) {
+        } else {
             throw createException("ClassMaker.CannotUnsignedShiftRightType_1", op1.getName());
         }
     }
@@ -4083,20 +3809,12 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (isDebugCode()) {
-            setDebugComment("GT(" + op1 + ", " + op2 + ");");
-        }
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        return primitiveGreaterThan(op1, op2);
-    }
-
-    Value primitiveGreaterThan(Type op1, Type op2) {
-        try {
-            markLineNumber(); // possibly add a new line number entry.
-            return gen.primitiveGreaterThan(op1, op2);
-        } catch (IllegalArgumentException ex) {
+        if (op1 == op2 && isNumericType(op1)) {
+            return getGen().primitiveGreaterThan(op1, op2);
+        } else {
             throw createException("ClassMaker.CannotGTTypes_2", op1.getName(), op2.getName());
         }
     }
@@ -4131,20 +3849,12 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (isDebugCode()) {
-            setDebugComment("GE(" + op1 + ", " + op2 + ");");
-        }
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        return primitiveGreaterEqual(op1, op2);
-    }
-
-    Value primitiveGreaterEqual(Type op1, Type op2) {
-        try {
-            markLineNumber(); // possibly add a new line number entry.
-            return gen.primitiveGreaterEqual(op1, op2);
-        } catch (IllegalArgumentException ex) {
+        if (op1 == op2 && isNumericType(op1)) {
+            return getGen().primitiveGreaterEqual(op1, op2);
+        } else {
             throw createException("ClassMaker.CannotGETypes_2", op1.getName(), op2.getName());
         }
     }
@@ -4179,20 +3889,14 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (isDebugCode())
-            setDebugComment("LE(" + op1 + ", " + op2 + ");");
         markLineNumber(); // possibly add a new line number entry.
 
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        return primitiveLessEqual(op1, op2);
-    }
-
-    Value primitiveLessEqual(Type op1, Type op2) {
-        try {
-            return gen.primitiveLessEqual(op1, op2);
-        } catch (IllegalArgumentException ex) {
+        if (op1 == op2 && isNumericType(op1)) {
+            return getGen().primitiveLessEqual(op1, op2);
+        } else {
             throw createException("ClassMaker.CannotLETypes_2", op1.getName(), op2.getName());
         }
     }
@@ -4226,20 +3930,14 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (isDebugCode())
-            setDebugComment("LT(" + op1 + ", " + op2 + ");");
         markLineNumber(); // possibly add a new line number entry.
 
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        return primitiveLessThan(op1, op2);
-    }
-
-    Value primitiveLessThan(Type op1, Type op2) {
-        try {
-            return gen.primitiveLessThan(op1, op2);
-        } catch (IllegalArgumentException ex) {
+        if (op1 == op2 && isNumericType(op1)) {
+            return getGen().primitiveLessThan(op1, op2);
+        } else {
             throw createException("ClassMaker.CannotLTTypes_2", op1.getName(), op2.getName());
         }
     }
@@ -4273,20 +3971,14 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
-        if (isDebugCode()) {
-            setDebugComment("EQ(" + op1 + ", " + op2 + ");");
-        }
         markLineNumber(); // possibly add a new line number entry.
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        return primitiveIsEqual(op1, op2);
-    }
-
-    Value primitiveIsEqual(Type op1, Type op2) {
-        try {
-            return gen.primitiveIsEqual(op1, op2);
-        } catch (IllegalArgumentException ex) {
+        if (getFactory().getAssignmentConversion().isConvertable(op1, op2) ||
+            getFactory().getAssignmentConversion().isConvertable(op2, op1)) {
+            return getGen().primitiveIsEqual(op1, op2);
+        } else {
             throw createException("ClassMaker.CannotEQTypes_2", op1.getName(), op2.getName());
         }
     }
@@ -4320,17 +4012,14 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         Type op1 = value1.getType();
         Type op2 = value2.getType();
+        markLineNumber(); // possibly add a new line number entry.
         if (getFactory().getNumericPromotion().isConvertable(op1, op2)) {
             op1 = op2 = getFactory().getNumericPromotion().convertTo(this, op1, op2);
         }
-        markLineNumber(); // possibly add a new line number entry.
-        return primitiveNotEqual(op1, op2);
-    }
-
-    Value primitiveNotEqual(Type op1, Type op2) {
-        try {
+        if (getFactory().getAssignmentConversion().isConvertable(op1, op2) ||
+            getFactory().getAssignmentConversion().isConvertable(op2, op1)) {
             return getGen().primitiveNotEqual(op1, op2);
-        } catch (IllegalArgumentException ex) {
+        } else {
             throw createException("ClassMaker.CannotNETypes_2", op1.getName(), op2.getName());
         }
     }
@@ -4362,17 +4051,9 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         Type op1 = value.getType();
         if (Type.isPrimitive(op1) && op1.toPrimitive().index == PrimitiveType.BOOLEAN_INDEX) {
             markLineNumber(); // possibly add a new line number entry.
-            return primitiveNot(op1);
+            return getGen().primitiveNot(op1);
         } else {
             throw createException("ClassMaker.CannotNotType_1", op1.getName());
-        }
-    }
-
-    protected Value primitiveNot(Type type) {
-        try {
-            return gen.primitiveNot(type);
-        } catch (IllegalArgumentException ex) {
-            throw createException("ClassMaker.CannotNotType_1", type.getName());
         }
     }
 
@@ -4465,7 +4146,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
             checkArrayDimensionType("Type of array dimension " + i, sizeType);
         }
         markLineNumber(); // possibly add a new line number entry.
-        return gen.primitiveNewArray(arrayType, dims);
+        return getGen().primitiveNewArray(arrayType, dims);
     }
 
     /**
@@ -4552,7 +4233,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         Type indexType = index.getType();
         checkArrayIndex(indexType);
         markLineNumber(); // possibly add a new line number entry.
-        return gen.getAtIndex(arrayType, indexType);
+        return getGen().getAtIndex(arrayType, indexType);
     }
 
     /**
@@ -4645,7 +4326,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
 
         getFactory().getAssignmentConversion().convertTo(this, valueType, elementType);
 
-        return gen.setAtIndex(arrayType, indexType, elementType);
+        return getGen().setAtIndex(arrayType, indexType, elementType);
     }
 
     /**
@@ -4669,7 +4350,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         markLineNumber(); // possibly add a new line number entry.
         if (isDebugCode())
             setDebugComment("Length(" + array + ");");
-        return gen.arrayLength(arrayType);
+        return getGen().arrayLength(arrayType);
     }
 
     /**
@@ -4699,7 +4380,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         if (!ClassMakerFactory.VOID_TYPE.equals(type)) {
             if (isDebugCode())
                 setDebugComment("Eval(" + type + ")");
-            gen.pop(type);
+            getGen().pop(type);
         }
     }
 
@@ -4736,9 +4417,11 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         markLineNumber(); // possibly add a new line number entry.
 
         MakerField local = Find(name);
-        if (!gen.incrementLocal(local, 1))
-            throw createException("ClassMaker.CannotIncrementVariableOfType_2", local.getName(), local.getType()
-                    .getName());
+        ClassGenerator gen = getGen();
+        if (!gen.incrementLocal(local, 1)) {
+            throw createException("ClassMaker.CannotIncrementVariableOfType_2", 
+                    local.getName(), local.getType().getName());
+        }
         return gen.loadLocal(local);
     }
 
@@ -4776,11 +4459,13 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         ClassType classType = field.getClassType();
 
         // GET myclass.id
+        ClassGenerator gen = getGen();
         gen.dup(classType);
         gen.loadField(field);
 
-        if (!gen.increment(fieldType, 1))
+        if (!gen.increment(fieldType, 1)) {
             throw createException("ClassMaker.CannotIncrementFieldOfType_2", name, fieldType.getName());
+        }
         gen.dupunder(thisClassType, fieldType);
 
         gen.storeField(field);
@@ -4821,6 +4506,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         String fieldName = field.getName();
 
         // GET myclass.id
+        ClassGenerator gen = getGen();
         gen.loadStatic(field);
 
         if (!gen.increment(fieldType, 1))
@@ -4862,10 +4548,12 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         markLineNumber(); // possibly add a new line number entry.
 
+        ClassGenerator gen = getGen();
         MakerField local = Find(name);
-        if (!gen.incrementLocal(local, -1))
-            throw createException("ClassMaker.CannotDecrementVariableOfType_2", local.getName(), local.getType()
-                    .getName());
+        if (!gen.incrementLocal(local, -1)) {
+            throw createException("ClassMaker.CannotDecrementVariableOfType_2", 
+                    local.getName(), local.getType().getName());
+        }
         return gen.loadLocal(local);
     }
 
@@ -4904,6 +4592,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         ClassType classType = field.getClassType();
 
         // GET myclass.id
+        ClassGenerator gen = getGen();
         gen.dup(classType);
         gen.loadField(field);
 
@@ -4952,6 +4641,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
 
         markLineNumber(); // possibly add a new line number entry.
         // GET myclass.id
+        ClassGenerator gen = getGen();
         gen.loadStatic(field);
 
         if (!gen.increment(fieldType, -1))
@@ -4994,10 +4684,12 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         markLineNumber(); // possibly add a new line number entry.
 
         MakerField local = Find(name);
+        ClassGenerator gen = getGen();
         Value value = gen.loadLocal(local);
-        if (!gen.incrementLocal(local, 1))
-            throw createException("ClassMaker.CannotIncrementVariableOfType_2", local.getName(), local.getType()
-                    .getName());
+        if (!gen.incrementLocal(local, 1)) {
+            throw createException("ClassMaker.CannotIncrementVariableOfType_2", 
+                    local.getName(), local.getType().getName());
+        }
         return value;
     }
 
@@ -5036,13 +4728,14 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         String fieldName = field.getName();
         ClassType classType = field.getClassType();
 
+        ClassGenerator gen = getGen();
         gen.dup(classType);
         gen.loadField(field);
 
         gen.dupunder(classType, fieldType);
-        if (!gen.increment(fieldType, 1))
+        if (!gen.increment(fieldType, 1)) {
             throw createException("ClassMaker.CannotIncrementFieldOfType_2", fieldName, fieldType.getName());
-
+        }
         // PUT myclass.id
         gen.storeField(field);
 
@@ -5084,12 +4777,13 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
 
         markLineNumber(); // possibly add a new line number entry.
         // GET myclass.id
+        ClassGenerator gen = getGen();
         gen.loadStatic(field);
 
         gen.dup(fieldType);
-        if (!gen.increment(fieldType, 1))
+        if (!gen.increment(fieldType, 1)) {
             throw createException("ClassMaker.CannotIncrementFieldOfType_2", fieldName, fieldType.getName());
-
+        }
         gen.storeStatic(field);
 
         return fieldType.getValue();
@@ -5126,8 +4820,8 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         markLineNumber(); // possibly add a new line number entry.
 
         MakerField local = Find(name);
-        Value value = gen.loadLocal(local);
-        if (!gen.incrementLocal(local, -1))
+        Value value = getGen().loadLocal(local);
+        if (!getGen().incrementLocal(local, -1))
             throw createException("ClassMaker.CannotDecrementVariableOfType_2", local.getName(), local.getType()
                     .getName());
         return value;
@@ -5167,6 +4861,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
 
         markLineNumber(); // possibly add a new line number entry.
         // GET myclass.id
+        ClassGenerator gen = getGen();
         gen.dup(classType);
         gen.loadField(field);
 
@@ -5214,6 +4909,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
 
         markLineNumber(); // possibly add a new line number entry.
         // GET myclass.id
+        ClassGenerator gen = getGen();
         gen.loadStatic(field);
 
         gen.dup(fieldType);
@@ -5270,6 +4966,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
 
     protected boolean incrementAtIndex(ArrayType arrayType, Type indexType, Type elementType, int amount) {
         markLineNumber(); // possibly add a new line number entry.
+        ClassGenerator gen = getGen();
         //# Stack contents
         //# array index
         gen.swap(arrayType, indexType);
@@ -5381,6 +5078,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
 
     boolean postIncrementAtIndex(ArrayType arrayType, Type indexType, Type elementType, int amount) {
         markLineNumber(); // possibly add a new line number entry.
+        ClassGenerator gen = getGen();
         //# Stack contents
         //# array index
         gen.swap(arrayType, indexType);
@@ -5982,7 +5680,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
     protected int storeAnonymousValue(Type type) throws ClassMakerException {
         int index = getLocalFields().addLocal(null, type, 0, getScopeLevel());
         MakerField local = getLocalFields().findLocalField(index);
-        gen.storeLocal(local);
+        getGen().storeLocal(local);
         return index;
     }
 
@@ -5995,7 +5693,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      */
     protected Value loadAnonymousValue(int index) throws ClassMakerException {
         MakerField local = getLocalFields().findLocalField(index);
-        return gen.loadLocal(local);
+        return getGen().loadLocal(local);
     }
 
     // Shortcut Logic expressions
@@ -6313,8 +6011,9 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
             else
                 buf.append("? ");
         }
-        if (getSuperClass() != null)
-            buf.append("extends ").append(getSuperClass().getName());
+        if (getExtendsType() != null) {
+            buf.append("extends ").append(getExtendsType().getName());
+        }
         if (factory != null) {
             switch (getPass()) {
             case ONE_PASS:

@@ -642,4 +642,88 @@ public class MakerConditionalTest extends ClassMakerTestCase implements ByteCode
             assertEquals("Cannot Not type byte", ex.getMessage());
         }
     }
+
+    public void testLTBooleanException() throws Exception
+    {
+        try {
+            maker.Method("test", ClassMakerFactory.BOOLEAN_TYPE, ACC_PUBLIC);
+            maker.Declare("a", ClassMakerFactory.BOOLEAN_TYPE, 0);
+            maker.Declare("b", ClassMakerFactory.BOOLEAN_TYPE, 0);
+            maker.Begin();
+            maker.Return(maker.LT(maker.Get("a"), maker.Get("b")));
+            fail("Should throw ClassMakerException");
+        } catch (ClassMakerException ex) {
+            assertEquals("Cannot LT type boolean with boolean", ex.getMessage());
+        }
+    }
+
+    public void testLEBooleanException() throws Exception
+    {
+        try {
+            maker.Method("test", ClassMakerFactory.BOOLEAN_TYPE, ACC_PUBLIC);
+            maker.Declare("a", ClassMakerFactory.BOOLEAN_TYPE, 0);
+            maker.Declare("b", ClassMakerFactory.BOOLEAN_TYPE, 0);
+            maker.Begin();
+            maker.Return(maker.LE(maker.Get("a"), maker.Get("b")));
+            fail("Should throw ClassMakerException");
+        } catch (ClassMakerException ex) {
+            assertEquals("Cannot LE type boolean with boolean", ex.getMessage());
+        }
+    }
+
+    public void testGTBooleanException() throws Exception
+    {
+        try {
+            maker.Method("test", ClassMakerFactory.BOOLEAN_TYPE, ACC_PUBLIC);
+            maker.Declare("a", ClassMakerFactory.BOOLEAN_TYPE, 0);
+            maker.Declare("b", ClassMakerFactory.BOOLEAN_TYPE, 0);
+            maker.Begin();
+            maker.Return(maker.GT(maker.Get("a"), maker.Get("b")));
+            fail("Should throw ClassMakerException");
+        } catch (ClassMakerException ex) {
+            assertEquals("Cannot GT type boolean with boolean", ex.getMessage());
+        }
+    }
+
+    public void testGEBooleanException() throws Exception
+    {
+        try {
+            maker.Method("test", ClassMakerFactory.BOOLEAN_TYPE, ACC_PUBLIC);
+            maker.Declare("a", ClassMakerFactory.BOOLEAN_TYPE, 0);
+            maker.Declare("b", ClassMakerFactory.BOOLEAN_TYPE, 0);
+            maker.Begin();
+            maker.Return(maker.GE(maker.Get("a"), maker.Get("b")));
+            fail("Should throw ClassMakerException");
+        } catch (ClassMakerException ex) {
+            assertEquals("Cannot GE type boolean with boolean", ex.getMessage());
+        }
+    }
+
+    public void testEQException() throws Exception
+    {
+        try {
+            maker.Method("test", ClassMakerFactory.BOOLEAN_TYPE, ACC_PUBLIC);
+            maker.Declare("a", ClassMakerFactory.BOOLEAN_TYPE, 0);
+            maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
+            maker.Begin();
+            maker.Return(maker.EQ(maker.Get("a"), maker.Get("b")));
+            fail("Should throw ClassMakerException");
+        } catch (ClassMakerException ex) {
+            assertEquals("Cannot EQ type boolean with int", ex.getMessage());
+        }
+    }
+
+    public void testNEException() throws Exception
+    {
+        try {
+            maker.Method("test", ClassMakerFactory.BOOLEAN_TYPE, ACC_PUBLIC);
+            maker.Declare("a", ClassMakerFactory.BOOLEAN_TYPE, 0);
+            maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
+            maker.Begin();
+            maker.Return(maker.NE(maker.Get("a"), maker.Get("b")));
+            fail("Should throw ClassMakerException");
+        } catch (ClassMakerException ex) {
+            assertEquals("Cannot NE type boolean with int", ex.getMessage());
+        }
+    }
 }

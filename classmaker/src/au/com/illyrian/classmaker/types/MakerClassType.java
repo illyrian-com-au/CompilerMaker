@@ -1,7 +1,6 @@
 package au.com.illyrian.classmaker.types;
 
 import au.com.illyrian.classmaker.ClassMaker;
-import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.members.MakerMethod;
 
@@ -25,7 +24,7 @@ public class MakerClassType<T> extends ClassType
 
     @Override
     public ClassType populateExtendsType() {
-        return ClassMakerFactory.OBJECT_TYPE;
+        return classMaker.getExtendsType();
     }
     
     @Override

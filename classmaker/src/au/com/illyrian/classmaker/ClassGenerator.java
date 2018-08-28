@@ -89,7 +89,7 @@ public class ClassGenerator implements ClassMakerConstants {
      */
     protected ClassFileWriter createClassFileWriter(ClassMaker maker) {
         String className = maker.getClassType().getName();
-        String extendsClassName = maker.getSuperClass().getName();
+        String extendsClassName = maker.getExtendsType().getName();
         String sourceFile = maker.getSourceLine().getFilename();
         ClassFileWriter writer = new ClassFileWriter(toSlashName(className), toSlashName(extendsClassName), sourceFile);
         return writer;
@@ -1121,7 +1121,10 @@ public class ClassGenerator implements ClassMakerConstants {
      * @return the type of the result
      */
     protected PrimitiveType primitiveAdd(PrimitiveType op1, PrimitiveType op2) {
-        if (op1.equals(op2)) {
+        if (op1 != null && op1 == op2) {
+            if (isDebugCode()) {
+                setDebugComment("Add(" + op1 + ", " + op2 + ");");
+            }
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
                 cfw.add(ByteCode.IADD);
@@ -1170,7 +1173,10 @@ public class ClassGenerator implements ClassMakerConstants {
      * @return the type of the result
      */
     protected PrimitiveType primitiveSubt(PrimitiveType op1, PrimitiveType op2) {
-        if (op1.equals(op2)) {
+        if (op1 != null && op1 == op2) {
+            if (isDebugCode()) {
+                setDebugComment("Subt(" + op1 + ", " + op2 + ");");
+            }
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
                 cfw.add(ByteCode.ISUB);
@@ -1219,7 +1225,10 @@ public class ClassGenerator implements ClassMakerConstants {
      * @return the type of the result
      */
     protected PrimitiveType primitiveMult(PrimitiveType op1, PrimitiveType op2) {
-        if (op1.equals(op2)) {
+        if (op1 != null && op1 == op2) {
+            if (isDebugCode()) {
+                setDebugComment("Mult(" + op1 + ", " + op2 + ");");
+            }
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
                 cfw.add(ByteCode.IMUL);
@@ -1268,7 +1277,10 @@ public class ClassGenerator implements ClassMakerConstants {
      * @return the type of the result
      */
     protected PrimitiveType primitiveDiv(PrimitiveType op1, PrimitiveType op2) {
-        if (op1.equals(op2)) {
+        if (op1 != null && op1 == op2) {
+            if (isDebugCode()) {
+                setDebugComment("Div(" + op1 + ", " + op2 + ");");
+            }
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
                 cfw.add(ByteCode.IDIV);
@@ -1302,22 +1314,20 @@ public class ClassGenerator implements ClassMakerConstants {
     /**
      * Integer remainder on primitive operands.
      * </br>
-     * This method is provided so that <code>Rem</code> can be overridden to
-     * handle
-     * new types of operands and promotions. The method generates bytecode to
-     * calculate
-     * the integer remainder for <code>byte, short, char, int and long</code>
-     * operand types.
+     * This method is provided so that <code>Rem</code> can be overridden to handle
+     * new types of operands and promotions. The method generates bytecode to calculate
+     * the integer remainder for <code>byte, short, char, int and long</code> operand types.
      * The operands are not numerically promoted.
      * 
-     * @param op1
-     *            the type of the left operand
-     * @param op2
-     *            the type of the right operand
+     * @param op1 the type of the left operand
+     * @param op2 the type of the right operand
      * @return the type of the result
      */
     protected PrimitiveType primitiveRem(PrimitiveType op1, PrimitiveType op2) {
-        if (op1.equals(op2)) {
+        if (op1 != null && op1 == op2) {
+            if (isDebugCode()) {
+                setDebugComment("Rem(" + op1 + ", " + op2 + ");");
+            }
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
                 cfw.add(ByteCode.IREM);
@@ -1349,6 +1359,9 @@ public class ClassGenerator implements ClassMakerConstants {
     }
 
     Type primitiveNeg(Type type) {
+        if (isDebugCode()) {
+            setDebugComment("Neg(" + type + ");");
+        }
         if (isPrimitive(type)) {
             switch (type.toPrimitive().index) {
             case PrimitiveType.BYTE_INDEX: // fall thru
@@ -1386,6 +1399,9 @@ public class ClassGenerator implements ClassMakerConstants {
      * @return the type of the result
      */
     protected PrimitiveType primitiveXor(PrimitiveType op1, PrimitiveType op2) {
+        if (isDebugCode()) {
+            setDebugComment("Xor(" + op1 + ", " + op2 + ");");
+        }
         if (op1.equals(op2)) {
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
@@ -1427,6 +1443,9 @@ public class ClassGenerator implements ClassMakerConstants {
      * @return the type of the result
      */
     protected PrimitiveType primitiveAnd(PrimitiveType op1, PrimitiveType op2) {
+        if (isDebugCode()) {
+            setDebugComment("And(" + op1 + ", " + op2 + ");");
+        }
         if (op1.equals(op2)) {
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
@@ -1468,6 +1487,9 @@ public class ClassGenerator implements ClassMakerConstants {
      * @return the type of the result
      */
     protected PrimitiveType primitiveOr(PrimitiveType op1, PrimitiveType op2) {
+        if (isDebugCode()) {
+            setDebugComment("Or(" + op1 + ", " + op2 + ");");
+        }
         if (op1.equals(op2)) {
             switch (op1.index) {
             case PrimitiveType.BYTE_INDEX:
@@ -1508,6 +1530,9 @@ public class ClassGenerator implements ClassMakerConstants {
      * @return the type of the result
      */
     protected PrimitiveType primitiveInv(PrimitiveType op1) {
+        if (isDebugCode()) {
+            setDebugComment("Inv(" + op1 + ");");
+        }
         switch (op1.index) {
         case PrimitiveType.BYTE_INDEX:
             cfw.addPush(0xFFFFFFFF);
@@ -1638,6 +1663,9 @@ public class ClassGenerator implements ClassMakerConstants {
      * @return the type of op1 after promotion
      */
     protected PrimitiveType primitiveUnsignedShiftRight(PrimitiveType op1, PrimitiveType op2) {
+        if (isDebugCode()) {
+            setDebugComment("USHR(" + op1 + ", " + op2 + ");");
+        }
         switch (op1.index) {
         case PrimitiveType.BYTE_INDEX:
             cfw.add(ByteCode.IUSHR);
@@ -1667,6 +1695,9 @@ public class ClassGenerator implements ClassMakerConstants {
     //################# Comparison operators ######################
 
     Value primitiveGreaterThan(Type op1, Type op2) {
+        if (isDebugCode()) {
+            setDebugComment("GT(" + op1 + ", " + op2 + ");");
+        }
         if (isPrimitive(op1) && op1.equals(op2)) {
             switch (op1.toPrimitive().index) {
             case PrimitiveType.BYTE_INDEX: // fall thru
@@ -1697,6 +1728,9 @@ public class ClassGenerator implements ClassMakerConstants {
     }
 
     Value primitiveGreaterEqual(Type op1, Type op2) {
+        if (isDebugCode()) {
+            setDebugComment("GE(" + op1 + ", " + op2 + ");");
+        }
         if (isPrimitive(op1) && op1.equals(op2)) {
             switch (op1.toPrimitive().index) {
             case PrimitiveType.BYTE_INDEX: // fall thru
@@ -1793,6 +1827,9 @@ public class ClassGenerator implements ClassMakerConstants {
     }
 
     Value primitiveIsEqual(Type op1, Type op2) {
+        if (isDebugCode()) {
+            setDebugComment("EQ(" + op1 + ", " + op2 + ");");
+        }
         if (isClass(op1) && isClass(op2)) {
             addCompare(ByteCode.IF_ACMPEQ);
         } else if (isPrimitive(op1) && op1.equals(op2)) {
@@ -1893,13 +1930,9 @@ public class ClassGenerator implements ClassMakerConstants {
         if (cfw.isDebugCode()) {
             setDebugComment("Not(" + op1 + ");");
         }
-        if (ClassMakerFactory.BOOLEAN_TYPE.equals(op1)) {
-            cfw.add(ByteCode.ICONST_1);
-            cfw.add(ByteCode.IXOR);
-            return ClassMakerFactory.BOOLEAN_TYPE.getValue();
-        } else {
-            throw new IllegalArgumentException("Do not know how to NOT operand of type " + op1);
-        }
+        cfw.add(ByteCode.ICONST_1);
+        cfw.add(ByteCode.IXOR);
+        return op1.getValue();
     }
 
     //##################### Arrays ##########################

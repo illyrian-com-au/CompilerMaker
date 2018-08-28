@@ -201,9 +201,10 @@ public class Type
      * The java Class that this type is based upon.
      * @return a java Class
      */
-    public Class getJavaClass()
+    @SuppressWarnings("unchecked")
+    public <T> Class<T> getJavaClass()
     {
-        return javaClass;
+        return (Class<T>)javaClass;
     }
     
     /**

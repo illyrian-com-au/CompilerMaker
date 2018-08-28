@@ -519,7 +519,6 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
 
     public void testToPrimitiveException() throws Exception
     {
-
         maker.Method("unary", int.class, ACC_PUBLIC);
         maker.Declare("x", Runnable.class, 0);
         maker.Begin();
@@ -565,7 +564,12 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", "Cannot cast from type java.lang.Runnable to type double", ex.getMessage());
         }
+    }
 
+    public void testNegException() throws Exception
+    {
+        maker.Method("unary", int.class, ACC_PUBLIC);
+        maker.Begin();
         maker.Declare("b", boolean.class, 0);
         try {
             maker.Neg(maker.Get("b"));
@@ -863,7 +867,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveAdd(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Add(op1, op2), byte.class));
        }
         maker.End();
 
@@ -889,7 +893,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveAdd(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Add(op1, op2), short.class));
         }
         maker.End();
 
@@ -916,7 +920,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveAdd(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Add(op1, op2), char.class));
         }
         maker.End();
 
@@ -987,7 +991,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveSubt(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Subt(op1, op2), byte.class));
         }
         maker.End();
 
@@ -1013,7 +1017,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveSubt(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Subt(op1, op2), short.class));
         }
         maker.End();
 
@@ -1040,7 +1044,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveSubt(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Subt(op1, op2), char.class));
         }
         maker.End();
 
@@ -1107,7 +1111,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveMult(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Mult(op1, op2), byte.class));
         }
         maker.End();
 
@@ -1132,7 +1136,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveMult(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Mult(op1, op2), short.class));
         }
         maker.End();
 
@@ -1157,7 +1161,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveMult(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Mult(op1, op2), char.class));
         }
         maker.End();
 
@@ -1223,7 +1227,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveDiv(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Div(op1, op2), byte.class));
         }
         maker.End();
 
@@ -1248,7 +1252,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveDiv(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Div(op1, op2), short.class));
         }
         maker.End();
 
@@ -1273,7 +1277,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveDiv(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Div(op1, op2), char.class));
         }
         maker.End();
 
@@ -1339,7 +1343,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveRem(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Rem(op1, op2), byte.class));
         }
         maker.End();
 
@@ -1364,7 +1368,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveRem(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Rem(op1, op2), short.class));
         }
         maker.End();
 
@@ -1389,7 +1393,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveRem(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Rem(op1, op2), char.class));
         }
         maker.End();
 
@@ -1766,7 +1770,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveAnd(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.And(op1, op2), byte.class));
         }
         maker.End();
 
@@ -1789,7 +1793,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveAnd(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.And(op1, op2), short.class));
         }
         maker.End();
 
@@ -1813,7 +1817,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveAnd(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.And(op1, op2), char.class));
         }
         maker.End();
 
@@ -1880,7 +1884,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveXor(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Xor(op1, op2), byte.class));
         }
         maker.End();
 
@@ -1904,7 +1908,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveXor(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Xor(op1, op2), short.class));
         }
         maker.End();
 
@@ -1928,7 +1932,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveXor(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Xor(op1, op2), char.class));
        }
         maker.End();
 
@@ -1997,7 +2001,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveOr(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Or(op1, op2), byte.class));
         }
         maker.End();
 
@@ -2020,7 +2024,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveOr(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Or(op1, op2), short.class));
         }
         maker.End();
 
@@ -2044,7 +2048,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         {
             Value op1 = maker.Get("x");
             Value op2 = maker.Get("y");
-            maker.Return(maker.primitiveOr(op1.toPrimitive(), op2.toPrimitive()).getValue());
+            maker.Return(maker.Cast(maker.Or(op1, op2), char.class));
         }
         maker.End();
 
@@ -2073,112 +2077,6 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
 
         assertEquals("5(0101) or 3(0011) = 7(0111) failed",   7L, exec.binary(5, 3));
         assertEquals("0x0F0F or 0xF0F0) = 0xFFFF) failed",   0xFFFF, exec.binary(0x0F0F, 0xF0F0));
-    }
-
-    public void testByteBitwisePrimitiveInvOperator() throws Exception
-    {
-        maker.Implements(ByteUnary.class);
-        defaultConstructor();
-
-        maker.Method("unary", byte.class, ACC_PUBLIC);
-        maker.Declare("x", byte.class, 0);
-        maker.Begin();
-        {
-            Value op1 = maker.Get("x");
-            maker.Return(maker.primitiveInv(op1.toPrimitive()).getValue());
-        }
-        maker.End();
-
-        Class myClass = maker.defineClass();
-        ByteUnary exec = (ByteUnary)myClass.newInstance();
-
-        assertEquals("-6(1010) = invert 5(0101) failed",   (byte)-6, exec.unary((byte)5));
-        assertEquals("0xF0 = invert 0x0F failed",   (byte)0xF0, exec.unary((byte)0x0F));
-    }
-
-    public void testShortBitwisePrimitiveInvOperator() throws Exception
-    {
-        maker.Implements(ShortUnary.class);
-        defaultConstructor();
-
-        maker.Method("unary", short.class, ACC_PUBLIC);
-        maker.Declare("x", short.class, 0);
-        maker.Begin();
-        {
-            Value op1 = maker.Get("x");
-            maker.Return(maker.primitiveInv(op1.toPrimitive()).getValue());
-       }
-        maker.End();
-
-        Class myClass = maker.defineClass();
-        ShortUnary exec = (ShortUnary)myClass.newInstance();
-
-        assertEquals("~5 = invert 5 failed",   (short)~5, exec.unary((short)5));
-        assertEquals("0xF0F0 = invert 0x0F0F failed",   (short)0xF0F0, exec.unary((short)0x0F0F));
-    }
-
-    public void testCharBitwisePrimitiveInvOperator() throws Exception
-    {
-        maker.Implements(CharUnary.class);
-        defaultConstructor();
-
-        maker.Method("unary", char.class, ACC_PUBLIC);
-        maker.Declare("x", char.class, 0);
-        maker.Begin();
-        {
-            Value op1 = maker.Get("x");
-            maker.Return(maker.primitiveInv(op1.toPrimitive()).getValue());
-       }
-        maker.End();
-
-        Class myClass = maker.defineClass();
-        CharUnary exec = (CharUnary)myClass.newInstance();
-
-        assertEquals("~ 'A' = invert('A') failed",   (char)~'A', exec.unary((char)'A'));
-        assertEquals("0xF0F0 = invert 0x0F0F failed",   (char)0xF0F0, exec.unary((char)0x0F0F));
-    }
-
-    public void testIntBitwisePrimitiveInvOperator() throws Exception
-    {
-        maker.Implements(Unary.class);
-        defaultConstructor();
-
-        maker.Method("unary", int.class, ACC_PUBLIC);
-        maker.Declare("x", int.class, 0);
-        maker.Begin();
-        {
-            Value op1 = maker.Get("x");
-            maker.Return(maker.primitiveInv(op1.toPrimitive()).getValue());
-       }
-        maker.End();
-
-        Class myClass = maker.defineClass();
-        Unary exec = (Unary)myClass.newInstance();
-
-        assertEquals("~5 = invert 5 failed",   ~5, exec.unary(5));
-        assertEquals("0xF0F0F0F0 = invert 0x0F0F0F0F failed",   0xF0F0F0F0, exec.unary(0x0F0F0F0F));
-    }
-
-    public void testLongBitwisePrimitiveInvOperator() throws Exception
-    {
-        maker.Implements(LongUnary.class);
-        defaultConstructor();
-
-        maker.Method("unary", long.class, ACC_PUBLIC);
-        maker.Declare("x", long.class, 0);
-        maker.Begin();
-        {
-            Value op1 = maker.Get("x");
-            maker.Return(maker.primitiveInv(op1.toPrimitive()).getValue());
-       }
-        maker.End();
-
-        Class myClass = maker.defineClass();
-        LongUnary exec = (LongUnary)myClass.newInstance();
-
-        assertEquals("~5 = invert 5 failed",   (long)~5, exec.unary((long)5));
-        assertEquals("0xF0F0F0F0F0F0F0F0 = invert 0x0F0F0F0F0F0F0F0F failed",
-                      0xF0F0F0F0F0F0F0F0L, exec.unary(0x0F0F0F0F0F0F0F0FL));
     }
 
     public void testByteBitwiseInvOperator() throws Exception
@@ -2426,63 +2324,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         assertEquals("64 << 4 = 1024 failed", 1024, getShortField(myClass, exec, "x"));
     }
 
-    public void testBytePrimitiveShiftLeftOperator() throws Exception
-    {
-        maker.Implements(Runnable.class);
-        defaultConstructor();
-        maker.Declare("x", byte.class, ACC_PUBLIC);
-        maker.Declare("y", byte.class, ACC_PUBLIC);
-
-        maker.Method("run", void.class, ACC_PUBLIC);
-        maker.Begin();
-            maker.Set(maker.This(), "x",
-                    maker.primitiveShiftLeft(maker.Get(maker.This(), "x").toPrimitive(),
-                            maker.Get(maker.This(), "y").toPrimitive()).getValue());
-            maker.Return();
-        maker.End();
-
-        Class myClass = maker.defineClass();
-        Runnable exec = (Runnable)myClass.newInstance();
-
-        setByteField(myClass, exec, "x", 6);
-        setByteField(myClass, exec, "y", 1);
-        exec.run();
-        assertEquals("6(0110) << 1 = 12(1100) failed",   12, getByteField(myClass, exec, "x"));
-        setByteField(myClass, exec, "x", 31);
-        setByteField(myClass, exec, "y", 2);
-        exec.run();
-        assertEquals("31(00001111) << 2 = 124(00111100) failed", 124, getByteField(myClass, exec, "x"));
-    }
-
-    public void testShortPrimitiveShiftLeftOperator() throws Exception
-    {
-        maker.Implements(Runnable.class);
-        defaultConstructor();
-        maker.Declare("x", short.class, ACC_PUBLIC);
-        maker.Declare("y", short.class, ACC_PUBLIC);
-
-        maker.Method("run", void.class, ACC_PUBLIC);
-        maker.Begin();
-            maker.Set(maker.This(), "x",
-            maker.primitiveShiftLeft(maker.Get(maker.This(), "x").toPrimitive(),
-                      maker.Get(maker.This(), "y").toPrimitive()).getValue());
-            maker.Return();
-        maker.End();
-
-        Class myClass = maker.defineClass();
-        Runnable exec = (Runnable)myClass.newInstance();
-
-        setShortField(myClass, exec, "x", 6);
-        setShortField(myClass, exec, "y", 1);
-        exec.run();
-        assertEquals("6(0110) << 1 = 12(1100) failed",   12, getShortField(myClass, exec, "x"));
-        setShortField(myClass, exec, "x", 64);
-        setShortField(myClass, exec, "y", 4);
-        exec.run();
-        assertEquals("64 << 4 = 1024 failed", 1024, getShortField(myClass, exec, "x"));
-    }
-
-    public void testCharPrimitiveShiftLeftOperator() throws Exception
+    public void testCharShiftLeftOperator() throws Exception
     {
         maker.Implements(Runnable.class);
         defaultConstructor();
@@ -2492,8 +2334,8 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
             maker.Set(maker.This(), "x",
-            maker.primitiveShiftLeft(maker.Get(maker.This(), "x").toPrimitive(),
-                      maker.Get(maker.This(), "y").toPrimitive()).getValue());
+                    maker.Cast(maker.SHL(maker.Get(maker.This(), "x"),
+                      maker.Get(maker.This(), "y")), char.class));
             maker.Return();
         maker.End();
 
@@ -2610,63 +2452,7 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         assertEquals("1024 >>> 4 = 64 failed", 64, getShortField(myClass, exec, "x"));
     }
 
-    public void testBytePrimitiveShiftRightOperator() throws Exception
-    {
-        maker.Implements(Runnable.class);
-        defaultConstructor();
-        maker.Declare("x", byte.class, ACC_PUBLIC);
-        maker.Declare("y", byte.class, ACC_PUBLIC);
-
-        maker.Method("run", void.class, ACC_PUBLIC);
-        maker.Begin();
-            maker.Set(maker.This(), "x",
-            maker.primitiveShiftRight(maker.Get(maker.This(), "x").toPrimitive(),
-                    maker.Get(maker.This(), "y").toPrimitive()).getValue());
-            maker.Return();
-        maker.End();
-
-        Class myClass = maker.defineClass();
-        Runnable exec = (Runnable)myClass.newInstance();
-
-        setByteField(myClass, exec, "x", 12);
-        setByteField(myClass, exec, "y", 1);
-        exec.run();
-        assertEquals("12(1100) >>> 1 = 6(0110) failed",   6, getByteField(myClass, exec, "x"));
-        setByteField(myClass, exec, "x", 127);
-        setByteField(myClass, exec, "y", 2);
-        exec.run();
-        assertEquals("127(00100000) >>> 2 = 31(00001111) failed", 31, getByteField(myClass, exec, "x"));
-    }
-
-    public void testShortPrimitiveShiftRightOperator() throws Exception
-    {
-        maker.Implements(Runnable.class);
-        defaultConstructor();
-        maker.Declare("x", short.class, ACC_PUBLIC);
-        maker.Declare("y", short.class, ACC_PUBLIC);
-
-        maker.Method("run", void.class, ACC_PUBLIC);
-        maker.Begin();
-            maker.Set(maker.This(), "x",
-            maker.primitiveShiftRight(maker.Get(maker.This(), "x").toPrimitive(),
-                      maker.Get(maker.This(), "y").toPrimitive()).getValue());
-            maker.Return();
-        maker.End();
-
-        Class myClass = maker.defineClass();
-        Runnable exec = (Runnable)myClass.newInstance();
-
-        setShortField(myClass, exec, "x", 12);
-        setShortField(myClass, exec, "y", 1);
-        exec.run();
-        assertEquals("12(1100) >>> 1 = 6(0110) failed",   6, getShortField(myClass, exec, "x"));
-        setShortField(myClass, exec, "x", 1024);
-        setShortField(myClass, exec, "y", 4);
-        exec.run();
-        assertEquals("1024 >>> 4 = 64 failed", 64, getShortField(myClass, exec, "x"));
-    }
-
-    public void testCharPrimitiveShiftRightOperator() throws Exception
+    public void testCharShiftRightOperator() throws Exception
     {
         maker.Implements(Runnable.class);
         defaultConstructor();
@@ -2676,8 +2462,8 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
             maker.Set(maker.This(), "x",
-                    maker.primitiveShiftRight(maker.Get(maker.This(), "x").toPrimitive(),
-                            maker.Get(maker.This(), "y").toPrimitive()).getValue());
+                    maker.Cast(maker.SHR(maker.Get(maker.This(), "x"),
+                            maker.Get(maker.This(), "y")), char.class));
             maker.Return();
         maker.End();
 
@@ -2794,63 +2580,63 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         assertEquals("1024 >>> 4 = 64 failed", 64, getShortField(myClass, exec, "x"));
     }
 
-    public void testBytePrimitiveUnsignedShiftRightOperator() throws Exception
-    {
-        maker.Implements(Runnable.class);
-        defaultConstructor();
-        maker.Declare("x", byte.class, ACC_PUBLIC);
-        maker.Declare("y", byte.class, ACC_PUBLIC);
+//    public void testByteUnsignedShiftRightOperator() throws Exception
+//    {
+//        maker.Implements(Runnable.class);
+//        defaultConstructor();
+//        maker.Declare("x", byte.class, ACC_PUBLIC);
+//        maker.Declare("y", byte.class, ACC_PUBLIC);
+//
+//        maker.Method("run", void.class, ACC_PUBLIC);
+//        maker.Begin();
+//            maker.Set(maker.This(), "x",
+//            maker.USHR(maker.Get(maker.This(), "x").toPrimitive(),
+//                       maker.Get(maker.This(), "y").toPrimitive()).getValue());
+//            maker.Return();
+//        maker.End();
+//
+//        Class myClass = maker.defineClass();
+//        Runnable exec = (Runnable)myClass.newInstance();
+//
+//        setByteField(myClass, exec, "x", 12);
+//        setByteField(myClass, exec, "y", 1);
+//        exec.run();
+//        assertEquals("12(1100) >>> 1 = 6(0110) failed",   6, getByteField(myClass, exec, "x"));
+//        setByteField(myClass, exec, "x", 127);
+//        setByteField(myClass, exec, "y", 2);
+//        exec.run();
+//        assertEquals("127(00100000) >>> 2 = 31(00001111) failed", 31, getByteField(myClass, exec, "x"));
+//    }
 
-        maker.Method("run", void.class, ACC_PUBLIC);
-        maker.Begin();
-            maker.Set(maker.This(), "x",
-            maker.primitiveUnsignedShiftRight(maker.Get(maker.This(), "x").toPrimitive(),
-                       maker.Get(maker.This(), "y").toPrimitive()).getValue());
-            maker.Return();
-        maker.End();
+//    public void testShortUnsignedShiftRightOperator() throws Exception
+//    {
+//        maker.Implements(Runnable.class);
+//        defaultConstructor();
+//        maker.Declare("x", short.class, ACC_PUBLIC);
+//        maker.Declare("y", short.class, ACC_PUBLIC);
+//
+//        maker.Method("run", void.class, ACC_PUBLIC);
+//        maker.Begin();
+//            maker.Set(maker.This(), "x",
+//                    maker.primitiveUnsignedShiftRight(maker.Get(maker.This(), "x").toPrimitive(),
+//                            maker.Get(maker.This(), "y").toPrimitive()).getValue());
+//           maker.Return();
+//        maker.End();
+//
+//        Class myClass = maker.defineClass();
+//        Runnable exec = (Runnable)myClass.newInstance();
+//
+//        setShortField(myClass, exec, "x", 12);
+//        setShortField(myClass, exec, "y", 1);
+//        exec.run();
+//        assertEquals("12(1100) >>> 1 = 6(0110) failed",   6, getShortField(myClass, exec, "x"));
+//        setShortField(myClass, exec, "x", 1024);
+//        setShortField(myClass, exec, "y", 4);
+//        exec.run();
+//        assertEquals("1024 >>> 4 = 64 failed", 64, getShortField(myClass, exec, "x"));
+//    }
 
-        Class myClass = maker.defineClass();
-        Runnable exec = (Runnable)myClass.newInstance();
-
-        setByteField(myClass, exec, "x", 12);
-        setByteField(myClass, exec, "y", 1);
-        exec.run();
-        assertEquals("12(1100) >>> 1 = 6(0110) failed",   6, getByteField(myClass, exec, "x"));
-        setByteField(myClass, exec, "x", 127);
-        setByteField(myClass, exec, "y", 2);
-        exec.run();
-        assertEquals("127(00100000) >>> 2 = 31(00001111) failed", 31, getByteField(myClass, exec, "x"));
-    }
-
-    public void testShortPrimitiveUnsignedShiftRightOperator() throws Exception
-    {
-        maker.Implements(Runnable.class);
-        defaultConstructor();
-        maker.Declare("x", short.class, ACC_PUBLIC);
-        maker.Declare("y", short.class, ACC_PUBLIC);
-
-        maker.Method("run", void.class, ACC_PUBLIC);
-        maker.Begin();
-            maker.Set(maker.This(), "x",
-                    maker.primitiveUnsignedShiftRight(maker.Get(maker.This(), "x").toPrimitive(),
-                            maker.Get(maker.This(), "y").toPrimitive()).getValue());
-           maker.Return();
-        maker.End();
-
-        Class myClass = maker.defineClass();
-        Runnable exec = (Runnable)myClass.newInstance();
-
-        setShortField(myClass, exec, "x", 12);
-        setShortField(myClass, exec, "y", 1);
-        exec.run();
-        assertEquals("12(1100) >>> 1 = 6(0110) failed",   6, getShortField(myClass, exec, "x"));
-        setShortField(myClass, exec, "x", 1024);
-        setShortField(myClass, exec, "y", 4);
-        exec.run();
-        assertEquals("1024 >>> 4 = 64 failed", 64, getShortField(myClass, exec, "x"));
-    }
-
-    public void testCharPrimitiveUnsignedShiftRightOperator() throws Exception
+    public void testCharUnsignedShiftRightOperator() throws Exception
     {
         maker.Implements(Runnable.class);
         defaultConstructor();
@@ -2860,8 +2646,8 @@ public class MakerIntegerTest extends ClassMakerTestCase implements ByteCode
         maker.Method("run", void.class, ACC_PUBLIC);
         maker.Begin();
             maker.Set(maker.This(), "x",
-                    maker.primitiveUnsignedShiftRight(maker.Get(maker.This(), "x").toPrimitive(),
-                            maker.Get(maker.This(), "y").toPrimitive()).getValue());
+                    maker.Cast(maker.USHR(maker.Get(maker.This(), "x"),
+                            maker.Get(maker.This(), "y")), char.class));
             maker.Return();
         maker.End();
 

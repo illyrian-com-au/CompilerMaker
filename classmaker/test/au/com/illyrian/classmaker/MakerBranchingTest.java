@@ -27,33 +27,26 @@
 
 package au.com.illyrian.classmaker;
 
-import au.com.illyrian.classmaker.types.ClassType;
-import au.com.illyrian.classmaker.types.PrimitiveType;
-
-
 public class MakerBranchingTest extends ClassMakerTestCase implements SourceLine
 {
     ClassMakerFactory factory;
     ClassMaker maker;
     protected int lineNo = 0;
     
-    public int getLineNumber()
-    {
+    public int getLineNumber() {
     	return lineNo;
     }
     
-    public String getFilename()
-    {
+    public String getFilename() {
     	return getClass().getName().replace('.', '/') + ".java";
     }
 
-    public void nl(int line)
-    {
+    /** Sets the line number in the generated class to match the line number in this file. */
+    public void nl(int line) {
         lineNo = line;
     }
 
-    public void nl()
-    {
+    public void nl() {
         ++lineNo;
     }
 
@@ -138,7 +131,8 @@ public class MakerBranchingTest extends ClassMakerTestCase implements SourceLine
         defaultConstructor();
         maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(137);maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        // nl(xxx) allows the debugger to step through this code.
+nl(135);maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 nl();   maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Begin();
@@ -163,7 +157,8 @@ nl();   maker.End();
         defaultConstructor();
         maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(162);maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        // nl(xxx) allows the debugger to step through this code.
+nl(161);maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 nl();   maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
 nl();   maker.Begin();
@@ -186,6 +181,7 @@ nl();   maker.End();
         defaultConstructor();
         maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
+        // nl(xxx) allows the debugger to step through this code.
 nl(185);  maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 nl();     maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
 nl();     maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
@@ -203,8 +199,7 @@ nl();     maker.End();
         assertEquals("Wrong value for exec.eval()", 5, exec.binary(0, 0));
     }
 
-    public void testIfElseBranch() throws Exception
-    {
+    public void testIfElseBranch() throws Exception {
         factory = new ClassMakerFactory();
         maker = factory.createClassMaker();
         maker.setSourceLine(this);
@@ -214,7 +209,8 @@ nl();     maker.End();
         defaultConstructor();
         maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(212);  maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        // nl(xxx) allows the debugger to step through this code.
+nl(213);  maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 nl();     maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
 nl();     maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
 nl();     maker.Begin();
@@ -235,8 +231,7 @@ nl();     maker.End();
         assertEquals("Wrong value for exec.eval()", 3, exec.binary(-1, -1));
     }
 
-    public void testAndThen() throws Exception
-    {
+    public void testAndThen() throws Exception {
         factory = new ClassMakerFactory();
         maker = factory.createClassMaker();
         maker.setSourceLine(this);
@@ -246,14 +241,15 @@ nl();     maker.End();
         defaultConstructor();
         maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(239);  maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        // nl(xxx) allows the debugger to step through this code.
+nl(245);  maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 nl();     maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
 nl();     maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
 nl();     maker.Begin();
 nl();       maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
 nl();       maker.If(maker.Logic(maker.AndThen(maker.LT(maker.Literal(1), maker.Get("a"))),
                   maker.LT(maker.Get("a"), maker.Literal(3))));
-nl(246);      maker.Eval(maker.Set(maker.This(), "id", maker.Literal(2)));
+nl(252);      maker.Eval(maker.Set(maker.This(), "id", maker.Literal(2)));
 nl();       maker.EndIf();
 nl();       maker.Return(maker.Get(maker.This(), "id"));
 nl();     maker.End();
@@ -274,14 +270,15 @@ nl();     maker.End();
         defaultConstructor();
         maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(263);     maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        // nl(xxx) allows the debugger to step through this code.
+nl(274);     maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 nl();        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
 nl();        maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
 nl();        maker.Begin();
 nl();          maker.Eval(maker.Set(maker.This(), "id", maker.Literal(5)));
 nl();          maker.If(maker.Logic(maker.OrElse(maker.GT(maker.Literal(1), maker.Get("a"))),
                         maker.GT(maker.Get("a"), maker.Literal(3))));
-nl(270);         maker.Eval(maker.Set(maker.This(), "id", maker.Literal(2)));
+nl(281);         maker.Eval(maker.Set(maker.This(), "id", maker.Literal(2)));
 nl();          maker.EndIf();
 nl();          maker.Return(maker.Get(maker.This(), "id"));
 nl();        maker.End();
@@ -614,7 +611,7 @@ nl();        maker.End();
         assertEquals("Wrong value for exec.unary()", 2, exec.unary(test));
     }
 
-    public void testIfNullBranch() throws Exception
+    public void testIfObjectEqNullBranch() throws Exception
     {
         maker.Implements(UnaryObject.class);
         defaultConstructor();
@@ -623,6 +620,28 @@ nl();        maker.End();
         maker.Declare("a", ClassMakerFactory.OBJECT_TYPE, 0);
         maker.Begin();
           maker.If(maker.EQ(maker.Get("a"), maker.Null()));
+            maker.Return(maker.Literal(1));
+          maker.EndIf();
+          maker.Return(maker.Literal(2));
+        maker.End();
+
+        Class myClass = maker.defineClass();
+        UnaryObject exec = (UnaryObject)myClass.newInstance();
+        String test = "Hello";
+
+        assertEquals("Wrong value for exec.eval()", 1, exec.unary(null));
+        assertEquals("Wrong value for exec.eval()", 2, exec.unary(test));
+    }
+
+    public void testIfNullEqObjectBranch() throws Exception
+    {
+        maker.Implements(UnaryObject.class);
+        defaultConstructor();
+
+        maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        maker.Declare("a", ClassMakerFactory.OBJECT_TYPE, 0);
+        maker.Begin();
+          maker.If(maker.EQ(maker.Null(), maker.Get("a")));
             maker.Return(maker.Literal(1));
           maker.EndIf();
           maker.Return(maker.Literal(2));
@@ -1053,8 +1072,7 @@ nl();        maker.End();
         }
     }
 
-    public void testForContinueMaker() throws Exception
-    {
+    public void testForContinueMaker() throws Exception {
         ClassMaker maker = new ForContinueMaker();
         Class myClass = maker.defineClass();
         Unary exec = (Unary)myClass.newInstance();
@@ -1068,8 +1086,7 @@ nl();        maker.End();
         assertEquals("Wrong value for exec.unary()", 12, exec.unary(6));
     }
 
-    public void testForLoopBreakMaker() throws Exception
-    {
+    public void testForLoopBreakMaker() throws Exception {
     	maker.setDebugCodeOutput(System.out);
     	
         maker.Implements(Unary.class);
@@ -1114,13 +1131,13 @@ nl();        maker.End();
         assertEquals("Wrong value for exec.unary()", 12, exec.unary(6));
     }
 
-    public void testWhileNEBranch() throws Exception
-    {
+    public void testWhileNEBranch() throws Exception {
         maker.Implements(Unary.class);
         defaultConstructor();
         maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(1049);    maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        // nl(xxx) allows the debugger to step through this code.
+nl(1040);    maker.Method("unary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 nl();        maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
 nl();        maker.Begin();
 nl();          maker.Eval(maker.Set(maker.This(), "id", maker.Literal(0)));
@@ -1143,8 +1160,7 @@ nl();        maker.End();
         assertEquals("Wrong value for exec.unary()", 28, exec.unary(7));
     }
 
-    public void testWhileExceptions() throws Exception
-    {
+    public void testWhileExceptions() throws Exception {
         maker.Implements(Unary.class);
         defaultConstructor();
         maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
@@ -1228,8 +1244,7 @@ nl();        maker.End();
         assertEquals("Wrong value for exec.unary()", 1, exec.unary(0));
     }
 
-    public void testForExceptions() throws Exception
-    {
+    public void testForExceptions() throws Exception {
         maker.Implements(Unary.class);
         defaultConstructor();
         maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
@@ -1259,13 +1274,13 @@ nl();        maker.End();
           }
     }
 
-    public void testDebugScope() throws Exception
-    {
+    public void testDebugScope() throws Exception {
         maker.Implements(Binary.class);
         defaultConstructor();
         maker.Declare("id", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 
-nl(1194);  maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
+        // nl(xxx) allows the debugger to step through this code.
+nl(1283);  maker.Method("binary", ClassMakerFactory.INT_TYPE, ClassMakerConstants.ACC_PUBLIC);
 nl();     maker.Declare("a", ClassMakerFactory.INT_TYPE, 0);
 nl();     maker.Declare("b", ClassMakerFactory.INT_TYPE, 0);
 nl();     maker.Begin();
