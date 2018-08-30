@@ -5365,9 +5365,8 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      *            the type of the initialization expression
      */
     public ForWhile For(Value declare) throws ClassMakerException {
-        if (declare != null)
-            Eval(declare);
         ForStatement stmt = new ForStatement(this);
+        stmt.For(declare);
         stmt.Loop();
         return stmt;
     }
