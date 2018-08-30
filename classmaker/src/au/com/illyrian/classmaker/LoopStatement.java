@@ -4,10 +4,10 @@ import au.com.illyrian.classmaker.types.Type;
 
 /**
  * Represents a <code>Loop</code> statement.
- * Manages the jump labels and generates the bytecode for the <code>Loop</code> statement.
+ * Manages the jump labels and generates the bytecode for the <code>Loop</code>
+ * statement.
  */
-class LoopStatement extends Statement
-{
+class LoopStatement extends Statement {
     protected LoopStatement(ClassMaker maker) {
         super(maker);
     }
@@ -18,7 +18,10 @@ class LoopStatement extends Statement
     /** Jump label for the end of the loop. */
     protected int endLoop = 0;
 
-    /** There must be at least one <code>Break</code> or equivalent within the <code>Loop</code>. */
+    /**
+     * There must be at least one <code>Break</code> or equivalent within the
+     * <code>Loop</code>.
+     */
     protected int breakCount = 0;
 
     /**
@@ -26,17 +29,17 @@ class LoopStatement extends Statement
      * Control will jump here from the <code>EndLoop</code> clause or from
      * an enclosed <code>Continue</code> statement.
      * The loop will not terminate unless there is an enclosed statement that
-     * breaks out of the loop, for example, <code>While</code> or <code>Break</code>.
+     * breaks out of the loop, for example, <code>While</code> or
+     * <code>Break</code>.
      */
-    public void Loop() throws ClassMakerException
-    {
+    public void Loop() throws ClassMakerException {
         if (isFirstPass()) {
             return;
         }
-        maker.markLineNumber(); // possibly add a new line number entry.
         if (maker.isDebugCode()) {
             maker.setDebugComment("Loop()");
         }
+        maker.markLineNumber(); // possibly add a new line number entry.
 
         beginLoop = acquireLabel();
         endLoop = acquireLabel();
@@ -47,11 +50,11 @@ class LoopStatement extends Statement
      * Ends a <code>Loop</code> statement.
      * Jumps to the <code>Loop</code> clause.
      *
-     * A <code>Break</code> or <code>While</code> will jump to the end of this clause;
+     * A <code>Break</code> or <code>While</code> will jump to the end of this
+     * clause;
      * thus terminating the loop.
      */
-    public void EndLoop() throws ClassMakerException
-    {
+    public void EndLoop() throws ClassMakerException {
         if (!isFirstPass()) {
             if (breakCount == 0) {
                 throw maker.createException("ClassMaker.LoopDoesNotContainBreak");
@@ -73,13 +76,15 @@ class LoopStatement extends Statement
     }
 
     /**
-     * Iterates through a <code>Loop</code> while the condition is <code>true</code>
-     * Breaks out of the enclosing <code>Loop</code> when the condition is <code>false</code>.
-     * The <code>While</code> clause should be the first or last in a loop; however, this is not enforced.
+     * Iterates through a <code>Loop</code> while the condition is
+     * <code>true</code> Breaks out of the enclosing <code>Loop</code> when the
+     * condition is <code>false</code>.
+     * The <code>While</code> clause should be the first or last in a loop;
+     * however, this is not enforced.
+     * 
      * @param condition the type of the condition expression must be boolean
      */
-    public ForStep While(Type condition) throws ClassMakerException
-    {
+    public ForStep While(Type condition) throws ClassMakerException {
         if (isFirstPass()) {
             return null;
         }
@@ -100,31 +105,30 @@ class LoopStatement extends Statement
      * Jumps to <code>EndLoop</code> when <code>Break</code> is called.
      * The <code>label</code> must also match this statement if it is provided;
      * otherwise, passes the jump request down the statement stack.
+     * 
      * @param jumpTarget <code>ClassMaker.BREAK</code>,
-     *                   <code>ClassMaker.CONTINUE</code> or
-     *                   <code>ClassMaker.RETURN</code>.
+     *            <code>ClassMaker.CONTINUE</code> or
+     *            <code>ClassMaker.RETURN</code>.
      * @param label the name of the statement to jump to or <code>null</code>
-     * @return the target <code>Statement</code> or <code>null</code> if not found.
+     * @return the target <code>Statement</code> or <code>null</code> if not
+     *         found.
      */
-    protected Statement jumpToTarget(String jumpTarget, String label)
-    {
-        if (ClassMaker.BREAK.equals(jumpTarget) && (label == null || label.equals(getLabel())))
-        {   // Break jumps to the end of the loop
+    protected Statement jumpToTarget(String jumpTarget, String label) {
+        if (ClassMaker.BREAK.equals(jumpTarget) && (label == null || label.equals(getLabel()))) { 
+            // Break jumps to the end of the loop
             if (maker.isDebugCode()) {
-                maker.setDebugComment("    Break jumps to end of loop" + (label == null ? "" : label));
+                maker.setDebugComment("    Break jumps to end of loop " + (label == null ? "" : label));
             }
             jumpTo(endLoop);
             breakCount++;
-        }
-        else if (ClassMaker.CONTINUE.equals(jumpTarget) && (label == null || label.equals(getLabel())))
-        {   // Continue jumps to the start of the loop
+        } else if (ClassMaker.CONTINUE.equals(jumpTarget) && (label == null || label.equals(getLabel()))) {
+            // Continue jumps to the start of the loop
             if (maker.isDebugCode()) {
-            	maker.setDebugComment("    Continue jumps to start of loop " + (label == null ? "" : label));
+                maker.setDebugComment("    Continue jumps to start of loop " + (label == null ? "" : label));
             }
             continueLoop();
-        }
-        else
-        {   // We have not found the appropriate break.
+        } else {
+            // We have not found the appropriate break.
             if (ClassMaker.BREAK.equals(jumpTarget)) {
                 breakCount++; // indicate that this statement has at least one break.
             }
@@ -134,14 +138,12 @@ class LoopStatement extends Statement
         return this;
     }
 
-    /** Jumps to the begining of the loop. */
-    protected void continueLoop()
-    {
+    /** Jumps to the beginning of the loop. */
+    protected void continueLoop() {
         jumpTo(beginLoop);
     }
-    
-    protected int getStatementEnd()
-    {
-    	return endLoop;
+
+    protected int getStatementEnd() {
+        return endLoop;
     }
 }

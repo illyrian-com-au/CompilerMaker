@@ -47,10 +47,15 @@ abstract class Statement implements Labelled
     Statement getNext() {
         return next;
     }
+    
+    void setNext(Statement next) {
+        this.next = next;
+    }
 
     public int getScopeLevel() {
-        if (next == null)
+        if (next == null) {
             throw new IllegalStateException("Statement Stack should start with class MethodBodyStatement");
+        }
         return next.getScopeLevel();
     }
     
@@ -61,7 +66,7 @@ abstract class Statement implements Labelled
      * This default implementation passes the jump request down the statement stack.
      * The label identifies which <code>Statement</code> to jump to. If the label is <code>null</code>
      * the first appropriate <code>Statement</code> will be the target.
-     * The <code>jumpType</code> determines where in the statement execution will jump to.
+     * The <code>jumpType</code> determines where in the statement, execution will jump to.
      * This will typically be the start of the statement for continue, the end of the
      * statement for break or the end of the method for return.
      * @param jumpType <code>ClassMaker.BREAK</code>, <code>ClassMaker.CONTINUE</code>, 
@@ -130,8 +135,9 @@ abstract class Statement implements Labelled
 
     /** Pops the Statement off the stack. */
     protected void dispose() {
-        if (maker.statementStack != this) // Should not get here.
+        if (maker.statementStack != this) { // Should not get here.
             throw new IllegalStateException("Can only dispose of top most Statement.");
+        }
         maker.statementStack = getNext();
     }
 }
