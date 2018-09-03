@@ -128,7 +128,7 @@ class ForStatement extends LoopStatement implements ForWhile, ForStep {
             markLabel(endLoop);
         }
         // Pop ForStatement off the stack.
-        dispose();
+        //dispose();
     }
 
     /**

@@ -129,7 +129,7 @@ class SwitchStatement extends Statement
             createLookupSwitch();
         }
         markLabel(endSwitch);
-        dispose();
+        //dispose();
     }
     
     protected int getStatementEnd()

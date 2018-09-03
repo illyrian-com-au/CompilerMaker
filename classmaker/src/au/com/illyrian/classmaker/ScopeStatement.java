@@ -31,8 +31,6 @@ class ScopeStatement extends Statement
             // Save local variable descriptors to be used by the debugger.
             maker.getLocalFields().exitScope(getScopeLevel());
         }
-        // Pop ScopeStatement off statement stack.
-        dispose();
     }
 
     public int getScopeLevel()

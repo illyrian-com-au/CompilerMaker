@@ -1523,12 +1523,12 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @return an interface to set a Label
      */
     public Labelled Begin() throws ClassMakerException {
-        if (bottomStatement == null) {
-            bottomStatement = new MethodBodyStatement(this);
+        if (!isInBody()) {
+            MethodBodyStatement bottomStatement = statementManager.createMethodBodyStatement();
             bottomStatement.Begin();
             return bottomStatement;
         } else {
-            ScopeStatement stmt = new ScopeStatement(this);
+            ScopeStatement stmt = statementManager.createScopeStatement();
             stmt.Begin();
             return stmt;
         }
@@ -1541,8 +1541,9 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * Delegates to <code>ScopeStatement.End</code>.
      */
     public void End() throws ClassMakerException {
-        ScopeStatement stmt = topScopeStatement("ClassMaker.EndWithoutMatchingBegin");
+        ScopeStatement stmt = statementManager.topScopeStatement("ClassMaker.EndWithoutMatchingBegin");
         stmt.End();
+        stmt.dispose(statementManager);
     }
 
     /**
@@ -1648,7 +1649,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @return true if generating a method body
      */
     boolean isInBody() {
-        return bottomStatement != null;
+        return statementManager.getBottomStatement() != null;
     }
 
     //################ Class Instantiation #########################
@@ -1864,7 +1865,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
 
         // Call any finally subroutines before returning
-        Statement stmt = topStatement();
+        Statement stmt = statementManager.topStatement();
         if (stmt == null || stmt.jumpToTarget(RETURN, null) == null) {
             throw createException("ClassMaker.ReturnWhileNotInAMethod");
         }
@@ -1896,7 +1897,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
             setDebugComment("Return(" + value + ");");
         }
         // Call any finally subroutines before returning
-        Statement stmt = topStatement();
+        Statement stmt = statementManager.topStatement();
         if (stmt == null || stmt.jumpToTarget(RETURN, null) == null) {
             throw createException("ClassMaker.ReturnWhileNotInAMethod");
         }
@@ -3057,10 +3058,10 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @return the nesting level of the current scoped code block
      */
     int getScopeLevel() {
-        if (statementStack == null) {
+        if (statementManager.topStatement() == null) {
             return 1;
         } else {
-            return statementStack.getScopeLevel();
+            return statementManager.topStatement().getScopeLevel();
         }
     }
 
@@ -5148,46 +5149,18 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
     }
 
     //################# Statement Management ###################
+    
+    private final StatementManager statementManager = createStatementManager();
 
-    /* The bottom of the Statement stack is always a method body. */
-    MethodBodyStatement bottomStatement = null;
-
-    /* Top of the statement stack. Statements are pushed and popped from here. */
-    Statement statementStack = null;
-
-    /** Top of the statement stack. */
-    public Statement topStatement() {
-        return statementStack;
+    public StatementManager getStatementManager() {
+        return statementManager;
     }
 
-    /**
-     * Fetches the <code>ScopeStatement</code> at the top of the statement
-     * stack.
-     * Casts the statement on the top of the statement stack or throws an
-     * <code>IllegalStateException</code> if this is not possible.
-     * 
-     * @return the <code>ScopeStatement</code> on top of the stack
-     */
-    protected ScopeStatement topScopeStatement(String msg) {
-        if ((topStatement() instanceof ScopeStatement))
-            return (ScopeStatement) topStatement();
-        throw createException(msg);
+    protected StatementManager createStatementManager() {
+        return new StatementManager(this);
     }
 
     // ##################  If Then Else EndIf  ###################
-    /**
-     * Fetches the <code>IfStatement</code> at the top of the statement stack.
-     * Casts the statement on the top of the statement stack or throws an
-     * <code>IllegalStateException</code> if this is not possible.
-     * 
-     * @return the <code>IfStatement</code> on top of the stack
-     */
-    protected IfStatement topIfStatement(String msg) {
-        if ((topStatement() instanceof IfStatement))
-            return (IfStatement) topStatement();
-        throw createException(msg);
-    }
-
     /**
      * Begins an <code>If</code> statement.
      * The subsequent code block is executed if the <code>condition</code>
@@ -5204,7 +5177,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @return an interface to set a Label
      */
     public Labelled If(Value condition) throws ClassMakerException {
-        IfStatement stmt = new IfStatement(this);
+        IfStatement stmt = statementManager.createIfStatement();
         stmt.If(condition);
         return stmt;
     }
@@ -5225,7 +5198,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * Delegates to <code>IfStatement.Else</code>.
      */
     public void Else() throws ClassMakerException {
-        IfStatement stmt = topIfStatement("ClassMaker.ElseWithoutMatchingIf");
+        IfStatement stmt = statementManager.topIfStatement("ClassMaker.ElseWithoutMatchingIf");
         stmt.Else();
     }
 
@@ -5236,39 +5209,14 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * Delegates to <code>IfStatement.Else</code>.
      */
     public void EndIf() throws ClassMakerException {
-        IfStatement stmt = topIfStatement("ClassMaker.EndIfWithoutMatchingIf");
+        IfStatement stmt = statementManager.topIfStatement("ClassMaker.EndIfWithoutMatchingIf");
         stmt.EndIf();
+        stmt.dispose(statementManager);
 
         followsReturn = true;
     }
 
     // #######################  Loop Statement ######################
-    /**
-     * Fetches the <code>LoopStatement</code> at the top of the statement stack.
-     * Casts the statement on the top of the statement stack or throws an
-     * <code>IllegalStateException</code> if this is not possible.
-     * 
-     * @return the <code>LoopStatement</code> on top of the stack
-     */
-    protected LoopStatement topLoopStatement(String msg) {
-        if ((topStatement() instanceof LoopStatement))
-            return (LoopStatement) topStatement();
-        throw createException(msg);
-    }
-
-    /**
-     * Fetches the <code>ForStatement</code> at the top of the statement stack.
-     * Casts the statement on the top of the statement stack or throws an
-     * <code>IllegalStateException</code> if this is not possible.
-     * 
-     * @return the <code>LoopStatement</code> on top of the stack
-     */
-    protected ForStatement topForStatement(String msg) {
-        if ((topStatement() instanceof ForStatement))
-            return (ForStatement) topStatement();
-        throw createException(msg);
-    }
-
     /**
      * Begins a <code>Loop</code> statement.
      * Control will jump here from the <code>EndLoop</code> clause or from
@@ -5292,7 +5240,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @return an interface to set a Label
      */
     public Labelled Loop() throws ClassMakerException {
-        LoopStatement stmt = new LoopStatement(this);
+        LoopStatement stmt = statementManager.createLoopStatement();
         stmt.Loop();
         return stmt;
     }
@@ -5307,8 +5255,9 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * Delegates to <code>LoopStatement.EndLoop</code>.
      */
     public void EndLoop() throws ClassMakerException {
-        LoopStatement stmt = topLoopStatement("ClassMaker.EndLoopWithoutMatchingLoop");
+        LoopStatement stmt = statementManager.topLoopStatement("ClassMaker.EndLoopWithoutMatchingLoop");
         stmt.EndLoop();
+        stmt.dispose(statementManager);
 
         followsReturn = false;
     }
@@ -5334,7 +5283,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      *            the type of the condition expression must be boolean
      */
     public void While(Value condition) throws ClassMakerException {
-        LoopStatement stmt = topLoopStatement("ClassMaker.WhileMustBeWithinLoop");
+        LoopStatement stmt = statementManager.topLoopStatement("ClassMaker.WhileMustBeWithinLoop");
         stmt.While(condition.getType());
     }
 
@@ -5365,7 +5314,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      *            the type of the initialization expression
      */
     public ForWhile For(Value declare) throws ClassMakerException {
-        ForStatement stmt = new ForStatement(this);
+        ForStatement stmt = statementManager.createForStatement();
         stmt.For(declare);
         stmt.Loop();
         return stmt;
@@ -5381,8 +5330,9 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * Delegates to <code>LoopStatement.EndLoop</code>.
      */
     public void EndFor() throws ClassMakerException {
-        ForStatement stmt = topForStatement("ClassMaker.EndForWithoutMatchingFor");
+        ForStatement stmt = statementManager.topForStatement("ClassMaker.EndForWithoutMatchingFor");
         stmt.EndLoop();
+        stmt.dispose(statementManager);
 
         followsReturn = false;
     }
@@ -5423,7 +5373,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         if (isDebugCode())
             setDebugComment("Break(" + (label == null ? "" : label) + ")");
-        Statement stmt = topStatement();
+        Statement stmt = statementManager.topStatement();
         markLineNumber(); // possibly add a new line number entry.
         if (stmt.jumpToTarget(BREAK, label) == null) {
             if (label == null)
@@ -5452,29 +5402,14 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         if (isDebugCode()) {
             setDebugComment("Continue(" + (label == null ? "" : label) + ")");
         }
-        Statement stmt = topStatement();
+        Statement stmt = statementManager.topStatement();
         markLineNumber(); // possibly add a new line number entry.
         if (stmt.jumpToTarget(CONTINUE, label) == null) {
             throw createException("ClassMaker.ContinueWhileNotInLoop");
         }
     }
 
-    /**
-     * Fetches the <code>SwitchStatement</code> at the top of the statement
-     * stack.
-     * </br>
-     * Casts the statement on the top of the statement stack or throws an
-     * <code>IllegalStateException</code> if this is not possible.
-     * 
-     * @return the <code>SwitchStatement</code> on top of the stack
-     */
-    protected SwitchStatement topSwitchStatement(String msg) {
-        if ((topStatement() instanceof SwitchStatement))
-            return (SwitchStatement) topStatement();
-        else
-            throw createException(msg);
-    }
-
+    // #######################  Switch Statement ######################
     /**
      * Begins a <code>Switch</code> statement.
      * 
@@ -5505,7 +5440,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @return an interface to set a Label
      */
     public Labelled Switch(Value value) {
-        SwitchStatement stmt = new SwitchStatement(this);
+        SwitchStatement stmt = statementManager.createSwitchStatement();
         stmt.Switch(value.getType());
         return stmt;
     }
@@ -5522,7 +5457,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      *            this case
      */
     public void Case(int key) {
-        SwitchStatement stmt = topSwitchStatement("ClassMaker.CaseWhileNotInSwitch");
+        SwitchStatement stmt = statementManager.topSwitchStatement("ClassMaker.CaseWhileNotInSwitch");
         stmt.Case(key);
     }
 
@@ -5533,7 +5468,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * Delegates to <code>SwitchStatement.DefaultCase</code>.
      */
     public void Default() {
-        SwitchStatement stmt = topSwitchStatement("ClassMaker.DefaultWhileNotInSwitch");
+        SwitchStatement stmt = statementManager.topSwitchStatement("ClassMaker.DefaultWhileNotInSwitch");
         stmt.Default();
     }
 
@@ -5543,27 +5478,14 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * Delegates to <code>SwitchStatement.EndSwitch</code>.
      */
     public void EndSwitch() {
-        SwitchStatement stmt = topSwitchStatement("ClassMaker.EndSwitchWhileNotInSwitch");
+        SwitchStatement stmt = statementManager.topSwitchStatement("ClassMaker.EndSwitchWhileNotInSwitch");
         stmt.EndSwitch();
+        stmt.dispose(statementManager);
+
         followsReturn = false;
     }
 
-    /**
-     * Fetches the <code>TryCatchFinally</code> statement at the top of the
-     * statement stack.
-     * </br>
-     * Casts the statement on the top of the statement stack or throws an
-     * exception if this is not possible.
-     * 
-     * @return the <code>TryCatchFinally</code> on top of the stack
-     */
-    protected TryCatchFinally topTryCatchFinally(String msg) {
-        if ((topStatement() instanceof TryCatchFinally))
-            return (TryCatchFinally) topStatement();
-        else
-            throw createException(msg);
-    }
-
+    // #######################  Try/Catch/Finally Statement ######################
     /**
      * Begins a <code>Try Catch Finally</code> block.
      * </br>
@@ -5593,7 +5515,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @return an interface to set a Label
      */
     public Labelled Try() {
-        TryCatchFinally stmt = new TryCatchFinally(this);
+        TryCatchFinally stmt = statementManager.createTryCatchFinally();
         stmt.Try();
         return stmt;
     }
@@ -5613,7 +5535,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      *            the local variable name for the exception
      */
     public void Catch(String exceptionName, String name) {
-        TryCatchFinally stmt = topTryCatchFinally("ClassMaker.CatchWithoutTry");
+        TryCatchFinally stmt = statementManager.topTryCatchFinally("ClassMaker.CatchWithoutTry");
         ClassType exceptionType = stringToClassType(exceptionName);
         stmt.Catch(exceptionType, name);
     }
@@ -5633,7 +5555,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      */
     public void Catch(Class javaClass, String name) throws ClassMakerException {
         ClassType exceptionType = classToClassType(javaClass);
-        TryCatchFinally stmt = topTryCatchFinally("ClassMaker.CatchWithoutTry");
+        TryCatchFinally stmt = statementManager.topTryCatchFinally("ClassMaker.CatchWithoutTry");
         stmt.Catch(exceptionType, name);
     }
 
@@ -5649,7 +5571,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * Delegates to <code>TryCatchFinally.Finally()</code>.
      */
     public void Finally() throws ClassMakerException {
-        TryCatchFinally stmt = topTryCatchFinally("ClassMaker.FinallyWithoutTry");
+        TryCatchFinally stmt = statementManager.topTryCatchFinally("ClassMaker.FinallyWithoutTry");
         stmt.Finally();
     }
 
@@ -5659,8 +5581,9 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * Delegates to <code>TryCatchFinally.EndTry()</code>.
      */
     public void EndTry() throws ClassMakerException {
-        TryCatchFinally stmt = topTryCatchFinally("ClassMaker.EndTryWithoutTry");
+        TryCatchFinally stmt = statementManager.topTryCatchFinally("ClassMaker.EndTryWithoutTry");
         stmt.EndTry();
+        stmt.dispose(statementManager);
 
         followsReturn = false;
     }

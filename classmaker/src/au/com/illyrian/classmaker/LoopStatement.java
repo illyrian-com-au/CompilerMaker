@@ -72,7 +72,7 @@ class LoopStatement extends Statement {
             markLabel(endLoop);
         }
         // Pop LoopStatement off statement stack.
-        dispose();
+        //dispose();
     }
 
     /**

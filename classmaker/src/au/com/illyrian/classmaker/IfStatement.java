@@ -40,7 +40,8 @@ class IfStatement extends Statement
             return;
         }
         if (!ClassMakerFactory.BOOLEAN_TYPE.equals(condition.getType())) {
-            dispose();
+            maker.getStatementManager().dispose(this);
+            //dispose();
             throw maker.createException("ClassMaker.IfConditionMustBeBoolean_1", condition.getName());
         }
         maker.markLineNumber(); // possibly add a new line number entry.
@@ -95,7 +96,7 @@ class IfStatement extends Statement
             markLabel(endStatement);
         }
         // Pop IfStatement off statement stack.
-        dispose();
+        //dispose();
     }
 
     protected int getStatementEnd()

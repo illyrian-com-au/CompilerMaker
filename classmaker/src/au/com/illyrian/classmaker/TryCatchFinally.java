@@ -174,7 +174,7 @@ public class TryCatchFinally extends Statement
                 getGen().callFinallySubroutine(finallySubroutine);
             }
         }
-        dispose();
+        //dispose();
     }
 
     /**

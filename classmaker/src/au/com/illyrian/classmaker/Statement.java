@@ -22,8 +22,6 @@ abstract class Statement implements Labelled
     /** The default constructor pushes this instance onto the statement stack. */
     public Statement(ClassMaker maker) {
         this.maker = maker;
-        next = maker.statementStack;
-        maker.statementStack = this;
     }
 
     public ClassMakerConstants getMaker() {
@@ -132,12 +130,13 @@ abstract class Statement implements Labelled
     public String getLabel() {
         return label;
     }
-
-    /** Pops the Statement off the stack. */
-    protected void dispose() {
-        if (maker.statementStack != this) { // Should not get here.
-            throw new IllegalStateException("Can only dispose of top most Statement.");
-        }
-        maker.statementStack = getNext();
+    
+    /** Pops the Statement off the stack. 
+     * This is the visitor pattern to allow the StatementManager to have different
+     * dispose methods for specific Statements.
+     */
+    protected void dispose(StatementManager manager)
+    {
+        manager.dispose(this);
     }
 }

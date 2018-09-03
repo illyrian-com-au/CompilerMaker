@@ -43,7 +43,6 @@ class MethodBodyStatement extends ScopeStatement
 
     public void Begin()
     {
-        maker.bottomStatement = this;
         maker.BeginMethod();
     }
 
@@ -60,10 +59,6 @@ class MethodBodyStatement extends ScopeStatement
             maker.getLocalFields().exitScope(getScopeLevel());
         }
         maker.EndMethod();
-        // Pop ScopeStatement off statement stack.
-        dispose();
-        // Pop MethodBodyStatement off statement stack.
-        maker.bottomStatement = null;
     }
 
     public int getScopeLevel()
@@ -72,9 +67,8 @@ class MethodBodyStatement extends ScopeStatement
     }
 
     /** Pops the Statement off the stack. */
-    protected void dispose()
+    protected void dispose(StatementManager manager)
     {
-        maker.bottomStatement = null;
-        super.dispose();
+        manager.dispose(this);
     }
 }
