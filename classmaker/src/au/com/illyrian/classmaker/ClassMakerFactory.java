@@ -27,8 +27,6 @@
 
 package au.com.illyrian.classmaker;
 
-import java.lang.reflect.GenericDeclaration;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
@@ -155,9 +153,9 @@ public class ClassMakerFactory
      * Create a ClassMaker instance using this factory.
      * @return a ClassMaker instance.
      */
-    public <T> ClassMaker<T> createClassMaker()
+    public ClassMaker createClassMaker()
     {
-        return new ClassMaker<T>(this);
+        return new ClassMaker(this);
     }
 
     /**
@@ -172,9 +170,9 @@ public class ClassMakerFactory
      * @param extendsClass the class that the generated class will extend
      * @param sourceFile an optional source file name
      */
-    public <T> ClassMaker<T> createClassMaker(String packageName, String simpleName, String sourceFile)
+    public ClassMaker createClassMaker(String packageName, String simpleName, String sourceFile)
     {
-        ClassMaker<T> maker = new ClassMaker<T>(this);
+        ClassMaker maker = new ClassMaker(this);
         maker.setPackageName(packageName);
         maker.setSimpleClassName(simpleName);
         maker.setSourceFilename(sourceFile);

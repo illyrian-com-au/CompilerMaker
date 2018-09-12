@@ -1,7 +1,5 @@
 package au.com.illyrian.classmaker;
 
-import au.com.illyrian.classmaker.types.Value;
-
 public class StatementManager {
     private final ClassMaker maker;
     

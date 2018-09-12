@@ -58,14 +58,17 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
 
     static class TestMethodAccessMaker extends ClassMakerCode
     {
-        public TestMethodAccessMaker(ClassMakerFactory factory, String className)
+        public TestMethodAccessMaker(ClassMakerFactory factory, String pack, String name)
         {
-            this(factory, className, ACC_PUBLIC);
+            this(factory, pack, name, ACC_PUBLIC);
         }
-        public TestMethodAccessMaker(ClassMakerFactory factory, String className, int modifiers)
+
+        public TestMethodAccessMaker(ClassMakerFactory factory, String pack, String name, int modifiers)
         {
             super(factory);
-            setFullyQualifiedClassName(className);
+///            setFullyQualifiedClassName(className);
+            setPackageName(pack);
+            setSimpleClassName(name);
             setClassModifiers(modifiers);
         }
 
@@ -123,7 +126,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
     {
         ClassMakerFactory factory = new ClassMakerFactory();
 
-        ClassMaker baseMaker = new TestMethodAccessMaker(factory, "other.TestMethodAccess");
+        ClassMaker baseMaker = new TestMethodAccessMaker(factory, "other", "TestMethodAccess");
         Class otherClass = baseMaker.defineClass();
         ClassType classType = baseMaker.classToClassType(otherClass);
 
@@ -175,7 +178,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         ClassMakerFactory factory = new ClassMakerFactory();
 
         String className = "other.TestMethodAccess";
-        ClassMaker baseMaker = new TestMethodAccessMaker(factory, className, 0);
+        ClassMaker baseMaker = new TestMethodAccessMaker(factory, "other", "TestMethodAccess", 0);
         Class otherClass = baseMaker.defineClass();
         ClassType classType = baseMaker.classToClassType(otherClass);
 
@@ -219,7 +222,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
     {
         ClassMakerFactory factory = new ClassMakerFactory();
 
-        ClassMaker baseMaker = new TestMethodAccessMaker(factory, "other.TestMethodAccess");
+        ClassMaker baseMaker = new TestMethodAccessMaker(factory, "other", "TestMethodAccess");
         Class otherClass = baseMaker.defineClass();
         ClassType classType = baseMaker.classToClassType(otherClass);
 
@@ -279,7 +282,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
     {
         ClassMakerFactory factory = new ClassMakerFactory();
 
-        ClassMaker baseMaker = new TestMethodAccessMaker(factory, "other.TestMethodAccess");
+        ClassMaker baseMaker = new TestMethodAccessMaker(factory, "other", "TestMethodAccess");
         Class otherClass = baseMaker.defineClass();
         ClassType classType = baseMaker.classToClassType(otherClass);
 
@@ -330,7 +333,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
     {
         ClassMakerFactory factory = new ClassMakerFactory();
 
-        ClassMaker baseMaker = new TestMethodAccessMaker(factory, "test.TestMethodAccess");
+        ClassMaker baseMaker = new TestMethodAccessMaker(factory, "test", "TestMethodAccess");
         Class otherClass = baseMaker.defineClass();
         ClassType classType = baseMaker.classToClassType(otherClass);
 
@@ -460,7 +463,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         ClassMakerFactory factory = new ClassMakerFactory();
 
         String otherName = "other.TestMethodAccess";
-        ClassMaker baseMaker = new TestMethodAccessMaker(factory, otherName);
+        ClassMaker baseMaker = new TestMethodAccessMaker(factory, "other", "TestMethodAccess");
         Class otherClass = baseMaker.defineClass();
 
         String className = "test.MyClass";
@@ -510,7 +513,7 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         ClassMakerFactory factory = new ClassMakerFactory();
 
         String otherName = "other.TestMethodAccess";
-        ClassMaker baseMaker = new TestMethodAccessMaker(factory, otherName);
+        ClassMaker baseMaker = new TestMethodAccessMaker(factory, "other", "TestMethodAccess");
         Class otherClass = baseMaker.defineClass();
 
         String className = "test.MyClass";
@@ -560,8 +563,9 @@ public class MakerMethodAccessTest extends ClassMakerTestCase implements ByteCod
         ClassMakerFactory factory = new ClassMakerFactory();
 
         String otherName = "test.TestMethodAccess";
-        ClassMaker baseMaker = new TestMethodAccessMaker(factory, otherName);
+        ClassMaker baseMaker = new TestMethodAccessMaker(factory, "test", "TestMethodAccess");
         Class otherClass = baseMaker.defineClass();
+        assertEquals(otherName, otherClass.getName());
 
         String className = "test.MyClass";
         ClassMaker maker = factory.createClassMaker("test", "MyClass", null);

@@ -59,15 +59,13 @@ public class ClassGenerator implements ClassMakerConstants {
     private static final short MASK_SUPER = 0x0002;
 
     // Fields - internal references
-    /** A list of local variables in the class being generated. */
-    Vector<MakerField> localTable = new Vector<MakerField>();
     /** Get the maximum local slots used by this method. */
     private short maxLocalSlots = 0;
 
     /* The ClassFileWriter instance that is used to generate byte-code for the class. */
     private final ClassFileWriter cfw;
 
-    private final ClassMaker maker;
+    //private final ClassMaker maker;
 
     /** The name of the source file relative to the source path */
     private int previousLineNumber = 0;
@@ -75,8 +73,8 @@ public class ClassGenerator implements ClassMakerConstants {
 
     //#################### Constructors #################
 
-    public ClassGenerator(ClassMaker classMaker) {
-        this.maker = classMaker;
+    public ClassGenerator(ClassMaker maker) {
+        //this.maker = classMaker;
         this.cfw = createClassFileWriter(maker);
         // Setting the Super bit is required for class files after Java 1.2.
         setClassModifiers(maker.getModifiers());
@@ -297,24 +295,24 @@ public class ClassGenerator implements ClassMakerConstants {
      * @param scope
      *            the level of nesting of the current scoped code block
      */
-    void exitScope(int scope) {
-        if (getClassFileWriter() != null) {
-            // Local variable descriptors are used by the debugger.
-            for (int i = localTable.size() - 1; i >= 0; i--) {
-                MakerField local = localTable.elementAt(i);
-                if (local.getName() == null)
-                    continue; // Skip anonymous local variables
-                if (!local.isInScope())
-                    continue; // Skip out of scope variables
-                if (local.getScopeLevel() < scope)
-                    break; // Stop when field is in wider scope
-                local.setEndPC(cfw.getCurrentCodeOffset());
-                local.setInScope(false);
-            }
-        }
-    }
+//    void exitScope(int scope) {
+//        if (getClassFileWriter() != null) {
+//            // Local variable descriptors are used by the debugger.
+//            for (int i = localTable.size() - 1; i >= 0; i--) {
+//                MakerField local = localTable.elementAt(i);
+//                if (local.getName() == null)
+//                    continue; // Skip anonymous local variables
+//                if (!local.isInScope())
+//                    continue; // Skip out of scope variables
+//                if (local.getScopeLevel() < scope)
+//                    break; // Stop when field is in wider scope
+//                local.setEndPC(cfw.getCurrentCodeOffset());
+//                local.setInScope(false);
+//            }
+//        }
+//    }
 
-    public int getCurrentCodeOffset() {
+    public int getProgramCounter() {
         return cfw.getCurrentCodeOffset();
     }
 
@@ -440,7 +438,7 @@ public class ClassGenerator implements ClassMakerConstants {
      *            type exception being thrown
      */
     public void Throw(Type exception) throws ClassMakerException {
-        if (cfw.isDebugCode()) {
+        if (isDebugCode()) {
             setDebugComment("Throw(" + exception.getName() + ");");
         }
         cfw.add(ByteCode.ATHROW);
@@ -769,6 +767,9 @@ public class ClassGenerator implements ClassMakerConstants {
     }
 
     public void initLocal(MakerField field) {
+        if (isDebugCode()) {
+            setDebugComment("initialise local " + field.getName());
+        }
         Type type = field.getType();
         int slot = field.getSlot();
         if (isClass(type)) {
@@ -2102,8 +2103,8 @@ public class ClassGenerator implements ClassMakerConstants {
      * <code>Switch<code> statement with contiguous keys.
      */
     protected void createTableSwitch(int[] cases, int caseSize, int defaultLabel) {
-        if (maker.isDebugCode()) {
-            maker.setDebugComment("Table Switch");
+        if (isDebugCode()) {
+            setDebugComment("Table Switch");
         }
         int low = cases[0];
         int high = cases[caseSize - 2];
@@ -2381,56 +2382,7 @@ public class ClassGenerator implements ClassMakerConstants {
         return false;
     }
 
-    // Nameless local variables for storing intermediate values.
-
-    /**
-     * Adds a formal parameter or local variable to the method.
-     * 
-     * @param name
-     *            name of the local variable
-     * @param type
-     *            type of the local variable
-     * @param modifiers
-     *            access modifiers for the variable
-     * @param scopeLevel
-     *            the level of nesting that determines when the variable is out
-     *            of scope
-     * @return index into <code>localTable</code>
-     */
-    int addLocal(String name, Type type, int modifiers, int scopeLevel) {
-        MakerField field = new MakerField(name, type, modifiers);
-        field.setSlot(maxLocalSlots);
-        field.setScopeLevel(scopeLevel);
-        // Adjust the number of slots used.
-        maxLocalSlots += type.getSlotSize();
-        if (getClassFileWriter() != null)
-            field.setStartPC(cfw.getCurrentCodeOffset());
-        int index = localTable.size();
-        localTable.add(field);
-        return index;
-    }
-
-    /**
-     * Finds a local variable in the method.
-     * 
-     * @param name
-     *            the name of the variable
-     * @return a <code>Field</code> that describes the variable
-     */
-    MakerField findLocalField(String name) {
-        for (int i = localTable.size() - 1; i >= 0; i--) {
-            MakerField local = localTable.get(i);
-            if (!local.isInScope())
-                continue; // Skip locals that are out of scope
-            if (name.equals(local.getName())) {
-                return local;
-            }
-        }
-        return null;
-    }
-
     /* Short cut logic */
-
     public void markAndThenLabel(AndOrExpression andOr) {
         if (andOr != null && andOr.jumpAnd != 0) {
             if (isDebugCode()) {

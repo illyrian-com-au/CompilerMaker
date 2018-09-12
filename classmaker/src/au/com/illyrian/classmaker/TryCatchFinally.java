@@ -24,8 +24,10 @@ public class TryCatchFinally extends Statement
 
     /* An anonymous local variable holds the return PC for the finally subroutine. */
     int finallyReturnSlot = 0;
+    MakerField finallyReturnField = null;
     
     int finalyExceptionSlot = -1;
+    MakerField finalyExceptionField = null;
     
     public TryCatchFinally(ClassMaker classMaker) {
         super(classMaker);
@@ -87,7 +89,7 @@ public class TryCatchFinally extends Statement
             endTryBlock = acquireLabel();
             markLabel(endTryBlock);
         }
-        finalyExceptionSlot = maker.storeAnonymousValue(ClassMakerFactory.OBJECT_TYPE);
+        finalyExceptionField = maker.storeAnonymousField(ClassMakerFactory.OBJECT_TYPE);
         // Jump over remaining catch and finally blocks.
         jumpTo(endCatchBlock);
     }
@@ -126,7 +128,7 @@ public class TryCatchFinally extends Statement
         if (maker.isDebugCode()) {
             maker.setDebugComment("Store reference to exception");
         }
-        int finalyExceptionAddress = maker.storeAnonymousValue(ClassMakerFactory.OBJECT_TYPE);
+        MakerField finalyExceptionField = maker.storeAnonymousField(ClassMakerFactory.OBJECT_TYPE);
 
         // Jump to the finally subroutine
         if (finallySubroutine != 0) {
@@ -138,10 +140,7 @@ public class TryCatchFinally extends Statement
             maker.setDebugComment("Load reference to exception");
         }
         maker.markLineNumber(); // possibly add a new line number entry.
-        maker.loadAnonymousValue(finalyExceptionAddress);
-        if (maker.isDebugCode()) {
-            maker.setDebugComment("Rethrow exception");
-        }
+        maker.loadAnonymousField(finalyExceptionField);
         getGen().Throw(ClassMakerFactory.OBJECT_TYPE);
 
         // Finally subroutine
@@ -151,7 +150,7 @@ public class TryCatchFinally extends Statement
         markLabel(finallySubroutine);
 
         // Store return address in an anonymous local variable.
-        finallyReturnSlot = maker.storeAnonymousValue(ClassMakerFactory.OBJECT_TYPE);
+        finallyReturnField = maker.storeAnonymousField(ClassMakerFactory.OBJECT_TYPE);
     }
 
     /**
@@ -165,16 +164,14 @@ public class TryCatchFinally extends Statement
             if (maker.isDebugCode())  {
             	maker.setDebugComment("EndTry();");
             }
-            if (finallyReturnSlot != 0) {
-                MakerField local = maker.getLocalFields().findLocalField(finallyReturnSlot);
-                getGen().returnFinallySubroutine(local.getSlot());
+            if (finallyReturnField != null) {
+                getGen().returnFinallySubroutine(finallyReturnField.getSlot());
             }
             markLabel(endCatchBlock);
             if (finallySubroutine != 0) {
                 getGen().callFinallySubroutine(finallySubroutine);
             }
         }
-        //dispose();
     }
 
     /**

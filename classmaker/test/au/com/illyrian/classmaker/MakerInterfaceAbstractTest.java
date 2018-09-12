@@ -277,6 +277,7 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
     {
         ClassMaker baseMaker = new AbstractClassMaker();
         Class baseClass = baseMaker.defineClass();
+        assertEquals("ClassName ", ABSTRACT_CLASS_NAME, baseClass.getName());
         ClassMaker derivedMaker = new DerivedAbstractClassMaker(baseClass);
         Class derivedClass = derivedMaker.defineClass();
         AccessId exec =  (AccessId)derivedClass.newInstance();
@@ -286,7 +287,6 @@ public class MakerInterfaceAbstractTest extends ClassMakerTestCase implements So
         exec.setId(2);
         assertEquals("Wrong final value for myObj.id", 2, getIntField(derivedClass, exec, "id"));
         assertEquals("Wrong final value for myObj.getId()", 2, exec.getId());
-        assertEquals("ClassName ", ABSTRACT_CLASS_NAME, baseClass.getName());
    }
 
     public static class IncompleteAbstractClassMaker extends ClassMakerCode

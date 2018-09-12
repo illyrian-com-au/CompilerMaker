@@ -46,7 +46,7 @@ public class MethodClassBuilderTest extends TestCase {
     }
     
     public void testCharacterMethod() throws IOException, InstantiationException, IllegalAccessException {
-        ClassMaker<Character> maker = factory.createClassMaker();
+        ClassMaker maker = factory.createClassMaker();
         maker.Implements(Character.class);
         MethodClassBuilder builder = new MethodClassBuilder(maker);
         ClassType iface = factory.classToType(Character.class).toClass();
@@ -62,7 +62,7 @@ public class MethodClassBuilderTest extends TestCase {
     }
 
     public void testApplyMethod() throws IOException, InstantiationException, IllegalAccessException {
-        ClassMaker<Apply<Character>> maker = factory.createClassMaker();
+        ClassMaker maker = factory.createClassMaker();
         maker.Implements(Apply.class);
         MethodClassBuilder builder = new MethodClassBuilder(maker);
         ClassType iface = factory.classToType(Character.class).toClass();
@@ -104,7 +104,7 @@ public class MethodClassBuilderTest extends TestCase {
     }
 
     public void testApplyImpl() throws Exception{
-        ClassMaker<Apply<Character>> maker = factory.createClassMaker();
+        ClassMaker maker = factory.createClassMaker();
         maker.Implements(Apply.class);
         MethodClassBuilder builder = new MethodClassBuilder(maker);
         ClassType iface = factory.classToType(Character.class).toClass();

@@ -102,8 +102,10 @@ import au.com.illyrian.classmaker.util.MakerUtil;
  *
  * @author Donald Strong
  */
-public abstract class ClassMakerCode<T> extends ClassMaker<T>
+public abstract class ClassMakerCode extends ClassMaker
 {
+    private static final String MAKER = "Maker";
+    
     /* A ClassMakerFactory instance that is shared by all instances of ClassMakerBase. */
     private static ClassMakerFactory sharedFactory = null;
 
@@ -122,6 +124,7 @@ public abstract class ClassMakerCode<T> extends ClassMaker<T>
     protected ClassMakerCode()
     {
         super(ClassMakerCode.getSharedFactory());
+        setPackageName(getClass().getPackage().getName());
     }
 
     /**
@@ -131,6 +134,7 @@ public abstract class ClassMakerCode<T> extends ClassMaker<T>
     protected ClassMakerCode(ClassMakerFactory globalFactory)
     {
         super(globalFactory);
+        setPackageName(getClass().getPackage().getName());
     }
 
     /**
@@ -153,7 +157,7 @@ public abstract class ClassMakerCode<T> extends ClassMaker<T>
     }
 
     //############# Helper methods for derived classes #########
-
+    
     /**
      * Derives a name for the generated class from the name of the generating class.
      * </br>
@@ -161,22 +165,33 @@ public abstract class ClassMakerCode<T> extends ClassMaker<T>
      * then the generated class will be <code><i>ClassName</i></code>.
      * @return a default name for the generated class
      */
-    protected String defaultFullyQualifiedClassName()
-    {
+    protected String defaultSimpleClassName() {
         String makerName = getClass().getName();
-        if (makerName.endsWith("Maker"))
+        int packageLength = getClass().getPackage().getName().length();
+        makerName = makerName.substring(packageLength+1);
+        if (makerName.endsWith(MAKER))
         {
-            int offset = makerName.length() - "Maker".length();
+            int offset = makerName.length() - MAKER.length();
             return MakerUtil.toDotName(makerName.substring(0, offset));
+        } else {
+            return super.defaultSimpleClassName();
         }
-        return MakerUtil.toDotName(makerName) + "_$";
+    }
+    
+    /**
+     * Derives a package name from the package of the generating class.
+     * 
+     * @return a default package for the generated class
+     */
+    protected String getDefaultPackageName() {
+        return getClass().getPackage().getName();
     }
 
     /**
      * Defines this class in the factory <code>ClassLoader</code>.
      * @return the generated class
      */
-    public Class<T> defineClass()
+    public <T> Class<T> defineClass()
     {
         generateCode();
         return super.defineClass();

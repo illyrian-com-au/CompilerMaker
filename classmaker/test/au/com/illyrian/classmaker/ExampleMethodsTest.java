@@ -40,7 +40,7 @@ public class ExampleMethodsTest extends TestCase
         String getName();
     }
 
-    public class AccessMaker extends ClassMakerCode<Accessable>
+    public class AccessMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -73,7 +73,7 @@ public class ExampleMethodsTest extends TestCase
 
     public void testMethodDeclarations() throws Exception
     {
-        ClassMaker<Accessable> maker = new AccessMaker();
+        ClassMaker maker = new AccessMaker();
         Class<Accessable> testClass = maker.defineClass();
         Accessable exec = testClass.newInstance();
 
@@ -154,7 +154,7 @@ public class ExampleMethodsTest extends TestCase
         public void exec();
     }
 
-    public class InvocationMaker extends ClassMakerCode<Executable>
+    public class InvocationMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -211,7 +211,7 @@ public class ExampleMethodsTest extends TestCase
         long binary(long a, long b);
     }
 
-    public class MultiplyMaker extends ClassMakerCode<Binary>
+    public class MultiplyMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -231,7 +231,7 @@ public class ExampleMethodsTest extends TestCase
     public void testBinaryMultiply() throws Exception
     {
         ClassMakerCode.setSharedFactory(null);
-        ClassMaker<Binary> maker = new MultiplyMaker();
+        ClassMaker maker = new MultiplyMaker();
         Class<Binary> multiplyClass = maker.defineClass();
         Binary exec = multiplyClass.newInstance();
 

@@ -21,7 +21,7 @@ public class DeclareMethodTest extends TestCase {
     public void setUp() {
         maker = factory.createClassMaker();
         maker.setClassModifiers(ClassMakerConstants.ACC_PUBLIC);
-        maker.setFullyQualifiedClassName("au.com.illyrian.classmaker.proxy.TestProxy");
+        maker.setSimpleClassName("au.com.illyrian.classmaker.proxy.TestProxy");
         
         Visitor<MakerMethod> visitor = createListVisitor();
         impl = new DeclareMethod(maker, visitor);

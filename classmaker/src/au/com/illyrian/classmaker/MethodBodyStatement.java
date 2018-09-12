@@ -56,11 +56,11 @@ class MethodBodyStatement extends ScopeStatement
     {
         if (!isFirstPass()) {
             // Save local variable descriptors to be used by the debugger.
-            maker.getLocalFields().exitScope(getScopeLevel());
+            maker.getLocalFields().exitScope(getScopeLevel(), maker.getProgramCounter());
         }
         maker.EndMethod();
     }
-
+    
     public int getScopeLevel()
     {
         return 1;

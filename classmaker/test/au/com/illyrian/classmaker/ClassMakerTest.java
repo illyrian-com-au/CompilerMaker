@@ -38,11 +38,13 @@ public class ClassMakerTest extends TestCase
 {
     ClassMakerFactory factory;
     ClassMaker maker;
+    AccessChecker checker;
 
     public void setUp() throws Exception
     {
         factory = new ClassMakerFactory();
         maker = factory.createClassMaker("test", "MyClass", "MyClass.java");
+        checker = new AccessChecker(maker);
     }
 
     public void testConstructorHelloWorld() throws Exception
@@ -173,7 +175,7 @@ public class ClassMakerTest extends TestCase
         int square(int a);
     }
 
-    public class SquareTestMaker extends ClassMakerCode<Unary>
+    public class SquareTestMaker extends ClassMakerCode
     {
         public void code()
         {
@@ -189,7 +191,7 @@ public class ClassMakerTest extends TestCase
 
     public void testSquareTest() throws Exception
     {
-        ClassMaker<Unary> maker = new SquareTestMaker();
+        ClassMaker maker = new SquareTestMaker();
         Class<Unary> squareClass = maker.defineClass();
         Unary exec = squareClass.newInstance();
         assertEquals("Square test", 4, exec.square(2));
@@ -198,7 +200,7 @@ public class ClassMakerTest extends TestCase
     void checkClassModifiersException(int modifiers, String msg)
     {
         try {
-            maker.checkClassModifiers(modifiers);
+            checker.checkClassModifiers(modifiers);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", msg, ex.getMessage());
@@ -207,13 +209,13 @@ public class ClassMakerTest extends TestCase
 
     public void testClassModifiers()
     {
-        maker.checkClassModifiers(ClassMakerConstants.ACC_PUBLIC);
-        maker.checkClassModifiers(ClassMakerConstants.ACC_PROTECTED);
-        maker.checkClassModifiers(ClassMakerConstants.ACC_PACKAGE);
-        maker.checkClassModifiers(ClassMakerConstants.ACC_PRIVATE);
-        maker.checkClassModifiers(ClassMakerConstants.ACC_ABSTRACT);
-        maker.checkClassModifiers(ClassMakerConstants.ACC_FINAL);
-        maker.checkClassModifiers(ClassMakerConstants.ACC_STRICTFP);
+        checker.checkClassModifiers(ClassMakerConstants.ACC_PUBLIC);
+        checker.checkClassModifiers(ClassMakerConstants.ACC_PROTECTED);
+        checker.checkClassModifiers(ClassMakerConstants.ACC_PACKAGE);
+        checker.checkClassModifiers(ClassMakerConstants.ACC_PRIVATE);
+        checker.checkClassModifiers(ClassMakerConstants.ACC_ABSTRACT);
+        checker.checkClassModifiers(ClassMakerConstants.ACC_FINAL);
+        checker.checkClassModifiers(ClassMakerConstants.ACC_STRICTFP);
         checkClassModifiersException(ClassMakerConstants.ACC_STATIC, "Invalid class modifier: static ");
         checkClassModifiersException(ClassMakerConstants.ACC_SYNCHRONIZED, "Invalid class modifier: synchronized ");
         checkClassModifiersException(ClassMakerConstants.ACC_VOLATILE, "Invalid class modifier: volatile ");
@@ -221,8 +223,8 @@ public class ClassMakerTest extends TestCase
         checkClassModifiersException(ClassMakerConstants.ACC_NATIVE, "Invalid class modifier: native ");
         checkClassModifiersException(-1, "Invalid class modifier: static synchronized volatile transient native ");
         // Class modifier combinations
-        maker.checkClassModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_PUBLIC);
-        maker.checkClassModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_STRICTFP);
+        checker.checkClassModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_PUBLIC);
+        checker.checkClassModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_STRICTFP);
         checkClassModifiersException(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_ABSTRACT,
                         "Incompatible class modifier combination: abstract with final");
     }
@@ -230,7 +232,7 @@ public class ClassMakerTest extends TestCase
     void checkMethodModifiersException(int modifiers, String msg)
     {
         try {
-            maker.checkMethodModifiers(modifiers);
+            checker.checkMethodModifiers(modifiers);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", msg, ex.getMessage());
@@ -239,23 +241,23 @@ public class ClassMakerTest extends TestCase
 
     public void testMethodModifiers()
     {
-        maker.checkMethodModifiers(ClassMakerConstants.ACC_PUBLIC);
-        maker.checkMethodModifiers(ClassMakerConstants.ACC_ABSTRACT);
-        maker.checkMethodModifiers(ClassMakerConstants.ACC_PROTECTED);
-        maker.checkMethodModifiers(ClassMakerConstants.ACC_PRIVATE);
-        maker.checkMethodModifiers(ClassMakerConstants.ACC_STATIC);
-        maker.checkMethodModifiers(ClassMakerConstants.ACC_FINAL);
-        maker.checkMethodModifiers(ClassMakerConstants.ACC_ABSTRACT);
-        maker.checkMethodModifiers(ClassMakerConstants.ACC_SYNCHRONIZED);
-        maker.checkMethodModifiers(ClassMakerConstants.ACC_NATIVE);
-        maker.checkMethodModifiers(ClassMakerConstants.ACC_STRICTFP);
+        checker.checkMethodModifiers(ClassMakerConstants.ACC_PUBLIC);
+        checker.checkMethodModifiers(ClassMakerConstants.ACC_ABSTRACT);
+        checker.checkMethodModifiers(ClassMakerConstants.ACC_PROTECTED);
+        checker.checkMethodModifiers(ClassMakerConstants.ACC_PRIVATE);
+        checker.checkMethodModifiers(ClassMakerConstants.ACC_STATIC);
+        checker.checkMethodModifiers(ClassMakerConstants.ACC_FINAL);
+        checker.checkMethodModifiers(ClassMakerConstants.ACC_ABSTRACT);
+        checker.checkMethodModifiers(ClassMakerConstants.ACC_SYNCHRONIZED);
+        checker.checkMethodModifiers(ClassMakerConstants.ACC_NATIVE);
+        checker.checkMethodModifiers(ClassMakerConstants.ACC_STRICTFP);
         checkMethodModifiersException(ClassMakerConstants.ACC_VOLATILE, "Invalid method modifier: volatile ");
         checkMethodModifiersException(ClassMakerConstants.ACC_TRANSIENT, "Invalid method modifier: transient ");
         checkMethodModifiersException(-1, "Invalid method modifier: volatile transient ");
         // Method modifier combinations
-        maker.checkMethodModifiers(ClassMakerConstants.ACC_ABSTRACT|ClassMakerConstants.ACC_PUBLIC);
-        maker.checkMethodModifiers(ClassMakerConstants.ACC_ABSTRACT|ClassMakerConstants.ACC_PROTECTED);
-        maker.checkMethodModifiers(ClassMakerConstants.ACC_ABSTRACT|ClassMakerConstants.ACC_PRIVATE);
+        checker.checkMethodModifiers(ClassMakerConstants.ACC_ABSTRACT|ClassMakerConstants.ACC_PUBLIC);
+        checker.checkMethodModifiers(ClassMakerConstants.ACC_ABSTRACT|ClassMakerConstants.ACC_PROTECTED);
+        checker.checkMethodModifiers(ClassMakerConstants.ACC_ABSTRACT|ClassMakerConstants.ACC_PRIVATE);
         checkMethodModifiersException(ClassMakerConstants.ACC_ABSTRACT|ClassMakerConstants.ACC_STATIC,
                         "Incompatible method modifier combination: abstract with static ");
         checkMethodModifiersException(ClassMakerConstants.ACC_ABSTRACT|ClassMakerConstants.ACC_FINAL,
@@ -271,7 +273,7 @@ public class ClassMakerTest extends TestCase
     void checkMultipleAccessModifiersException(int modifiers, String msg)
     {
         try {
-            maker.checkMultipleAccessModifiers(modifiers);
+            checker.checkMultipleAccessModifiers(modifiers);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", msg, ex.getMessage());
@@ -294,7 +296,7 @@ public class ClassMakerTest extends TestCase
     void checkFieldModifiersException(int modifiers, String msg)
     {
         try {
-            maker.checkFieldModifiers(modifiers);
+            checker.checkFieldModifiers(modifiers);
             fail("Should throw ClassMakerException");
         } catch (ClassMakerException ex) {
             assertEquals("Wrong message", msg, ex.getMessage());
@@ -303,24 +305,24 @@ public class ClassMakerTest extends TestCase
 
     public void testFieldModifiers()
     {
-        maker.checkFieldModifiers(ClassMakerConstants.ACC_PUBLIC);
-        maker.checkFieldModifiers(ClassMakerConstants.ACC_PROTECTED);
-        maker.checkFieldModifiers(ClassMakerConstants.ACC_PRIVATE);
-        maker.checkFieldModifiers(ClassMakerConstants.ACC_STATIC);
-        maker.checkFieldModifiers(ClassMakerConstants.ACC_FINAL);
-        maker.checkFieldModifiers(ClassMakerConstants.ACC_TRANSIENT);
-        maker.checkFieldModifiers(ClassMakerConstants.ACC_VOLATILE);
+        checker.checkFieldModifiers(ClassMakerConstants.ACC_PUBLIC);
+        checker.checkFieldModifiers(ClassMakerConstants.ACC_PROTECTED);
+        checker.checkFieldModifiers(ClassMakerConstants.ACC_PRIVATE);
+        checker.checkFieldModifiers(ClassMakerConstants.ACC_STATIC);
+        checker.checkFieldModifiers(ClassMakerConstants.ACC_FINAL);
+        checker.checkFieldModifiers(ClassMakerConstants.ACC_TRANSIENT);
+        checker.checkFieldModifiers(ClassMakerConstants.ACC_VOLATILE);
         checkFieldModifiersException(ClassMakerConstants.ACC_ABSTRACT, "Invalid field modifier: abstract ");
         checkFieldModifiersException(ClassMakerConstants.ACC_SYNCHRONIZED, "Invalid field modifier: synchronized ");
         checkFieldModifiersException(ClassMakerConstants.ACC_STRICTFP, "Invalid field modifier: strictfp ");
         checkFieldModifiersException(ClassMakerConstants.ACC_NATIVE, "Invalid field modifier: native ");
         checkFieldModifiersException(-1, "Invalid field modifier: synchronized native abstract strictfp ");
         // Class modifier combinations
-        maker.checkFieldModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_PUBLIC);
-        maker.checkFieldModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_PROTECTED);
-        maker.checkFieldModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_PRIVATE);
-        maker.checkFieldModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_STATIC);
-        maker.checkFieldModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_TRANSIENT);
+        checker.checkFieldModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_PUBLIC);
+        checker.checkFieldModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_PROTECTED);
+        checker.checkFieldModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_PRIVATE);
+        checker.checkFieldModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_STATIC);
+        checker.checkFieldModifiers(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_TRANSIENT);
         checkFieldModifiersException(ClassMakerConstants.ACC_FINAL|ClassMakerConstants.ACC_VOLATILE,
                         "Incompatible field modifier combination: final with volatile");
     }
@@ -337,25 +339,25 @@ public class ClassMakerTest extends TestCase
         ClassType throwable = ClassMakerFactory.THROWABLE_TYPE;
         ClassType extendsThrow = factory.addClassType(ExtendsThrowable.class);
 
-        assertFalse("Same class: public",    maker.isAccessDenied(string, string, ClassMakerConstants.ACC_PUBLIC));
-        assertFalse("Same class: protected", maker.isAccessDenied(string, string, ClassMakerConstants.ACC_PROTECTED));
-        assertFalse("Same class: package",   maker.isAccessDenied(string, string, ClassMakerConstants.ACC_PACKAGE));
-        assertFalse("Same class: private",   maker.isAccessDenied(string, string, ClassMakerConstants.ACC_PRIVATE));
+        assertFalse("Same class: public",    checker.isAccessDenied(string, string, ClassMakerConstants.ACC_PUBLIC));
+        assertFalse("Same class: protected", checker.isAccessDenied(string, string, ClassMakerConstants.ACC_PROTECTED));
+        assertFalse("Same class: package",   checker.isAccessDenied(string, string, ClassMakerConstants.ACC_PACKAGE));
+        assertFalse("Same class: private",   checker.isAccessDenied(string, string, ClassMakerConstants.ACC_PRIVATE));
 
-        assertFalse("Same package: public",    maker.isAccessDenied(string, throwable, ClassMakerConstants.ACC_PUBLIC));
-        assertFalse("Same package: protected", maker.isAccessDenied(string, throwable, ClassMakerConstants.ACC_PROTECTED));
-        assertFalse("Same package: package",   maker.isAccessDenied(string, throwable, ClassMakerConstants.ACC_PACKAGE));
-        assertTrue( "Same package: private",   maker.isAccessDenied(string, throwable, ClassMakerConstants.ACC_PRIVATE));
+        assertFalse("Same package: public",    checker.isAccessDenied(string, throwable, ClassMakerConstants.ACC_PUBLIC));
+        assertFalse("Same package: protected", checker.isAccessDenied(string, throwable, ClassMakerConstants.ACC_PROTECTED));
+        assertFalse("Same package: package",   checker.isAccessDenied(string, throwable, ClassMakerConstants.ACC_PACKAGE));
+        assertTrue( "Same package: private",   checker.isAccessDenied(string, throwable, ClassMakerConstants.ACC_PRIVATE));
 
-        assertFalse("Derived class: public",    maker.isAccessDenied(extendsThrow, throwable, ClassMakerConstants.ACC_PUBLIC));
-        assertFalse("Derived class: protected", maker.isAccessDenied(extendsThrow, throwable, ClassMakerConstants.ACC_PROTECTED));
-        assertTrue( "Derived class: package",   maker.isAccessDenied(extendsThrow, throwable, ClassMakerConstants.ACC_PACKAGE));
-        assertTrue( "Derived class: private",   maker.isAccessDenied(extendsThrow, throwable, ClassMakerConstants.ACC_PRIVATE));
+        assertFalse("Derived class: public",    checker.isAccessDenied(extendsThrow, throwable, ClassMakerConstants.ACC_PUBLIC));
+        assertFalse("Derived class: protected", checker.isAccessDenied(extendsThrow, throwable, ClassMakerConstants.ACC_PROTECTED));
+        assertTrue( "Derived class: package",   checker.isAccessDenied(extendsThrow, throwable, ClassMakerConstants.ACC_PACKAGE));
+        assertTrue( "Derived class: private",   checker.isAccessDenied(extendsThrow, throwable, ClassMakerConstants.ACC_PRIVATE));
 
-        assertFalse("Unrelated class: public",    maker.isAccessDenied(string, extendsThrow, ClassMakerConstants.ACC_PUBLIC));
-        assertTrue( "Unrelated class: protected", maker.isAccessDenied(string, extendsThrow, ClassMakerConstants.ACC_PROTECTED));
-        assertTrue( "Unrelated class: package",   maker.isAccessDenied(string, extendsThrow, ClassMakerConstants.ACC_PACKAGE));
-        assertTrue( "Unrelated class: private",   maker.isAccessDenied(string, extendsThrow, ClassMakerConstants.ACC_PRIVATE));
+        assertFalse("Unrelated class: public",    checker.isAccessDenied(string, extendsThrow, ClassMakerConstants.ACC_PUBLIC));
+        assertTrue( "Unrelated class: protected", checker.isAccessDenied(string, extendsThrow, ClassMakerConstants.ACC_PROTECTED));
+        assertTrue( "Unrelated class: package",   checker.isAccessDenied(string, extendsThrow, ClassMakerConstants.ACC_PACKAGE));
+        assertTrue( "Unrelated class: private",   checker.isAccessDenied(string, extendsThrow, ClassMakerConstants.ACC_PRIVATE));
     }
     
     public void testSaveClassException() throws Exception
@@ -382,7 +384,7 @@ public class ClassMakerTest extends TestCase
     
     public void testJavaLangClasses() throws Exception
     {
-        ClassMaker<UnaryDouble> maker = factory.createClassMaker();
+        ClassMaker maker = factory.createClassMaker();
     	maker.Implements(UnaryDouble.class);
     	maker.Declare("ch", "Character", 0);
     	maker.Method("unary", "double", ClassMakerConstants.ACC_PUBLIC);

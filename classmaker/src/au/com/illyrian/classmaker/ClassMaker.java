@@ -148,7 +148,7 @@ import au.com.illyrian.classmaker.util.MakerUtil;
  *
  * @author Donald Strong
  */
-public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConstants {
+public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstants {
     /**
      * Bit-mask of method modifiers that are incompatible with the <code>abstract</code> modifier.
      */
@@ -201,13 +201,13 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
     private boolean followsReturn = false;
 
     /** The fully qualified name of the package */
-    private String packageName = null;
+    String packageName = null;
     /** The simple name of the class */
-    private String simpleClassName;
+    String simpleClassName;
     /** The fully qualified name of the class */
-    private String fullyQualifiedClassName;
+    String fullyQualifiedClassName;
     /** A reference to the type information for the class being generated. */
-    private MakerClassType<T> thisClassType;
+    private MakerClassType thisClassType;
     /** The modifiers for the class being generated. */
     private int classModifiers = ACC_PUBLIC;
 
@@ -218,6 +218,8 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
     private PrintStream debugCodePrintStream = null;
     /* A ClassMakerFactory instance that may be shared with other instances of ClassMaker. */
     private final ClassMakerFactory factory;
+    /* Checks access restrictions */
+    private final AccessChecker checker = new AccessChecker(this);
 
     /** The name of the source file relative to the source path */
     private SourceLine sourceLine;
@@ -411,8 +413,8 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * 
      * @return the ClassType of the generated class
      */
-    protected MakerClassType<T> defaultThisClass() {
-        MakerClassType<T> classType = new MakerClassType<T>(this);
+    protected MakerClassType defaultThisClass() {
+        MakerClassType classType = new MakerClassType(this);
         classType.setModifiers(classModifiers);
         getFactory().addType(classType);
         getFactory().addClassMaker(this);
@@ -427,7 +429,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @throws ClassMakerException
      *             if it is too late to call this method
      */
-    protected void setClassType(MakerClassType<T> classType) {
+    protected void setClassType(MakerClassType classType) {
         if (isGeneratingCode()) {
             throw createException("ClassMaker.ToLateToSetClassType");
         }
@@ -450,7 +452,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @see #defaultThisClass()
      * @return the ClassType of the generated class
      */
-    public MakerClassType<T> getClassType() {
+    public MakerClassType getClassType() {
         if (thisClassType == null) {
             setClassType(defaultThisClass());
         }
@@ -726,11 +728,11 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      */
     public void setClassModifiers(int modifiers) {
         if ((modifiers & ClassMakerConstants.ACC_INTERFACE) == ClassMakerConstants.ACC_INTERFACE) {
-            checkInterfaceModifiers(modifiers);
+            checker.checkInterfaceModifiers(modifiers);
             // Interface always has modifiers ACC_PUBLIC, ACC_INTERFACE and ACC_ABSTRACT
             classModifiers = MASK_INTERFACE;
         } else {
-            checkClassModifiers(modifiers);
+            checker.checkClassModifiers(modifiers);
             classModifiers = modifiers;
         }
         if (thisClassType != null)
@@ -761,148 +763,6 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      */
     public void setIsInterface() {
         setClassModifiers(ACC_INTERFACE);
-    }
-
-    /**
-     * Check that the bit mask only contains valid class modifiers. <br/>
-     * The following are valid modifiers for a class.
-     * <ul>
-     * <li><code>ClassMaker.ACC_PUBLIC</code></li>
-     * <li><code>ClassMaker.ACC_PROTECTED</code></li>
-     * <li><code>ClassMaker.ACC_PRIVATE</code></li>
-     * <li><code>ClassMaker.ACC_ABSTRACT</code></li>
-     * <li><code>ClassMaker.ACC_FINAL</code></li>
-     * <li><code>ClassMaker.ACC_STRICTFP</code></li>
-     * <li>zero</li>
-     * </ul>
-     * 
-     * @param modifiers
-     *            the bit mask of modifiers
-     * @throws ClassMakerException
-     *             if the bit mask includes an invalid modifier
-     */
-    protected void checkClassModifiers(int modifiers) throws ClassMakerException {
-        int wrongModifiers = modifiers & (~MASK_CLASS);
-        if (wrongModifiers != 0)
-            throw createException("ClassMaker.InvalidClassModifier_1", MakerUtil.toModifierString(wrongModifiers));
-        checkMultipleAccessModifiers(modifiers);
-        if (((modifiers & ClassMakerConstants.ACC_FINAL) == ClassMakerConstants.ACC_FINAL)
-                && ((modifiers & ClassMakerConstants.ACC_ABSTRACT) == ClassMakerConstants.ACC_ABSTRACT))
-            throw createException("ClassMaker.InvalidClassModifierCombination");
-    }
-
-    /**
-     * Check that the bit mask only contains valid interface modifiers. <br/>
-     * The following are valid modifiers for an interface.
-     * <ul>
-     * <li><code>ClassMaker.ACC_PUBLIC</code></li>
-     * <li><code>ClassMaker.ACC_ABSTRACT</code></li>
-     * <li><code>ClassMaker.ACC_INTERFACE</code></li>
-     * <li>zero</li>
-     * </ul>
-     * 
-     * @param modifiers
-     *            the bit mask of modifiers
-     * @throws ClassMakerException
-     *             if the bit mask includes an invalid modifier
-     */
-    protected void checkInterfaceModifiers(int modifiers) throws ClassMakerException {
-        int wrongModifiers = modifiers & (~MASK_INTERFACE);
-        if (wrongModifiers != 0)
-            throw createException("ClassMaker.InvalidInterfaceModifier_1", MakerUtil.toModifierString(wrongModifiers));
-        checkMultipleAccessModifiers(modifiers);
-    }
-
-    /**
-     * Check that the bit mask only contains valid method modifiers.
-     * </br>
-     * The following are valid modifiers for a member method.
-     * <ul>
-     * <li><code>ClassMaker.ACC_PUBLIC</code></li>
-     * <li><code>ClassMaker.ACC_PROTECTED</code></li>
-     * <li><code>ClassMaker.ACC_PRIVATE</code></li>
-     * <li><code>ClassMaker.ACC_STATIC</code></li>
-     * <li><code>ClassMaker.ACC_FINAL</code></li>
-     * <li><code>ClassMaker.ACC_ABSTRACT</code></li>
-     * <li><code>ClassMaker.ACC_SYNCHRONIZED</code></li>
-     * <li><code>ClassMaker.ACC_NATIVE</code></li>
-     * <li><code>ClassMaker.ACC_STRICTFP</code></li>
-     * <li>zero</li>
-     * </ul>
-     * 
-     * @param modifiers
-     *            the bit mask of modifiers
-     * @throws ClassMakerException
-     *             if the bit mask includes an invalid modifier
-     */
-    protected void checkMethodModifiers(int modifiers) throws ClassMakerException {
-        // Check that the list contains valid modifiers
-        int wrongModifiers = modifiers & (~MASK_METHOD);
-        if (wrongModifiers != 0)
-            throw createException("ClassMaker.InvalidMethodModifier_1", MakerUtil.toModifierString(wrongModifiers));
-        checkMultipleAccessModifiers(modifiers);
-        // Check that abstract is not used with an incompatible modifier
-        if (((modifiers & ClassMakerConstants.ACC_ABSTRACT) == ClassMakerConstants.ACC_ABSTRACT)) {
-            if ((modifiers & (MASK_INCOMPATABLE_WITH_ABSTRACT_METHOD)) > 0)
-                throw createException("ClassMaker.InvalidMethodModifierCombination_1", MakerUtil.toModifierString(modifiers
-                        & MASK_INCOMPATABLE_WITH_ABSTRACT_METHOD));
-        }
-    }
-
-    /**
-     * Check that the bit mask only contains valid field modifiers.
-     * </br>
-     * The following are valid modifiers for a member field.
-     * <ul>
-     * <li><code>ClassMaker.ACC_PUBLIC</code></li>
-     * <li><code>ClassMaker.ACC_PROTECTED</code></li>
-     * <li><code>ClassMaker.ACC_PRIVATE</code></li>
-     * <li><code>ClassMaker.ACC_STATIC</code></li>
-     * <li><code>ClassMaker.ACC_FINAL</code></li>
-     * <li><code>ClassMaker.ACC_TRANSIENT</code></li>
-     * <li><code>ClassMaker.ACC_VOLATILE</code></li>
-     * <li>zero</li>
-     * </ul>
-     * 
-     * @param modifiers
-     *            the bit mask of modifiers
-     * @throws ClassMakerException
-     *             if the bit mask includes an invalid modifier
-     */
-    protected void checkFieldModifiers(int modifiers) throws ClassMakerException {
-        int wrongModifiers = modifiers & (~MASK_FIELD);
-        if (wrongModifiers != 0)
-            throw createException("ClassMaker.InvalidFieldModifier_1", MakerUtil.toModifierString(wrongModifiers));
-        checkMultipleAccessModifiers(modifiers);
-        if (((modifiers & ClassMakerConstants.ACC_FINAL) == ClassMakerConstants.ACC_FINAL)
-                && ((modifiers & ClassMakerConstants.ACC_VOLATILE) == ClassMakerConstants.ACC_VOLATILE)) {
-            throw createException("ClassMaker.InvalidFieldModifierCombination");
-        }
-    }
-
-    /**
-     * Check that the bit mask does not contain more than one access modifier.
-     * </br>
-     * The following are access modifiers.
-     * <ul>
-     * <li><code>ClassMaker.ACC_PUBLIC</code></li>
-     * <li><code>ClassMaker.ACC_PROTECTED</code></li>
-     * <li><code>ClassMaker.ACC_PRIVATE</code></li>
-     * <li>zero</li>
-     * </ul>
-     * 
-     * @param modifiers
-     *            the bit mask of modifiers
-     * @throws ClassMakerException
-     *             if the bit mask includes more than one access modifier
-     */
-    protected void checkMultipleAccessModifiers(int modifiers) throws ClassMakerException {
-        // Check there is no more than one access modifier
-        int accessModifiers = modifiers & MASK_ACCESS;
-        if (accessModifiers != ClassMakerConstants.ACC_PUBLIC && accessModifiers != ClassMakerConstants.ACC_PROTECTED
-                && accessModifiers != ClassMakerConstants.ACC_PRIVATE && accessModifiers != 0) {
-            throw createException("ClassMaker.MultipleAccessModifiers_1", MakerUtil.toModifierString(accessModifiers));
-        }
     }
 
     /**
@@ -954,7 +814,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * 
      * @return the generated class
      */
-    public Class<T> defineClass() {
+    public <T> Class<T> defineClass() {
         if (thisClassType != null && thisClassType.getJavaClass() != null) {
             return thisClassType.getJavaClass();
         }
@@ -964,6 +824,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         }
         defineClassType(getClassType().getExtendsType());
         defineInterfaces(this.getDeclaredInterfaces());
+        @SuppressWarnings("unchecked")
         Class<T> thisClass = (Class<T>)getFactory().getClassLoader().defineClass(getGen().getClassName(), getGen().toByteArray());
         thisClassType.setJavaClass(thisClass);
         return thisClass;
@@ -1112,110 +973,6 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
     }
 
     /**
-     * Determine whether the generated class can access the field in the given class.
-     * 
-     * @param classType the type of the class being accessed
-     * @param field the field being accessed
-     */
-    void checkAccessDenied(ClassType classType, MakerField field) {
-        // Determine whether the class is accessible
-        if (isAccessDenied(getClassType(), classType, classType.getModifiers()))
-            throw createException("ClassMaker.AccessDeniedToClass_1", classType.getName());
-        // Determine whether the field is accessible
-        if (isAccessDenied(getClassType(), field.getClassType(), field.getModifiers()))
-            throw createException("ClassMaker.AccessDeniedToField_2", classType.getName(), field.getName());
-        // Determine whether a protected field is accessible
-        if (isAccessDeniedToProtected(getClassType(), classType, field.getModifiers()))
-            throw createException("ClassMaker.AccessDeniedToProtectedField_2", classType.getName(), field.getName());
-    }
-
-    /**
-     * Determine whether the generated class can access the method in the given class.
-     * 
-     * @param classType the type of the class being accessed
-     * @param method the method being accessed
-     */
-    void checkAccessDenied(ClassType classType, MakerMethod method) {
-        // Determine whether the class is accessible
-        if (isAccessDenied(getClassType(), classType, classType.getModifiers()))
-            throw createException("ClassMaker.AccessDeniedToClass_1", classType.getName());
-        // Determine whether the method is accessible
-        if (isAccessDenied(getClassType(), method.getClassType(), method.getModifiers()))
-            throw createException("ClassMaker.AccessDeniedToMethod_2", classType.getName(), method.toString());
-        // Determine whether a protected method is accessible
-        if (isAccessDeniedToProtected(getClassType(), classType, method.getModifiers()))
-            throw createException("ClassMaker.AccessDeniedToProtectedMethod_2", classType.getName(), method.toString());
-    }
-
-    /**
-     * Determines whether access is denied to a protected method or field.
-     * </br>
-     * If the method or field is protected and not static this method ensures
-     * that the called class must be of the same type as the caller class or a
-     * sub-type of it.
-     * 
-     * @param caller the caller is the class doing the access
-     * @param called the class being accessed
-     * @param modifiers the access modifiers of the method or field being accessed
-     * @return true if the caller class is denied access to the method or field
-     */
-    boolean isAccessDeniedToProtected(ClassType caller, ClassType called, int modifiers) {
-        // Test does not apply to static fields.
-        if ((modifiers & ClassMakerConstants.ACC_STATIC) == ClassMakerConstants.ACC_STATIC)
-            return false;
-        modifiers &= MASK_ACCESS;
-        // FIXME - include explanation and reference 
-        return ((modifiers == ClassMakerConstants.ACC_PROTECTED)
-                && !caller.getPackageName().equals(called.getPackageName()) && !getFactory().getAssignmentConversion()
-                .isWideningClassConvertable(called, caller));
-    }
-
-    /**
-     * Determines whether access is denied to a class, member method or member
-     * field.
-     * </br>
-     * This method is used to determine whether:
-     * <ul>
-     * <li>a class is accessible by providing the class modifiers</li>
-     * <li>a method within a class is accessible by providing the method
-     * modifiers</li>
-     * <li>a field within a class is accessible by providing the field
-     * modifiers.</li>
-     * </ul>
-     * This method ensures the following access restrictions.
-     * <UL>
-     * <LI>A <code>public</code> class or member is accessible from anywhere.</LI>
-     * <LI>A <code>protected</code> class or member is accessible from the same
-     * package or a derived class.</LI>
-     * <LI>A <code>package</code> class or member has no access modifier and is
-     * accessible from the same package.</LI>
-     * <LI>A <code>private</code> class or member is accessible from within its
-     * own class.</LI>
-     * </UL>
-     * 
-     * @param caller the caller is the class doing the access
-     * @param called the class being accessed
-     * @param modifiers the access modifiers of the class, method or field being
-     *            accessed
-     * @return true if the caller class is denied access to the class, method or
-     *         field
-     */
-    boolean isAccessDenied(ClassType caller, ClassType called, int modifiers) {
-        modifiers &= MASK_ACCESS;
-        if (modifiers == ClassMakerConstants.ACC_PUBLIC)
-            return false;
-        else if (((modifiers == ClassMakerConstants.ACC_PACKAGE) || (modifiers == ClassMakerConstants.ACC_PROTECTED))
-                && caller.getPackageName().equals(called.getPackageName()))
-            return false;
-        else if ((modifiers == ClassMakerConstants.ACC_PROTECTED)
-                && getFactory().getAssignmentConversion().isConvertable(caller, called))
-            return false;
-        else if ((modifiers == ClassMakerConstants.ACC_PRIVATE) && caller.equals(called))
-            return false;
-        return true;
-    }
-
-    /**
      * Generate a default constructor for the class.
      */
     public void defaultConstructor() {
@@ -1336,7 +1093,8 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
                 importMap.put(simpleName, classType);
             } else {
                 // A clash of simple names exists so we must use fully qualified names.
-                if (!ClassMakerFactory.NULL_TYPE.equals(aliasType)) { // Use ClassMakerFactory.NULL_TYPE as a marker to force fully qualified names.
+                if (!ClassMakerFactory.NULL_TYPE.equals(aliasType)) { 
+                    // Use ClassMakerFactory.NULL_TYPE as a marker to force fully qualified names.
                     importMap.put(simpleName, ClassMakerFactory.NULL_TYPE);
                 }
             }
@@ -1427,7 +1185,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      *            <code>ACC_PUBLIC, ACC_PROTECTED, ACC_PRIVATE, ACC_STATIC, ACC_FINAL</code>
      */
     public void Method(String methodName, Type returnType, int methodModifiers) throws ClassMakerException {
-        checkMethodModifiers(methodModifiers);
+        checker.checkMethodModifiers(methodModifiers);
         if (method != null) {
             throw createException("ClassMaker.MissingEndForPreviousMethod_1", method.toString());
         }
@@ -1484,8 +1242,9 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      *             throw an exception.
      */
     void EndMethod() throws ClassMakerException {
-        if (method.isAbstract())
+        if (method.isAbstract()) {
             throw createException("ClassMaker.AbstractMethodCannotHaveBody_1", "End()");
+        }
         if (getGen() != null) {
             // Check that Return has been called.
             if (!followsReturn) {
@@ -1565,7 +1324,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         addMethod(method);
         if (getGen() != null) {
             markLineNumber(); // possibly add a new line number entry.
-            if (method.isAbstract() || Type.isInterface(getClassType())) {
+            if (method.isAbstract() || isInterface()) {
                 getGen().addAbstractMethod(method);
             }
         }
@@ -1715,7 +1474,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         if (!isFirstPass()) {
             ClassType classType = reference.toClass();
             MakerMethod method = resolveConstructor(classType, actualParameters);
-            checkAccessDenied(classType, method);
+            checker.checkAccessDenied(classType, method);
             markLineNumber(); // possibly add a new line number entry.
             getGen().invokeSpecial(classType, method);
         }
@@ -1808,7 +1567,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
             throw createException("ClassMaker.StaticCallToNonStaticMethod_2", method.toString(), method.getClassType()
                     .getName());
         }
-        checkAccessDenied(classType, method);
+        checker.checkAccessDenied(classType, method);
         markLineNumber(); // possibly add a new line number entry.
         if (classType.isInterface()) {
             getGen().invokeInterface(classType, method);
@@ -2652,7 +2411,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         if (field == null) {
             throw createException("ClassMaker.CannotFindMemberFieldInClass_2", name, classType.getName()); 
         }
-        checkAccessDenied(classType, field);
+        checker.checkAccessDenied(classType, field);
         return field;
     }
 
@@ -2761,7 +2520,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         if (!field.isStatic()) {
             throw createException("ClassMaker.ClassVariableIsNotStatic_1", classType.getName() + "." + fieldName);
         }
-        checkAccessDenied(classType, field);
+        checker.checkAccessDenied(classType, field);
         return field;
     }
 
@@ -2794,7 +2553,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @return index of the field in <code>fieldTable</code>
      */
     int addMemberField(String name, Type type, int modifiers) {
-        checkFieldModifiers(modifiers);
+        checker.checkFieldModifiers(modifiers);
 
         MakerField field = new MakerField(getClassType(), name, type, modifiers);
         int index = fieldTable.size();
@@ -2817,7 +2576,6 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
             return null;
         }
         checkInMethod();
-        //MakerField field = findLocalField(name);
         MakerField field = findField(name);
         if (field == null) {
             throw createException("ClassMaker.NoLocalCalled_1", name);
@@ -3039,13 +2797,10 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
             if (getPass() != SECOND_PASS && localFields.findLocalField(name) != null) {
                 throw createException("ClassMaker.DuplicateLocalVariableDeclaration_1", name);
             }
-            int localOffset = localFields.addLocal(name, type, modifiers, getScopeLevel());
-            MakerField local = localFields.findLocalField(localOffset);
+            MakerField local = localFields.addLocalField(name, type, modifiers, getScopeLevel(), getProgramCounter());
             if (getGen() != null) {
                 getGen().addToScope(local, getScopeLevel());
                 if (isInBody()) {
-                    if (isDebugCode())
-                        setDebugComment("initialise local " + name);
                     getGen().initLocal(local);
                 }
             }
@@ -3063,6 +2818,10 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         } else {
             return statementManager.topStatement().getScopeLevel();
         }
+    }
+
+    protected int getProgramCounter() {
+        return (getGen() != null) ? getGen().getProgramCounter() : 0;
     }
 
     //################### Casting methods. ##################
@@ -4274,9 +4033,9 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         Type valueType = value.getType();
         // Cannot dupunder two wide types so store value in an anonomous local variable.
         getGen().dup(valueType);
-        int offset = storeAnonymousValue(valueType);
+        MakerField anon = storeAnonymousField(valueType);
         SetAt(array, index, valueType.getValue());
-        loadAnonymousValue(offset);
+        loadAnonymousField(anon);
         return value;
     }
 
@@ -4986,11 +4745,11 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         //# array index value+1
         gen.dup(elementType);
         //# array index value+1 value+1
-        int slot = storeAnonymousValue(elementType);
+        MakerField anon = storeAnonymousField(elementType);
         //# array index value+1
         gen.setAtIndex(arrayType, indexType, elementType);
         //# -
-        loadAnonymousValue(slot);
+        loadAnonymousField(anon);
         //# value+1
 
         return true;
@@ -5094,7 +4853,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         //# array index value
         gen.dup(elementType);
         //# array index value value
-        int slot = storeAnonymousValue(elementType);
+        MakerField anon = storeAnonymousField(elementType);
         //# array index value
         if (!gen.increment(elementType, amount)) {
             return false;
@@ -5102,7 +4861,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
         //# array index value+1
         gen.setAtIndex(arrayType, indexType, elementType);
         //# -
-        loadAnonymousValue(slot);
+        loadAnonymousField(anon);
         //# value
 
         return true;
@@ -5599,11 +5358,10 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      * @param type
      *            type of value being stored.
      */
-    protected int storeAnonymousValue(Type type) throws ClassMakerException {
-        int index = getLocalFields().addLocal(null, type, 0, getScopeLevel());
-        MakerField local = getLocalFields().findLocalField(index);
+    protected MakerField storeAnonymousField(Type type) throws ClassMakerException {
+        MakerField local = getLocalFields().addLocalField(null, type, 0, getScopeLevel(), getProgramCounter());
         getGen().storeLocal(local);
-        return index;
+        return local;
     }
 
     /**
@@ -5613,8 +5371,7 @@ public class ClassMaker<T> implements ClassMakerIfc, SourceLine, ClassMakerConst
      *            the index of the anonymous field holding the value
      * @return type of the value being loaded
      */
-    protected Value loadAnonymousValue(int index) throws ClassMakerException {
-        MakerField local = getLocalFields().findLocalField(index);
+    protected Value loadAnonymousField(MakerField local) throws ClassMakerException {
         return getGen().loadLocal(local);
     }
 

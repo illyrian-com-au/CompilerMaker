@@ -57,7 +57,7 @@ public class MakerResolveMethodTest extends ClassMakerTestCase
     {
         factory = new MyClassMakerFactory();
         maker = factory.createClassMaker();
-        maker.setFullyQualifiedClassName("MyClass");
+        maker.setSimpleClassName("MyClass");
         maker.Extends(Object.class);
         maker.setSourceFilename("MyClass.java");
         defaultConstructor(maker);

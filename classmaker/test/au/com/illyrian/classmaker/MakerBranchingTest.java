@@ -55,7 +55,7 @@ public class MakerBranchingTest extends ClassMakerTestCase implements SourceLine
         factory = new ClassMakerFactory();
         maker = factory.createClassMaker();
         maker.setSourceLine(this);
-        maker.setFullyQualifiedClassName("MyClass");
+        maker.setSimpleClassName("MyClass");
     }
 
     // Generate default constructor
@@ -203,7 +203,7 @@ nl();     maker.End();
         factory = new ClassMakerFactory();
         maker = factory.createClassMaker();
         maker.setSourceLine(this);
-        maker.setFullyQualifiedClassName("MyClass");
+        maker.setSimpleClassName("MyClass");
 
         maker.Implements(Binary.class);
         defaultConstructor();
@@ -235,7 +235,7 @@ nl();     maker.End();
         factory = new ClassMakerFactory();
         maker = factory.createClassMaker();
         maker.setSourceLine(this);
-        maker.setFullyQualifiedClassName("MyClass");
+        maker.setSimpleClassName("MyClass");
 
         maker.Implements(Binary.class);
         defaultConstructor();
@@ -935,7 +935,7 @@ nl();        maker.End();
         ClassMaker maker = factory.createClassMaker();
 
         maker.setClassModifiers(ClassMakerConstants.ACC_PUBLIC);
-        maker.setFullyQualifiedClassName("Factorial");
+        maker.setSimpleClassName("Factorial");
         maker.Implements(Unary.class);
 
         maker.Method("unary", int.class, ClassMakerConstants.ACC_PUBLIC);

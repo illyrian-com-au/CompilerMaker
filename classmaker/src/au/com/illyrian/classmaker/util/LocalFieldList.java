@@ -21,7 +21,7 @@ public class LocalFieldList {
         gen = generator;
     }
     
-    public ClassGenerator getGen() {
+    public ClassGenerator getGen() { // FIXME remove
         return gen;
     }
     
@@ -46,17 +46,30 @@ public class LocalFieldList {
      * @param type type of the local variable
      * @param modifiers access modifiers for the variable
      * @param scopeLevel the level of nesting within the method
+     * @return a local field
+     */
+    public MakerField addLocalField(String name, Type type, int modifiers, int scopeLevel, int programCounter) {
+        int index = addLocal(name, type, modifiers, scopeLevel, programCounter);
+        MakerField local = findLocalField(index);
+        return local;
+     }
+
+    /**
+     * Adds a formal parameter or local variable to the method.
+     * 
+     * @param name name of the local variable
+     * @param type type of the local variable
+     * @param modifiers access modifiers for the variable
+     * @param scopeLevel the level of nesting within the method
      * @return index into <code>localTable</code>
      */
-    public int addLocal(String name, Type type, int modifiers, int scopeLevel) {
+    public int addLocal(String name, Type type, int modifiers, int scopeLevel, int programCounter) {
         MakerField field = new MakerField(name, type, modifiers);
         field.setSlot(maxLocalSlots);
         field.setScopeLevel(scopeLevel);
+        field.setStartPC(programCounter);
         // Adjust the number of slots used.
         maxLocalSlots += type.getSlotSize();
-        if (getGen() != null) {
-            field.setStartPC(getGen().getCurrentCodeOffset());
-        }
         int index = localTable.size();
         localTable.add(field);
         return index;
@@ -65,9 +78,8 @@ public class LocalFieldList {
     /**
      * Find a local variable by index.
      * 
-     * @param index
-     *            an index into <code>localTable</code>
-     * @return the indexed local field
+     * @param index an index into <code>localTable</code>
+     * @return a local field
      */
     public MakerField findLocalField(int index) {
         return localTable.get(index);
@@ -102,7 +114,7 @@ public class LocalFieldList {
      * @param scope
      *            the level of nesting of the current scoped code block
      */
-    public void exitScope(int scope) {
+    public void exitScope(int scope, int programCounter) {
         // Local variable descriptors are used by the debugger.
         for (int i = localTable.size() - 1; i >= 0; i--) {
             MakerField local = localTable.elementAt(i);
@@ -112,9 +124,7 @@ public class LocalFieldList {
             if (local.getScopeLevel() < scope) {
                 break; // Stop when field is in wider scope
             }
-            if (getGen() != null) { // FIXME remove when gen is set.
-                local.setEndPC(gen.getCurrentCodeOffset());
-            }
+            local.setEndPC(programCounter);
             local.setInScope(false);
         }
     }

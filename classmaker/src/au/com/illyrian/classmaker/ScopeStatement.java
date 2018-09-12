@@ -29,7 +29,7 @@ class ScopeStatement extends Statement
         if (!isFirstPass()) { 
             markLabel(blockEnd);
             // Save local variable descriptors to be used by the debugger.
-            maker.getLocalFields().exitScope(getScopeLevel());
+            maker.getLocalFields().exitScope(getScopeLevel(), maker.getProgramCounter());
         }
     }
 
