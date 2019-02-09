@@ -1,6 +1,7 @@
 package au.com.illyrian.bnf.maker;
 
 import java.io.File;
+import java.io.IOException;
 
 import au.com.illyrian.bnf.BnfParser;
 import au.com.illyrian.bnf.ast.BnfTreeParser;
@@ -40,6 +41,74 @@ public class ImportParserTest extends BnfMakerTextBase
         maker.Import(AstClass.class);
         maker.Import(TerminalName.class);
     }
+    
+    public static class BnfCompiler {
+        private final File sourceDir;
+        private final ClassMakerFactory factory;
+        
+        public BnfCompiler(File sourceDir, ClassMakerFactory factory) {
+            this.sourceDir = sourceDir;
+            this.factory = factory;
+        }
+        
+        public ClassMaker createClassMaker(String packageName, String simpleClassname) {
+            ClassMaker maker = factory.createClassMaker();
+            maker.setPackageName(packageName);
+            maker.setSimpleClassName(simpleClassname);
+            importClasses(maker);
+            return maker;
+        }
+        
+        public void importClasses(ClassMaker maker) {
+            maker.Import(AstExpression.class);
+            maker.Import(AstStructure.class);
+            maker.Import(AstModifiers.class);
+            maker.Import(AstPackage.class);
+            maker.Import(AstImport.class);
+            maker.Import(AstClass.class);
+            maker.Import(TerminalName.class);
+        }
+        
+        public BnfMakerVisitor createBnfVisitor(ClassMaker maker, String source) {
+            BnfMakerVisitor visitor = new BnfMakerVisitor(maker);
+
+            visitor.setActionRequired(true);
+            visitor.setDefaultTypeName("AstExpression");
+            visitor.setFilename(source);
+            return visitor;
+        }
+        
+        ParseMembers compile(String source) throws InstantiationException, IllegalAccessException, IOException {
+            File file = new File(sourceDir, source);
+            
+            ModuleContext compile = new ModuleContext();
+            compile.setInputFile(file, source);
+
+            BnfParser bnfParser = new BnfParser();
+
+            BnfTreeParser tree = bnfParser.parseMembers(compile);
+            assertEquals("token", TokenType.END, bnfParser.getLexer().nextToken());
+            assertNotNull("Nothing returned from parser", tree);
+            
+            String packageName = "";
+            String className = "";
+            ClassMaker maker = createClassMaker(packageName, className);
+            
+            BnfMakerVisitor visitor = createBnfVisitor(maker, source);
+            
+            factory.setPass(ClassMakerConstants.FIRST_PASS);
+            tree.resolveDeclaration(visitor);
+            maker.EndClass();
+            
+            factory.setPass(ClassMakerConstants.SECOND_PASS);
+            tree.resolveDeclaration(visitor);
+            maker.EndClass();
+            
+            Class<ParseMembers> parserClass = maker.defineClass();
+            ParseMembers parser = parserClass.newInstance();
+            return parser;
+        }
+    }
 
     public ParseMembers loadParser() throws Exception 
     {
@@ -74,11 +143,8 @@ public class ImportParserTest extends BnfMakerTextBase
         tree.resolveDeclaration(visitor);
         maker.EndClass();
         
-        Class parserClass = maker.defineClass();
-        Object instance = parserClass.newInstance();
-        assertTrue("Generated class does not implement ParseMembers interface",
-                instance instanceof ParseMembers);
-        ParseMembers parser = (ParseMembers)instance;
+        Class<ParseMembers> parserClass = maker.defineClass();
+        ParseMembers parser = parserClass.newInstance();
         return parser;
     }
 

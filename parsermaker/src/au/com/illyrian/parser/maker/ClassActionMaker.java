@@ -36,7 +36,6 @@ public class ClassActionMaker extends ModuleActionMaker implements ClassAction
         return className;
     }
     
-    @Override
     public Object declareMembers(Object members)
     {
         return members;

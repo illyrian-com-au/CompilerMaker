@@ -146,7 +146,7 @@ public class BnfParser extends AstExpressionPrecidenceParser
         }
     }
 
-    /* parse_rule ::= rule_target ASSIGN rule_alt SEMI { factogetFactory().$1, $3) } ; */
+    /* parse_rule ::= rule_target ASSIGN rule_alt SEMI { factory.Rule(.$1, $3) } ; */
     public BnfTree parse_rule()
     {
         BnfTree $1 = rule_target();

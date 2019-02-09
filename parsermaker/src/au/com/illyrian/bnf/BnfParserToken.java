@@ -19,13 +19,11 @@ public class BnfParserToken implements Token
         this.tokenValue = value;
     }
 
-    @Override
     public TokenType getTokenType()
     {
         return tokenType;
     }
 
-    @Override
     public String getTokenValue()
     {
         return tokenValue;

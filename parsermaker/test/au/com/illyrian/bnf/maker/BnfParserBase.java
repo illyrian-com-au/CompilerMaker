@@ -9,7 +9,7 @@ import au.com.illyrian.parser.Token;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.ParserBase;
 
-public abstract class BnfParserBase extends ParserBase implements ParseMembers
+public abstract class BnfParserBase extends ParserBase implements ParseMembers<AstStructure>
 {
     public AstStructureFactory ast;
     
@@ -40,7 +40,6 @@ public abstract class BnfParserBase extends ParserBase implements ParseMembers
         ast = new AstStructureFactory();
     }
     
-    @Override
     public AstStructure parseMembers(CompilerContext context)
     {
         setCompilerContext(context);

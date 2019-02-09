@@ -120,14 +120,14 @@ public class ParserBase
 
     public boolean match(TokenType s, String value)
     {
-        TokenType token = getTokenType();
+        TokenType tokenType = getTokenType();
         String tokenValue;
         if (s == TokenType.STRING || s == TokenType.CHARACTER) {
             tokenValue = Character.toString(getLexer().getTokenDelimiter());
         } else {
             tokenValue = getLexer().getTokenValue();
         }
-        return (token == s && (value == null || value.equals(tokenValue)));
+        return (tokenType == s && (value == null || value.equals(tokenValue)));
     }
     
     public boolean accept(Token token)
