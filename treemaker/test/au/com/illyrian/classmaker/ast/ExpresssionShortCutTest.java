@@ -43,7 +43,7 @@ public class ExpresssionShortCutTest extends TestCase
         AstExpression expr = ast.AndThen(ast.AndThen(ast.Name("a"), ast.Name("b")), ast.Name("c"));
         assertEquals("Wrong toString()", "((a && b) && c)", expr.toString());
         Value type = expr.resolveValue(visitor);
-        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong type", "Value(boolean)", type.toString());
         assertEquals("Wrong output", "[Logic(AndThen(AndThen(Get(\"a\")), Get(\"b\")), Get(\"c\"))]", buf.toString());        
     }
 
@@ -52,7 +52,7 @@ public class ExpresssionShortCutTest extends TestCase
         AstExpression expr = ast.AndThen(ast.AndThen(ast.AndThen(ast.Name("a"), ast.Name("b")), ast.Name("c")), ast.Name("d"));
         assertEquals("Wrong toString()", "(((a && b) && c) && d)", expr.toString());
         Value type = expr.resolveValue(visitor);
-        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong type", "Value(boolean)", type.toString());
         assertEquals("Wrong output", "[Logic(AndThen(AndThen(AndThen(Get(\"a\")), Get(\"b\")), Get(\"c\")), Get(\"d\"))]", buf.toString());        
     }
 
@@ -61,7 +61,7 @@ public class ExpresssionShortCutTest extends TestCase
         AstExpression expr = ast.OrElse(ast.OrElse(ast.Name("a"), ast.Name("b")), ast.Name("c"));
         assertEquals("Wrong toString()", "((a || b) || c)", expr.toString());
         Value type = expr.resolveValue(visitor);
-        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong type", "Value(boolean)", type.toString());
         assertEquals("Wrong output", "[Logic(OrElse(OrElse(Get(\"a\")), Get(\"b\")), Get(\"c\"))]", buf.toString());        
     }
     
@@ -70,7 +70,7 @@ public class ExpresssionShortCutTest extends TestCase
         AstExpression expr = ast.OrElse(ast.AndThen(ast.Name("a"), ast.Name("b")), ast.Name("c"));
         assertEquals("Wrong toString()", "((a && b) || c)", expr.toString());
         Value type = expr.resolveValue(visitor);
-        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong type", "Value(boolean)", type.toString());
         assertEquals("Wrong output", "[Logic(OrElse(Logic(AndThen(Get(\"a\")), Get(\"b\"))), Get(\"c\"))]", buf.toString());        
     }
 
@@ -79,7 +79,7 @@ public class ExpresssionShortCutTest extends TestCase
         AstExpression expr = ast.AndThen(ast.OrElse(ast.Name("a"), ast.Name("b")), ast.Name("c"));
         assertEquals("Wrong toString()", "((a || b) && c)", expr.toString());
         Value type = expr.resolveValue(visitor);
-        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong type", "Value(boolean)", type.toString());
         assertEquals("Wrong output", "[Logic(AndThen(Logic(OrElse(Get(\"a\")), Get(\"b\"))), Get(\"c\"))]", buf.toString());        
     }
 
@@ -88,7 +88,7 @@ public class ExpresssionShortCutTest extends TestCase
         AstExpression expr = ast.AndThen(ast.OrElse(ast.Name("a"), ast.Name("b")), ast.OrElse(ast.Name("c"), ast.Name("d")));
         assertEquals("Wrong toString()", "((a || b) && (c || d))", expr.toString());
         Value type = expr.resolveValue(visitor);
-        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong type", "Value(boolean)", type.toString());
         String expected = 
         		"[Logic(AndThen(Logic(OrElse(Get(\"a\")), Get(\"b\"))), Logic(OrElse(Get(\"c\")), Get(\"d\")))]";
         assertEquals("Wrong output", expected, buf.toString());        
@@ -99,7 +99,7 @@ public class ExpresssionShortCutTest extends TestCase
         AstExpression expr = ast.OrElse(ast.AndThen(ast.Name("a"), ast.Name("b")), ast.AndThen(ast.Name("c"), ast.Name("d")));
         assertEquals("Wrong toString()", "((a && b) || (c && d))", expr.toString());
         Value type = expr.resolveValue(visitor);
-        assertEquals("Wrong type", "PrimitiveType(boolean)", type.toString());
+        assertEquals("Wrong type", "Value(boolean)", type.toString());
         String expected = 
         		"[Logic(OrElse(Logic(AndThen(Get(\"a\")), Get(\"b\"))), Logic(AndThen(Get(\"c\")), Get(\"d\")))]";
         assertEquals("Wrong output", expected, buf.toString());        
