@@ -17,7 +17,17 @@ public class StringMakerBuilder {
     }
     
     Value createStringBuilder() {
-        return maker.New(StringBuffer.class).Init(null);
+        return maker.New(StringBuilder.class).Init(null);
+    }
+    
+    StringMakerBuilder appendString(Value value) {
+        stringBuilder = 
+                maker.Call(
+                    maker.Call(
+                        maker.Call(stringBuilder, "append", maker.Push(maker.Literal('\"'))), 
+                        "append", maker.Push(value)), 
+                    "append", maker.Push(maker.Literal('\"')));
+        return this;
     }
 
     StringMakerBuilder append(Value value) {

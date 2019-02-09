@@ -229,6 +229,10 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
     
 
     //#################### Constructors #################
+    
+    public ClassMaker createClassMaker() {
+        return getFactory().createClassMaker();
+    }
 
     /**
      * Creates a <code>ClassMaker</code> instance given a
@@ -509,13 +513,26 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
      *             if it is too late to call this method
      */
     public void Extends(String className) throws ClassMakerException {
+        ClassType classType = stringToClassType(className);
+        Extends(classType);
+    }
+
+    /**
+     * The generated class extends the given class.
+     * </br>
+     * 
+     * @param classType
+     *            the type of the class that the generated class extends
+     * @throws ClassMakerException
+     *             if it is too late to call this method
+     */
+    public void Extends(ClassType classType) throws ClassMakerException {
         if (isGeneratingCode()) {
             throw createException("ClassMaker.ToLateToExtendTheClass");
         }
-        ClassType classType = stringToClassType(className);
         if (getPass() != ClassMakerConstants.FIRST_PASS) {
             if (classType == null) {
-                throw createException("ClassMaker.NoClassTypeCalled_1", className);
+                throw createException("ClassMaker.NoClassTypeCalled_1", classType.getName());
             }
             int mod = classType.getModifiers();
             if (Modifier.isInterface(mod))
@@ -729,8 +746,8 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
     public void setClassModifiers(int modifiers) {
         if ((modifiers & ClassMakerConstants.ACC_INTERFACE) == ClassMakerConstants.ACC_INTERFACE) {
             checker.checkInterfaceModifiers(modifiers);
-            // Interface always has modifiers ACC_PUBLIC, ACC_INTERFACE and ACC_ABSTRACT
-            classModifiers = MASK_INTERFACE;
+            // Interface always has modifiers ACC_INTERFACE and ACC_ABSTRACT
+            classModifiers = ACC_INTERFACE | ACC_ABSTRACT;
         } else {
             checker.checkClassModifiers(modifiers);
             classModifiers = modifiers;
@@ -1030,8 +1047,9 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
      */
     public ClassType classToClassType(Class javaClass) throws ClassMakerException {
         Type type = getFactory().classToType(javaClass);
-        if (type.toClass() != null)
+        if (type.toClass() != null) {
             return type.toClass();
+        }
         throw createException("ClassMaker.NotAClass_1", javaClass.getSimpleName());
     }
 

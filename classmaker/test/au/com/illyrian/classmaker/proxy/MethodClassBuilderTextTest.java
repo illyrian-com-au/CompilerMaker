@@ -11,6 +11,7 @@ import au.com.illyrian.classmaker.ClassMakerText;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.members.MakerMethod;
 import au.com.illyrian.classmaker.types.ClassType;
+import au.com.illyrian.classmaker.types.Type;
 
 public class MethodClassBuilderTextTest extends TestCase {
     
@@ -25,14 +26,13 @@ public class MethodClassBuilderTextTest extends TestCase {
         ClassMakerText maker = new ClassMakerText();
         MethodClassBuilder builder = new MethodClassBuilder(maker);
         ClassType iface = factory.classToType(TestInterface.class).toClass();
-        MakerMethod method = iface.getMethods("processFile")[0];
-        builder.withInterface(iface);
-        builder.withMethod(method);;
+        builder.withInterface(iface, "processFile");
         builder.beginClass();
         LineNumberReader output = getReader(maker.toString());
         assertEquals("setSimpleClassName(\"TestInterface$ProcessFile\");", output.readLine());
         assertEquals("setPackageName(\"au.com.illyrian.classmaker.proxy\");", output.readLine());
         assertEquals("Implements(\"au.com.illyrian.classmaker.proxy.TestInterface\");", output.readLine());
+        assertEquals("Implements(\"au.com.illyrian.classmaker.proxy.MethodClassBuilder$Apply\");", output.readLine());
         assertNull("More output to be read", output.readLine());
     }
 
@@ -41,8 +41,7 @@ public class MethodClassBuilderTextTest extends TestCase {
         MethodClassBuilder builder = new MethodClassBuilder(maker);
         ClassType iface = factory.classToType(TestInterface.class).toClass();
         MakerMethod method = iface.getMethods("processFile")[0];
-        builder.withInterface(iface);
-        builder.withMethod(method);
+        builder.withInterface(iface, method);
         String [] fieldNames = builder.createFieldNames("m", 1);
         builder.declareFields(method, fieldNames); // FIXME
         LineNumberReader output = getReader(maker.toString());
@@ -81,8 +80,7 @@ public class MethodClassBuilderTextTest extends TestCase {
         MethodClassBuilder builder = new MethodClassBuilder(maker);
         ClassType iface = factory.classToType(TestInterface.class).toClass();
         MakerMethod method = iface.getMethods("processFile")[0];
-        builder.withInterface(iface);
-        builder.withMethod(method);
+        builder.withInterface(iface, method);
         int len = method.getFormalTypes().length;
         String [] memberNames = builder.createFieldNames("p", len);
         builder.createMethod(method, memberNames);
@@ -120,11 +118,11 @@ public class MethodClassBuilderTextTest extends TestCase {
         ClassMakerText maker = new ClassMakerText();
         MethodClassBuilder builder = new MethodClassBuilder(maker);
         String [] none = {};
-        builder.createToString("foobar", none, ClassMakerFactory.VOID_TYPE);
+        builder.createToString("foobar", none, new Type[0], ClassMakerFactory.VOID_TYPE);
         LineNumberReader output = getReader(maker.toString());
         assertEquals("Method(\"toString\", \"java.lang.String\", ACC_PUBLIC)", output.readLine());
         assertEquals("  Begin();", output.readLine());
-        assertEquals("  Return(Call(Call(Call(Call(New(java.lang.StringBuffer).Init(null), "
+        assertEquals("  Return(Call(Call(Call(Call(New(java.lang.StringBuilder).Init(null), "
                 + "\"append\", Push(Literal(\"foobar\"))), \"append\", Push(Literal(\"(\"))), "
                 + "\"append\", Push(Literal(\")\"))), \"toString\", Push()));", output.readLine());
         assertEquals("  End();", output.readLine());
@@ -135,11 +133,12 @@ public class MethodClassBuilderTextTest extends TestCase {
         ClassMakerText maker = new ClassMakerText();
         MethodClassBuilder builder = new MethodClassBuilder(maker);
         String [] fieldNames = {"a", "b"};
-        builder.createToString("foobar", fieldNames, ClassMakerFactory.VOID_TYPE);
+        Type [] fieldTypes = {maker.findType("int"), maker.findType("int")};
+        builder.createToString("foobar", fieldNames, fieldTypes, ClassMakerFactory.VOID_TYPE);
         LineNumberReader output = getReader(maker.toString());
         assertEquals("Method(\"toString\", \"java.lang.String\", ACC_PUBLIC)", output.readLine());
         assertEquals("  Begin();", output.readLine());
-        assertEquals("  Return(Call(Call(Call(Call(Call(Call(Call(New(java.lang.StringBuffer).Init(null), "
+        assertEquals("  Return(Call(Call(Call(Call(Call(Call(Call(New(java.lang.StringBuilder).Init(null), "
                 + "\"append\", Push(Literal(\"foobar\"))), \"append\", Push(Literal(\"(\"))), "
                 + "\"append\", Push(Get(This(), \"a\"))), \"append\", Push(Literal(\", \"))), \"append\", Push(Get(This(), \"b\"))), "
                 + "\"append\", Push(Literal(\")\"))), \"toString\", Push()));", output.readLine());

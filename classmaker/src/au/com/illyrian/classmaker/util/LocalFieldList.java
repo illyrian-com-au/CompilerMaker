@@ -1,6 +1,5 @@
 package au.com.illyrian.classmaker.util;
 
-import java.util.List;
 import java.util.Vector;
 
 import au.com.illyrian.classmaker.ClassGenerator;
@@ -10,7 +9,7 @@ import au.com.illyrian.classmaker.types.Type;
 
 public class LocalFieldList {
 
-    private final ClassGenerator gen;
+    //private final ClassGenerator gen;
 
     /** A list of local variables in the class being generated. */
     private Vector<MakerField> localTable = new Vector<MakerField>();
@@ -18,13 +17,13 @@ public class LocalFieldList {
     private short maxLocalSlots = 0; 
     
     public LocalFieldList(ClassGenerator generator) {
-        gen = generator;
+   //     gen = generator;
     }
     
-    public ClassGenerator getGen() { // FIXME remove
-        return gen;
-    }
-    
+//    public ClassGenerator getGen() { // FIXME remove
+//   //     return gen;
+//    }
+//    
     public MakerField [] getMakerFields() {
         return localTable.toArray(ClassMakerFactory.FIELD_ARRAY);
     }

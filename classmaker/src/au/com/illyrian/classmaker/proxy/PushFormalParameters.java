@@ -5,6 +5,7 @@ import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.members.MakerMethod;
+import au.com.illyrian.classmaker.types.Type;
 
 public class PushFormalParameters implements Visitor<MakerMethod> {
     public static final String RETURN_VAR = "$0";
@@ -20,8 +21,9 @@ public class PushFormalParameters implements Visitor<MakerMethod> {
         return maker;
     }
     
-    public void visit(MakerMethod method) {
+    public Type visit(MakerMethod method) {
         pushParams(method.getFormalFields());
+        return null;
     }
     
     public CallStack pushParams(MakerField [] params) {

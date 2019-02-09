@@ -1,5 +1,7 @@
 package au.com.illyrian.classmaker.proxy;
 
+import au.com.illyrian.classmaker.types.Type;
+
 public interface Visitor<T> {
-    void visit(T element);
+    Type visit(T element);
 }

@@ -4,6 +4,7 @@ import au.com.illyrian.classmaker.CallStack;
 import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerIfc;
+import au.com.illyrian.classmaker.members.MakerField;
 import au.com.illyrian.classmaker.members.MakerMethod;
 import au.com.illyrian.classmaker.types.ClassType;
 import au.com.illyrian.classmaker.types.Type;
@@ -22,8 +23,11 @@ public class MethodClassBuilder {
     protected final ClassMakerIfc maker;
     ClassType iface;
     MakerMethod method;
-    boolean isVoid = false; // FIXME
     String [] memberNames = null;
+    
+    static public interface Apply<T> {
+        void apply(T ref);
+    }
 
     public MethodClassBuilder(ClassMakerIfc maker) {
         this.maker = maker;
@@ -38,6 +42,33 @@ public class MethodClassBuilder {
             throw new NullPointerException("interface has not been set");
         }
         return iface;
+    }
+
+    public MethodClassBuilder withInterface(ClassType iface, MakerMethod method) {
+        this.iface = iface;
+        this.method = method;
+        return this;
+    }
+
+    public MethodClassBuilder withInterface(ClassType iface, String methodName) {
+        MakerMethod[] methods = iface.getMethods(methodName);
+        if (methods.length == 1) {
+            withInterface(iface, methods[0]);
+        } else {
+            throw new IllegalArgumentException("More than one method called: " + methodName);
+        }
+        return this;
+    }
+
+    public MethodClassBuilder withInterface(Class iface, String methodName) {
+        if (iface.isInterface()) {
+            String typeName = iface.getName();
+            Type type = maker.findType(typeName);
+            if (Type.isClass(type)) {
+                return withInterface(type.toClass(), methodName);
+            }
+        }
+        throw new IllegalArgumentException("Must be an interface: " + iface.getName());
     }
 
     public MethodClassBuilder withInterface(ClassType iface) {
@@ -90,6 +121,7 @@ public class MethodClassBuilder {
         maker.setSimpleClassName(getSimpleName());
         maker.setPackageName(getInterface().getPackageName());
         maker.Implements(getInterface());
+        maker.Implements(Apply.class);
     }
     
     public void declareFields(MakerMethod method, String [] names) {
@@ -102,6 +134,17 @@ public class MethodClassBuilder {
         for (Type type : method.getFormalTypes()) {
             maker.Declare(names[i++], type, ClassMakerConstants.ACC_PRIVATE);
         }
+    }
+    
+    public MakerField [] createNamedFields(MakerMethod method, String prefix) {
+        int len = method.getFormalTypes().length;
+        MakerField [] fields = new MakerField[len];
+        int i = 0;
+        for (Type type : method.getFormalTypes()) {
+            MakerField field = new MakerField(prefix + i, type, 0);
+            fields[i++] = field;
+        }
+        return fields;
     }
     
     public void methodBegin(MakerMethod method, String [] names) {
@@ -206,17 +249,28 @@ public class MethodClassBuilder {
         maker.End();
     }
     
-    void createToString(String methodName, String [] fieldNames, Type resultType) {
+    void createQuote(StringMakerBuilder builder, String fieldName, Type fieldType) {
+        if (fieldType.equals(ClassMakerFactory.STRING_TYPE)) {
+            maker.If(maker.NE(maker.Get(maker.This(), fieldName), maker.Null()));
+            {
+                builder.append(maker.Literal('\"'));
+            }
+            maker.EndIf();
+        }
+    }
+    
+    void createToString(String methodName, String [] fieldNames, Type [] fieldTypes, Type resultType) {
         maker.Method("toString", String.class, ClassMakerConstants.ACC_PUBLIC);
         maker.Begin();
         StringMakerBuilder builder = new StringMakerBuilder(maker);
         builder.append(methodName).append("(");
-        int i=0;
-        for (String field : fieldNames) {
-            if (i++ > 0) {
+        for (int i=0; i<fieldNames.length; i++) {
+            if (i > 0) {
                 builder.append(", ");
             }
-            builder.append(maker.Get(maker.This(), field));
+            createQuote(builder, fieldNames[i], fieldTypes[i]);
+            builder.append(maker.Get(maker.This(), fieldNames[i]));
+            createQuote(builder, fieldNames[i], fieldTypes[i]);
         }
         builder.append(")");
         maker.Return(builder.build());
@@ -225,9 +279,10 @@ public class MethodClassBuilder {
 
     public void build() {
         memberNames = createFieldNames(MEMBER_PREFIX, method.getFormalTypes().length);
+        beginClass();
         declareFields(method, memberNames);
         createMethod(method, memberNames);
-        createToString(method.getName(), memberNames, method.getReturnType());
+        createToString(method.getName(), memberNames, method.getFormalTypes(), method.getReturnType());
         createProperty(MEMBER_REF, getInterface());
         createApply(getInterface(), method, memberNames);
         createApplyBridge(getInterface(), method, memberNames);

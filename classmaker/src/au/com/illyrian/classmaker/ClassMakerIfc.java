@@ -44,10 +44,38 @@ public interface ClassMakerIfc
      * The generated class extends the given class.
      * </br>
      * This version takes a <code>String</code> and can be used to extend other generated classes.
+     * @param javaClass
+     *            the <code>Class<code> of the implemented interface
+     * @throws ClassMakerException if it is too late to call this method
+     */
+    public void Extends(Class javaClass) throws ClassMakerException;
+
+    /**
+     * The generated class extends the given class.
+     * </br>
+     * This version takes a <code>String</code> and can be used to extend other generated classes.
+     * @param classType the ClassType to be implemented
+     * @throws ClassMakerException if it is too late to call this method
+     */
+    public void Extends(ClassType classType) throws ClassMakerException;
+
+    /**
+     * The generated class extends the given class.
+     * </br>
+     * This version takes a <code>String</code> and can be used to extend other generated classes.
      * @param className the name of the class that the generated class extends
      * @throws ClassMakerException if it is too late to call this method
      */
     public void Extends(String className) throws ClassMakerException;
+
+    /**
+     * Indicates that the class implements the interface represented by the
+     * given <code>Class</code>.
+     * 
+     * @param javaClass
+     *            the <code>Class<code> of the implemented interface
+     */
+    public void Implements(Class javaClass) throws ClassMakerException;
 
     /**
      * Indicates that the class implements the named interface.
@@ -1581,4 +1609,10 @@ public interface ClassMakerIfc
      * This method is automatically called when the class is defined.
      */
     public void EndClass() throws ClassMakerException;
+    
+    /**
+     * Creates a new ClassMaker instance using the same factory
+     * @return a new instance of ClassMaker
+     */
+    public ClassMakerIfc createClassMaker();
 }

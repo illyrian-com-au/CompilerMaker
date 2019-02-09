@@ -29,6 +29,10 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         typeMap.put("expect()", ClassMakerFactory.STRING_TYPE);
     }
     
+    public ClassMakerIfc createClassMaker() {
+        return new ClassMakerText();
+    }
+    
     @Override
     public void setSourceLine(SourceLine source) {
     }
@@ -54,6 +58,16 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     }
 
     @Override
+    public void Extends(Class javaClass) throws ClassMakerException {
+        println("Extends(\"" + javaClass.getName() + "\");");
+    }
+
+    @Override
+    public void Extends(ClassType classType) throws ClassMakerException {
+        println("Extends(\"" + classType.getName() + "\");");
+    }
+
+    @Override
     public void Extends(String className) throws ClassMakerException {
         println("Extends(\"" + className + "\");");
     }
@@ -66,6 +80,11 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     @Override
     public void Implements(ClassType classType) throws ClassMakerException {
         println("Implements(\"" + classType.getName() + "\");");
+    }
+
+    @Override
+    public void Implements(Class javaClass) throws ClassMakerException {
+        println("Implements(\"" + javaClass.getName() + "\");");
     }
 
     @Override
@@ -326,6 +345,8 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
         else if (typeName.endsWith("String"))
             return ClassMakerFactory.STRING_TYPE;
         else if (typeName.endsWith("StringBuffer"))
+            return ClassMakerFactory.STRING_BUFFER_TYPE;
+        else if (typeName.endsWith("StringBuilder"))
             return ClassMakerFactory.STRING_BUFFER_TYPE;
         else if (typeName.equals("int"))
             return ClassMakerFactory.INT_TYPE;
@@ -1107,4 +1128,5 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     public void EndClass() throws ClassMakerException
     {
     }
+
 }

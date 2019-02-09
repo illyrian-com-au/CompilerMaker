@@ -4,6 +4,7 @@ import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.members.MakerMethod;
 import au.com.illyrian.classmaker.members.MakerMethodCollector;
 import au.com.illyrian.classmaker.types.ClassType;
+import au.com.illyrian.classmaker.types.Type;
 
 public class ImplementInterface implements Visitor<ClassType> {
     public static final String RETURN_VAR = "$0";
@@ -25,15 +26,15 @@ public class ImplementInterface implements Visitor<ClassType> {
         visit(classType);
     }
     
-    public void visit(ClassType classType) {
-        maker.Implements(classType.getName()); // FIXME Implements(ClassType)
+    public Type visit(ClassType classType) {
+        maker.Implements(classType);
         implementMethods(classType);
+        return null;
     }
     
     public void implementMethods(ClassType classType) {
-        MakerMethodCollector methods = new MakerMethodCollector();
-        methods.includeInterfaceMethods(classType);
-        for (MakerMethod method : methods.toArray()) {
+        MakerMethod [] methods = classType.getDeclaredMethods();
+        for (MakerMethod method : methods) {
             visitMethod(method);
         }
     }

@@ -8,12 +8,13 @@ import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.members.MakerMethod;
 import au.com.illyrian.classmaker.types.ClassType;
+import au.com.illyrian.classmaker.types.Type;
 
-public class DeclareMethodTest extends TestCase {
+public class ImplementMethodTest extends TestCase {
 
     ClassMakerFactory factory = new ClassMakerFactory();
     ClassMaker maker;
-    DeclareMethod impl;
+    ImplementMethod impl;
     
     Vector<MakerMethod> methodList = new Vector<>();
     
@@ -21,17 +22,19 @@ public class DeclareMethodTest extends TestCase {
     public void setUp() {
         maker = factory.createClassMaker();
         maker.setClassModifiers(ClassMakerConstants.ACC_PUBLIC);
-        maker.setSimpleClassName("au.com.illyrian.classmaker.proxy.TestProxy");
+        maker.setPackageName(getClass().getPackage().getName());
+        maker.setSimpleClassName("TestProxy");
         
         Visitor<MakerMethod> visitor = createListVisitor();
-        impl = new DeclareMethod(maker, visitor);
+        impl = new ImplementMethod(maker, visitor);
     }
     
     Visitor<MakerMethod> createListVisitor() {
         return new Visitor<MakerMethod>() {
             @Override
-            public void visit(MakerMethod element) {
+            public Type visit(MakerMethod element) {
                 methodList.add(element);
+                return null;
             }
         };
     }
@@ -87,10 +90,22 @@ public class DeclareMethodTest extends TestCase {
         visitor.visit(iface);
 
         Class<?> genClass = maker.defineClass();
+        assertEquals("Number of methods", 3, methodList.size());
+        assertEquals("public abstract void processFile(java.lang.String)", find("processFile").toString());
+        assertEquals("public abstract void setCharacteristics(java.lang.String, int, float, boolean)", find("setCharacteristics").toString());
+        assertEquals("public abstract void incrementCounter(int)", find("incrementCounter").toString());
         TestInterface obj = (TestInterface)genClass.newInstance();
         obj.incrementCounter(1);
         obj.processFile("fred.txt");
         obj.setCharacteristics("Wilber", 45, 1.85f, true);
     }
 
+    private MakerMethod find(String name) {
+        for (MakerMethod method : methodList) {
+            if (method.getName().equals(name)) {
+                return method;
+            }
+        }
+        return null;
+    }
 }

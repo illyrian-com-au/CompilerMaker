@@ -97,7 +97,7 @@ public class ClassMakerFactory
     /** Reference to <code>String</code> type */
     public static final ClassType STRING_TYPE = new ClassType(String.class);
     /** Reference to <code>StringBuffer</code> type */
-    public static final ClassType STRING_BUFFER_TYPE = new ClassType(StringBuffer.class);
+    public static final ClassType STRING_BUFFER_TYPE = new ClassType(StringBuilder.class);
     /** Reference to <code>Cloneable</code> type */
     public static final ClassType CLONEABLE_TYPE = new ClassType(Cloneable.class);
     /** Reference to <code>Throwable</code> type */

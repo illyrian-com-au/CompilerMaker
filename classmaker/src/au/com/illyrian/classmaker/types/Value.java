@@ -29,6 +29,6 @@ public class Value
     }
     
     public String toString() {
-        return type.toString();
+        return "Value(" + getName() + ")";
     }
 }

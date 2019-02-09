@@ -7,14 +7,14 @@ import au.com.illyrian.classmaker.members.MakerMethod;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
 
-public class DeclareMethod implements Visitor<MakerMethod> {
+public class ImplementMethod implements Visitor<MakerMethod> {
     public static final String RETURN_VAR = "$0";
     public static final int ABSTRACT_MASK = ~ClassMakerConstants.ACC_ABSTRACT;
 
     protected final ClassMaker maker;
     private final Visitor<MakerMethod> visitor;
 
-    public DeclareMethod(ClassMaker maker, Visitor<MakerMethod> visitor) {
+    public ImplementMethod(ClassMaker maker, Visitor<MakerMethod> visitor) {
         this.maker = maker;
         this.visitor = visitor;
     }
@@ -23,17 +23,19 @@ public class DeclareMethod implements Visitor<MakerMethod> {
         return maker;
     }
     
-    public void visit(MakerMethod method) {
+    public Type visit(MakerMethod method) {
+        methodDeclare(method);
         methodBegin(method);
         methodBody(method);
         methodEnd(method);
+        return null;
     }
 
     public String param(int i) {
         return "$" + i;
     }
     
-    public void methodBegin(MakerMethod method) {
+    public void methodDeclare(MakerMethod method) {
         int modifiers = method.getModifiers() & ABSTRACT_MASK;
         maker.Method(method.getName(), method.getReturnType(), modifiers);
         // Declare the formal parameters.
@@ -41,6 +43,9 @@ public class DeclareMethod implements Visitor<MakerMethod> {
         for (Type type : method.getFormalTypes()) {
             maker.Declare(param(++i), type, 0);
         }
+    }
+    
+    public void methodBegin(MakerMethod method) {
         maker.Begin();
         // Declare a local variable for the return value.
         if (!ClassMakerFactory.VOID_TYPE.equals(method.getReturnType())) {
@@ -49,7 +54,10 @@ public class DeclareMethod implements Visitor<MakerMethod> {
     }
     
     public void methodBody(MakerMethod method) {
-        visitor.visit(method);
+        Type type = visitor.visit(method);
+        if (type != null) {
+            methodResult(type.getValue());
+        }
     }
     
     public void methodResult(Value result) {
