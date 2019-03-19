@@ -3,11 +3,11 @@ package au.com.illyrian.bnf.maker;
 import java.io.File;
 import java.util.Vector;
 
-import au.com.illyrian.bnf.BnfParser;
 import au.com.illyrian.bnf.ast.BnfTree;
 import au.com.illyrian.bnf.ast.BnfTreeBinary;
 import au.com.illyrian.bnf.ast.BnfTreeParser;
 import au.com.illyrian.bnf.ast.BnfTreeRule;
+import au.com.illyrian.bnf.parser.BnfParser;
 import au.com.illyrian.parser.impl.ModuleContext;
 
 public class BnfLineNumberTest extends BnfMakerTextBase

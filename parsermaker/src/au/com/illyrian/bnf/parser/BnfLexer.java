@@ -1,4 +1,4 @@
-package au.com.illyrian.bnf;
+package au.com.illyrian.bnf.parser;
 
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.impl.Latin1Lexer;

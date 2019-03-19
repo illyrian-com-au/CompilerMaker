@@ -6,6 +6,7 @@ import java.io.StringWriter;
 
 import junit.framework.TestCase;
 import au.com.illyrian.bnf.ast.BnfTree;
+import au.com.illyrian.bnf.parser.BnfParser;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.LexerInputStream;
@@ -39,7 +40,6 @@ public class BnfParserActionTest extends TestCase
         
         BnfParser parser = new BnfParser();
         compile.visit(parser);
-        parser.getFactory();  // FIXME parser does not call getFactory()
         parser.nextToken();
         BnfTree tree = parser.rule_action();
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());

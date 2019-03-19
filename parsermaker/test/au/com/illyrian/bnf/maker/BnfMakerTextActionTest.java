@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Map;
 
-import au.com.illyrian.bnf.BnfParser;
 import au.com.illyrian.bnf.ast.BnfTreeFactory;
 import au.com.illyrian.bnf.ast.BnfTreeParser;
 import au.com.illyrian.bnf.ast.BnfTreeRule;
+import au.com.illyrian.bnf.parser.BnfParser;
 import au.com.illyrian.classmaker.ClassMakerText;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.jesub.ast.AstStructure;

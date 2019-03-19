@@ -1,4 +1,4 @@
-package au.com.illyrian.bnf;
+package au.com.illyrian.bnf.parser;
 
 import au.com.illyrian.parser.Token;
 import au.com.illyrian.parser.TokenType;

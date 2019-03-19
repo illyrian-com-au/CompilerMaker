@@ -1,6 +1,6 @@
 package au.com.illyrian.bnf.maker;
 
-import au.com.illyrian.bnf.BnfParserToken;
+import au.com.illyrian.bnf.parser.BnfParserToken;
 import au.com.illyrian.jesub.ast.AstStructure;
 import au.com.illyrian.jesub.ast.AstStructureFactory;
 import au.com.illyrian.parser.CompilerContext;

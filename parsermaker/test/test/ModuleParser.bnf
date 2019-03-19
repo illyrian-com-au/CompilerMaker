@@ -57,9 +57,11 @@ class_declaration:AstStructure
                   |   modifier_mult error("Expected modifiers followed by class or interface") 
                   |   modifier_mult CLASS name extends_opt implements_opt 
                            error("A class name should be followed by extends or implements and a class body")
-                  |   modifier_mult INTERFACE name extends_opt implements_opt 
+                  |   modifier_mult INTERFACE name extends_opt 
                            error("An interface name should be followed by extends and an interface body")
                   ;
                  
-goal:AstStructure ::= package_opt import_opt class_declaration { ast.Module($1, $2, $3) } ;
+module_declaration:AstStructure ::= package_opt import_opt class_declaration { ast.Module($1, $2, $3) } ;
+
+goal:AstStructure ::= module_declaration ;
 }

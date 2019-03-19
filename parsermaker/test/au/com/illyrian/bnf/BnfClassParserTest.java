@@ -32,7 +32,7 @@ public class BnfClassParserTest extends TestCase
 
     public void testSimpleClassParser() throws Exception
     {
-        out.println("import au.com.illyrian.bnf.BnfParser;");
+        out.println("import au.com.illyrian.bnf.parser.BnfParser;");
         out.println("public class BnfParseTest");
         out.println("BnfParser::{");
         out.println("   test ::= the quick brown fox;");
@@ -50,7 +50,7 @@ public class BnfClassParserTest extends TestCase
         Object output = compile.parseModule();
         assertEquals("token", TokenType.END, parser.getLexer().nextToken());
         
-        String expect = "import au.com.illyrian.bnf.BnfParser;\n"
+        String expect = "import au.com.illyrian.bnf.parser.BnfParser;\n"
                 + "public class BnfParseTest {\n"
                 + "test ::= the quick brown fox . ;\n"
                 + "}";

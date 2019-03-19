@@ -14,7 +14,7 @@ import au.com.illyrian.parser.ParserException;
 
 public class ModuleContext implements CompilerContext
 {
-
+    private String source;
     private Input input = null;
     private InvokeParser invokerParser = null;
     private ModuleParser moduleParser = null;
@@ -23,6 +23,10 @@ public class ModuleContext implements CompilerContext
     public ModuleContext()
     {
         super();
+    }
+
+    public String getSource() {
+        return source;
     }
 
     public Input getInput()
@@ -39,24 +43,27 @@ public class ModuleContext implements CompilerContext
 
     public void setInput(File file, String source) throws IOException
     {
+        this.source = source;
         Input input = new LexerInputStream(file, source);
-
         this.input = input;
     }
 
     public void setInputReader(Reader reader, String filename) throws IOException
     {
+        this.source = filename;
         setInput(new LexerInputStream(reader, filename));
     }
 
     public void setInputFile(File sourceFile, String sourcePath) throws IOException
     {
+        this.source = sourcePath;
         Reader reader = new FileReader(sourceFile);
         setInputReader(reader, sourcePath);
     }
 
     public void setInputString(String string, String sourceName) throws IOException
     {
+        this.source = sourceName;
         Reader reader = new StringReader(string);
         setInputReader(reader, sourceName);
     }

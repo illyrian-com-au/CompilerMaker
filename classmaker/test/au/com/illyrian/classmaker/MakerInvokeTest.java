@@ -347,6 +347,21 @@ public class MakerInvokeTest extends ClassMakerTestCase implements ByteCode
         assertEquals("Wrong class name", "au.com.illyrian.classmaker.ClassMakerIfc", declared2.getName());
     }
 
+    public void testImportStar() throws Exception {
+        assertNull("Date", maker.findImportedStar("Date"));
+        maker.ImportStar("java.util");
+        assertNotNull("Date not imported", maker.findImportedStar("Date"));
+        assertEquals("ClassType(java.util.Date)", maker.findImportedStar("Date").toString());
+
+        maker.ImportStar("java.sql");
+        try {
+            maker.findImportedStar("Date");
+            fail("Should throw ClassMakerException");
+        } catch (ClassMakerException ex) {
+            assertEquals("'Date' is ambiguous; must use the fully qualified class name", ex.getMessage());
+        }
+    }
+
     public void testImport() throws Exception
     {
         try {

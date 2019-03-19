@@ -12,6 +12,7 @@ import au.com.illyrian.bnf.ast.BnfFirstSet;
 import au.com.illyrian.bnf.ast.BnfTree;
 import au.com.illyrian.bnf.ast.BnfTreeParser;
 import au.com.illyrian.bnf.ast.BnfTreeRule;
+import au.com.illyrian.bnf.parser.BnfParser;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.LexerInputStream;

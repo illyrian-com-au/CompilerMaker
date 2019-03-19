@@ -1,4 +1,4 @@
-package au.com.illyrian.bnf;
+package au.com.illyrian.bnf.parser;
 
 import au.com.illyrian.bnf.ast.BnfFirstVisitor;
 import au.com.illyrian.bnf.ast.BnfMergeVisitor;
@@ -36,8 +36,7 @@ public class BnfParser extends AstExpressionPrecidenceParser
     public BnfTreeFactory getFactory()
     {
         if (factory == null) {
-            factory = new BnfTreeFactory(this);
-            this.setAstExpressionFactory(factory);
+            setFactory(new BnfTreeFactory(this));
         }
         return factory;
     }
@@ -45,6 +44,7 @@ public class BnfParser extends AstExpressionPrecidenceParser
     public void setFactory(BnfTreeFactory factory)
     {
         this.factory = factory;
+        this.setAstExpressionFactory(factory);
     }
     
     public int getLineNumber() {
@@ -227,9 +227,9 @@ public class BnfParser extends AstExpressionPrecidenceParser
      */
     public BnfTree rule_action()
     {
+        // Instantiate the factory prior to evaluating expression.
         getFactory();
         expect(BnfToken.BEGIN);
-        int lineNo = getLineNumber();
         AstExpression expr = expression();
         BnfTreeAction action = getFactory().Action(expr); // Must return the start of the expression
         expect(BnfToken.END);

@@ -6,7 +6,7 @@ import java.io.StringWriter;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import au.com.illyrian.bnf.BnfParser;
+import au.com.illyrian.bnf.parser.BnfParser;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.impl.LexerInputStream;

@@ -2,7 +2,6 @@ package au.com.illyrian.bnf.maker;
 
 import java.util.Map;
 
-import au.com.illyrian.bnf.BnfParser;
 import au.com.illyrian.bnf.ast.BnfFirstSet;
 import au.com.illyrian.bnf.ast.BnfFirstVisitor;
 import au.com.illyrian.bnf.ast.BnfTree;
@@ -11,6 +10,7 @@ import au.com.illyrian.bnf.ast.BnfTreeMethodCall;
 import au.com.illyrian.bnf.ast.BnfTreeName;
 import au.com.illyrian.bnf.ast.BnfTreeParser;
 import au.com.illyrian.bnf.ast.BnfTreeRule;
+import au.com.illyrian.bnf.parser.BnfParser;
 import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.ClassMakerText;
 import au.com.illyrian.parser.Input;

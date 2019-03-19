@@ -237,7 +237,7 @@ public class ModuleParser extends ParserBase implements ParseModule
     */
    public Object dec_class()
    {
-	   Object result = null;
+       Object result = null;
        if (getTokenType() == TokenType.IDENTIFIER)
        {
            Object parseName = classname();

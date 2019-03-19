@@ -146,12 +146,8 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveImport(AstExpressionLink link)
     {
-        if (link != null) {
-            if (link.left != null)
-                link.left.resolveImport(this);
-            if (link.right != null)
-                link.right.resolveImport(this);
-        }
+        link.left.resolveImport(this);
+        link.right.resolveImport(this);
     }
 
     public void resolveImport(AstExpression className)
@@ -168,12 +164,8 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveImplements(AstExpressionLink link)
     {
-        if (link != null) {
-            if (link.left != null)
-                link.left.resolveImplements(this);
-            if (link.right != null)
-                link.right.resolveImplements(this);
-        }
+        link.left.resolveImplements(this);
+        link.right.resolveImplements(this);
     }
 
     public void resolveImplements(AstExpression className)
@@ -205,12 +197,8 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveDeclaration(AstStructureLink link)
     {
-        if (link != null) {
-            if (link.left != null)
-                link.left.resolveDeclaration(this);
-            if (link.right != null)
-                link.right.resolveDeclaration(this);
-        }
+        link.left.resolveDeclaration(this);
+        link.right.resolveDeclaration(this);
     }
 
     public void resolveDeclaration(AstDeclareVariable member)
@@ -253,12 +241,8 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
     public void resolveStatement(AstStructureLink link)
     {
-        if (link != null) {
-            if (link.left != null)
-                link.left.resolveStatement(this);
-            if (link.right != null)
-                link.right.resolveStatement(this);
-        }
+        link.left.resolveStatement(this);
+        link.right.resolveStatement(this);
     }
 
     public void resolveStatement(AstStatementReserved statement)

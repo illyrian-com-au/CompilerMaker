@@ -5,7 +5,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import junit.framework.TestCase;
-import au.com.illyrian.bnf.BnfParser;
+import au.com.illyrian.bnf.parser.BnfParser;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;

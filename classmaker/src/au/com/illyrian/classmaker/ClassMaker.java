@@ -193,6 +193,8 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
      * class being generated.
      */
     private HashMap<String, ClassType> importMap = new HashMap<String, ClassType>();
+    /** A list of packages to search for imported classes. */
+    private Vector<String>importStar = new Vector<String>();
     /** A reference to the method currently being generated. */
     private MakerMethod method = null;
     /** Has the class declared a constructor. */
@@ -1011,11 +1013,25 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
      *             if the class does not exist
      */
     public void Import(String className) throws ClassMakerException {
-        ClassType importedType = importMap.get(MakerUtil.toDotName(className));
-        if (importedType == null) {
-            importedType = stringToClassType(MakerUtil.toDotName(className));
-            addClassTypeAlias(importedType);
+        if (className.endsWith(".*")) {
+            String packageName = className.substring(0, className.length()-2);
+            ImportStar(packageName);
+        } else {
+            ClassType importedType = importMap.get(MakerUtil.toDotName(className));
+            if (importedType == null) {
+                importedType = stringToClassType(MakerUtil.toDotName(className));
+                addClassTypeAlias(importedType);
+            }
         }
+    }
+
+    /**
+     * Imports all classes in the package.
+     * 
+     * @param packageName the name of a package
+     */
+    public void ImportStar(String packageName) throws ClassMakerException {
+        importStar.add(packageName);
     }
 
     /**
@@ -1052,37 +1068,6 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
         }
         throw createException("ClassMaker.NotAClass_1", javaClass.getSimpleName());
     }
-
-    /**
-     * Finds a <code>ClassType</code> given a simple or fully qualified class
-     * name.
-     * </br>
-     * Aliases are created by the <code>Import</code> method.
-     * The simple class name is an alias for the fully qualified class name.
-     * Aliases are stored locally in the <code>ClassMaker</code> instance.
-     * </br>
-     * A fully qualified class name must be used if two classes are imported
-     * with the same
-     * simple name, e.g. java.util.Date and java.sql.Date.
-     * 
-     * @param className
-     *            the simple or fully qualified class name
-     * @return the <code>ClassType</code> corresponding to the name
-     * @throws ClassMakerException
-     *             if a fully qualified class name must be used
-     */
-    ClassType getImported(String className) throws ClassMakerException {
-        ClassType classType = importMap.get(MakerUtil.toDotName(className));
-        if (classType == null) {
-            return null;
-        }
-        // The alias map uses NULL_TYPE if more than one class with the same simple class name has been imported.
-        if (ClassMakerFactory.NULL_TYPE.equals(classType)) {
-            throw createException("ClassMaker.MustUseFullyQualifiedClassName_1", className);
-        }
-        return classType;
-    }
-
     /**
      * Allows a <code>ClassType</code> to be found using the short class name.
      * </br>
@@ -2447,72 +2432,6 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
     }
 
     /**
-     * Converts a class name to a <code>ClassType</code>.
-     * </br>
-     * An existing <code>ClassType</code> is returned if the java class has been
-     * used previously.
-     * A simple class name will be successful if the class was previously
-     * imported. <code>Type</code>s are cached in the shared
-     * <code>ClassMakerFactory</code>.
-     * 
-     * @param className
-     *            the short or fully qualified name of the <code>Class</code>
-     * @return the <code>ClassType</code> associated with the className
-     * @throws ClassMakerException
-     *             if the class does not exist
-     */
-    public ClassType stringToClassType(String className) throws ClassMakerException {
-        Type type = findType(className);
-        if (type == null || type.toClass() == null) {
-            throw createException("ClassMaker.NoClassTypeCalled_1", className);
-        }
-        return type.toClass();
-    }
-
-    /**
-     * Converts a type name to a <code>Type</code>.
-     * </br>
-     * An existing Type is returned if a primitive type is named or the java
-     * class has been used previously.
-     * A simple class name will be successful if the class was imported.
-     * <code>Type</code>s are cached in the shared
-     * <code>ClassMakerFactory</code>.
-     * 
-     * @param typeName
-     *            the simple name or fully qualified name of the type
-     * @return the <code>Type</code> associated with the typeName
-     * @throws ClassMakerException
-     *             if the type does not exist
-     */
-    public Type stringToType(String typeName) throws ClassMakerException {
-        Type type = findType(typeName);
-        if (type == null) {
-            throw createException("ClassMaker.NoTypeCalled_1", typeName);
-        }
-        return type;
-    }
-
-    private Type findPackageType(String className) throws ClassMakerException {
-        Type classType = null;
-        if (packageName != null && !"".equals(packageName)) {
-            String classNameFQ = packageName + "." + className;
-            classType = getFactory().stringToType(classNameFQ);
-        }
-        return classType;
-    }
-
-    Type findImportedType(String className) throws ClassMakerException {
-        ClassType classType = importMap.get(MakerUtil.toDotName(className));
-        if (classType != null) {
-            // The import map uses NULL_TYPE to indicate that more than one class with the same simple class name has been imported.
-            if (ClassMakerFactory.NULL_TYPE.equals(classType)) {
-                throw createException("ClassMaker.MustUseFullyQualifiedClassName_1", className);
-            }
-        }
-        return classType;
-    }
-
-    /**
      * Finds a named field in the given class.
      * </br>
      * Delegates to <code>findMemberField</code> and throws an
@@ -2579,6 +2498,121 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
         return index;
     }
 
+    //##################### Find Types. #####################
+
+    /**
+     * Converts a class name to a <code>ClassType</code>.
+     * </br>
+     * An existing <code>ClassType</code> is returned if the java class has been
+     * used previously.
+     * A simple class name will be successful if the class was previously
+     * imported. <code>Type</code>s are cached in the shared
+     * <code>ClassMakerFactory</code>.
+     * 
+     * @param className
+     *            the short or fully qualified name of the <code>Class</code>
+     * @return the <code>ClassType</code> associated with the className
+     * @throws ClassMakerException
+     *             if the class does not exist
+     */
+    public ClassType stringToClassType(String className) throws ClassMakerException {
+        Type type = findType(className);
+        if (type == null || type.toClass() == null) {
+            throw createException("ClassMaker.NoClassTypeCalled_1", className);
+        }
+        return type.toClass();
+    }
+
+    /**
+     * Converts a type name to a <code>Type</code>.
+     * </br>
+     * An existing Type is returned if a primitive type is named or the java
+     * class has been used previously.
+     * A simple class name will be successful if the class was imported.
+     * <code>Type</code>s are cached in the shared
+     * <code>ClassMakerFactory</code>.
+     * 
+     * @param typeName
+     *            the simple name or fully qualified name of the type
+     * @return the <code>Type</code> associated with the typeName
+     * @throws ClassMakerException
+     *             if the type does not exist
+     */
+    public Type stringToType(String typeName) throws ClassMakerException {
+        Type type = findType(typeName);
+        if (type == null) {
+            throw createException("ClassMaker.NoTypeCalled_1", typeName);
+        }
+        return type;
+    }
+
+    private Type findPackageType(String className) throws ClassMakerException {
+        Type classType = null;
+        if (packageName != null && !"".equals(packageName)) {
+            String classNameFQ = packageName + "." + className;
+            classType = getFactory().stringToType(classNameFQ);
+        }
+        return classType;
+    }
+
+    /**
+     * Finds a <code>ClassType</code> given a simple or fully qualified class
+     * name.
+     * </br>
+     * Aliases are created by the <code>Import</code> method.
+     * The simple class name is an alias for the fully qualified class name.
+     * Aliases are stored locally in the <code>ClassMaker</code> instance.
+     * </br>
+     * A fully qualified class name must be used if two classes are imported
+     * with the same
+     * simple name, e.g. java.util.Date and java.sql.Date.
+     * 
+     * @param className
+     *            the simple or fully qualified class name
+     * @return the <code>ClassType</code> corresponding to the name
+     * @throws ClassMakerException
+     *             if a fully qualified class name must be used
+     */
+    public ClassType findImportedType(String className) throws ClassMakerException {
+        ClassType classType = importMap.get(MakerUtil.toDotName(className));
+        if (classType != null) {
+            // The alias map uses NULL_TYPE if more than one class with the same simple class name has been imported.
+            if (ClassMakerFactory.NULL_TYPE.equals(classType)) {
+                throw createException("ClassMaker.MustUseFullyQualifiedClassName_1", className);
+            }
+        } else {
+            classType = findImportedStar(className);
+        }
+        return classType;
+    }
+
+    /**
+     * Finds a <code>ClassType</code> given a simple class name.
+     * </br>
+     * Default packages to search are added by the <code>ImportStar</code> method.
+     * The simple class name is appended to each package name to find a matching class.
+     * 
+     * @param className the simple name for the class
+     * @return the <code>ClassType</code> corresponding to the name; otherwise null
+     * @throws ClassMakerException if className is found in more than one imported package
+     */
+    public ClassType findImportedStar(String className) throws ClassMakerException {
+        ClassType result = null;
+        for (String packageName : importStar) {
+            String fullyQualifiedName = packageName + '.' + className;
+            Type type = factory.stringToType(fullyQualifiedName);
+            if (type != null && type.toClass() != null) {
+                ClassType classType = type.toClass();
+                if (result == null) {
+                    result = classType;
+                } else {
+                    throw createException("ClassMaker.MustUseFullyQualifiedClassName_1", className);
+                }
+            }
+        }
+        return result;
+    }
+    
     //############### Local variable methods ##################
 
     /**
