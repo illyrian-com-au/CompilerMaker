@@ -323,7 +323,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "z[1].a[(b + 2)][(c - -(7))]", result.toString());
     }
 
-    public void testPerentheses1() throws Exception
+    public void testPerenthesesMinusOperands() throws Exception
     {
         out.println("(3)-2");
         OperatorPrecidenceParser parser = createReferenceParser();
@@ -334,7 +334,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "(3 - 2)", result.toString());
     }
 
-    public void testPerentheses2() throws Exception
+    public void testPerenthesesPlusOperands() throws Exception
     {
         out.println("(3)+2");
         OperatorPrecidenceParser parser = createReferenceParser();
@@ -345,7 +345,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "(3 + 2)", result.toString());
     }
 
-    public void testPerentheses3() throws Exception
+    public void testCastPositiveNumber() throws Exception
     {
         out.println("(byte)+2");
         OperatorPrecidenceParser parser = createReferenceParser();
@@ -356,7 +356,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "cast(byte, 2)", result.toString());
     }
 
-    public void testPerentheses4() throws Exception
+    public void testCastNegativePerenthesesNumber() throws Exception
     {
         out.println("(int)-(2)");
         OperatorPrecidenceParser parser = createReferenceParser();
@@ -367,7 +367,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "cast(int, -(2))", result.toString());
     }
 
-    public void testNew1() throws Exception
+    public void testNewString() throws Exception
     {
         out.println("new String()");
         OperatorPrecidenceParser parser = createReferenceParser();
@@ -378,7 +378,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "new String()", result.toString());
     }
 
-    public void testNew2() throws Exception
+    public void testNewThreadParam() throws Exception
     {
         out.println("new Thread(3)");
         OperatorPrecidenceParser parser = createReferenceParser();
@@ -389,7 +389,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "new Thread(3)", result.toString());
     }
 
-    public void testNew3() throws Exception
+    public void testCastNewThreadParam() throws Exception
     {
         out.println("(Runnable)new Thread(3)");
         OperatorPrecidenceParser parser = createReferenceParser();
@@ -400,7 +400,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "cast(Runnable, new Thread(3))", result.toString());
     }
 
-    public void testString1() throws Exception
+    public void testCastString() throws Exception
     {
         out.println("(String)a");
         OperatorPrecidenceParser parser = createReferenceParser();
@@ -411,7 +411,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "cast(String, a)", result.toString());
     }
 
-    public void testString2() throws Exception
+    public void testCastLiteralString() throws Exception
     {
         out.println("(String)\"Hello world\"");
         OperatorPrecidenceParser parser = createReferenceParser();
@@ -422,7 +422,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "cast(String, \"Hello world\")", result.toString());
     }
 
-    public void testString3() throws Exception
+    public void testCastPerenthesesString() throws Exception
     {
         out.println("(String)(\"Hello\") + \"world\"");
         OperatorPrecidenceParser parser = createReferenceParser();
@@ -433,7 +433,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "(cast(String, \"Hello\") + \"world\")", result.toString());
     }
 
-    public void testBoolean1() throws Exception
+    public void testCastBoolean() throws Exception
     {
         out.println("(boolean)a");
         OperatorPrecidenceParser parser = createReferenceParser();
@@ -444,7 +444,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "cast(boolean, a)", result.toString());
     }
 
-    public void testBoolean2() throws Exception
+    public void testNotIdentifier() throws Exception
     {
         out.println("!a");
         OperatorPrecidenceParser parser = createReferenceParser();
@@ -455,7 +455,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "!(a)", result.toString());
     }
 
-    public void testBoolean3() throws Exception
+    public void testCastBooleanNotIdentifier() throws Exception
     {
         out.println("(boolean)!a");
         OperatorPrecidenceParser parser = createReferenceParser();
@@ -466,7 +466,7 @@ public class CastingPrecidenceParserTest extends TestCase
         assertEquals("Wrong expression", "cast(boolean, !(a))", result.toString());
     }
 
-    public void testBoolean4() throws Exception
+    public void testCastBooleanNotAOrElseB() throws Exception
     {
         out.println("(boolean)!a||b");
         OperatorPrecidenceParser parser = createReferenceParser();

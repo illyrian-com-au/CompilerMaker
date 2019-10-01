@@ -7,7 +7,6 @@ import au.com.illyrian.parser.ParserException;
 
 public class BnfFirstSet
 {
-    private static final long serialVersionUID = 1832471208457914351L;
     private static final String[] STRING_ARRAY = new String[0];
 
     final HashMap<String, BnfTree> hashMap;

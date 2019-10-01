@@ -25,8 +25,14 @@ import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.classmaker.ClassMakerIfc;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.AstExpressionVisitor;
+import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.classmaker.types.Type;
 import au.com.illyrian.classmaker.types.Value;
+import au.com.illyrian.jesub.ast.AstClass;
+import au.com.illyrian.jesub.ast.AstImport;
+import au.com.illyrian.jesub.ast.AstModifiers;
+import au.com.illyrian.jesub.ast.AstPackage;
+import au.com.illyrian.jesub.ast.AstStructure;
 import au.com.illyrian.parser.ParserException;
 
 public class BnfMakerVisitor extends AstExpressionVisitor
@@ -45,6 +51,18 @@ public class BnfMakerVisitor extends AstExpressionVisitor
     public BnfMakerVisitor(ClassMakerIfc classMaker)
     {
         super(classMaker);
+    }
+    
+    public void prepare(ClassMakerIfc maker) {
+        // FIXME should not be required when used as a DSL parser
+        maker.Import(AstExpression.class);
+        maker.Import(AstStructure.class);
+        maker.Import(AstModifiers.class);
+        maker.Import(AstPackage.class);
+        maker.Import(AstImport.class);
+        maker.Import(AstClass.class);
+        maker.Import(TerminalName.class);
+        maker.Extends(BnfParserBase.class);
     }
 
     public Type getDefaultType()
@@ -156,7 +174,7 @@ public class BnfMakerVisitor extends AstExpressionVisitor
     public Type resolveDeclaration(BnfTreeTarget target)
     {
         String typeName = target.getType();
-        Type type = getMaker().findType(typeName);
+        Type type = getMaker().stringToType(typeName);
         return type;
     }
 
@@ -270,8 +288,13 @@ public class BnfMakerVisitor extends AstExpressionVisitor
     public Type resolveSequence(BnfTreeMethodCall call, int variable)
     {
         setLineNumber(call);
-        getMaker().Eval(resolveType(call));
-        return ClassMakerFactory.VOID_TYPE;
+        Value value = resolveType(call);
+        if (value.getType() != ClassMakerFactory.VOID_TYPE){
+            declare(variable, value.getType());
+            assign(variable, value);
+        }
+        return value.getType();
+
     }
 
     public Type resolveSequence(BnfTreeReserved reserved, int variable)
@@ -342,6 +365,9 @@ public class BnfMakerVisitor extends AstExpressionVisitor
     public Value resolveLookahead(BnfTreeLookahead macro, int howFar)
     {
         BnfTree<Type> pattern = macro.getPattern();
+        if (pattern == null) {
+            return getMaker().Literal(true);
+        }
         return pattern.resolveLookahead(this, howFar);
     }
     
@@ -391,6 +417,10 @@ public class BnfMakerVisitor extends AstExpressionVisitor
     public Value resolveLookahead(BnfTreeRecover bnfTreeRecover, int howFar)
     {
         return null;
+    }
+
+    public Value resolveLookahead(BnfTreeMethodCall bnfTreeRecover, int howFar) {
+        return getMaker().Literal(true);
     }
 
     public Value resolveLookahead(BnfTreeNonterminal ruleName, int howFar)

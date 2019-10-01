@@ -114,11 +114,7 @@ public class AstExpressionPrecidenceParser extends OperatorPrecidenceParser<AstE
     }
 
     /**
-     * name_method ::= IDENTIFIER
-     * | IDENTIFIER ( )
-     * | IDENTIFIER ( expression )
-     * 
-     * @return
+     * name_operand ::= name_method
      */
     @Override
     protected AstExpression nameOperand() {
@@ -126,7 +122,7 @@ public class AstExpressionPrecidenceParser extends OperatorPrecidenceParser<AstE
     }
 
     /**
-     * reserveSequence ::= THIS
+     * reserveOperand ::= THIS
      * | THIS ( )
      * | THIS ( expression )
      * | SUPER
@@ -148,6 +144,12 @@ public class AstExpressionPrecidenceParser extends OperatorPrecidenceParser<AstE
         return result;
     }
 
+    /**
+     * name_method ::= IDENTIFIER
+     * | IDENTIFIER ( )
+     * | IDENTIFIER ( expression )
+     * ;
+     */
     protected AstExpression nameMethod() {
         AstExpression result = getPrecidenceActions().tokenAction(getLexer());
         nextToken();
@@ -318,5 +320,15 @@ public class AstExpressionPrecidenceParser extends OperatorPrecidenceParser<AstE
         default:
         }
         return false;
+    }
+    
+    @Override
+    public AstExpression expression() {
+        return super.expression();
+    }
+    
+    @Override
+    public AstExpression expression(int minPrecidence) {
+        return super.expression(minPrecidence);
     }
 }

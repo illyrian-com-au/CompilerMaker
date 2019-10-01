@@ -1,15 +1,15 @@
 {        
     goal ::= compilation_unit ;
     
-    name ::= IDENTIFIER  { ast.Name(getLexer()) }
+    name:TerminalName ::= IDENTIFIER  { ast.Name($1) }
         ;
         
-    qualified_name ::=
+    qualified_name:AstExpression ::=
             name DOT qualified_name { ast.Dot($1, $3) }
         |   name    
         ;
         
-    modifier_mult ::=
+    modifier_mult:AstModifiers ::=
             PUBLIC  modifier_mult            { ast.Modifier($1, $2) }
         |   PROTECTED  modifier_mult         { ast.Modifier($1, $2) }
         |   PRIVATE  modifier_mult           { ast.Modifier($1, $2) }
@@ -23,20 +23,21 @@
             package_opt import_mult class_declaration_plus { ast.Module($1, $2, $3) }
         ;
             
-    package_opt ::= 
-            PACKAGE qualified_name SEMI { $2 }
+    package_opt:AstPackage ::= 
+            PACKAGE qualified_name SEMI { ast.Package($2) }
         |   PACKAGE error("IncompletePackageName")
         |   /*EMPTY*/ 
         |   RECOVER(IMPORT | class_declaration)
         ;
     
-    import_mult ::= 
-            IMPORT import_path_plus import_mult  { ast.Seq($2, $3) }
-        |   /*EMPTY*/
+    import_mult ::=
+            IMPORT import_path_plus import_mult  { ast.Seq(ast.Import($2), $3) }
+        |   IMPORT import_path_plus              { ast.Import($2) }
+        |   /* EMPTY */
         |   RECOVER(IMPORT | class_declaration)
         ;
         
-    import_path_plus ::= 
+    import_path_plus:AstExpression ::= 
             name DOT import_path_plus            { ast.Dot($1, $3) }
         |   name SEMI                            { $1 }
         |   MULT SEMI                            { ast.Name("*") }
@@ -56,7 +57,7 @@
         |   error("ExpectedClassOrInterface") 
         ;
     
-    extends_opt ::=
+    extends_opt:AstExpression ::=
             EXTENDS qualified_name            {$2}
         |   EXTENDS error("ExpectedExtendedClassName")
         |   /*EMPTY*/
@@ -64,15 +65,15 @@
         ;
             
     
-    implements_opt ::=
+    implements_opt:AstExpression ::=
             IMPLEMENTS implements_plus  {$2}
         |   IMPLEMENTS error("ExpectedImplementedInterfaceName")
         |   /*EMPTY*/
         |   RECOVER(BEGIN)
         ;
     
-    implements_plus ::=
-            qualified_name COMMA implements_plus   { ast.Seq($1, $3) }
+    implements_plus:AstExpression ::=
+            qualified_name COMMA implements_plus   { ast.Link($1, $3) }
         |   qualified_name
         ;
     
@@ -93,19 +94,19 @@
                                         { ast.Declare($1, $2, $3) }
         ;
         
-    method_type ::=
+    method_type:AstExpression ::=
             type
         |   VOID                        { ast.Name("void") }
         ;
         
-    type ::=
+    type:AstExpression ::=
             class_type
         |   class_type LBRAC RBRAC      { ast.ArrayOf($1) }
         |   primitive_type
         |   primitive_type LBRAC RBRAC  { ast.ArrayOf($1) }
         ;
         
-    primitive_type ::=
+    primitive_type:AstExpression ::=
             BOOLEAN             { ast.Name("boolean") }
         |   BYTE                { ast.Name("byte") }
         |   CHAR                { ast.Name("char") }
@@ -116,17 +117,22 @@
         |   DOUBLE              { ast.Name("double") }
         ;
     
-    class_type ::= 
+    class_type:AstExpression ::= 
             qualified_name 
         ;
         
     formal_mult ::=
-            modifier_mult type name             { ast.Declare($1, $2, $3) }
+            formal_param formal_mult            { ast.Seq($1, $2) }
+        |   /*EMPTY*/
         ;
     
+    formal_param ::=
+            modifier_mult type name             { ast.Declare($1, $2, $3) }
+        ;
+        
     method_body ::=
             compound_statement
-        |   SEMI
+        |   SEMI                                { null }
         ;
     
     compound_statement ::=
@@ -134,8 +140,8 @@
         ;
     
     statement_mult ::=
-            statement statement_mult            { ast.Seq($1, $2) }
-        |   /*EMPTY*/
+            LOOKAHEAD(END) /*EMPTY*/
+        |   statement statement_mult            { ast.Seq($1, $2) }
         ;
         
     statement ::=
@@ -145,7 +151,8 @@
         |   break_statement
         |   continue_statement
         |   return_statement
-        |   declare_label_opt labeled_statement  { $2 }
+//        |   declare_label_opt labeled_statement  { $2.setLabel($1) }
+        |   labeled_statement
         |   SEMI                                 { null }
         |   declare_statement
         |   expression_statement
@@ -156,14 +163,15 @@
             while_statement
         |   for_statement
         ;
-    
-    declare_label_opt ::=
-            LOOKAHEAD(IDENTIFIER COLON) name COLON             { ast.Label($1) } 
-        |   /*EMPTY*/
+    /*
+    declare_label_opt:String ::=
+        //    LOOKAHEAD(IDENTIFIER COLON) name COLON             { ast.Label($1) } 
+            COLON name                             { $2 } 
+        |   /*EMPTY* /
         ;
-    
+    */
     if_else_statement ::=
-            IF LPAR expression RPAR statement else_opt        { ast.If($3, $5, $6) }
+            IF LPAR expr RPAR statement else_opt        { ast.If($3, $5, $6) }
         ;
         
     else_opt ::=
@@ -172,7 +180,7 @@
         ;
     
     while_statement ::=
-            WHILE LPAR expression RPAR statement  { ast.While($4, $6, $1) }
+            WHILE LPAR expr RPAR statement  { ast.While($3, $5) }
         ;
     
     for_statement ::=
@@ -181,22 +189,21 @@
         ;
     
     try_statement ::= 
-            TRY compound_statement catch_plus                 { ast.Try($1, $2) }
+            TRY compound_statement catch_plus finally_opt       { ast.Try($2, $3, $4) }
         ;
     
     catch_plus ::=
             catch_clause catch_plus                             { ast.Seq($1, $2) }
         |   catch_clause
-        |   finally_clause
         ;
     
     catch_clause ::=
-            CATCH LPAR class_type name RPAR compound_statement  
-                                                                { ast.Catch($3, $4, $6) }
+            CATCH LPAR class_type name RPAR compound_statement { ast.Catch(ast.Declare($3, $4), $6) }
         ;
     
-    finally_clause ::=
+    finally_opt ::=
             FINALLY compound_statement                        { ast.Finally($2) }
+        |   /*EMPTY*/
         ;
     
     break_statement ::=
@@ -207,35 +214,31 @@
             CONTINUE label_opt SEMI                      { ast.Continue($2) }
         ;
     
-    label_opt ::=
+    label_opt:TerminalName ::=
             IDENTIFIER                          { ast.Name($1) }
         |   /*EMPTY*/
         ;
     
     return_statement ::=
-            RETURN expression_opt SEMI   { ast.Return($2) }
+            RETURN SEMI              { ast.Return(null) }
+        |   RETURN expr SEMI         { ast.Return($2) }
         ;
-    
+
     declare_statement ::=
             modifier_mult type name SEMI   { ast.Declare($1, $2, $3) }
         ;
 
     expression_statement ::=
-            expression SEMI                { ast.Eval($1) }
+            expr SEMI                { ast.Eval($1) }
         ;
 
-    expression_opt ::=
-            expression
+    expression_opt:AstExpression ::=
+            expr
         | /*EMPTY*/
         ;
         
-    expression ::=                          
-            precedence(1) 
-        ;
-
-    actual_opt ::=                       
-            precedence(0)
-        |   /*EMPTY*/
+    expr:AstExpression ::=
+            expression()
         ;
 
     /* This is a line comment */

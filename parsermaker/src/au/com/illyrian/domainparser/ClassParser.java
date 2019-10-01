@@ -9,7 +9,7 @@ import au.com.illyrian.parser.maker.ClassActionMaker;
 * Loads a domain specific language parser and delegates to it.
 * <p>
 * The Domain Parser is a generic parser that can parse any domain specific language.
-* It does this by loading a specific parser for the langauge and then delegating
+* It does this by loading a specific parser for the language and then delegating
 * the parsing of the domain specific language to that parser.
 *  
 * The Domain Parser only does three things:

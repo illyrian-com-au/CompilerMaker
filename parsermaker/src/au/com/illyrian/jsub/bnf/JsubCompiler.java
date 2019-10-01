@@ -1,4 +1,4 @@
-package au.com.illyrian.bnf;
+package au.com.illyrian.jsub.bnf;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,7 +10,6 @@ import au.com.illyrian.bnf.parser.BnfParser;
 import au.com.illyrian.classmaker.ClassMaker;
 import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerFactory;
-import au.com.illyrian.classmaker.SourceNames;
 import au.com.illyrian.classmaker.ast.AstExpression;
 import au.com.illyrian.classmaker.ast.TerminalName;
 import au.com.illyrian.jesub.ast.AstClass;
@@ -19,22 +18,24 @@ import au.com.illyrian.jesub.ast.AstModifiers;
 import au.com.illyrian.jesub.ast.AstPackage;
 import au.com.illyrian.jesub.ast.AstStructure;
 import au.com.illyrian.parser.ParseMembers;
+import au.com.illyrian.parser.ParseModule;
 import au.com.illyrian.parser.impl.ModuleContext;
 
-public class BnfCompiler {
-    private final File sourceDir;
+public class JsubCompiler {
+    public static final String TEST_DIR = "test";
+    public static final String JSUB_BNF = "au/com/illyrian/bnf/Jesub_syntax.bnf";
+    private final File sourceDir = new File(TEST_DIR);
     private final ClassMakerFactory factory;
-    private String defaultType = "AstExpression";
     
-    public BnfCompiler(File sourceDir, ClassMakerFactory factory) {
-        this.sourceDir = sourceDir;
+    public JsubCompiler(ClassMakerFactory factory) {
         this.factory = factory;
     }
     
-    public ClassMaker createClassMaker(SourceNames names) {
+    public ClassMaker createClassMaker() {
         ClassMaker maker = factory.createClassMaker();
-        maker.setPackageName(names.getPackageName());
-        maker.setSimpleClassName(names.getClassName());
+        maker.setPackageName("au.com.illyrian.bnf");
+        maker.setSimpleClassName("Jsub");
+        prepare(maker);
         return maker;
     }
     
@@ -46,28 +47,15 @@ public class BnfCompiler {
         maker.Import(AstImport.class);
         maker.Import(AstClass.class);
         maker.Import(TerminalName.class);
-        maker.Extends(BnfParserBase.class);
+        maker.Extends(JsubParserBase.class);
     }
     
-    public String getDefaultType() {
-        return defaultType;
-    }
-
-    public void setDefaultType(Class defaultType) {
-        setDefaultType(defaultType.getName());
-    }
-
-    public void setDefaultType(String defaultType) {
-        this.defaultType = defaultType;
-    }
-
     public BnfMakerVisitor createBnfVisitor(ClassMaker maker, String source) {
         BnfMakerVisitor visitor = new BnfMakerVisitor(maker);
 
         visitor.setActionRequired(true);
-        visitor.setDefaultTypeName(defaultType);
+        visitor.setDefaultTypeName("AstStructure");
         visitor.setFilename(source);
-        visitor.prepare(maker);
         return visitor;
     }
     
@@ -88,19 +76,18 @@ public class BnfCompiler {
     }
     
     @SuppressWarnings("unchecked")
-    public <T> ParseMembers<T> compile(String source) throws InstantiationException, IllegalAccessException, IOException {
-        SourceNames names = new SourceNames(source);
-        File file = new File(sourceDir, source);
+    public <T> ParseModule<T> compile() throws InstantiationException, IllegalAccessException, IOException {
+        File file = new File(sourceDir, JSUB_BNF);
         
         ModuleContext context = new ModuleContext();
-        context.setInputFile(file, source);
+        context.setInputFile(file, JSUB_BNF);
 
-        ClassMaker maker = createClassMaker(names);
+        ClassMaker maker = createClassMaker();
         
         visitBnf(context, maker);
         
-        Class<ParseMembers> parserClass = maker.defineClass();
-        ParseMembers parser = parserClass.newInstance();
+        Class<ParseModule> parserClass = maker.defineClass();
+        ParseModule parser = parserClass.newInstance();
         return parser;
     }
 }

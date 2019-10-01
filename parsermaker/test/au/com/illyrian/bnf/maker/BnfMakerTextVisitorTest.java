@@ -57,7 +57,7 @@ public class BnfMakerTextVisitorTest extends BnfMakerTextBase
         assertEquals(expected, maker.toString());
     }
 
-    public void testResolveMethod() {
+    public void testResolveErrorMethod() {
         BnfTreeMethodCall tree = ast.MethodCall(ast.BnfName("error"), ast.Literal("; expected"));
         visitor.resolveSequence(tree, 1);
         String expected = error("; expected");

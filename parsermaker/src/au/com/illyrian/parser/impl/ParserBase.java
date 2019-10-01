@@ -150,6 +150,10 @@ public class ParserBase
         return expect(token.getTokenType(), token.getTokenValue(), null);
     }
 
+    public String expect(TokenType token) {
+        return expect(token, null);
+    }
+
     public String expect(TokenType expected, String value)
     {
         return expect(expected, value, null);

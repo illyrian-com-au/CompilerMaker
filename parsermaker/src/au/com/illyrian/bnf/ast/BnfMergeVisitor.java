@@ -127,6 +127,9 @@ public class BnfMergeVisitor
     
     public BnfTree resolveMerge(BnfTreeLookahead item)
     {
+        if (item.getPattern() == null) {
+            return item;
+        }
         // This may only be used in the RECOVER macro.
         return item.replace(item.getPattern().resolveMerge(this));
     }

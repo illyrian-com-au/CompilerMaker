@@ -11,12 +11,13 @@ import au.com.illyrian.classmaker.ast.LineNumber;
 import au.com.illyrian.parser.CompilerContext;
 import au.com.illyrian.parser.Lexer;
 import au.com.illyrian.parser.ParseMembers;
+import au.com.illyrian.parser.ParseModule;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.TokenType;
 import au.com.illyrian.parser.expr.AstExpressionPrecidenceParser;
 
 public class BnfParser extends AstExpressionPrecidenceParser 
-    implements ParseMembers<BnfTreeParser>, LineNumber
+    implements ParseMembers<BnfTreeParser>, ParseModule<BnfTreeParser>, LineNumber
 {
     private BnfTreeFactory factory;
     private BnfMergeVisitor merger;
@@ -80,6 +81,23 @@ public class BnfParser extends AstExpressionPrecidenceParser
     protected Lexer createLexer()
     {
         return new BnfLexer();
+    }
+    
+    /**
+     * Read all input from a file.
+     */
+    public BnfTreeParser parseModule(CompilerContext context) {
+        BnfTreeParser tree = parseMembers(context);
+        endInput();
+        return tree;
+    }
+
+   /**
+     * Verifies that the end of input has been reached.
+     */
+    public void endInput() {
+        nextToken();
+        expect(TokenType.END);
     }
 
     /*
@@ -368,7 +386,10 @@ public class BnfParser extends AstExpressionPrecidenceParser
     public BnfTree macro_param()
     {
         expect(BnfToken.LPAR);
-        BnfTree $2 = macro_alt();
+        BnfTree $2 = null;
+        if (!match(BnfToken.RPAR)) {
+            $2 = macro_alt();
+        }
         expect(BnfToken.RPAR);
         return $2;
     }
@@ -425,5 +446,4 @@ public class BnfParser extends AstExpressionPrecidenceParser
     {
         return getCompilerContext().exception(getInput(), message);
     }
-
 }

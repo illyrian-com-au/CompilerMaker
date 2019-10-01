@@ -1,0 +1,149 @@
+{        
+    goal ::= expression ;
+    
+    expression ::= assignment ;
+    
+    assignment ::= 
+            name ASSIGN or_else {}
+        |   name
+        ;
+        
+    or_else ::=
+            and_then OROR or_else
+        |   and_then
+        ;
+    
+    and_then ::=
+            
+    /* 
+     expression        ::= conditional_expr assignment_operator expression 
+                       |   conditional_expr ;
+     assignment_op     ::=  "=" ; // etc.
+     conditional_expr  ::= cond_or_expr '?' expression ':' expression
+                       |   cond_or_expr ;
+     cond_or_expr      ::= cond_and_expr '||' cond_or_expr
+                       |   cond_and_expr ;
+     cond_and_expr     ::= or_expr '&&' cond_and_expr
+                       |   or_expr ;
+     or_expr           ::= xor_expr '|' or_expr
+                       |   xor_expr ;
+     xor_expr          ::= and_expr '^' xor_expr
+                       |   and_expr ;
+     and_expr          ::= equality_expr '==' and_expr
+                       |   equality_expr ;
+     equality_expr     ::= or_expr '==' equality_expr
+                       |   or_expr '!=' equality_expr
+                       |   or_expr ;
+     instance_of_expr  ::= relational_expr 'instanceof' type_expr
+                       |   relational_expr ;
+     relational_expr   ::= shift_expr '<' relational_expression
+                       |   shift_expr '>' relational_expression
+                       |   shift_expr '<=' relational_expression
+                       |   shift_expr '>= relational_expression
+                       |   shift_expr ;
+     shift_expr        ::= additive_expr '<<' shift_expr
+                       |   additive_expr '>>' shift_expr
+                       |   additive_expr '>>>' shift_expr
+                       |   additive_expr ;
+     additive_expr     ::= multiply_expr '+' additive_expr
+                       |   multiply_expr '-' additive_expr
+                       |   multiply_expr ;
+     multiply_expr     ::= unary_expr '*' multiply_expr
+                       |   unary_expr '/' multiply_expr
+                       |   unary_expr '%' multiply_expr
+                       |   unary_expr ;
+     unary_expr        ::= '+' unary_expr
+                       |   '-' unary_expr
+                       |   '++' primary_expr
+                       |   '--' primary_expr
+                       |   limited_unary_expr
+     limited_unary_expr::= '~' unary_expr
+                       |   '!' unary_expr
+                       |   LOOKAHEAD( castLookahead() ) cast_expr
+                       |   postfix_expr ;
+     postfix_expr      ::= primary_expr '++'
+                       |   primary_expr '--'
+                       |   primary_expr ;
+     cast_expr         ::= '(' primitive_type ')' unary_expr
+                       |   '(' qualified_type ')' limited_unary_expr ;
+     primary_expr      ::= primary_prefix primary_sufix
+                       |   primary_prefix;
+     primary_prefix    ::= literal 
+                       |   'this' 
+                       |   'super' '.' IDENTIFIER
+                       |   '(' expression ')'
+                       |   new_expr
+                       |   qualified_type '.' 'class'
+                       |   qualified_name ;
+     primary_suffix    ::= '.' 'this'
+                       |   '.' new_expr
+                       |   '[' expression ']'
+                       |   '.' IDENTIFIER
+                       |   arguments ;
+     arguments         ::= '(' ')'
+                       |   '(' actual_params ')' ;
+     actual_params     ::= expression ',' actual_params
+                       |   expression
+     new_expr          ::= 'new' primitive_type array_dims
+                       |   'new' qualified_type array_dims
+                       |   'new' qualified_type arguments
+                       |   'new' qualified_type ;
+     array_dims        ::= '[' expression ']' array_dims
+                       |   '[' ']' array_extend
+                       |   EMPTY ;
+     array_extend      ::= '[' ']' array_extend
+                       |   EMPTY ;
+     literal           ::= NUMBER
+                       |   DECIMAL
+                       |   CHAR
+                       |   STRING
+                       |   boolean
+                       |   NULL ;
+     a
+                 
+     */
+    /*
+        //addLedOperator("(", ")", ParserConstants.CALL, 16, Operator.PARAMS);
+        addLedOperator("[", "]", ParserConstants.INDEX, 16, Operator.BRACKET);
+        addLedOperator(".", ParserConstants.DOT, 15, Operator.BINARY);
+        addLedOperator("--", ParserConstants.POSTDEC, 14, Operator.POSTFIX);
+        addLedOperator("++", ParserConstants.POSTINC, 14, Operator.POSTFIX);
+        addNudOperator("--", ParserConstants.DEC, 13, Operator.PREFIX);
+        addNudOperator("++", ParserConstants.INC, 13, Operator.PREFIX);
+        addNudOperator("+", ParserConstants.NOP, 13, Operator.PREFIX);
+        addNudOperator("-", ParserConstants.NEG, 13, Operator.PREFIX);
+        addNudOperator("!", ParserConstants.NOT, 13, Operator.PREFIX);
+        addNudOperator("~", ParserConstants.INV, 13, Operator.PREFIX);
+        //addNudOperator("new", ParserConstants.NEW, 13, Operator.PREFIX);
+        addNudOperator("(", ")", ParserConstants.CAST, 13, Operator.BRACKET);
+        addLedOperator("*", ParserConstants.MULT, 12, Operator.BINARY);
+        addLedOperator("/", ParserConstants.DIV, 12, Operator.BINARY);
+        addLedOperator("%", ParserConstants.REM, 12, Operator.BINARY);
+        addLedOperator("+", ParserConstants.ADD, 11, Operator.BINARY);
+        addLedOperator("-", ParserConstants.SUBT, 11, Operator.BINARY);
+        addLedOperator("<<", ParserConstants.SHL, 10, Operator.BINARY);
+        addLedOperator(">>", ParserConstants.SHR, 10, Operator.BINARY);
+        addLedOperator(">>>", ParserConstants.USHR, 10, Operator.BINARY);
+        addLedOperator("<", ParserConstants.LT, 9, Operator.BINARY);
+        addLedOperator(">", ParserConstants.GT, 9, Operator.BINARY);
+        addLedOperator("<=", ParserConstants.LE, 9, Operator.BINARY);
+        addLedOperator(">=", ParserConstants.GE, 9, Operator.BINARY);
+        addLedOperator("instanceof", ParserConstants.INSTANCEOF, 9, Operator.BINARY);
+        addLedOperator("==", ParserConstants.EQ, 8, Operator.BINARY);
+        addLedOperator("!=", ParserConstants.NE, 8, Operator.BINARY);
+        addLedOperator("&", ParserConstants.AND, 7, Operator.BINARY);
+        addLedOperator("^", ParserConstants.XOR, 6, Operator.BINARY);
+        addLedOperator("|", ParserConstants.OR, 5, Operator.BINARY);
+        addLedOperator("&&", ParserConstants.ANDTHEN, 4, Operator.BINARY);
+        addLedOperator("||", ParserConstants.ORELSE, 3, Operator.BINARY);
+        //        addLedOperator("?", ":", ParserConstants.COND, 2, Operator.TERNARY);
+        addLedOperator("=", ParserConstants.ASSIGN, 1, Operator.BINARYRIGHT);
+        //        addLedOperator("+=", ParserConstants.ADDASSIGN, 1, Operator.BINARYRIGHT);
+        //        addLedOperator("-=", ParserConstants.MINUSASSIGN, 1, Operator.BINARYRIGHT);
+        //        addLedOperator("*=", ParserConstants.MULTASSIGN, 1, Operator.BINARYRIGHT);
+        //        addLedOperator("/=", ParserConstants.DIVASSIGN, 1, Operator.BINARYRIGHT);
+        //        addLedOperator("%=", ParserConstants.REMASSIGN, 1, Operator.BINARYRIGHT);
+        addLedOperator(",", ParserConstants.COMMA, 0, Operator.BINARY);
+
+     */
+}

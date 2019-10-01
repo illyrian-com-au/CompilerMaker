@@ -40,6 +40,11 @@ public class BnfTreeMethodCall extends BnfTreeBase <Type>
         return visitor.resolveType(this);
     }
     
+    public Value resolveLookahead(BnfMakerVisitor visitor, int howFar)
+    {
+        return visitor.resolveLookahead(this, howFar);
+    }
+    
     public int getLineNumber() {
         return name.getLineNumber();
     }

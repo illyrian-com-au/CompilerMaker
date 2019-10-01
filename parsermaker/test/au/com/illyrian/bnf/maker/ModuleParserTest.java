@@ -4,15 +4,20 @@ import java.io.File;
 import java.io.IOException;
 
 import junit.framework.TestCase;
+import test.IntValue;
 import au.com.illyrian.bnf.BnfCompiler;
+import au.com.illyrian.classmaker.ClassMaker;
+import au.com.illyrian.classmaker.ClassMakerConstants;
 import au.com.illyrian.classmaker.ClassMakerFactory;
 import au.com.illyrian.jesub.ast.AstStructure;
+import au.com.illyrian.jesub.ast.AstStructureVisitor;
 import au.com.illyrian.parser.Input;
 import au.com.illyrian.parser.ParseMembers;
 import au.com.illyrian.parser.ParserException;
 import au.com.illyrian.parser.impl.LexerInputStream;
 import au.com.illyrian.parser.impl.LexerInputString;
 import au.com.illyrian.parser.impl.ModuleContext;
+import au.com.illyrian.parser.maker.ModuleContextMaker;
 import au.com.illyrian.test.StringReadWriter;
 
 public class ModuleParserTest extends TestCase {
@@ -27,21 +32,54 @@ public class ModuleParserTest extends TestCase {
         parser = compiler.compile("test/ModuleParser.bnf");
     }
 
+    ClassMaker resolve(AstStructure tree) {
+        ClassMaker maker = factory.createClassMaker();
+        AstStructureVisitor visitor = new AstStructureVisitor(maker);
+        tree.resolveDeclaration(visitor);
+        return maker;
+    }
+
     public void testParsePackage() throws Exception {
-        LexerInputString input = new LexerInputString("class test { }");
+        LexerInputString input = new LexerInputString("package test; public class Test { }");
         ModuleContext context = new ModuleContext();
         context.setInput(input);
         AstStructure tree = parser.parseMembers(context);
         assertNotNull("Should not be null:", tree);
-        String expected = "class test\n";
+        String expected = "package test;\npublic class Test\n";
         assertEquals(expected, tree.toString());
+
+        ClassMaker maker = resolve(tree);
+        Class clazz = maker.defineClass();
+        Object instance = clazz.newInstance();
+
+        assertEquals("test", maker.getPackageName());
+        assertEquals("Test", maker.getSimpleClassName());
+        assertEquals("Extends", ClassMakerFactory.OBJECT_TYPE, maker.getExtendsType());
+        assertEquals("Class modifiers", ClassMakerConstants.ACC_PUBLIC, maker.getModifiers());
+        assertEquals("Number of interfaces", 0, maker.getDeclaredInterfaces().length);
+        assertEquals("Number of constructors", 1, maker.getDeclaredConstructors().length);
+        assertEquals("Number of fields", 0, maker.getDeclaredFields().length);
+        assertEquals("Number of methods", 0, maker.getDeclaredMethods().length);
+        assertNotNull("test.Test", clazz);
+        assertEquals("Test", clazz.getSimpleName());
+        assertEquals("test.Test", clazz.getName());
+        assertNotNull("Package name", clazz.getPackage());
+        assertEquals("test", clazz.getPackage().getName());
+        assertEquals("Super class", Object.class, clazz.getSuperclass());
+        assertEquals("Class modifiers", ClassMakerConstants.ACC_PUBLIC, clazz.getModifiers());
+        assertEquals("Number of interfaces", 0, clazz.getInterfaces().length);
+        assertEquals("Number of constructors", 1, clazz.getDeclaredConstructors().length);
+        assertEquals("Number of fields", 0, clazz.getDeclaredFields().length);
+        assertEquals("Number of methods", 0, clazz.getDeclaredMethods().length);
+        assertNotNull("test.Test", instance);
+        assertEquals("test.Test", instance.toString().substring(0, 9));
     }
 
     public void testParseImports() throws Exception {
         StringReadWriter out = new StringReadWriter();
-        out.println("import test.MyClass;");
-        out.println("import au.com.test.OtherClass;");
-        out.println("class test {}");
+        out.println("import java.io.File;");
+        out.println("import au.com.illyrian.bnf.maker.ModuleParserTest;");
+        out.println("public class Test {}");
         out.close();
         Input input = new LexerInputStream(out.getReader(), null);
         ModuleContext context = new ModuleContext();
@@ -49,8 +87,13 @@ public class ModuleParserTest extends TestCase {
         AstStructure tree = parser.parseMembers(context);
         assertNull("Should not be null:", input.getLine());
         assertNotNull("Should not be null:", tree);
-        String expected = "import test.MyClass;\nimport au.com.test.OtherClass;\nclass test\n";
+        String expected = "import java.io.File;\nimport au.com.illyrian.bnf.maker.ModuleParserTest;\npublic class Test\n";
         assertEquals(expected, tree.toString());
+
+        ClassMaker maker = resolve(tree);
+        Class clazz = maker.defineClass();
+        Object instance = clazz.newInstance();
+        assertEquals("Test", instance.toString().substring(0, 4));
     }
 
     public void testParseSimpleClass() throws Exception {
@@ -95,13 +138,56 @@ public class ModuleParserTest extends TestCase {
     }
 
     public void testParseClassExtends() throws Exception {
-        LexerInputString input = new LexerInputString("protected class test extends Base {}");
-        ModuleContext context = new ModuleContext();
+        final String fullName = "au.com.illyrian.bnf.maker.IntTest";
+        StringReadWriter out = new StringReadWriter();
+        out.println("package au.com.illyrian.bnf.maker;");
+        out.println("import test.IntValue;");
+        out.println("public class IntTest extends IntValue {}");
+        out.close();
+        Input input = new LexerInputStream(out.getReader(), null);
+        ModuleContext context = new ModuleContextMaker();
         context.setInput(input);
         AstStructure tree = parser.parseMembers(context);
         assertNotNull("Should not be null:", tree);
-        String expected = "protected class test extends Base\n";
+        String expected = "package au.com.illyrian.bnf.maker;\n"
+                + "import test.IntValue;\n"
+                + "public class IntTest extends IntValue\n";
         assertEquals(expected, tree.toString());
+
+        ClassMaker maker = resolve(tree);
+        maker.EndClass();
+        assertEquals("au.com.illyrian.bnf.maker", maker.getPackageName());
+        assertEquals("IntTest", maker.getSimpleClassName());
+        assertEquals("Extends", factory.stringToType("test.IntValue"), maker.getExtendsType());
+        assertEquals("Class modifiers", ClassMakerConstants.ACC_PUBLIC, maker.getModifiers());
+        assertEquals("Number of interfaces", 0, maker.getDeclaredInterfaces().length);
+        assertEquals("Number of constructors", 1, maker.getDeclaredConstructors().length);
+        assertEquals("Number of fields", 0, maker.getDeclaredFields().length);
+        assertEquals("Number of methods", 0, maker.getDeclaredMethods().length);
+
+        Class<IntValue> clazz = maker.defineClass();
+        IntValue instance = clazz.newInstance();
+        assertNotNull("test.IntTest", clazz);
+        assertEquals("IntTest", clazz.getSimpleName());
+        assertEquals(fullName, clazz.getName());
+        assertNotNull("Package name", clazz.getPackage());
+        assertEquals("au.com.illyrian.bnf.maker", clazz.getPackage().getName());
+        assertEquals("Super class", IntValue.class, clazz.getSuperclass());
+        assertEquals("Class modifiers", ClassMakerConstants.ACC_PUBLIC, clazz.getModifiers());
+        assertEquals("Number of interfaces", 0, clazz.getInterfaces().length);
+        assertEquals("Number of constructors", 1, clazz.getDeclaredConstructors().length);
+        assertEquals("Number of fields", 0, clazz.getDeclaredFields().length);
+        assertEquals("Number of methods", 0, clazz.getDeclaredMethods().length);
+        assertNotNull("test.IntTest", instance);
+        assertNotNull("SimpleClassLoader", factory.getClassLoader().loadClass(fullName));
+        assertEquals("IntValue.getInt()", 10, instance.getInt());
+        // Synthetic class should not be visible except through factory class loader.
+        try {
+            getClass().getClassLoader().loadClass(fullName);
+            fail("Should throw ClassNotFoundException");
+        } catch (ClassNotFoundException e) {
+            assertEquals(fullName, e.getMessage());
+        }
     }
 
     public void testParseSimpleInterface() throws Exception {

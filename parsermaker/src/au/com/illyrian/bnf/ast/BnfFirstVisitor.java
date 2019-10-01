@@ -61,7 +61,7 @@ public class BnfFirstVisitor
     public boolean resolveFirst(BnfTreeRule rule, BnfFirstSet firstSet) // BnfFirtSet
     {
         boolean hasEmpty = false;
-        String name = rule.getTarget().toString();
+        String name = rule.getTarget().getName();
         BnfFirstSet set = getSet(name);
         if (set == null) {
             if (firstSets.containsKey(name)) {
