@@ -105,6 +105,10 @@ public class AstStructureFactory extends AstExpressionFactory {
         return declareClass;
     }
 
+    public AstDeclareVariable Declare(AstExpression type, TerminalName name) {
+        return Declare(null, type, name);
+    }
+
     public AstDeclareVariable Declare(AstModifiers modifiers,
             AstExpression type, TerminalName name) {
         return new AstDeclareVariable(modifiers, type, name);
@@ -132,6 +136,12 @@ public class AstStructureFactory extends AstExpressionFactory {
 
     public AstStatementCompound Compound() {
         AstStatementCompound stmt = new AstStatementCompound();
+        stmt.setLineNumber(getLineNumber());
+        return stmt;
+    }
+
+    public AstStatementCompound Compound(AstStructure body) {
+        AstStatementCompound stmt = new AstStatementCompound(body);
         stmt.setLineNumber(getLineNumber());
         return stmt;
     }
@@ -211,7 +221,7 @@ public class AstStructureFactory extends AstExpressionFactory {
     }
 
     public AstStatementTry Try(AstStructure tryCode, AstStructure catchCode,
-            AstStatementFinally finallyCode) {
+            AstStructure finallyCode) {
         AstStatementTry stmt = new AstStatementTry(tryCode, catchCode,
                 finallyCode);
         stmt.setLineNumber(getLineNumber());

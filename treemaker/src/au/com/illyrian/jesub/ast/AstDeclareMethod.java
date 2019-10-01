@@ -98,6 +98,6 @@ public class AstDeclareMethod extends AstDeclareVariable
 
     public String toString()
     {
-        return toSignature() + "{\n " + methodBody + "}\n";
+        return toSignature() + methodBody;
     }
 }

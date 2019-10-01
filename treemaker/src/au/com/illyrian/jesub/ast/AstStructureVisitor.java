@@ -56,6 +56,10 @@ public class AstStructureVisitor extends AstExpressionVisitor
         setLineNumber(tree.getLineNumber());
     }
 
+    public void handleError(ClassMakerException ex) {
+        throw ex;
+    }
+
     public void resolveDeclaration(AstModule unit)
     {
         if (unit.getPackage() != null) {
@@ -74,7 +78,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             String packageName = pack.getExpression().resolvePath(this);
             getMaker().setPackageName(packageName);
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -84,7 +88,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             String name = unit.getExpression().resolvePath(this);
             getMaker().Import(name);
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -97,7 +101,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             getMaker().setSimpleClassName(className);
             resolveExtends(unit.getExtends());
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
         if (unit.getImplementsList() != null)
             unit.getImplementsList().resolveImplements(this);
@@ -114,7 +118,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             getMaker().setSimpleClassName(className);
             resolveExtends(unit.getExtends());
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
         if (unit.getMembers() != null)
             unit.getMembers().resolveDeclaration(this);
@@ -140,7 +144,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
                 getMaker().Extends(baseClass);
             }
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -158,7 +162,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
                 getMaker().Import(name);
             }
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -176,7 +180,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
                 getMaker().Implements(name);
             }
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -190,7 +194,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
                 modifierBits = getMaker().addModifier(modifierBits, modifierName);
             }
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
         return modifierBits;
     }
@@ -212,7 +216,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             String name = member.getName().resolvePath(this);
             getMaker().Declare(name, type.getName(), modifiers);
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -235,7 +239,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             } else
                 getMaker().Forward();
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -258,7 +262,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             else
                 throw new IllegalStateException("Unknown reserved word: " + statement);
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -268,7 +272,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             Value type = statement.getExpression().resolveValue(this);
             getMaker().Eval(type);
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -283,7 +287,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
                 getMaker().Return();
             }
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -300,7 +304,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             }
             getMaker().EndIf();
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -315,7 +319,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             statement.getCode().resolveStatement(this);
             getMaker().EndLoop();
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -335,7 +339,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             statement.getCode().resolveStatement(this);
             getMaker().EndLoop();
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -348,7 +352,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             else
                 getMaker().Break(statement.getLabel().getName());
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -361,7 +365,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             else
                 getMaker().Continue(statement.getLabel().getName());
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -374,7 +378,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
             statement.getCode().resolveStatement(this);
             getMaker().EndSwitch();
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -384,7 +388,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
         try {
             getMaker().Case(statement.getValue().intValue());
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -394,7 +398,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
         try {
             getMaker().Default();
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -404,10 +408,12 @@ public class AstStructureVisitor extends AstExpressionVisitor
         try {
             String label = (statement.getLabel() == null) ? null : statement.getLabel().getName();
             getMaker().Begin().setLabel(label);
-            statement.getCode().resolveStatement(this);
+            if (statement.getCode() != null) {
+                statement.getCode().resolveStatement(this);
+            }
             getMaker().End();
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -423,7 +429,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
                 statement.getFinallyClause().resolveStatement(this);
             getMaker().EndTry();
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -438,7 +444,7 @@ public class AstStructureVisitor extends AstExpressionVisitor
 
             catchClause.getCode().resolveStatement(this);
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
@@ -449,8 +455,11 @@ public class AstStructureVisitor extends AstExpressionVisitor
             getMaker().Finally();
             finallyClause.getCode().resolveStatement(this);
         } catch (ClassMakerException ex) {
-            addError(ex);
+            handleError(ex);
         }
     }
 
+    public String toString() {
+        return getClass().getSimpleName() + '(' + getFilename() + ';' + getLineNumber() + ')';
+    }
 }

@@ -47,8 +47,8 @@ public class AstVisitorClassMakerFactory extends AstStructureVisitor
 
     public Class[] defineClasses()
     {
-        if (hasErrors())
-            throw new IllegalStateException("Compilation errors prevent production of classes.");
+//        if (hasErrors())
+//            throw new IllegalStateException("Compilation errors prevent production of classes.");
         Class [] classes = new Class[classMakers.size()];
         for (int i=0; i<classMakers.size(); i++)
             classes[i] = classMakers.get(i).defineClass();

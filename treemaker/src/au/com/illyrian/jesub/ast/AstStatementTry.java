@@ -30,13 +30,13 @@ package au.com.illyrian.jesub.ast;
 public class AstStatementTry extends AstCompoundBase
 {
     private AstStructure catchClause = null;
-    private AstStatementFinally finallyClause = null;
+    private AstStructure finallyClause = null;
 
     public AstStatementTry()
     {
     }
 
-    public AstStatementTry(AstStructure tryCode, AstStructure catchCode, AstStatementFinally finallyCode)
+    public AstStatementTry(AstStructure tryCode, AstStructure catchCode, AstStructure finallyCode)
     {
         setCode(tryCode);
         this.catchClause = catchCode;
@@ -53,7 +53,7 @@ public class AstStatementTry extends AstCompoundBase
         this.catchClause = catchCode;
     }
 
-    public AstStatementFinally getFinallyClause()
+    public AstStructure getFinallyClause()
     {
         return finallyClause;
     }
