@@ -72,10 +72,27 @@ public class SimpleClassLoader extends ClassLoader
     {
         return parentLoader;
     }
+    
+    protected Package findCreatePackage(String className) {
+        Package pkg = null;
+        int index = className.lastIndexOf('.');
+        if (index > -1) {
+            String packageName = className.substring(0, index);
+            pkg = getPackage(packageName);
+            if (pkg == null) {
+                pkg = definePackage(packageName, null, null, null, null, null, null, null);
+            }
+            if (pkg == null) {
+                throw new IllegalStateException("Could not find of create package: " + packageName);
+            }
+        }
+        return pkg;
+    }
 
     public Class<?> defineClass(String className, byte[] classBytes)
     {
         String classDotName = className.replace('/', '.');
+        findCreatePackage(classDotName);
         Exception e;
         try {
             Class<?> cl = super.defineClass(classDotName, classBytes, 0, classBytes.length,
