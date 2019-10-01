@@ -48,6 +48,11 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
     }
 
     @Override
+    public void Import(Class javaClass) throws ClassMakerException {
+        println("Import(\"" + javaClass.getName() + "\");");
+    }
+
+    @Override
     public void setSimpleClassName(String className) throws ClassMakerException {
         println("setSimpleClassName(\"" + className + "\");");
     }
@@ -356,6 +361,11 @@ public class ClassMakerText extends PrintWriter implements ClassMakerIfc {
             //return null; 
             return findTypeOfValue(typeName);
         }
+    }
+    
+    @Override
+    public Type stringToType(String typeName) throws ClassMakerException {
+        return findType(typeName);
     }
     
      @Override

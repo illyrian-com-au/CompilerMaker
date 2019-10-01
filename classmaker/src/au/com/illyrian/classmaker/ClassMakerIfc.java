@@ -26,6 +26,13 @@ public interface ClassMakerIfc
     public void Import(String className) throws ClassMakerException;
 
     /**
+     * Imports the named class and creates a mapping for the short class name.
+     * @param javaClass the class to be imported
+     * @throws ClassMakerException if the class does not exist
+     */
+    public void Import(Class javaClass) throws ClassMakerException;
+
+    /**
      * Sets the name of the class being generated.
      * @param className the fully qualified name of the class
      * @throws ClassMakerException if it is too late to call this method
@@ -502,6 +509,8 @@ public interface ClassMakerIfc
     public MakerField Find(String name) throws ClassMakerException;
 
     public Type findType(String typeName) throws ClassMakerException;
+
+    public Type stringToType(String typeName) throws ClassMakerException;
 
     public MakerField findField(String name) throws ClassMakerException;
     

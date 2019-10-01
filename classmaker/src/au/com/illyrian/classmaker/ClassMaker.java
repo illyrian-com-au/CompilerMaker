@@ -1540,7 +1540,12 @@ public class ClassMaker implements ClassMakerIfc, SourceLine, ClassMakerConstant
         if (isFirstPass()) {
             return null;
         }
-        return methodCall(reference.getType(), methodName, actualParameters, false).getValue();
+        Type type = reference.getType();
+        Type result = methodCall(reference.getType(), methodName, actualParameters, false);
+        if (result == null) {
+            throw new NullPointerException();
+        }
+        return result.getValue();
     }
 
     /**

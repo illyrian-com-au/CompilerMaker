@@ -105,10 +105,20 @@ public class MethodResolver
 
         if (candidates.size() != 1)
         {
-            throw maker.createException("ClassMaker.CannotResolveMethodCall_1",
-                 MakerMethod.toMethodString(name, (Type[]) actualParameters.toArray(), null, 0));
+            throw maker.createException("ClassMaker.CannotResolveMethodCall_2",
+                 MakerMethod.toMethodString(name, (Type[]) actualParameters.toArray(), null, 0),
+                 createMethodsString(methods));
         }
         return candidates.firstElement();
+    }
+    
+    private String createMethodsString(MakerMethod [] candidates) {
+        StringBuilder buf = new StringBuilder();
+        for (MakerMethod method : candidates) {
+            buf.append('\n').append('\t');
+            buf.append(method.toString());
+        }
+        return buf.toString();
     }
 
     /**
